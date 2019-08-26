@@ -6,7 +6,7 @@
 #include "resource.h"
 
 #include "aboutdlg.h"
-#include "View.h"
+#include "AllObjectsView.h"
 #include "MainFrm.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
@@ -54,7 +54,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
-	m_ObjMgr.EnumObjects();
+	if (m_ObjMgr.EnumObjects() == STATUS_UNSUCCESSFUL) {
+		MessageBox(L"Object Explorer requires the option \"Maintain a list of objects for each type\""
+			L" to be set in the registry NT Global Flags. Use GFlags.exe to enable it and restart the system.",
+			L"Object Explorer", MB_ICONINFORMATION);
+		return -1;
+	}
 
 	return 0;
 }
@@ -76,9 +81,9 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 }
 
 LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	CView* pView = new CView;
+	auto pView = new CAllObjectsView;
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, 0);
-	m_view.AddPage(pView->m_hWnd, _T("Document"));
+	m_view.AddPage(pView->m_hWnd, L"All Objects");
 
 	// TODO: add code to initialize document
 

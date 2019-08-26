@@ -139,6 +139,7 @@
     <ClCompile Include="ObjExp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="KObjExp.h" />
     <ClInclude Include="ObjExp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,5 +1,7 @@
+#include <ntifs.h>
 #include <ntddk.h>
 #include "ObjExp.h"
+#include "KObjExp.h"
 
 DRIVER_UNLOAD ObjExpUnload;
 
@@ -30,6 +32,9 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING) {
 }
 
 void ObjExpUnload(PDRIVER_OBJECT DriverObject) {
+	UNICODE_STRING symName = RTL_CONSTANT_STRING(L"\\??\\KObjExp");
+	IoDeleteSymbolicLink(&symName);
+	NT_ASSERT_ASSUME(DriverObject);
 	IoDeleteDevice(DriverObject->DeviceObject);
 }
 
@@ -38,4 +43,37 @@ NTSTATUS ObjExpCreateClose(PDEVICE_OBJECT, PIRP Irp) {
 	Irp->IoStatus.Information = 0;
 	IoCompleteRequest(Irp, 0);
 	return STATUS_SUCCESS;
+}
+
+NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
+	auto& dic = IoGetCurrentIrpStackLocation(Irp)->Parameters.DeviceIoControl;
+	auto status = STATUS_INVALID_DEVICE_REQUEST;
+	ULONG len = 0;
+
+	switch (dic.IoControlCode) {
+		case IOCTL_KOBJEXP_OPEN_OBJECT:
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.InputBufferLength < sizeof(OpenObjectData)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+
+			auto data = (OpenObjectData*)Irp->AssociatedIrp.SystemBuffer;
+			HANDLE hObject;
+			status = ObOpenObjectByPointer(data->Address, 0, nullptr, data->Access,
+				nullptr, KernelMode, &hObject);
+			if (NT_SUCCESS(status)) {
+				*(HANDLE*)Irp->AssociatedIrp.SystemBuffer = hObject;
+				len = sizeof(HANDLE);
+			}
+			break;
+	}
+
+	Irp->IoStatus.Status = status;
+	Irp->IoStatus.Information = len;
+	IoCompleteRequest(Irp, 0);
+	return status;
 }

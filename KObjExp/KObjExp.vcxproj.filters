@@ -27,5 +27,8 @@
     <ClInclude Include="ObjExp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KObjExp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
