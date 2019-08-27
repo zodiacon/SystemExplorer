@@ -58,13 +58,15 @@ NTSTATUS ObjectManager::EnumObjects() {
 			ATLASSERT(((ULONG_PTR)pObject & 7) == 0);
 			auto object = std::make_shared<ObjectInfo>();
 			object->HandleCount = pObject->HandleCount;
+			object->PointerCount = pObject->PointerCount;
 			object->Object = pObject->Object;
-			object->CreatorUniqueProcess = HandleToULong(pObject->CreatorUniqueProcess);
+			object->CreatorProcess = HandleToULong(pObject->CreatorUniqueProcess);
 			object->ExclusiveProcessId = HandleToULong(pObject->ExclusiveProcessId);
 			object->Flags = pObject->Flags;
 			object->NonPagedPoolCharge = pObject->NonPagedPoolCharge;
 			object->PagedPoolCharge = pObject->PagedPoolCharge;
 			object->Name = CString(pObject->NameInfo.Buffer, pObject->NameInfo.Length / sizeof(WCHAR));
+			object->Type = type.get();
 
 			_allObjects.push_back(object);
 			type->Objects.push_back(object);
@@ -81,4 +83,43 @@ NTSTATUS ObjectManager::EnumObjects() {
 	}
 
 	return STATUS_SUCCESS;
+}
+
+const std::vector<std::shared_ptr<ObjectInfo>>& ObjectManager::GetAllObjects() const {
+	return _allObjects;
+}
+
+const std::vector<std::shared_ptr<ObjectTypeInfo>>& ObjectManager::GetAllTypeObjects() const {
+	return _allTypeObjects;
+}
+
+bool ObjectManager::EnumProcesses() {
+	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+	if (!hSnapshot)
+		return false;
+
+	PROCESSENTRY32 pe;
+	pe.dwSize = sizeof(pe);
+
+	if (!::Process32First(hSnapshot.get(), &pe))
+		return false;
+
+	_processesById.clear();
+	_processesById.reserve(256);
+
+	do {
+		ProcessInfo pi(pe.th32ProcessID, pe.szExeFile);
+		_processesById.emplace(pe.th32ProcessID, pi);
+	} while (::Process32Next(hSnapshot.get(), &pe));
+
+	return true;
+}
+
+const CString& ObjectManager::GetProcessNameById(DWORD id) const {
+	static CString empty;
+	auto it = _processesById.find(id);
+	return it == _processesById.end() ? empty : it->second.Name;
+}
+
+ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {
 }

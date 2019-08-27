@@ -21,14 +21,23 @@ BOOL CMainFrame::OnIdle() {
 	return FALSE;
 }
 
+bool CMainFrame::EnableGlobalFlag() {
+	WCHAR path[MAX_PATH];
+	DWORD size = MAX_PATH;
+	if (::QueryFullProcessImageName(::GetCurrentProcess(), 0, path, &size)) {
+		SHELLEXECUTEINFO shex = { sizeof(shex) };
+		shex.lpVerb = L"runas";
+		shex.lpFile = path;
+		shex.lpParameters = L"enablentflag";
+		return ShellExecuteEx(&shex);
+	}
+	return false;
+}
+
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-	// attach menu
 	m_CmdBar.AttachMenu(GetMenu());
-	// load command bar images
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
-	// remove old menu
 	SetMenu(nullptr);
 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
@@ -39,11 +48,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CreateSimpleStatusBar();
 
-	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr, 
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
+
+	CReBarCtrl(m_hWndToolBar).LockBands(TRUE);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -55,9 +67,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
 	if (m_ObjMgr.EnumObjects() == STATUS_UNSUCCESSFUL) {
-		MessageBox(L"Object Explorer requires the option \"Maintain a list of objects for each type\""
-			L" to be set in the registry NT Global Flags. Use GFlags.exe to enable it and restart the system.",
-			L"Object Explorer", MB_ICONINFORMATION);
+		int answer = MessageBox(L"Object Explorer requires the option \"Maintain a list of objects for each type\""
+			L" to be set in the Registry NT Global Flags. Enable now (requires elevation)?",
+			L"Object Explorer", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2);
+		if (answer == IDYES) {
+			if (!EnableGlobalFlag()) {
+				MessageBox(L"Failed.", L"Object Explorer", MB_ICONERROR);
+			}
+		}
 		return -1;
 	}
 
@@ -81,8 +98,9 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 }
 
 LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	auto pView = new CAllObjectsView;
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, 0);
+	auto pView = new CAllObjectsView(m_ObjMgr);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects");
 
 	// TODO: add code to initialize document

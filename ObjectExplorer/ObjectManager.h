@@ -2,9 +2,11 @@
 
 #define STATUS_UNSUCCESSFUL              ((NTSTATUS)0xC0000001L)
 
+struct ObjectTypeInfo;
+
 struct ObjectInfo {
 	PVOID Object;
-	DWORD CreatorUniqueProcess;
+	DWORD CreatorProcess;
 	USHORT CreatorBackTraceIndex;
 	USHORT Flags;
 	LONG PointerCount;
@@ -14,6 +16,7 @@ struct ObjectInfo {
 	DWORD ExclusiveProcessId;
 	PVOID SecurityDescriptor;
 	CString Name;
+	ObjectTypeInfo* Type;
 };
 
 enum class PoolType {
@@ -33,6 +36,13 @@ struct ObjectTypeInfo {
 	bool WaitableObject;
 };
 
+struct ProcessInfo {
+	ProcessInfo(DWORD id, PCWSTR name);
+
+	DWORD Id;
+	CString Name;
+};
+
 class ObjectManager {
 public:
 	NTSTATUS EnumObjects();
@@ -40,9 +50,12 @@ public:
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetAllObjects() const;
 	const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetAllTypeObjects() const;
 
+	bool EnumProcesses();
+	const CString& GetProcessNameById(DWORD id) const;
+
 private:
 	std::vector<std::shared_ptr<ObjectInfo>> _allObjects;
 	std::vector<std::shared_ptr<ObjectTypeInfo>> _allTypeObjects;
-
+	std::unordered_map<DWORD, ProcessInfo> _processesById;
 };
 

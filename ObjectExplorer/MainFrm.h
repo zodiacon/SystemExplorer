@@ -11,8 +11,7 @@
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CUpdateUI<CMainFrame>,
-	public CMessageFilter, public CIdleHandler
-{
+	public CMessageFilter, public CIdleHandler {
 public:
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
@@ -21,6 +20,8 @@ public:
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
+
+	static bool EnableGlobalFlag();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
@@ -40,6 +41,7 @@ public:
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -60,4 +62,5 @@ public:
 
 private:
 	ObjectManager m_ObjMgr;
+	CImageListManaged m_TabImages;
 };
