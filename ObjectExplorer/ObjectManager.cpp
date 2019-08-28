@@ -67,6 +67,7 @@ NTSTATUS ObjectManager::EnumObjects() {
 			object->PagedPoolCharge = pObject->PagedPoolCharge;
 			object->Name = CString(pObject->NameInfo.Buffer, pObject->NameInfo.Length / sizeof(WCHAR));
 			object->Type = type.get();
+			object->CreatorName = GetProcessNameById(object->CreatorProcess);
 
 			_allObjects.push_back(object);
 			type->Objects.push_back(object);

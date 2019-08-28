@@ -16,6 +16,7 @@ struct ObjectInfo {
 	DWORD ExclusiveProcessId;
 	PVOID SecurityDescriptor;
 	CString Name;
+	CString CreatorName;
 	ObjectTypeInfo* Type;
 };
 

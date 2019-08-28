@@ -4,15 +4,23 @@
 
 #include "stdafx.h"
 #include "resource.h"
-
+#include <algorithm>
 #include "AllObjectsView.h"
+#include "ClipboardHelper.h"
 
 CAllObjectsView::CAllObjectsView(ObjectManager& om) : m_ObjMgr(om) {
 }
 
 BOOL CAllObjectsView::PreTranslateMessage(MSG* pMsg) {
-	pMsg;
 	return FALSE;
+}
+
+void CAllObjectsView::DoSort(const SortInfo* si) {
+	std::sort(m_AllObjects.begin(), m_AllObjects.end(), [si](const auto& o1, const auto& o2) {
+		return CompareItems(*o1.get(), *o2.get(), si);
+		});
+
+	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
 }
 
 void CAllObjectsView::OnFinalMessage(HWND /*hWnd*/) {
@@ -21,6 +29,44 @@ void CAllObjectsView::OnFinalMessage(HWND /*hWnd*/) {
 
 std::shared_ptr<ObjectInfo>& CAllObjectsView::GetItem(int index) {
 	return m_AllObjects[index];
+}
+
+bool CAllObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si) {
+	switch (si->SortColumn) {
+		case 0:		// type
+			return SortStrings(o1.Type->Name, o2.Type->Name, si->SortAscending);
+
+		case 1:		// address
+			return SortNumbers(o1.Object, o2.Object, si->SortAscending);
+
+		case 2:		// name
+			return SortStrings(o1.Name, o2.Name, si->SortAscending);
+
+		case 3:		// creator PID
+			return SortNumbers(o1.CreatorProcess, o2.CreatorProcess, si->SortAscending);
+
+		case 4:		// creator name
+			return SortStrings(o1.CreatorName, o2.CreatorName, si->SortAscending);
+
+		case 5:		// handles
+			return SortNumbers(o1.HandleCount, o2.HandleCount, si->SortAscending);
+
+		case 6:		// pointers
+			return SortNumbers(o1.PointerCount, o2.PointerCount, si->SortAscending);
+
+		case 7:		// paged pool
+			return SortNumbers(o1.PagedPoolCharge, o2.PagedPoolCharge, si->SortAscending);
+
+		case 8:		// non-paged pool
+			return SortNumbers(o1.NonPagedPoolCharge, o2.NonPagedPoolCharge, si->SortAscending);
+	}
+
+	ATLASSERT(false);
+	return false;
+}
+
+LRESULT CAllObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
+	return 0;
 }
 
 LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
@@ -50,7 +96,16 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	Refresh();
 
+	//_Module.GetMessageLoop()->AddMessageFilter(this);
+
 	return 0;
+}
+
+LRESULT CAllObjectsView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
+	auto msg = (MSG*)lParam;
+	LRESULT result = 0;
+	handled = ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 2);
+	return result;
 }
 
 LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
@@ -78,7 +133,7 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				break;
 
 			case 4: // creator name
-				item.pszText = (PWSTR)(PCWSTR)m_ObjMgr.GetProcessNameById(data->CreatorProcess);
+				item.pszText = (PWSTR)(PCWSTR)data->CreatorName;
 				break;
 
 			case 5:	// handles

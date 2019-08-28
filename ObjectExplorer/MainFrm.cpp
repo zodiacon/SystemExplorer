@@ -10,10 +10,10 @@
 #include "MainFrm.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
-	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
+	if (m_view.PreTranslateMessage(pMsg))
 		return TRUE;
 
-	return m_view.PreTranslateMessage(pMsg);
+	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
 
 BOOL CMainFrame::OnIdle() {
@@ -101,9 +101,7 @@ LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	auto pView = new CAllObjectsView(m_ObjMgr);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Objects");
-
-	// TODO: add code to initialize document
+	m_view.AddPage(pView->m_hWnd, L"All Objects", -1, pView);
 
 	return 0;
 }
@@ -135,8 +133,10 @@ LRESULT CMainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT CMainFrame::OnWindowClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	int nActivePage = m_view.GetActivePage();
-	if (nActivePage != -1)
+	if (nActivePage != -1) {
 		m_view.RemovePage(nActivePage);
+		delete (CWindow*)m_view.GetPageData(nActivePage);
+	}
 	else
 		::MessageBeep((UINT)-1);
 

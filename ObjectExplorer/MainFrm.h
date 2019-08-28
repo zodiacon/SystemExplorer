@@ -21,6 +21,12 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
+	template<typename View = CWindow>
+	View* GetActiveView() {
+		auto n = m_view.GetActivePage();
+		return n < 0 ? nullptr : static_cast<View*>(m_view.GetPageData(n));
+	};
+
 	static bool EnableGlobalFlag();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
