@@ -19,14 +19,13 @@ NTSTATUS ObjectManager::EnumObjects() {
 		return status;
 	} while (true);
 
+	_allTypeObjects.clear();
 	bool first = _allTypeObjects.empty();
 	if (first) {
 		_allTypeObjects.reserve(64);
 		_allObjects.reserve(1 << 17);
 	}
-	else {
-		_allObjects.clear();
-	}
+	_allObjects.clear();
 
 	auto p = (SYSTEM_OBJECTTYPE_INFORMATION*)buffer.get();
 	int itype = 0;
@@ -61,7 +60,7 @@ NTSTATUS ObjectManager::EnumObjects() {
 			object->PointerCount = pObject->PointerCount;
 			object->Object = pObject->Object;
 			object->CreatorProcess = HandleToULong(pObject->CreatorUniqueProcess);
-			object->ExclusiveProcessId = HandleToULong(pObject->ExclusiveProcessId);
+			//object->ExclusiveProcessId = HandleToULong(pObject->ExclusiveProcessId);
 			object->Flags = pObject->Flags;
 			object->NonPagedPoolCharge = pObject->NonPagedPoolCharge;
 			object->PagedPoolCharge = pObject->PagedPoolCharge;

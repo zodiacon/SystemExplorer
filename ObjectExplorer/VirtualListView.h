@@ -84,8 +84,10 @@ protected:
 		return si ? si->SortAscending : false;
 	}
 
-	const SortInfo* GetSortInfo(UINT_PTR id) const {
-		return FindById(id);
+	SortInfo* GetSortInfo(UINT_PTR id = 0) {
+		if (id == 0 && m_Controls.empty())
+			return nullptr;
+		return id == 0 ? &m_Controls[0] : FindById(id);
 	}
 
 	static bool SortStrings(const CString& s1, const CString& s2, bool ascending) {

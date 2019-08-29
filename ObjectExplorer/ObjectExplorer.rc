@@ -98,6 +98,10 @@ BEGIN
     BEGIN
         MENUITEM "&About Object Explorer...",   ID_APP_ABOUT
     END
+    POPUP "&Search"
+    BEGIN
+        MENUITEM "&Find...",                    ID_SEARCH_FIND
+    END
 END
 
 

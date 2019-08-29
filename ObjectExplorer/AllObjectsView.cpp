@@ -8,6 +8,8 @@
 #include "AllObjectsView.h"
 #include "ClipboardHelper.h"
 
+int CAllObjectsView::ColumnCount;
+
 CAllObjectsView::CAllObjectsView(ObjectManager& om) : m_ObjMgr(om) {
 }
 
@@ -65,19 +67,34 @@ bool CAllObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, c
 	return false;
 }
 
+ULONG CAllObjectsView::GetTrueRefCount(void* pObject) {
+	return ULONG_MAX;
+}
+
+LRESULT CAllObjectsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+	if (id == 1) {
+		Refresh();
+		auto si = GetSortInfo();
+		if(si && si->SortColumn >= 0)
+			DoSort(si);
+		RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+	}
+	return 0;
+}
+
 LRESULT CAllObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
 	auto selected = GetSelectedIndex();
 	if (selected < 0)
 		return 0;
 
 	CString text;
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < ColumnCount; i++) {
 		CString temp;
 		GetItemText(selected, i, temp);
-		text += temp + ",";
+		text += temp + ", ";
 	}
 
-	ClipboardHelper::CopyText(*this, text.Left(text.GetLength() - 1));
+	ClipboardHelper::CopyText(*this, text.Left(text.GetLength() - 2));
 
 	return 0;
 }
@@ -101,23 +118,31 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Pointers", 100, LVCFMT_RIGHT },
 		{ L"Paged Pool", 100, LVCFMT_RIGHT },
 		{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
+		{ L"True Ref", 100, LVCFMT_RIGHT },
 	};
+
+	m_IsWindows81OrLater = ::IsWindows8Point1OrGreater();
+
+	ColumnCount = _countof(columns);
 
 	int i = 0;
 	for(auto& c : columns)
 		InsertColumn(i++, c.Header, c.Format, c.Width);
 
 	Refresh();
+	SetTimer(1, 1000, nullptr);
 
-	//_Module.GetMessageLoop()->AddMessageFilter(this);
+	return 0;
+}
 
+LRESULT CAllObjectsView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
 LRESULT CAllObjectsView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
 	auto msg = (MSG*)lParam;
 	LRESULT result = 0;
-	handled = ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 2);
+	//handled = ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 2);
 	return result;
 }
 
@@ -150,20 +175,29 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				break;
 
 			case 5:	// handles
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->HandleCount);
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->HandleCount);
 				break;
 
 			case 6:	// pointers
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->PointerCount);
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->PointerCount);
 				break;
 
 			case 7:	// paged pool
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->PagedPoolCharge);
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->PagedPoolCharge);
 				break;
 
 			case 8:	// non-paged pool
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->NonPagedPoolCharge);
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->NonPagedPoolCharge);
 				break;
+
+			case 9:
+				ULONG value = data->PointerCount;
+				if (m_IsWindows81OrLater)
+					value = GetTrueRefCount(data->Object);
+				if(value != ULONG_MAX)
+					::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", value);
+				break;
+
 		}
 	}
 	return 0;

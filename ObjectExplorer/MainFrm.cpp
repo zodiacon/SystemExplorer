@@ -10,10 +10,10 @@
 #include "MainFrm.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
-	if (m_view.PreTranslateMessage(pMsg))
+	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
 		return TRUE;
 
-	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
+	return m_view.PreTranslateMessage(pMsg);
 }
 
 BOOL CMainFrame::OnIdle() {
@@ -102,6 +102,14 @@ LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", -1, pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnForwardMsg(WORD, WORD, HWND, BOOL& handled) {
+	auto h = m_view.GetPageHWND(m_view.GetActivePage());
+	auto msg = GetCurrentMessage();
+	::SendMessage(h, msg->message, msg->wParam, msg->lParam);
 
 	return 0;
 }
