@@ -66,6 +66,19 @@ bool CAllObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, c
 }
 
 LRESULT CAllObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
+	auto selected = GetSelectedIndex();
+	if (selected < 0)
+		return 0;
+
+	CString text;
+	for (int i = 0; i < 9; i++) {
+		CString temp;
+		GetItemText(selected, i, temp);
+		text += temp + ",";
+	}
+
+	ClipboardHelper::CopyText(*this, text.Left(text.GetLength() - 1));
+
 	return 0;
 }
 
