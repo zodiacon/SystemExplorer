@@ -63,12 +63,17 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 
 			auto data = (OpenObjectData*)Irp->AssociatedIrp.SystemBuffer;
 			HANDLE hObject;
+			status = ObReferenceObjectByPointer(data->Address, data->Access, nullptr, KernelMode);
+			if (!NT_SUCCESS(status))
+				break;
+
 			status = ObOpenObjectByPointer(data->Address, 0, nullptr, data->Access,
 				nullptr, KernelMode, &hObject);
 			if (NT_SUCCESS(status)) {
 				*(HANDLE*)Irp->AssociatedIrp.SystemBuffer = hObject;
 				len = sizeof(HANDLE);
 			}
+			ObDereferenceObject(data->Address);
 			break;
 	}
 

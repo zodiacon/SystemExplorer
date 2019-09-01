@@ -14,7 +14,7 @@ class CAllObjectsView :
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	CAllObjectsView(ObjectManager& om);
+	CAllObjectsView(ObjectManager& om, CUpdateUIBase* pUpdateUI);
 
 	void Refresh();
 
@@ -55,5 +55,6 @@ private:
 	static int ColumnCount;
 	ObjectManager& m_ObjMgr;
 	std::vector<std::shared_ptr<ObjectInfo>> m_AllObjects;
+	CUpdateUIBase* m_pUpdateUI;
 	bool m_IsWindows81OrLater;
 };

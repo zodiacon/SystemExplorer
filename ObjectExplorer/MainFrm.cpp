@@ -98,7 +98,7 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 }
 
 LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	auto pView = new CAllObjectsView(m_ObjMgr);
+	auto pView = new CAllObjectsView(m_ObjMgr, this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", -1, pView);
@@ -108,6 +108,7 @@ LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT CMainFrame::OnForwardMsg(WORD, WORD, HWND, BOOL& handled) {
 	auto h = m_view.GetPageHWND(m_view.GetActivePage());
+	if (!h) return 0;
 	auto msg = GetCurrentMessage();
 	::SendMessage(h, msg->message, msg->wParam, msg->lParam);
 

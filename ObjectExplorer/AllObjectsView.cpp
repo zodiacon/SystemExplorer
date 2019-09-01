@@ -5,12 +5,13 @@
 #include "stdafx.h"
 #include "resource.h"
 #include <algorithm>
+#include <execution>
 #include "AllObjectsView.h"
 #include "ClipboardHelper.h"
 
 int CAllObjectsView::ColumnCount;
 
-CAllObjectsView::CAllObjectsView(ObjectManager& om) : m_ObjMgr(om) {
+CAllObjectsView::CAllObjectsView(ObjectManager& om, CUpdateUIBase* pUpdateUI) : m_ObjMgr(om), m_pUpdateUI(pUpdateUI) {
 }
 
 BOOL CAllObjectsView::PreTranslateMessage(MSG* pMsg) {
@@ -18,7 +19,7 @@ BOOL CAllObjectsView::PreTranslateMessage(MSG* pMsg) {
 }
 
 void CAllObjectsView::DoSort(const SortInfo* si) {
-	std::sort(m_AllObjects.begin(), m_AllObjects.end(), [si](const auto& o1, const auto& o2) {
+	std::sort(std::execution::par, m_AllObjects.begin(), m_AllObjects.end(), [si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
 
@@ -130,7 +131,7 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		InsertColumn(i++, c.Header, c.Format, c.Width);
 
 	Refresh();
-	SetTimer(1, 1000, nullptr);
+	SetTimer(1, 2000, nullptr);
 
 	return 0;
 }
