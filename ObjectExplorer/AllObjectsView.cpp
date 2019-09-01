@@ -19,7 +19,7 @@ BOOL CAllObjectsView::PreTranslateMessage(MSG* pMsg) {
 }
 
 void CAllObjectsView::DoSort(const SortInfo* si) {
-	std::sort(std::execution::par, m_AllObjects.begin(), m_AllObjects.end(), [si](const auto& o1, const auto& o2) {
+	std::sort(std::execution::par, m_AllObjects.begin(), m_AllObjects.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
 
@@ -30,14 +30,14 @@ void CAllObjectsView::OnFinalMessage(HWND /*hWnd*/) {
 	delete this;
 }
 
-std::shared_ptr<ObjectInfo>& CAllObjectsView::GetItem(int index) {
+std::shared_ptr<ObjectInfoEx>& CAllObjectsView::GetItem(int index) {
 	return m_AllObjects[index];
 }
 
-bool CAllObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si) {
+bool CAllObjectsView::CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
-			return SortStrings(o1.Type->Name, o2.Type->Name, si->SortAscending);
+			return SortStrings(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
 
 		case 1:		// address
 			return SortNumbers(o1.Object, o2.Object, si->SortAscending);
@@ -45,23 +45,9 @@ bool CAllObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, c
 		case 2:		// name
 			return SortStrings(o1.Name, o2.Name, si->SortAscending);
 
-		case 3:		// creator PID
-			return SortNumbers(o1.CreatorProcess, o2.CreatorProcess, si->SortAscending);
-
-		case 4:		// creator name
-			return SortStrings(o1.CreatorName, o2.CreatorName, si->SortAscending);
-
-		case 5:		// handles
+		case 3:		// handles
 			return SortNumbers(o1.HandleCount, o2.HandleCount, si->SortAscending);
 
-		case 6:		// pointers
-			return SortNumbers(o1.PointerCount, o2.PointerCount, si->SortAscending);
-
-		case 7:		// paged pool
-			return SortNumbers(o1.PagedPoolCharge, o2.PagedPoolCharge, si->SortAscending);
-
-		case 8:		// non-paged pool
-			return SortNumbers(o1.NonPagedPoolCharge, o2.NonPagedPoolCharge, si->SortAscending);
 	}
 
 	ATLASSERT(false);
@@ -113,16 +99,11 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Type", 130 },
 		{ L"Address", 140, LVCFMT_RIGHT },
 		{ L"Name", 300 },
-		{ L"Creator PID", 100, LVCFMT_RIGHT },
-		{ L"Creator Name", 150 },
 		{ L"Handles", 100, LVCFMT_RIGHT },
-		{ L"Pointers", 100, LVCFMT_RIGHT },
-		{ L"Paged Pool", 100, LVCFMT_RIGHT },
-		{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
-		{ L"True Ref", 100, LVCFMT_RIGHT },
+		//{ L"Paged Pool", 100, LVCFMT_RIGHT },
+		//{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
+//		{ L"True Ref", 100, LVCFMT_RIGHT },
 	};
-
-	m_IsWindows81OrLater = ::IsWindows8Point1OrGreater();
 
 	ColumnCount = _countof(columns);
 
@@ -131,7 +112,7 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		InsertColumn(i++, c.Header, c.Format, c.Width);
 
 	Refresh();
-	SetTimer(1, 2000, nullptr);
+	//SetTimer(1, 2000, nullptr);
 
 	return 0;
 }
@@ -155,7 +136,7 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	if (item.mask & LVIF_TEXT) {
 		switch (item.iSubItem) {
 			case 0:	// type
-				item.pszText = (PWSTR)(PCWSTR)data->Type->Name;
+				item.pszText = (PWSTR)(PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName;
 				break;
 
 			case 1:	// address
@@ -166,37 +147,8 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				item.pszText = (PWSTR)(PCWSTR)data->Name;
 				break;
 
-			case 3:	// creator PID
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", 
-					data->CreatorProcess, data->CreatorProcess);
-				break;
-
-			case 4: // creator name
-				item.pszText = (PWSTR)(PCWSTR)data->CreatorName;
-				break;
-
-			case 5:	// handles
+			case 3:	// handles
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->HandleCount);
-				break;
-
-			case 6:	// pointers
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->PointerCount);
-				break;
-
-			case 7:	// paged pool
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->PagedPoolCharge);
-				break;
-
-			case 8:	// non-paged pool
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->NonPagedPoolCharge);
-				break;
-
-			case 9:
-				ULONG value = data->PointerCount;
-				if (m_IsWindows81OrLater)
-					value = GetTrueRefCount(data->Object);
-				if(value != ULONG_MAX)
-					::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", value);
 				break;
 
 		}
@@ -206,7 +158,7 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 
 void CAllObjectsView::Refresh() {
 	m_ObjMgr.EnumProcesses();
-	m_ObjMgr.EnumObjects();
-	m_AllObjects = m_ObjMgr.GetAllObjects();
+	m_ObjMgr.EnumHandlesAndObjects();
+	m_AllObjects = m_ObjMgr.GetObjects();
 	SetItemCountEx(static_cast<int>(m_AllObjects.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 }

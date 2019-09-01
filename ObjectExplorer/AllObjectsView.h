@@ -39,8 +39,8 @@ public:
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 private:
-	std::shared_ptr<ObjectInfo>& GetItem(int index);
-	static bool CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si);
+	std::shared_ptr<ObjectInfoEx>& GetItem(int index);
+	bool CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, const SortInfo* si);
 	ULONG GetTrueRefCount(void* pObject);
 
 private:
@@ -54,7 +54,6 @@ private:
 private:
 	static int ColumnCount;
 	ObjectManager& m_ObjMgr;
-	std::vector<std::shared_ptr<ObjectInfo>> m_AllObjects;
+	std::vector<std::shared_ptr<ObjectInfoEx>> m_AllObjects;
 	CUpdateUIBase* m_pUpdateUI;
-	bool m_IsWindows81OrLater;
 };

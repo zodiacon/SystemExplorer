@@ -27,6 +27,7 @@ extern CAppModule _Module;
 #include <wil\resource.h>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 #include <TlHelp32.h>
 
 #if defined _M_IX86

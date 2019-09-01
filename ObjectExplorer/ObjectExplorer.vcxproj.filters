@@ -36,6 +36,15 @@
     <ClCompile Include="ClipboardHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DriverHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SecurityHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -65,6 +74,15 @@
     <ClInclude Include="ClipboardHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DriverHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SecurityHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ObjectExplorer.rc">
@@ -81,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\x64\Release\KObjExp.sys" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />

@@ -215,9 +215,12 @@
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
+    <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="ProcessHelper.cpp" />
+    <ClCompile Include="SecurityHelper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -229,10 +232,13 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
+    <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="ProcessHelper.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SecurityHelper.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="AllObjectsView.h" />
     <ClInclude Include="VirtualListView.h" />
@@ -245,6 +251,7 @@
     <Image Include="res\toolbar.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\x64\Release\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

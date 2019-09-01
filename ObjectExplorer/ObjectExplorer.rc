@@ -317,3 +317,25 @@ END
 /////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////
+// English (United Kingdom) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// BIN
+//
+
+#ifdef _DEBUG
+IDR_DRIVER              BIN                     "C:\\Dev\\ObjectExplorer\\x64\\Debug\\KObjExp.sys"
+#else
+IDR_DRIVER              BIN                     "C:\\Dev\\ObjectExplorer\\x64\\Release\\KObjExp.sys"
+#endif
+
+#endif    // English (United Kingdom) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
