@@ -104,14 +104,21 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 			CLIENT_ID pid{};
 			pid.UniqueProcess = UlongToHandle(data->SourcePid);
 			status = ZwOpenProcess(&hProcess, PROCESS_DUP_HANDLE, &procAttributes, &pid);
-			if (!NT_SUCCESS(status))
+			if (!NT_SUCCESS(status)) {
+				KdPrint(("Failed to open process %d (0x%08X)\n", data->SourcePid, status));
 				break;
+			}
 
+			HANDLE hTarget;
 			status = ZwDuplicateObject(hProcess, ULongToHandle(data->Handle), NtCurrentProcess(),
-				(PHANDLE)Irp->AssociatedIrp.SystemBuffer, data->AccessMask, 0, 0);
+				&hTarget, data->AccessMask, 0, DUPLICATE_SAME_ACCESS);
 			ZwClose(hProcess);
-			if (!NT_SUCCESS(status))
+			if (!NT_SUCCESS(status)) {
+				KdPrint(("Failed to duplicate handle (0x%8X)\n", status));
 				break;
+			}
+
+			*(HANDLE*)Irp->AssociatedIrp.SystemBuffer = hTarget;
 			len = sizeof(HANDLE);
 			break;
 	}

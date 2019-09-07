@@ -247,8 +247,27 @@
     <ResourceCompile Include="ObjectExplorer.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\briefcase.ico" />
+    <Image Include="res\desktop.ico" />
+    <Image Include="res\device.ico" />
+    <Image Include="res\directory.ico" />
+    <Image Include="res\event.ico" />
+    <Image Include="res\file.ico" />
+    <Image Include="res\generic.ico" />
+    <Image Include="res\key.ico" />
+    <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
+    <Image Include="res\port.ico" />
+    <Image Include="res\process.ico" />
+    <Image Include="res\section.ico" />
+    <Image Include="res\semaphore.ico" />
+    <Image Include="res\symboliclink.ico" />
+    <Image Include="res\thread.ico" />
+    <Image Include="res\timer.ico" />
+    <Image Include="res\token.ico" />
     <Image Include="res\toolbar.bmp" />
+    <Image Include="res\Waiting.ico" />
+    <Image Include="res\windowstation.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\x64\Release\KObjExp.sys" />

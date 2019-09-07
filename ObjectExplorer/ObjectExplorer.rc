@@ -89,6 +89,10 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END
+    POPUP "&Search"
+    BEGIN
+        MENUITEM "&Find...",                    ID_SEARCH_FIND
+    END
     POPUP "&Window"
     BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
@@ -97,10 +101,6 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&About Object Explorer...",   ID_APP_ABOUT
-    END
-    POPUP "&Search"
-    BEGIN
-        MENUITEM "&Find...",                    ID_SEARCH_FIND
     END
 END
 
@@ -113,6 +113,44 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\ObjectExplorer.ico"
+
+IDI_JOB                 ICON                    "res\\briefcase.ico"
+
+IDI_DESKTOP             ICON                    "res\\desktop.ico"
+
+IDI_DEVICE              ICON                    "res\\device.ico"
+
+IDI_DIRECTORY           ICON                    "res\\directory.ico"
+
+IDI_EVENT               ICON                    "res\\event.ico"
+
+IDI_FILE                ICON                    "res\\file.ico"
+
+IDI_GENERIC             ICON                    "res\\generic.ico"
+
+IDI_KEY                 ICON                    "res\\key.ico"
+
+IDI_MUTEX               ICON                    "res\\mutex.ico"
+
+IDI_PORT                ICON                    "res\\port.ico"
+
+IDI_PROCESS             ICON                    "res\\process.ico"
+
+IDI_SECTION             ICON                    "res\\section.ico"
+
+IDI_SEMAPHORE           ICON                    "res\\semaphore.ico"
+
+IDI_SYMLINK             ICON                    "res\\symboliclink.ico"
+
+IDI_THREAD              ICON                    "res\\thread.ico"
+
+IDI_TIMER               ICON                    "res\\timer.ico"
+
+IDI_TOKEN               ICON                    "res\\token.ico"
+
+IDI_PAUSE               ICON                    "res\\Waiting.ico"
+
+IDI_WINSTATION          ICON                    "res\\windowstation.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -329,11 +367,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 // BIN
 //
 
-#ifdef _DEBUG
-IDR_DRIVER              BIN                     "C:\\Dev\\ObjectExplorer\\x64\\Debug\\KObjExp.sys"
-#else
 IDR_DRIVER              BIN                     "C:\\Dev\\ObjectExplorer\\x64\\Release\\KObjExp.sys"
-#endif
 
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////

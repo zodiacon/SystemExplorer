@@ -121,6 +121,7 @@ int ObjectManager::EnumTypes() {
 			type->DefaultPagedPoolCharge = raw->DefaultPagedPoolCharge;
 			type->ValidAccessMask = raw->ValidAccessMask;
 			type->InvalidAttributes = raw->InvalidAttributes;
+			UpdateKnownTypes(type->TypeName, type->TypeIndex);
 		}
 		else {
 			if (type->TotalNumberOfHandles != raw->TotalNumberOfHandles)
@@ -157,9 +158,8 @@ int ObjectManager::EnumTypes() {
 }
 
 bool ObjectManager::EnumHandlesAndObjects() {
-	auto now = ::GetTickCount();
-
 	EnumTypes();
+	EnumProcesses();
 
 	ULONG len = 1 << 25;
 	std::unique_ptr<BYTE[]> buffer;
@@ -194,14 +194,13 @@ bool ObjectManager::EnumHandlesAndObjects() {
 		hi->HandleAttributes = handle.HandleAttributes;
 		hi->ProcessId = (ULONG)handle.UniqueProcessId;
 		hi->ObjectTypeIndex = handle.ObjectTypeIndex;
-
 		if (auto it = _objectsByAddress.find(handle.Object); it == _objectsByAddress.end()) {
 			auto obj = std::make_shared<ObjectInfoEx>();
 			obj->HandleCount = 1;
 			obj->Object = handle.Object;
 			obj->Handles.push_back(hi);
 			obj->TypeIndex = handle.ObjectTypeIndex;
-			obj->Name = GetObjectName((HANDLE)handle.HandleValue, (ULONG)handle.UniqueProcessId, handle.ObjectTypeIndex);
+			GetObjectInfo(obj.get(), (HANDLE)handle.HandleValue, (ULONG)handle.UniqueProcessId, handle.ObjectTypeIndex);
 
 			_objects.push_back(obj);
 			_objectsByAddress.insert({ handle.Object, obj });
@@ -214,9 +213,6 @@ bool ObjectManager::EnumHandlesAndObjects() {
 
 		_handles.push_back(hi);
 	}
-	CString msg;
-	msg.Format(L"time: %d\n", ::GetTickCount() - now);
-	OutputDebugString(msg);
 
 	return true;
 }
@@ -261,21 +257,89 @@ const CString& ObjectManager::GetProcessNameById(DWORD id) const {
 	return it == _processesById.end() ? empty : it->second.Name;
 }
 
-CString ObjectManager::GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const {
-	auto hDup = DriverHelper::DupHandle(hObject, pid, _typesMap.at(type)->ValidAccessMask);
-	if (hDup) {
-		BYTE buffer[2048];
-		if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectNameInformation, buffer, sizeof(buffer), nullptr))) {
-			auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
-			return CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
-		}
-		::CloseHandle(hDup);
+HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) const {
+	for (auto& h : pObject->Handles) {
+		auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, access);
+		//_typesMap.at(h->ObjectTypeIndex)->ValidAccessMask);
+		if (hDup)
+			return hDup;
 	}
-	return L"";
+	return nullptr;
+	//return DriverHelper::OpenHandle(pObject->Handles[0]->Object, 0);
+}
+
+bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid, USHORT type) const {
+	auto hDup = DupHandle(info);
+	if (hDup) {
+		info->LocalHandle.reset(hDup);
+
+		do {
+			//NT::OBJECT_BASIC_INFORMATION bi;
+			//if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectBasicInformation, &bi, sizeof(bi), nullptr))) {
+			//	info->PointerCount = bi.PointerCount;
+			//}
+
+			if (type == _processTypeIndex || type == _threadTypeIndex)
+				break;
+
+			BYTE buffer[2048];
+			if (type == 37) {
+				// special case for files in case they're locked
+				struct Data {
+					HANDLE hDup;
+					BYTE* buffer;
+				} data = { hDup, buffer };
+
+				wil::unique_handle hThread(::CreateThread(nullptr, 0, [](auto p) {
+					auto d = (Data*)p;
+					return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
+					}, &data, 0, nullptr));
+				if (::WaitForSingleObject(hThread.get(), 10) == WAIT_TIMEOUT) {
+					::TerminateThread(hThread.get(), 1);
+				}
+				else {
+					auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
+					info->Name = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
+				}
+			}
+			else if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectNameInformation, buffer, sizeof(buffer), nullptr))) {
+				auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
+				info->Name = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
+			}
+		} while (false);
+		return true;
+	}
+	return false;
 }
 
 std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) const {
 	return _typesMap.at(index);
+}
+
+void ObjectManager::UpdateKnownTypes(const CString & name, int index) {
+	struct Type {
+		PCWSTR Name;
+		int* Index;
+	};
+
+	static std::vector<Type> types{
+		{ L"Process", &_processTypeIndex },
+		{ L"Thread", &_threadTypeIndex },
+		{ L"Mutant", &_mutexTypeIndex },
+		{ L"Event", &_eventTypeIndex },
+		{ L"Job", &_jobTypeIndex },
+		{ L"SymbolicLink", &_symLinkTypeIndex },
+		{ L"Directory", &_dirTypeIndex},
+		{ L"Section", &_sectionTypeIndex },
+		{ L"Key", &_keyTypeIndex },
+	};
+
+	for (size_t i = 0; i < types.size(); i++)
+		if (name == types[i].Name) {
+			*types[i].Index = index;
+			types.erase(types.begin() + i);
+			return;
+		}
 }
 
 ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {

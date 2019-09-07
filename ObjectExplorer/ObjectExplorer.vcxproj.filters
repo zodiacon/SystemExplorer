@@ -13,6 +13,9 @@
       <UniqueIdentifier>{240d3b04-04d7-456f-b696-796f3752eb45}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest</Extensions>
     </Filter>
+    <Filter Include="Icons">
+      <UniqueIdentifier>{d8c25a4b-b9fa-46d6-81cc-2d18b9faa2c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -90,11 +93,68 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\toolbar.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="res\briefcase.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\desktop.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\device.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\directory.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\event.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\file.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\generic.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\key.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\mutex.ico">
+      <Filter>Icons</Filter>
     </Image>
     <Image Include="res\ObjectExplorer.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\port.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\process.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\section.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\semaphore.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\symboliclink.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\thread.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\timer.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\token.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\toolbar.bmp">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\Waiting.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="res\windowstation.ico">
+      <Filter>Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

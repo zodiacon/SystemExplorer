@@ -66,8 +66,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
-	m_ObjMgr.EnumHandlesAndObjects();
-
 	//if (m_ObjMgr.EnumObjects() == STATUS_UNSUCCESSFUL) {
 	//	int answer = MessageBox(L"Object Explorer requires the option \"Maintain a list of objects for each type\""
 	//		L" to be set in the Registry NT Global Flags. Enable now (requires elevation)?",

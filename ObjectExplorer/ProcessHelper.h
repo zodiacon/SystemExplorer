@@ -3,5 +3,6 @@
 struct ProcessHelper final {
 	static CString GetFullProcessName(DWORD pid);
 	static CString GetProcessName(DWORD pid);
+	static CString GetProcessName(HANDLE hProcess);
 };
 

@@ -8,6 +8,8 @@
 #include <execution>
 #include "AllObjectsView.h"
 #include "ClipboardHelper.h"
+#include "ProcessHelper.h"
+#include "NtDll.h"
 
 int CAllObjectsView::ColumnCount;
 
@@ -54,8 +56,117 @@ bool CAllObjectsView::CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o
 	return false;
 }
 
-ULONG CAllObjectsView::GetTrueRefCount(void* pObject) {
-	return ULONG_MAX;
+CString CAllObjectsView::GetObjectDetails(ObjectInfoEx * info) const {
+	auto h = info->LocalHandle.get();//m_ObjMgr.DupHandle(info);
+	if (!h)
+		return L"";
+
+	if (info->TypeIndex == m_ObjMgr.GetProcessTypeIndex())
+		return GetProcessObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetThreadTypeIndex())
+		return GetThreadObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetEventTypeIndex())
+		return GetEventObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetMutexTypeIndex())
+		return GetMutexObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetSymbolicLinkTypeIndex())
+		return GetSymLinkObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetSectionTypeIndex())
+		return GetSectionObjectDetails(h);
+	if (info->TypeIndex == m_ObjMgr.GetKeyTypeIndex())
+		return GetKeyObjectDetails(h);
+
+	return L"";
+}
+
+CString CAllObjectsView::GetProcessObjectDetails(HANDLE hProcess) const {
+	CString details;
+	auto pid = ::GetProcessId(hProcess);
+	auto name = ProcessHelper::GetProcessName(hProcess);
+	if (name.IsEmpty())
+		name = m_ObjMgr.GetProcessNameById(pid);
+	FILETIME create, exit{}, dummy;
+	if (::GetProcessTimes(hProcess, &create, &exit, &dummy, &dummy)) {
+		details.Format(L"PID: %d (%s) Created: %s Exited: %s", pid, name,
+			CTime(create).Format(L"%D %X"),
+			exit.dwHighDateTime + exit.dwLowDateTime == 0 ? L"(running)" : CTime(exit).Format(L"%D %X"));
+	}
+	else {
+		details.Format(L"PID: %d (%s)", pid, name);
+	}
+	return details;
+}
+
+CString CAllObjectsView::GetThreadObjectDetails(HANDLE hThread) const {
+	CString details;
+	auto tid = ::GetThreadId(hThread);
+	if (tid == 0)
+		return details;
+
+	auto pid = ::GetProcessIdOfThread(hThread);
+	FILETIME created{}, exited{}, kernel{}, user{};
+	ATLVERIFY(::GetThreadTimes(hThread, &created, &exited, &kernel, &user));
+	details.Format(L"TID: %d, PID: %d (%s) Created: %s, Exited: %s, CPU Time: %s",
+		tid, pid, m_ObjMgr.GetProcessNameById(pid),
+		CTime(created).Format(L"%D %X"), 
+		exited.dwHighDateTime + exited.dwLowDateTime == 0 ? L"(running)" : CTime(exited).Format(L"%D %X"),
+		CTimeSpan((*(int64_t*)&kernel + *(int64_t*)&user) / 10000000).Format(L"%D:%H:%M:%S"));
+
+	return details;
+}
+
+CString CAllObjectsView::GetEventObjectDetails(HANDLE hEvent) const {
+	NT::EVENT_BASIC_INFORMATION info;
+	CString details;
+	if (NT_SUCCESS(NT::NtQueryEvent(hEvent, NT::EventBasicInformation, &info, sizeof(info), nullptr))) {
+		details.Format(L"Type: %s, Signaled: %s", info.EventType == NT::SynchronizationEvent ? L"Synchronization" : L"Notification",
+			info.EventState ? L"True" : L"False");
+	}
+
+	return details;
+}
+
+CString CAllObjectsView::GetMutexObjectDetails(HANDLE hMutex) const {
+	NT::MUTANT_BASIC_INFORMATION info;
+	NT::MUTANT_OWNER_INFORMATION owner;
+	CString details;
+	if (NT_SUCCESS(NT::NtQueryMutant(hMutex, NT::MutantBasicInformation, &info, sizeof(info), nullptr))
+		&& NT_SUCCESS(NT::NtQueryMutant(hMutex, NT::MutantOwnerInformation, &owner, sizeof(owner), nullptr))) {
+		details.Format(L"Owner TID: %d, Count: %d, Abandoned: %s", 
+			HandleToULong(owner.ClientId.UniqueThread),
+			info.CurrentCount, info.AbandonedState ? L"True" : L"False");
+	}
+	return details;
+}
+
+CString CAllObjectsView::GetSectionObjectDetails(HANDLE hSection) const {
+	CString details;
+	NT::SECTION_BASIC_INFORMATION bi;
+	if (NT_SUCCESS(NT::NtQuerySection(hSection, NT::SectionBasicInformation, &bi, sizeof(bi), nullptr))) {
+		details.Format(L"Size: %d KiB, Attributes: 0x%X", 
+			bi.MaximumSize.QuadPart >> 10, bi.AllocationAttributes);
+	}
+	return details;
+}
+
+CString CAllObjectsView::GetSymLinkObjectDetails(HANDLE hLink) const {
+	WCHAR buffer[1024];
+	UNICODE_STRING str;
+	str.MaximumLength = sizeof(buffer);
+	str.Buffer = buffer;
+	if(NT_SUCCESS(NT::NtQuerySymbolicLinkObject(hLink, &str, nullptr)))
+		return CString(buffer, str.Length / sizeof(WCHAR));
+	return L"";
+}
+
+CString CAllObjectsView::GetKeyObjectDetails(HANDLE hKey) const {
+	CString details;
+	BYTE buffer[1 << 12];
+	if (NT_SUCCESS(NT::NtQueryKey(hKey, NT::KeyBasicInformation, buffer, sizeof(buffer), nullptr))) {
+		auto info = (NT::KEY_BASIC_INFORMATION*)buffer;
+		details.Format(L"%s, LastWrite: %s", info->Name, CTime(*(FILETIME*)info->LastWriteTime.QuadPart).Format(L"%D %X"));
+	}
+	return details;
 }
 
 LRESULT CAllObjectsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
@@ -89,7 +200,7 @@ LRESULT CAllObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
 LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 
 	struct {
 		PCWSTR Header;
@@ -100,7 +211,7 @@ LRESULT CAllObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Address", 140, LVCFMT_RIGHT },
 		{ L"Name", 300 },
 		{ L"Handles", 100, LVCFMT_RIGHT },
-		//{ L"Paged Pool", 100, LVCFMT_RIGHT },
+		{ L"Details", 500 },
 		//{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
 //		{ L"True Ref", 100, LVCFMT_RIGHT },
 	};
@@ -150,6 +261,9 @@ LRESULT CAllObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 			case 3:	// handles
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->HandleCount);
 				break;
+
+			case 4:	// details
+				::StringCchCopy(item.pszText, item.cchTextMax, GetObjectDetails(data.get()));
 
 		}
 	}

@@ -6,8 +6,10 @@ template<typename T>
 struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
+		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
 	ALT_MSG_MAP(1)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
+		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
 	END_MSG_MAP()
 
 	struct SortInfo {
@@ -18,6 +20,24 @@ struct CVirtualListView {
 	};
 
 protected:
+	LRESULT OnFindItem(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
+		auto fi = (NMLVFINDITEM*)hdr;
+		auto text = fi->lvfi.psz;
+		auto len = ::wcslen(text);
+		auto list = static_cast<T*>(this);
+
+		int selected = list->GetSelectedIndex();
+		int start = selected + 1;
+		int count = list->GetItemCount();
+		for (int i = start; i < count + start; i++) {
+			CString name;
+			list->GetItemText(i % count, 0, name);
+			if (::_wcsnicmp(name, text, len) == 0)
+				return i % count;
+		}
+		return -1;
+	}
+
 	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto lv = (NMLISTVIEW*)hdr;	
 		auto col = lv->iSubItem;

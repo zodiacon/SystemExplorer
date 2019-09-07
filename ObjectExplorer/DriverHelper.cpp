@@ -84,9 +84,9 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access) {
 	data.SourcePid = pid;
 
 	DWORD bytes;
-	HANDLE hTarget;
+	HANDLE hTarget = nullptr;
 	return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_DUP_HANDLE, &data, sizeof(data),
-		&hTarget, sizeof(hObject), &bytes, nullptr)
+		&hTarget, sizeof(hTarget), &bytes, nullptr)
 		? hTarget : nullptr;
 }
 

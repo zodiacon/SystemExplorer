@@ -39,10 +39,12 @@ struct ObjectInfo {
 
 struct ObjectInfoEx {
 	PVOID Object;
-	LONG HandleCount;
+	int HandleCount;
+	int PointerCount;
 	CString Name;
 	USHORT TypeIndex;
 	std::vector<std::shared_ptr<HandleInfo>> Handles;
+	wil::unique_handle LocalHandle;
 };
 
 struct ObjectTypeInfo {
@@ -100,11 +102,37 @@ public:
 
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetAllObjects() const;
 	const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetAllTypeObjects() const;
-
 	const std::vector<std::shared_ptr<ObjectInfoEx>>& GetObjects() const;
 
 	bool EnumProcesses();
 	const CString& GetProcessNameById(DWORD id) const;
+
+	int GetProcessTypeIndex() const {
+		return _processTypeIndex;
+	}
+	int GetThreadTypeIndex() const {
+		return _threadTypeIndex;
+	}
+	int GetJobTypeIndex() const {
+		return _jobTypeIndex;
+	}
+	int GetEventTypeIndex() const {
+		return _eventTypeIndex;
+	}
+	int GetMutexTypeIndex() const {
+		return _mutexTypeIndex;
+	}
+	int GetSymbolicLinkTypeIndex() const {
+		return _symLinkTypeIndex;
+	}
+	int GetSectionTypeIndex() const {
+		return _sectionTypeIndex;
+	}
+	int GetKeyTypeIndex() const {
+		return _keyTypeIndex;
+	}
+
+	HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ) const;
 
 	enum class ChangeType {
 		NoChange,
@@ -116,8 +144,11 @@ public:
 
 	using Change = std::tuple<std::shared_ptr<ObjectTypeInfoEx>, ChangeType, int32_t>;
 
-	CString GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const;
+	bool GetObjectInfo(ObjectInfoEx* p, HANDLE hObject, ULONG pid, USHORT type) const;
 	std::shared_ptr<ObjectTypeInfoEx> GetType(USHORT index) const;
+
+private:
+	void UpdateKnownTypes(const CString& name, int index);
 
 private:
 	std::vector<std::shared_ptr<ObjectInfo>> _allObjects;
@@ -130,5 +161,7 @@ private:
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
 	std::vector<Change> _changes;
 	int64_t _totalHandles, _totalObjects;
+	int _processTypeIndex, _threadTypeIndex, _mutexTypeIndex, _eventTypeIndex;
+	int _jobTypeIndex, _symLinkTypeIndex, _dirTypeIndex, _sectionTypeIndex, _keyTypeIndex;
 };
 
