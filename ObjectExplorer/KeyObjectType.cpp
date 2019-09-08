@@ -12,7 +12,7 @@ CString KeyObjectType::GetDetails(HANDLE hKey) {
 	if (NT_SUCCESS(NT::NtQueryKey(hKey, NT::KeyBasicInformation, buffer, sizeof(buffer), &len))) {
 		auto info = (NT::KEY_BASIC_INFORMATION*)buffer;
 		details.Format(L"Last Write: %s",
-			CTime(*(FILETIME*)&info->LastWriteTime.QuadPart).Format(L"%D %X"));
+			(PCWSTR)CTime(*(FILETIME*)&info->LastWriteTime.QuadPart).Format(L"%D %X"));
 	}
 	return details;
 }

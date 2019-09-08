@@ -166,7 +166,7 @@ private:
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
 	std::vector<Change> _changes;
 	int64_t _totalHandles, _totalObjects;
-	int _processTypeIndex, _threadTypeIndex, _mutexTypeIndex, _eventTypeIndex;
+	int _processTypeIndex, _threadTypeIndex, _mutexTypeIndex, _eventTypeIndex, _semaphoreTypeIndex;
 	int _jobTypeIndex, _symLinkTypeIndex, _dirTypeIndex, _sectionTypeIndex, _keyTypeIndex;
 };
 

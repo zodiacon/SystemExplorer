@@ -78,6 +78,18 @@
     <ClCompile Include="KeyObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
+    <ClCompile Include="JobObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="FileObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -141,6 +153,18 @@
       <Filter>ObjectTypes</Filter>
     </ClInclude>
     <ClInclude Include="KeyObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="JobObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="FileObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerObjectType.h">
       <Filter>ObjectTypes</Filter>
     </ClInclude>
   </ItemGroup>

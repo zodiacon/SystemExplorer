@@ -9,8 +9,9 @@ CString SectionObjectType::GetDetails(HANDLE hSection) {
 	CString details;
 	NT::SECTION_BASIC_INFORMATION bi;
 	if (NT_SUCCESS(NT::NtQuerySection(hSection, NT::SectionBasicInformation, &bi, sizeof(bi), nullptr))) {
-		details.Format(L"Size: %d KiB, Attributes: 0x%X (%s)",
-			bi.MaximumSize.QuadPart >> 10, bi.AllocationAttributes, SectionAttributesToString(bi.AllocationAttributes));
+		details.Format(L"Size: %lld (0x%llX) KiB, Attributes: 0x%X (%s)",
+			bi.MaximumSize.QuadPart >> 10, bi.MaximumSize.QuadPart >> 10,
+			bi.AllocationAttributes, SectionAttributesToString(bi.AllocationAttributes));
 	}
 	return details;
 }

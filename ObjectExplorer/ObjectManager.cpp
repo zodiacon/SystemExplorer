@@ -10,6 +10,10 @@
 #include "EventObjectType.h"
 #include "SymbolicLinkObjectType.h"
 #include "KeyObjectType.h"
+#include "JobObjectType.h"
+#include "TokenObjectType.h"
+#include "FileObjectType.h"
+#include "TimerObjectType.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -282,6 +286,14 @@ std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const
 		return std::make_unique<SymbolicLinkObjectType>(typeIndex, name);
 	if (name == L"Key")
 		return std::make_unique<KeyObjectType>(typeIndex, name);
+	if (name == L"Job")
+		return std::make_unique<JobObjectType>(typeIndex, name);
+	if (name == L"Token")
+		return std::make_unique<TokenObjectType>(typeIndex, name);
+	if (name == L"File")
+		return std::make_unique<FileObjectType>(typeIndex, name);
+	if (name == L"Timer")
+		return std::make_unique<TimerObjectType>(typeIndex, name);
 
 	return nullptr;
 }
@@ -350,6 +362,7 @@ std::unique_ptr<ObjectType> ObjectManager::UpdateKnownTypes(const CString & name
 		int* Index;
 	};
 
+	static int dummy;
 	static std::vector<Type> types{
 		{ L"Process", &_processTypeIndex },
 		{ L"Thread", &_threadTypeIndex },
@@ -360,6 +373,10 @@ std::unique_ptr<ObjectType> ObjectManager::UpdateKnownTypes(const CString & name
 		{ L"Directory", &_dirTypeIndex},
 		{ L"Section", &_sectionTypeIndex },
 		{ L"Key", &_keyTypeIndex },
+		{ L"Semaphore", &_semaphoreTypeIndex },
+		{ L"ALPC Port", &dummy },
+		{ L"Token", &dummy },
+		{ L"File", &dummy },
 	};
 
 	for (size_t i = 0; i < types.size(); i++)

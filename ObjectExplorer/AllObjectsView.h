@@ -30,7 +30,7 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CAllObjectsView>, 1)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
-		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
+		//MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -52,7 +52,9 @@ private:
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 private:
+	std::unordered_map<std::wstring, int> _iconMap;
 	static int ColumnCount;
+	CImageListManaged m_Images;
 	ObjectManager& m_ObjMgr;
 	std::vector<std::shared_ptr<ObjectInfoEx>> m_AllObjects;
 	CUpdateUIBase* m_pUpdateUI;

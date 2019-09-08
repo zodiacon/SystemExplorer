@@ -217,6 +217,8 @@
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
+    <ClCompile Include="FileObjectType.cpp" />
+    <ClCompile Include="JobObjectType.cpp" />
     <ClCompile Include="KeyObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
@@ -237,12 +239,16 @@
     <ClCompile Include="AllObjectsView.cpp" />
     <ClCompile Include="SymbolicLinkObjectType.cpp" />
     <ClCompile Include="ThreadObjectType.cpp" />
+    <ClCompile Include="TimerObjectType.cpp" />
+    <ClCompile Include="TokenObjectType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
+    <ClInclude Include="FileObjectType.h" />
+    <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MutexObjectType.h" />
@@ -259,6 +265,8 @@
     <ClInclude Include="AllObjectsView.h" />
     <ClInclude Include="SymbolicLinkObjectType.h" />
     <ClInclude Include="ThreadObjectType.h" />
+    <ClInclude Include="TimerObjectType.h" />
+    <ClInclude Include="TokenObjectType.h" />
     <ClInclude Include="VirtualListView.h" />
   </ItemGroup>
   <ItemGroup>
