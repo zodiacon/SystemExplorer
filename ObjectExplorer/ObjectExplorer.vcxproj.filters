@@ -13,8 +13,11 @@
       <UniqueIdentifier>{240d3b04-04d7-456f-b696-796f3752eb45}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest</Extensions>
     </Filter>
-    <Filter Include="Icons">
-      <UniqueIdentifier>{d8c25a4b-b9fa-46d6-81cc-2d18b9faa2c3}</UniqueIdentifier>
+    <Filter Include="ObjectTypes">
+      <UniqueIdentifier>{73e37722-1480-4ed3-8162-59c9214a56c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Icons">
+      <UniqueIdentifier>{1d972aeb-12f3-48cd-b0ce-d451ac851283}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +50,27 @@
     </ClCompile>
     <ClCompile Include="SecurityHelper.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MutexObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="SemaphoreObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="SectionObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="EventObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +110,27 @@
     <ClInclude Include="SecurityHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MutexObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="SemaphoreObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="SectionObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="EventObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ObjectExplorer.rc">
@@ -94,67 +139,67 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\briefcase.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\desktop.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\device.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\directory.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\event.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\file.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\generic.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\key.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\mutex.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\ObjectExplorer.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\port.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\process.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\section.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\semaphore.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\symboliclink.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\thread.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\timer.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\token.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\toolbar.bmp">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\Waiting.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\windowstation.ico">
-      <Filter>Icons</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

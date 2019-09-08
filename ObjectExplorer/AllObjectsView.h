@@ -51,6 +51,8 @@ private:
 	CString GetKeyObjectDetails(HANDLE hKey) const;
 	CString GetPortObjectDetails(HANDLE hSection) const;
 
+	static CString SectionAttributesToString(DWORD attributes);
+
 private:
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

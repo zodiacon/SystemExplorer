@@ -216,11 +216,17 @@
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
+    <ClCompile Include="EventObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MutexObjectType.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="ObjectType.cpp" />
     <ClCompile Include="ProcessHelper.cpp" />
+    <ClCompile Include="ProcessObjectType.cpp" />
+    <ClCompile Include="SectionObjectType.cpp" />
     <ClCompile Include="SecurityHelper.cpp" />
+    <ClCompile Include="SemaphoreObjectType.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -228,19 +234,27 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AllObjectsView.cpp" />
+    <ClCompile Include="ThreadObjectType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="DriverHelper.h" />
+    <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MutexObjectType.h" />
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="ObjectType.h" />
     <ClInclude Include="ProcessHelper.h" />
+    <ClInclude Include="ProcessObjectType.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SectionObjectType.h" />
     <ClInclude Include="SecurityHelper.h" />
+    <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="AllObjectsView.h" />
+    <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="VirtualListView.h" />
   </ItemGroup>
   <ItemGroup>

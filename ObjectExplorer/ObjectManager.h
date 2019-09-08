@@ -1,6 +1,8 @@
 #pragma once
 
-#define STATUS_UNSUCCESSFUL              ((NTSTATUS)0xC0000001L)
+//#define STATUS_UNSUCCESSFUL              ((NTSTATUS)0xC0000001L)
+
+#include "ObjectType.h"
 
 struct ObjectTypeInfo;
 
@@ -85,6 +87,7 @@ struct ObjectTypeInfoEx {
 	bool SecurityRequired;
 	bool MaintainHandleCount;
 	std::vector<std::shared_ptr<ObjectInfoEx>> Objects;
+	std::unique_ptr<ObjectType> TypeDetails;
 };
 
 struct ProcessInfo {
@@ -132,6 +135,8 @@ public:
 		return _keyTypeIndex;
 	}
 
+	static std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, PCWSTR name);
+
 	HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ) const;
 
 	enum class ChangeType {
@@ -148,7 +153,7 @@ public:
 	std::shared_ptr<ObjectTypeInfoEx> GetType(USHORT index) const;
 
 private:
-	void UpdateKnownTypes(const CString& name, int index);
+	std::unique_ptr<ObjectType> UpdateKnownTypes(const CString& name, int index);
 
 private:
 	std::vector<std::shared_ptr<ObjectInfo>> _allObjects;

@@ -2,6 +2,12 @@
 #include "ObjectManager.h"
 #include "DriverHelper.h"
 #include "NtDll.h"
+#include "MutexObjectType.h"
+#include "ProcessObjectType.h"
+#include "ThreadObjectType.h"
+#include "SectionObjectType.h"
+#include "SemaphoreObjectType.h"
+#include "EventObjectType.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -121,7 +127,7 @@ int ObjectManager::EnumTypes() {
 			type->DefaultPagedPoolCharge = raw->DefaultPagedPoolCharge;
 			type->ValidAccessMask = raw->ValidAccessMask;
 			type->InvalidAttributes = raw->InvalidAttributes;
-			UpdateKnownTypes(type->TypeName, type->TypeIndex);
+			type->TypeDetails = std::move(UpdateKnownTypes(type->TypeName, type->TypeIndex));
 		}
 		else {
 			if (type->TotalNumberOfHandles != raw->TotalNumberOfHandles)
@@ -257,6 +263,23 @@ const CString& ObjectManager::GetProcessNameById(DWORD id) const {
 	return it == _processesById.end() ? empty : it->second.Name;
 }
 
+std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, PCWSTR name) {
+	if (name == L"Mutant")
+		return std::make_unique<MutexObjectType>(typeIndex, name);
+	if (name == L"Process")
+		return std::make_unique<ProcessObjectType>(typeIndex, name);
+	if (name == L"Thread")
+		return std::make_unique<ThreadObjectType>(typeIndex, name);
+	if(name == L"Semaphore")
+		return std::make_unique<SemaphoreObjectType>(typeIndex, name);
+	if (name == L"Section")
+		return std::make_unique<SectionObjectType>(typeIndex, name);
+	if (name == L"Event")
+		return std::make_unique<EventObjectType>(typeIndex, name);
+
+	return nullptr;
+}
+
 HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) const {
 	for (auto& h : pObject->Handles) {
 		auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, access);
@@ -316,7 +339,7 @@ std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) const {
 	return _typesMap.at(index);
 }
 
-void ObjectManager::UpdateKnownTypes(const CString & name, int index) {
+std::unique_ptr<ObjectType> ObjectManager::UpdateKnownTypes(const CString & name, int index) {
 	struct Type {
 		PCWSTR Name;
 		int* Index;
@@ -338,8 +361,9 @@ void ObjectManager::UpdateKnownTypes(const CString & name, int index) {
 		if (name == types[i].Name) {
 			*types[i].Index = index;
 			types.erase(types.begin() + i);
-			return;
+			return CreateObjectType(index, name);
 		}
+	return nullptr;
 }
 
 ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {
