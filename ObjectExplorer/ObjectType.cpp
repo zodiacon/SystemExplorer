@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ObjectType.h"
 
-
 ObjectType::~ObjectType() = default;
 
 int ObjectType::GetTypeIndex() const {

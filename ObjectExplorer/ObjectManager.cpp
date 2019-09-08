@@ -8,6 +8,8 @@
 #include "SectionObjectType.h"
 #include "SemaphoreObjectType.h"
 #include "EventObjectType.h"
+#include "SymbolicLinkObjectType.h"
+#include "KeyObjectType.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -263,19 +265,23 @@ const CString& ObjectManager::GetProcessNameById(DWORD id) const {
 	return it == _processesById.end() ? empty : it->second.Name;
 }
 
-std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, PCWSTR name) {
+std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) const {
 	if (name == L"Mutant")
 		return std::make_unique<MutexObjectType>(typeIndex, name);
 	if (name == L"Process")
-		return std::make_unique<ProcessObjectType>(typeIndex, name);
+		return std::make_unique<ProcessObjectType>(*this, typeIndex, name);
 	if (name == L"Thread")
-		return std::make_unique<ThreadObjectType>(typeIndex, name);
+		return std::make_unique<ThreadObjectType>(*this, typeIndex, name);
 	if(name == L"Semaphore")
 		return std::make_unique<SemaphoreObjectType>(typeIndex, name);
 	if (name == L"Section")
 		return std::make_unique<SectionObjectType>(typeIndex, name);
 	if (name == L"Event")
 		return std::make_unique<EventObjectType>(typeIndex, name);
+	if (name == L"SymbolicLink")
+		return std::make_unique<SymbolicLinkObjectType>(typeIndex, name);
+	if (name == L"Key")
+		return std::make_unique<KeyObjectType>(typeIndex, name);
 
 	return nullptr;
 }
@@ -288,7 +294,6 @@ HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) cons
 			return hDup;
 	}
 	return nullptr;
-	//return DriverHelper::OpenHandle(pObject->Handles[0]->Object, 0);
 }
 
 bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid, USHORT type) const {

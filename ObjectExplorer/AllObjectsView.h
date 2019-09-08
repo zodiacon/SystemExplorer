@@ -42,16 +42,6 @@ private:
 	std::shared_ptr<ObjectInfoEx>& GetItem(int index);
 	bool CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, const SortInfo* si);
 	CString GetObjectDetails(ObjectInfoEx* info) const;
-	CString GetProcessObjectDetails(HANDLE hProcess) const;
-	CString GetThreadObjectDetails(HANDLE hThread) const;
-	CString GetEventObjectDetails(HANDLE hEvent) const;
-	CString GetMutexObjectDetails(HANDLE hMutex) const;
-	CString GetSectionObjectDetails(HANDLE hSection) const;
-	CString GetSymLinkObjectDetails(HANDLE hLink) const;
-	CString GetKeyObjectDetails(HANDLE hKey) const;
-	CString GetPortObjectDetails(HANDLE hSection) const;
-
-	static CString SectionAttributesToString(DWORD attributes);
 
 private:
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

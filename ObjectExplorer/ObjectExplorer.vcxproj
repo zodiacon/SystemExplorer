@@ -217,6 +217,7 @@
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
+    <ClCompile Include="KeyObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
@@ -234,6 +235,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AllObjectsView.cpp" />
+    <ClCompile Include="SymbolicLinkObjectType.cpp" />
     <ClCompile Include="ThreadObjectType.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -241,6 +243,7 @@
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
+    <ClInclude Include="KeyObjectType.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MutexObjectType.h" />
     <ClInclude Include="NtDll.h" />
@@ -254,6 +257,7 @@
     <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="AllObjectsView.h" />
+    <ClInclude Include="SymbolicLinkObjectType.h" />
     <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="VirtualListView.h" />
   </ItemGroup>

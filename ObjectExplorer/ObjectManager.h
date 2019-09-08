@@ -135,7 +135,7 @@ public:
 		return _keyTypeIndex;
 	}
 
-	static std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, PCWSTR name);
+	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
 
 	HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ) const;
 
