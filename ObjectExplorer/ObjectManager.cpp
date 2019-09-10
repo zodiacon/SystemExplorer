@@ -17,86 +17,10 @@
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
-NTSTATUS ObjectManager::EnumObjects() {
-	ULONG len = 1 << 26;
-	std::unique_ptr<BYTE[]> buffer;
-	do {
-		buffer = std::make_unique<BYTE[]>(len);
-		auto status = NT::NtQuerySystemInformation(NT::SystemObjectInformation, buffer.get(), len, &len);
-		if (status == STATUS_INFO_LENGTH_MISMATCH) {
-			len <<= 1;
-			continue;
-		}
-		if (status == 0)
-			break;
-		return status;
-	} while (true);
-
-	_allTypeObjects.clear();
-	bool first = _allTypeObjects.empty();
-	if (first) {
-		_allTypeObjects.reserve(64);
-		_allObjects.reserve(1 << 17);
-	}
-	_allObjects.clear();
-
-	auto p = (NT::SYSTEM_OBJECTTYPE_INFORMATION*)buffer.get();
-	int itype = 0;
-	for (;;) {
-		ATLASSERT(((ULONG_PTR)p & 7) == 0);
-		std::shared_ptr< ObjectTypeInfo> type;
-		if (first) {
-			type = std::make_shared<ObjectTypeInfo>();
-			type->TypeIndex = p->TypeIndex;
-			type->GenericMapping = p->GenericMapping;
-			type->InvalidAttributes = p->InvalidAttributes;
-			type->Name = CString(p->TypeName.Buffer, p->TypeName.Length / sizeof(WCHAR));
-			type->SecurityRequired = p->SecurityRequired;
-			type->PoolType = (PoolType)p->PoolType;
-			type->WaitableObject = p->WaitableObject;
-			type->Objects.reserve(64);
-			_allTypeObjects.push_back(type);
-		}
-		else {
-			type = _allTypeObjects[itype++];
-			type->Objects.clear();
-		}
-
-		type->NumberOfObjects = p->NumberOfObjects;
-		type->NumberOfHandles = p->NumberOfHandles;
-
-		auto pObject = (NT::SYSTEM_OBJECT_INFORMATION*)((BYTE*)p + sizeof(*p) + p->TypeName.MaximumLength);
-		for (;;) {
-			ATLASSERT(((ULONG_PTR)pObject & 7) == 0);
-			auto object = std::make_shared<ObjectInfo>();
-			object->HandleCount = pObject->HandleCount;
-			object->PointerCount = pObject->PointerCount;
-			object->Object = pObject->Object;
-			object->CreatorProcess = HandleToULong(pObject->CreatorUniqueProcess);
-			//object->ExclusiveProcessId = HandleToULong(pObject->ExclusiveProcessId);
-			object->Flags = pObject->Flags;
-			object->NonPagedPoolCharge = pObject->NonPagedPoolCharge;
-			object->PagedPoolCharge = pObject->PagedPoolCharge;
-			object->Name = CString(pObject->NameInfo.Buffer, pObject->NameInfo.Length / sizeof(WCHAR));
-			object->Type = type.get();
-			object->CreatorName = GetProcessNameById(object->CreatorProcess);
-
-			_allObjects.push_back(object);
-			type->Objects.push_back(object);
-			if (pObject->NextEntryOffset == 0)
-				break;
-
-			pObject = (NT::SYSTEM_OBJECT_INFORMATION*)((BYTE*)buffer.get() + pObject->NextEntryOffset);
-		}
-
-		if (p->NextEntryOffset == 0)
-			break;
-
-		p = (NT::SYSTEM_OBJECTTYPE_INFORMATION*)(buffer.get() + p->NextEntryOffset);
-	}
-
-	return STATUS_SUCCESS;
-}
+std::vector<std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_types;
+std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesMap;
+std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesNameMap;
+std::vector<ObjectManager::Change> ObjectManager::_changes;
 
 int ObjectManager::EnumTypes() {
 	ULONG len = 1 << 17;
@@ -133,7 +57,6 @@ int ObjectManager::EnumTypes() {
 			type->DefaultPagedPoolCharge = raw->DefaultPagedPoolCharge;
 			type->ValidAccessMask = raw->ValidAccessMask;
 			type->InvalidAttributes = raw->InvalidAttributes;
-			type->TypeDetails = std::move(UpdateKnownTypes(type->TypeName, type->TypeIndex));
 		}
 		else {
 			if (type->TotalNumberOfHandles != raw->TotalNumberOfHandles)
@@ -160,6 +83,9 @@ int ObjectManager::EnumTypes() {
 		if (empty) {
 			_types.emplace_back(type);
 			_typesMap.insert({ type->TypeIndex, type });
+			auto typeObject = CreateObjectType(type->TypeIndex, type->TypeName);
+			type->TypeDetails = std::move(typeObject);
+			_typesNameMap.insert({ std::wstring(type->TypeName), type });
 		}
 
 		auto temp = (BYTE*)raw + sizeof(NT::OBJECT_TYPE_INFORMATION) + raw->TypeName.MaximumLength;
@@ -169,7 +95,7 @@ int ObjectManager::EnumTypes() {
 	return static_cast<int>(_types.size());
 }
 
-bool ObjectManager::EnumHandlesAndObjects() {
+bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 	EnumTypes();
 	EnumProcesses();
 
@@ -187,6 +113,8 @@ bool ObjectManager::EnumHandlesAndObjects() {
 		return false;
 	} while (true);
 
+	auto filteredTypeIndex = type == nullptr || ::wcslen(type) == 0 ? -1 : _typesNameMap.at(type)->TypeIndex;
+
 	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)buffer.get();
 	auto count = p->NumberOfHandles;
 	_handles.clear();
@@ -199,6 +127,9 @@ bool ObjectManager::EnumHandlesAndObjects() {
 	auto& handles = p->Handles;
 	for (decltype(count) i = 0; i < count; i++) {
 		auto& handle = handles[i];
+		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
+			continue;
+
 		auto hi = std::make_shared<HandleInfo>();
 		hi->HandleValue = (ULONG)handle.HandleValue;
 		hi->GrantedAccess = handle.GrantedAccess;
@@ -212,6 +143,7 @@ bool ObjectManager::EnumHandlesAndObjects() {
 			obj->Object = handle.Object;
 			obj->Handles.push_back(hi);
 			obj->TypeIndex = handle.ObjectTypeIndex;
+			obj->TypeName = GetType(obj->TypeIndex)->TypeName;
 			GetObjectInfo(obj.get(), (HANDLE)handle.HandleValue, (ULONG)handle.UniqueProcessId, handle.ObjectTypeIndex);
 
 			_objects.push_back(obj);
@@ -227,14 +159,6 @@ bool ObjectManager::EnumHandlesAndObjects() {
 	}
 
 	return true;
-}
-
-const std::vector<std::shared_ptr<ObjectInfo>>& ObjectManager::GetAllObjects() const {
-	return _allObjects;
-}
-
-const std::vector<std::shared_ptr<ObjectTypeInfo>>& ObjectManager::GetAllTypeObjects() const {
-	return _allTypeObjects;
 }
 
 const std::vector<std::shared_ptr<ObjectInfoEx>>& ObjectManager::GetObjects() const {
@@ -298,10 +222,10 @@ std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const
 	return nullptr;
 }
 
-HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) const {
+HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) {
 	for (auto& h : pObject->Handles) {
-		auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, access);
-		//_typesMap.at(h->ObjectTypeIndex)->ValidAccessMask);
+		auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, //access);
+			_typesMap.at(h->ObjectTypeIndex)->ValidAccessMask);
 		if (hDup)
 			return hDup;
 	}
@@ -309,21 +233,30 @@ HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) cons
 }
 
 bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid, USHORT type) const {
+	static int processTypeIndex = _typesNameMap.find(L"Process")->second->TypeIndex;
+	static int threadTypeIndex = _typesNameMap.find(L"Thread")->second->TypeIndex;
+	static int fileTypeIndex = _typesNameMap.find(L"File")->second->TypeIndex;
+	ATLASSERT(processTypeIndex > 0 && threadTypeIndex > 0);
+
 	auto hDup = DupHandle(info);
 	if (hDup) {
-		info->LocalHandle.reset(hDup);
+		//info->LocalHandle.reset(hDup);
 
 		do {
 			//NT::OBJECT_BASIC_INFORMATION bi;
 			//if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectBasicInformation, &bi, sizeof(bi), nullptr))) {
 			//	info->PointerCount = bi.PointerCount;
+			//	info->CreateTime = bi.CreationTime.QuadPart;
+			//}
+			//else {
+			//	info->CreateTime = 0;
 			//}
 
-			if (type == _processTypeIndex || type == _threadTypeIndex)
+			if (type == processTypeIndex || type == threadTypeIndex)
 				break;
 
 			BYTE buffer[2048];
-			if (type == 37) {
+			if (type == fileTypeIndex) {
 				// special case for files in case they're locked
 				struct Data {
 					HANDLE hDup;
@@ -334,7 +267,7 @@ bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid,
 					auto d = (Data*)p;
 					return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
 					}, &data, 0, nullptr));
-				if (::WaitForSingleObject(hThread.get(), 10) == WAIT_TIMEOUT) {
+				if (::WaitForSingleObject(hThread.get(), 5) == WAIT_TIMEOUT) {
 					::TerminateThread(hThread.get(), 1);
 				}
 				else {
@@ -347,45 +280,19 @@ bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid,
 				info->Name = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
 			}
 		} while (false);
+		ATLASSERT(hDup);
+		::CloseHandle(hDup);
 		return true;
 	}
 	return false;
 }
 
-std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) const {
+std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) {
 	return _typesMap.at(index);
 }
 
-std::unique_ptr<ObjectType> ObjectManager::UpdateKnownTypes(const CString & name, int index) {
-	struct Type {
-		PCWSTR Name;
-		int* Index;
-	};
-
-	static int dummy;
-	static std::vector<Type> types{
-		{ L"Process", &_processTypeIndex },
-		{ L"Thread", &_threadTypeIndex },
-		{ L"Mutant", &_mutexTypeIndex },
-		{ L"Event", &_eventTypeIndex },
-		{ L"Job", &_jobTypeIndex },
-		{ L"SymbolicLink", &_symLinkTypeIndex },
-		{ L"Directory", &_dirTypeIndex},
-		{ L"Section", &_sectionTypeIndex },
-		{ L"Key", &_keyTypeIndex },
-		{ L"Semaphore", &_semaphoreTypeIndex },
-		{ L"ALPC Port", &dummy },
-		{ L"Token", &dummy },
-		{ L"File", &dummy },
-	};
-
-	for (size_t i = 0; i < types.size(); i++)
-		if (name == types[i].Name) {
-			*types[i].Index = index;
-			types.erase(types.begin() + i);
-			return CreateObjectType(index, name);
-		}
-	return nullptr;
+std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(PCWSTR name) {
+	return _typesNameMap.at(name);
 }
 
 ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {

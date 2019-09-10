@@ -225,6 +225,7 @@
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="ObjectType.cpp" />
+    <ClCompile Include="ObjectViewByType.cpp" />
     <ClCompile Include="ProcessHelper.cpp" />
     <ClCompile Include="ProcessObjectType.cpp" />
     <ClCompile Include="SectionObjectType.cpp" />
@@ -236,7 +237,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="AllObjectsView.cpp" />
+    <ClCompile Include="ObjectsView.cpp" />
     <ClCompile Include="SymbolicLinkObjectType.cpp" />
     <ClCompile Include="ThreadObjectType.cpp" />
     <ClCompile Include="TimerObjectType.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="FileObjectType.h" />
+    <ClInclude Include="IObjectsView.h" />
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />
     <ClInclude Include="MainFrm.h" />
@@ -255,6 +257,7 @@
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="ObjectType.h" />
+    <ClInclude Include="ObjectViewByType.h" />
     <ClInclude Include="ProcessHelper.h" />
     <ClInclude Include="ProcessObjectType.h" />
     <ClInclude Include="resource.h" />
@@ -262,7 +265,7 @@
     <ClInclude Include="SecurityHelper.h" />
     <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="AllObjectsView.h" />
+    <ClInclude Include="ObjectsView.h" />
     <ClInclude Include="SymbolicLinkObjectType.h" />
     <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="TimerObjectType.h" />

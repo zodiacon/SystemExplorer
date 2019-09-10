@@ -36,9 +36,6 @@
     <ClCompile Include="ObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AllObjectsView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ClipboardHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,6 +87,12 @@
     <ClCompile Include="TimerObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectsView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectViewByType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -108,9 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NtDll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AllObjectsView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VirtualListView.h">
@@ -166,6 +166,15 @@
     </ClInclude>
     <ClInclude Include="TimerObjectType.h">
       <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IObjectsView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectViewByType.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

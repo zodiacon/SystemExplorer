@@ -1,4 +1,4 @@
-// MainFrm.cpp : implmentation of the CMainFrame class
+// MainFrm.cpp : implementation of the CMainFrame class
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -6,8 +6,9 @@
 #include "resource.h"
 
 #include "aboutdlg.h"
-#include "AllObjectsView.h"
+#include "ObjectsView.h"
 #include "MainFrm.h"
+#include "ObjectViewByType.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
@@ -66,18 +67,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
-	//if (m_ObjMgr.EnumObjects() == STATUS_UNSUCCESSFUL) {
-	//	int answer = MessageBox(L"Object Explorer requires the option \"Maintain a list of objects for each type\""
-	//		L" to be set in the Registry NT Global Flags. Enable now (requires elevation)?",
-	//		L"Object Explorer", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2);
-	//	if (answer == IDYES) {
-	//		if (!EnableGlobalFlag()) {
-	//			MessageBox(L"Failed.", L"Object Explorer", MB_ICONERROR);
-	//		}
-	//	}
-	//	return -1;
-	//}
-
 	return 0;
 }
 
@@ -97,8 +86,8 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	return 0;
 }
 
-LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	auto pView = new CAllObjectsView(m_ObjMgr, this);
+LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	auto pView = new CObjectsView(this, this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", -1, pView);
@@ -144,7 +133,6 @@ LRESULT CMainFrame::OnWindowClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	int nActivePage = m_view.GetActivePage();
 	if (nActivePage != -1) {
 		m_view.RemovePage(nActivePage);
-		delete (CWindow*)m_view.GetPageData(nActivePage);
 	}
 	else
 		::MessageBeep((UINT)-1);
@@ -163,4 +151,24 @@ LRESULT CMainFrame::OnWindowActivate(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 	m_view.SetActivePage(nPage);
 
 	return 0;
+}
+
+LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
+	CString type;
+	m_CmdBar.GetMenu().GetMenuStringW(id, type, 0);
+	type.Replace(L"&", L"");
+
+	auto tab = new CObjectsView(this, this, type);
+	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+
+	m_view.AddPage(tab->m_hWnd, type, -1, tab);
+
+	return LRESULT();
+}
+
+BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd) {
+	POINT pt;
+	::GetCursorPos(&pt);
+	return m_CmdBar.TrackPopupMenu(hMenu, 0, pt.x, pt.y);
 }

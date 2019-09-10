@@ -23,44 +23,16 @@ struct HandleInfo {
 	USHORT ObjectTypeIndex;
 };
 
-struct ObjectInfo {
-	PVOID Object;
-	DWORD CreatorProcess;
-	USHORT CreatorBackTraceIndex;
-	USHORT Flags;
-	LONG PointerCount;
-	LONG HandleCount;
-	ULONG PagedPoolCharge;
-	ULONG NonPagedPoolCharge;
-	DWORD ExclusiveProcessId;
-	PVOID SecurityDescriptor;
-	CString Name;
-	CString CreatorName;
-	ObjectTypeInfo* Type;
-};
-
 struct ObjectInfoEx {
 	PVOID Object;
 	int HandleCount;
 	int PointerCount;
+	int64_t CreateTime;
 	CString Name;
 	USHORT TypeIndex;
 	std::vector<std::shared_ptr<HandleInfo>> Handles;
 	wil::unique_handle LocalHandle;
-};
-
-struct ObjectTypeInfo {
-	ULONG NumberOfObjects;
-	ULONG NumberOfHandles;
-	ULONG TypeIndex;
-	ULONG InvalidAttributes;
-	GENERIC_MAPPING GenericMapping;
-	ULONG ValidAccessMask;
-	PoolType PoolType;
-	CString Name;
-	std::vector<std::shared_ptr<ObjectInfo>> Objects;
-	bool SecurityRequired;
-	bool WaitableObject;
+	PCWSTR TypeName;
 };
 
 struct ObjectTypeInfoEx {
@@ -99,45 +71,15 @@ struct ProcessInfo {
 
 class ObjectManager {
 public:
-	NTSTATUS EnumObjects();
-	bool EnumHandlesAndObjects();
+	bool EnumHandlesAndObjects(PCWSTR type = nullptr);
 	int EnumTypes();
 
-	const std::vector<std::shared_ptr<ObjectInfo>>& GetAllObjects() const;
-	const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetAllTypeObjects() const;
 	const std::vector<std::shared_ptr<ObjectInfoEx>>& GetObjects() const;
 
 	bool EnumProcesses();
 	const CString& GetProcessNameById(DWORD id) const;
 
-	int GetProcessTypeIndex() const {
-		return _processTypeIndex;
-	}
-	int GetThreadTypeIndex() const {
-		return _threadTypeIndex;
-	}
-	int GetJobTypeIndex() const {
-		return _jobTypeIndex;
-	}
-	int GetEventTypeIndex() const {
-		return _eventTypeIndex;
-	}
-	int GetMutexTypeIndex() const {
-		return _mutexTypeIndex;
-	}
-	int GetSymbolicLinkTypeIndex() const {
-		return _symLinkTypeIndex;
-	}
-	int GetSectionTypeIndex() const {
-		return _sectionTypeIndex;
-	}
-	int GetKeyTypeIndex() const {
-		return _keyTypeIndex;
-	}
-
-	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
-
-	HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ) const;
+	static HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ);
 
 	enum class ChangeType {
 		NoChange,
@@ -150,23 +92,23 @@ public:
 	using Change = std::tuple<std::shared_ptr<ObjectTypeInfoEx>, ChangeType, int32_t>;
 
 	bool GetObjectInfo(ObjectInfoEx* p, HANDLE hObject, ULONG pid, USHORT type) const;
-	std::shared_ptr<ObjectTypeInfoEx> GetType(USHORT index) const;
+	static std::shared_ptr<ObjectTypeInfoEx> GetType(USHORT index);
+	static std::shared_ptr<ObjectTypeInfoEx> GetType(PCWSTR name);
 
 private:
 	std::unique_ptr<ObjectType> UpdateKnownTypes(const CString& name, int index);
+	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
 
 private:
-	std::vector<std::shared_ptr<ObjectInfo>> _allObjects;
-	std::vector<std::shared_ptr<ObjectTypeInfo>> _allTypeObjects;
 	std::unordered_map<DWORD, ProcessInfo> _processesById;
-	std::vector<std::shared_ptr<ObjectTypeInfoEx>> _types;
-	std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfoEx>> _typesMap;
+	static std::vector<std::shared_ptr<ObjectTypeInfoEx>> _types;
+	static std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfoEx>> _typesMap;
+	static std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfoEx>> _typesNameMap;
+
 	std::vector<std::shared_ptr<ObjectInfoEx>> _objects;
 	std::unordered_map<PVOID, std::shared_ptr<ObjectInfoEx>> _objectsByAddress;
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
-	std::vector<Change> _changes;
+	static std::vector<Change> _changes;
 	int64_t _totalHandles, _totalObjects;
-	int _processTypeIndex, _threadTypeIndex, _mutexTypeIndex, _eventTypeIndex, _semaphoreTypeIndex;
-	int _jobTypeIndex, _symLinkTypeIndex, _dirTypeIndex, _sectionTypeIndex, _keyTypeIndex;
 };
 

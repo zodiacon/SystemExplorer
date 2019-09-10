@@ -51,7 +51,6 @@ END
 
 IDR_MAINFRAME TOOLBAR 16, 15
 BEGIN
-    BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_SAVE
     SEPARATOR
     BUTTON      ID_EDIT_COPY
@@ -88,6 +87,30 @@ BEGIN
     BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Objects"
+    BEGIN
+        MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
+        MENUITEM SEPARATOR
+        POPUP "Show Objects of Type"
+        BEGIN
+            MENUITEM "&Process",                    ID_SHOWOBJECTSOFTYPE_PROCESS
+            MENUITEM "&Thread",                     ID_SHOWOBJECTSOFTYPE_THREAD
+            MENUITEM "Job",                         ID_SHOWOBJECTSOFTYPE_JOB
+            MENUITEM "Event",                       ID_SHOWOBJECTSOFTYPE_EVENT
+            MENUITEM "Mutant",                      ID_SHOWOBJECTSOFTYPE_MUTEX
+            MENUITEM "Semaphore",                   ID_SHOWOBJECTSOFTYPE_SEMAPHORE
+            MENUITEM "&Section",                    ID_SHOWOBJECTSOFTYPE_SECTION
+            MENUITEM "Token",                       ID_SHOWOBJECTSOFTYPE_TOKEN
+            MENUITEM "&File",                       ID_SHOWOBJECTSOFTYPE_FILE
+            MENUITEM "&SymbolicLink",               ID_SHOWOBJECTSOFTYPE_SYMBOLICLINK
+            MENUITEM "&ALPC Port",                  ID_SHOWOBJECTSOFTYPE_ALPCPORT
+            MENUITEM "&Timer",                      ID_SHOWOBJECTSOFTYPE_TIMER
+            MENUITEM "&Desktop",                    ID_SHOWOBJECTSOFTYPE_DESKTOP
+            MENUITEM "&WindowStation",              ID_SHOWOBJECTSOFTYPE_WINDOWSTATION
+            MENUITEM "Key",                         ID_SHOWOBJECTSOFTYPE_KEY
+            MENUITEM "Directory",                   ID_SHOWOBJECTSOFTYPE_DIRECTORY
+        END
     END
     POPUP "&Search"
     BEGIN
