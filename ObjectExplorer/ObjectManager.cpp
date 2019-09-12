@@ -240,18 +240,7 @@ bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid,
 
 	auto hDup = DupHandle(info);
 	if (hDup) {
-		//info->LocalHandle.reset(hDup);
-
 		do {
-			//NT::OBJECT_BASIC_INFORMATION bi;
-			//if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectBasicInformation, &bi, sizeof(bi), nullptr))) {
-			//	info->PointerCount = bi.PointerCount;
-			//	info->CreateTime = bi.CreationTime.QuadPart;
-			//}
-			//else {
-			//	info->CreateTime = 0;
-			//}
-
 			if (type == processTypeIndex || type == threadTypeIndex)
 				break;
 

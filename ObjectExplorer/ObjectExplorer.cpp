@@ -32,9 +32,24 @@ int Run(LPTSTR /*lpstrCmdLine*/ = nullptr, int nCmdShow = SW_SHOWDEFAULT) {
 	return nRet;
 }
 
+#include "NtDll.h"
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow) {
-	if (ParseCommandLine(lpstrCmdLine))
-		return 0;
+	//auto h = ::CreateWaitableTimer(nullptr, FALSE, nullptr);
+	//LARGE_INTEGER time;
+
+	//int64_t ft;
+	//::GetSystemTimeAsFileTime((FILETIME*)&ft);
+	//time.QuadPart = ft + 10000000; //-10000000;
+	//::SetWaitableTimer(h, &time, 0, nullptr, nullptr, FALSE);
+	//NT::TIMER_BASIC_INFORMATION bi;
+	//for (int i = 0; i < 20; i++) {
+	//	::GetSystemTimeAsFileTime((FILETIME*)&ft);
+	//	NT::NtQueryTimer(h, NT::TimerBasicInformation, &bi, sizeof(bi), nullptr);
+	//	ATLTRACE(L"%lld\n", -bi.RemainingTime.QuadPart + *(int64_t*)&ft);
+	//	::Sleep(100);
+	//}
+
 	HRESULT hRes = ::CoInitialize(nullptr);
 	ATLASSERT(SUCCEEDED(hRes));
 
@@ -51,25 +66,3 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lps
 	return nRet;
 }
 
-bool ParseCommandLine(PCWSTR cmdLine) {
-	if (::_wcsicmp(cmdLine, L"enablentflag") == 0) {
-		CRegKey key;
-		auto error = key.Open(HKEY_LOCAL_MACHINE, L"System\\CurrentControlSet\\Control\\Session Manager", 
-			KEY_WRITE | KEY_READ);
-		if (error == ERROR_SUCCESS) {
-			DWORD value = 0;
-			key.QueryDWORDValue(L"GlobalFlag", value);
-			value |= 0x4000;
-			key.SetDWORDValue(L"GlobalFlag", value);
-			::MessageBox(nullptr, L"Registry modified. Please restart Windows for the change to take effect.",
-				L"Object Explorer", MB_ICONINFORMATION);
-		}
-		else {
-			CString text;
-			text.Format(L"Failed to open registry key (Error: %d). Are you running elevated?", error);
-			::MessageBox(nullptr, text, L"Object Explorer", MB_ICONERROR);
-		}
-		return true;
-	}
-	return false;
-}

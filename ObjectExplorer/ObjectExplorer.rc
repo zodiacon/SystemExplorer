@@ -90,8 +90,6 @@ BEGIN
     END
     POPUP "&Objects"
     BEGIN
-        MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
-        MENUITEM SEPARATOR
         POPUP "Show Objects of Type"
         BEGIN
             MENUITEM "&Process",                    ID_SHOWOBJECTSOFTYPE_PROCESS
@@ -111,6 +109,8 @@ BEGIN
             MENUITEM "Key",                         ID_SHOWOBJECTSOFTYPE_KEY
             MENUITEM "Directory",                   ID_SHOWOBJECTSOFTYPE_DIRECTORY
         END
+        MENUITEM SEPARATOR
+        MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
     END
     POPUP "&Search"
     BEGIN

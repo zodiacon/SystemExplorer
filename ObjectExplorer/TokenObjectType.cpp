@@ -49,7 +49,7 @@ CString TokenObjectType::GetIntegirtyLevel(HANDLE hToken) {
 			case SECURITY_MANDATORY_UNTRUSTED_RID: details = L"Untrusted"; break;
 			default: details = L"Unknown";
 		}
+		return L"Integrity: " + details;
 	}
-
-	return L"Integrity: " + details;
+	return L"";
 }
