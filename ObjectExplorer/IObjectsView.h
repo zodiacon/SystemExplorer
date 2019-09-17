@@ -1,5 +1,7 @@
 #pragma once
 
+#define OM_ACTIVATE_PAGE (WM_APP+1)
+
 struct ObjectInfoEx;
 
 struct IObjectsView abstract {
@@ -18,4 +20,6 @@ struct IObjectsView abstract {
 
 struct IMainFrame {
 	virtual BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd) = 0;
+	virtual HIMAGELIST GetImageList() = 0;
+	virtual int GetIconIndexByType(PCWSTR type) const = 0;
 };

@@ -45,13 +45,15 @@
 #define ID_SHOWOBJECTSOFTYPE_DIRECTORY  32791
 #define ID_SHOWOBJECTSOFTYPE_SECTION    32792
 #define ID_OBJECTS_ALLOBJECTS           32793
+#define ID_OBJECTS_ALLOBJECTTYPES       32794
+#define ID_VIEW_PAUSE                   32796
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        222
-#define _APS_NEXT_COMMAND_VALUE         32794
+#define _APS_NEXT_COMMAND_VALUE         32797
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

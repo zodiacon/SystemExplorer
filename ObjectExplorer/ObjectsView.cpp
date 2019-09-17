@@ -76,6 +76,10 @@ CString CObjectsView::GetProcessHandleInfo(const HandleInfo & hi) const {
 	return info;
 }
 
+LRESULT CObjectsView::OnActivatePage(UINT, WPARAM, LPARAM, BOOL&) {
+	return LRESULT();
+}
+
 LRESULT CObjectsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 	if (id == 1) {
 		Refresh();
@@ -130,38 +134,7 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto& c : columns)
 		InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	// icons
-	struct {
-		UINT icon;
-		PCWSTR name;
-	} icons[] = {
-		{ IDI_GENERIC,		L"" },
-		{ IDI_PROCESS,		L"Process" },
-		{ IDI_THREAD,		L"Thread" },
-		{ IDI_JOB,			L"Job" },
-		{ IDI_MUTEX,		L"Mutant" },
-		{ IDI_EVENT,		L"Event" },
-		{ IDI_SEMAPHORE,	L"Semaphore" },
-		{ IDI_DESKTOP,		L"Desktop" },
-		{ IDI_WINSTATION,	L"WindowStation" },
-		{ IDI_PORT,			L"ALPC Port" },
-		{ IDI_KEY,			L"Key" },
-		{ IDI_DEVICE,		L"Device" },
-		{ IDI_FILE,			L"File" },
-		{ IDI_SYMLINK,		L"SymbolicLink" },
-		{ IDI_SECTION,		L"Section" },
-		{ IDI_DIRECTORY,	L"Directory" },
-		{ IDI_TIMER,		L"Timer" },
-		{ IDI_TOKEN,		L"Token" },
-	};
-
-	m_Images.Create(16, 16, ILC_COLOR32 | ILC_COLOR, 8, 8);
-	int index = 0;
-	for (auto& icon : icons) {
-		m_Images.AddIcon(AtlLoadIcon(icon.icon));
-		_iconMap.insert({ icon.name, index++ });
-	}
-	SetImageList(m_Images, LVSIL_SMALL);
+	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 	//SetTimer(1, 2000, nullptr);
@@ -218,8 +191,7 @@ LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 		}
 	}
 	if (item.mask & LVIF_IMAGE) {
-		auto it = _iconMap.find((PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName);
-		item.iImage = it == _iconMap.end() ? 0 : it->second;
+		item.iImage = m_pFrame->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName);
 	}
 	return 0;
 }

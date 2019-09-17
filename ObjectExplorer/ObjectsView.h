@@ -6,6 +6,7 @@
 
 #include "ObjectManager.h"
 #include "VirtualListView.h"
+#include "IObjectsView.h"
 
 struct IObjectsView;
 struct IMainFrame;
@@ -27,6 +28,7 @@ public:
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 
 	BEGIN_MSG_MAP(CObjectsView)
+		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
@@ -49,6 +51,7 @@ private:
 	CString GetProcessHandleInfo(const HandleInfo& hi) const;
 
 private:
+	LRESULT OnActivatePage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -59,7 +62,6 @@ private:
 
 private:
 	IMainFrame* m_pFrame;
-	std::unordered_map<std::wstring, int> _iconMap;
 	static int ColumnCount;
 	CImageListManaged m_Images;
 	std::vector<std::shared_ptr<ObjectInfoEx>> m_Objects;

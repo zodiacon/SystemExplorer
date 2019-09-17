@@ -21,6 +21,8 @@ std::vector<std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_types;
 std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesMap;
 std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesNameMap;
 std::vector<ObjectManager::Change> ObjectManager::_changes;
+int64_t ObjectManager::_totalHandles;
+int64_t ObjectManager::_totalObjects;
 
 int ObjectManager::EnumTypes() {
 	ULONG len = 1 << 17;
@@ -193,6 +195,10 @@ const CString& ObjectManager::GetProcessNameById(DWORD id) const {
 	return it == _processesById.end() ? empty : it->second.Name;
 }
 
+const std::vector<ObjectManager::Change>& ObjectManager::GetChanges() const {
+	return _changes;
+}
+
 std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) const {
 	if (name == L"Mutant")
 		return std::make_unique<MutexObjectType>(typeIndex, name);
@@ -230,6 +236,14 @@ HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) {
 			return hDup;
 	}
 	return nullptr;
+}
+
+int64_t ObjectManager::GetTotalHandles() {
+	return _totalHandles;
+}
+
+int64_t ObjectManager::GetTotalObjects() {
+	return _totalObjects;
 }
 
 bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid, USHORT type) const {
@@ -282,6 +296,10 @@ std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) {
 
 std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(PCWSTR name) {
 	return _typesNameMap.at(name);
+}
+
+const std::vector<std::shared_ptr<ObjectTypeInfoEx>>& ObjectManager::GetObjectTypes() {
+	return _types;
 }
 
 ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {

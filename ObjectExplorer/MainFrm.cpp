@@ -9,6 +9,7 @@
 #include "ObjectsView.h"
 #include "MainFrm.h"
 #include "ObjectViewByType.h"
+#include "ObjectsSummaryView.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
@@ -22,17 +23,16 @@ BOOL CMainFrame::OnIdle() {
 	return FALSE;
 }
 
-bool CMainFrame::EnableGlobalFlag() {
-	WCHAR path[MAX_PATH];
-	DWORD size = MAX_PATH;
-	if (::QueryFullProcessImageName(::GetCurrentProcess(), 0, path, &size)) {
-		SHELLEXECUTEINFO shex = { sizeof(shex) };
-		shex.lpVerb = L"runas";
-		shex.lpFile = path;
-		shex.lpParameters = L"enablentflag";
-		return ShellExecuteEx(&shex);
-	}
-	return false;
+LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
+	auto page = static_cast<int>(hdr->idFrom);
+	auto hWnd = m_view.GetPageHWND(page);
+	ATLASSERT(::IsWindow(hWnd));
+	if (m_CurrentPage >= 0)
+		::SendMessage(m_view.GetPageHWND(m_CurrentPage), OM_ACTIVATE_PAGE, 0, 0);
+	::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
+	m_CurrentPage = page;
+
+	return 0;
 }
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
@@ -66,6 +66,40 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
+
+	// icons
+	struct {
+		UINT icon;
+		PCWSTR name;
+	} icons[] = {
+		{ IDI_GENERIC,		L"" },
+		{ IDI_PROCESS,		L"Process" },
+		{ IDI_THREAD,		L"Thread" },
+		{ IDI_JOB,			L"Job" },
+		{ IDI_MUTEX,		L"Mutant" },
+		{ IDI_EVENT,		L"Event" },
+		{ IDI_SEMAPHORE,	L"Semaphore" },
+		{ IDI_DESKTOP,		L"Desktop" },
+		{ IDI_WINSTATION,	L"WindowStation" },
+		{ IDI_PORT,			L"ALPC Port" },
+		{ IDI_KEY,			L"Key" },
+		{ IDI_DEVICE,		L"Device" },
+		{ IDI_FILE,			L"File" },
+		{ IDI_SYMLINK,		L"SymbolicLink" },
+		{ IDI_SECTION,		L"Section" },
+		{ IDI_DIRECTORY,	L"Directory" },
+		{ IDI_TIMER,		L"Timer" },
+		{ IDI_TOKEN,		L"Token" },
+	};
+
+	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_COLOR, 16, 8);
+	int index = 0;
+	for (auto& icon : icons) {
+		m_TabImages.AddIcon(AtlLoadIcon(icon.icon));
+		m_IconMap.insert({ icon.name, index++ });
+	}
+
+	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 
 	return 0;
 }
@@ -167,8 +201,26 @@ LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
 	return LRESULT();
 }
 
+LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
+	auto tab = new CObjectSummaryView(*this);
+	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+
+	m_view.AddPage(tab->m_hWnd, L"Types", -1, tab);
+	return 0;
+}
+
 BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd) {
 	POINT pt;
 	::GetCursorPos(&pt);
 	return m_CmdBar.TrackPopupMenu(hMenu, 0, pt.x, pt.y);
+}
+
+HIMAGELIST CMainFrame::GetImageList() {
+	return m_TabImages;
+}
+
+int CMainFrame::GetIconIndexByType(PCWSTR type) const {
+	auto it = m_IconMap.find(type);
+	return it == m_IconMap.end() ? 0 : it->second;
 }

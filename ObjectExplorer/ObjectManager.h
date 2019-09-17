@@ -81,6 +81,9 @@ public:
 
 	static HANDLE DupHandle(ObjectInfoEx* pObject, ACCESS_MASK access = GENERIC_READ);
 
+	static int64_t GetTotalHandles();
+	static int64_t GetTotalObjects();
+
 	enum class ChangeType {
 		NoChange,
 		TotalHandles,
@@ -90,13 +93,14 @@ public:
 	};
 
 	using Change = std::tuple<std::shared_ptr<ObjectTypeInfoEx>, ChangeType, int32_t>;
+	const std::vector<Change>& GetChanges() const;
 
 	bool GetObjectInfo(ObjectInfoEx* p, HANDLE hObject, ULONG pid, USHORT type) const;
 	static std::shared_ptr<ObjectTypeInfoEx> GetType(USHORT index);
 	static std::shared_ptr<ObjectTypeInfoEx> GetType(PCWSTR name);
+	static const std::vector<std::shared_ptr<ObjectTypeInfoEx>>& GetObjectTypes();
 
 private:
-	std::unique_ptr<ObjectType> UpdateKnownTypes(const CString& name, int index);
 	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
 
 private:
@@ -109,6 +113,6 @@ private:
 	std::unordered_map<PVOID, std::shared_ptr<ObjectInfoEx>> _objectsByAddress;
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
 	static std::vector<Change> _changes;
-	int64_t _totalHandles, _totalObjects;
+	static int64_t _totalHandles, _totalObjects;
 };
 

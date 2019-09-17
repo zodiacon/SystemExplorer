@@ -1,5 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -17,7 +19,6 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -87,6 +88,10 @@ BEGIN
     BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Refresh\tF5",                ID_VIEW_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Pause",                      ID_VIEW_PAUSE
     END
     POPUP "&Objects"
     BEGIN
@@ -111,6 +116,8 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
+        MENUITEM SEPARATOR
+        MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
     END
     POPUP "&Search"
     BEGIN
@@ -383,7 +390,6 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
-#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
