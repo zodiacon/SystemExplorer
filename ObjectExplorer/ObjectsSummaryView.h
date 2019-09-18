@@ -9,7 +9,7 @@ class CObjectSummaryView :
 public:
 	DECLARE_WND_SUPERCLASS(NULL, CListViewCtrl::GetWndClassName())
 
-	CObjectSummaryView(CUpdateUIBase& updateUI) : m_UIUpdate(updateUI) {}
+	CObjectSummaryView(IMainFrame* pFrame, CUpdateUIBase& updateUI) : m_pFrame(pFrame), m_UIUpdate(updateUI) {}
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -64,6 +64,7 @@ private:
 	ObjectManager m_ObjectManager;
 	std::vector<std::shared_ptr<ObjectTypeInfoEx>> m_Items;
 	CUpdateUIBase& m_UIUpdate;
+	IMainFrame* m_pFrame;
 	int m_Interval = 1000;
 	int m_SortColumn = -1;
 	bool m_SortAscending;

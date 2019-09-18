@@ -36,7 +36,6 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectsView>, 1)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
-		//MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -66,7 +65,7 @@ private:
 	CImageListManaged m_Images;
 	std::vector<std::shared_ptr<ObjectInfoEx>> m_Objects;
 	CUpdateUIBase* m_pUpdateUI;
-	IObjectsView* m_pView;
+	IObjectsView* m_pView{ nullptr };
 	ObjectManager m_ObjMgr;
 	CString m_Typename;
 };

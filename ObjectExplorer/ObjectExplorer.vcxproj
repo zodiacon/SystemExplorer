@@ -289,6 +289,7 @@
     <Image Include="res\key.ico" />
     <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
+    <Image Include="res\objects.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />
     <Image Include="res\section.ico" />
@@ -298,6 +299,7 @@
     <Image Include="res\timer.ico" />
     <Image Include="res\token.ico" />
     <Image Include="res\toolbar.bmp" />
+    <Image Include="res\types.ico" />
     <Image Include="res\Waiting.ico" />
     <Image Include="res\windowstation.ico" />
   </ItemGroup>

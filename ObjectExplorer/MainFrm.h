@@ -86,4 +86,5 @@ private:
 	CImageListManaged m_TabImages;
 	std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
+	int m_ObjectsIcon, m_TypesIcon;
 };

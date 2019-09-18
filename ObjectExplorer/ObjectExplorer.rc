@@ -118,10 +118,12 @@ BEGIN
         MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
         MENUITEM SEPARATOR
         MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
+        MENUITEM SEPARATOR
+        MENUITEM "Object &Manager",             ID_OBJECTS_OBJECTMANAGER
     END
     POPUP "&Search"
     BEGIN
-        MENUITEM "&Find...",                    ID_SEARCH_FIND
+        MENUITEM "&Find...\tCtrl+F",            ID_SEARCH_FIND
     END
     POPUP "&Window"
     BEGIN
@@ -390,6 +392,18 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_OBJECTS             ICON                    "res\\objects.ico"
+
+IDI_TYPES               ICON                    "res\\types.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

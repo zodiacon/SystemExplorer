@@ -80,6 +80,8 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 
 	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP, 0);
 
+	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+
 	auto count = m_ObjectManager.EnumTypes();
 	SetItemCount(count);
 	m_Items = m_ObjectManager.GetObjectTypes();
@@ -162,6 +164,9 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->ValidAccessMask);
 				break;
 		}
+	}
+	if (lv->item.mask & LVIF_IMAGE) {
+		item.iImage = m_pFrame->GetIconIndexByType(data->TypeName);
 	}
 	return 0;
 }

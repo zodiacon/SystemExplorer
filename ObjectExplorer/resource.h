@@ -24,6 +24,9 @@
 #define IDI_TOKEN                       219
 #define IDI_PAUSE                       220
 #define IDI_WINSTATION                  221
+#define IDI_OBJECTS                     222
+#define IDI_ICON1                       223
+#define IDI_TYPES                       223
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -47,13 +50,14 @@
 #define ID_OBJECTS_ALLOBJECTS           32793
 #define ID_OBJECTS_ALLOBJECTTYPES       32794
 #define ID_VIEW_PAUSE                   32796
+#define ID_OBJECTS_OBJECTMANAGER        32797
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        222
-#define _APS_NEXT_COMMAND_VALUE         32797
+#define _APS_NEXT_RESOURCE_VALUE        224
+#define _APS_NEXT_COMMAND_VALUE         32798
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

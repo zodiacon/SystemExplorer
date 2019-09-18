@@ -255,6 +255,12 @@
     <Image Include="res\windowstation.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\objects.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\types.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -92,12 +92,17 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		{ IDI_TOKEN,		L"Token" },
 	};
 
-	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_COLOR, 16, 8);
+	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
 	int index = 0;
 	for (auto& icon : icons) {
 		m_TabImages.AddIcon(AtlLoadIcon(icon.icon));
 		m_IconMap.insert({ icon.name, index++ });
 	}
+
+	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));
+	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
+
+	m_view.SetImageList(m_TabImages);
 
 	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 
@@ -124,7 +129,7 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	auto pView = new CObjectsView(this, this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Objects", -1, pView);
+	m_view.AddPage(pView->m_hWnd, L"All Objects", m_ObjectsIcon, pView);
 
 	return 0;
 }
@@ -196,17 +201,17 @@ LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
 	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 
-	m_view.AddPage(tab->m_hWnd, type, -1, tab);
+	m_view.AddPage(tab->m_hWnd, type, GetIconIndexByType(type), tab);
 
 	return LRESULT();
 }
 
 LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
-	auto tab = new CObjectSummaryView(*this);
+	auto tab = new CObjectSummaryView(this, *this);
 	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 
-	m_view.AddPage(tab->m_hWnd, L"Types", -1, tab);
+	m_view.AddPage(tab->m_hWnd, L"Types", m_TypesIcon, tab);
 	return 0;
 }
 
