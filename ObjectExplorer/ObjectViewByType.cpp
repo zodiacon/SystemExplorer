@@ -5,7 +5,7 @@
 ObjectViewByType::ObjectViewByType(PCWSTR name, PCWSTR title) : _type(name), _title(title) {
 }
 
-bool ObjectViewByType::ShowObject(ObjectInfoEx * info) {
+bool ObjectViewByType::ShowObject(ObjectInfo * info) {
 	return _type == info->TypeName;
 }
 

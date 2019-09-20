@@ -34,11 +34,11 @@ void CObjectsView::OnFinalMessage(HWND /*hWnd*/) {
 	delete this;
 }
 
-std::shared_ptr<ObjectInfoEx>& CObjectsView::GetItem(int index) {
+std::shared_ptr<ObjectInfo>& CObjectsView::GetItem(int index) {
 	return m_Objects[index];
 }
 
-bool CObjectsView::CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, const SortInfo* si) {
+bool CObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
 			return SortStrings(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
@@ -58,7 +58,7 @@ bool CObjectsView::CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, 
 	return false;
 }
 
-CString CObjectsView::GetObjectDetails(ObjectInfoEx* info) const {
+CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
 	auto h = ObjectManager::DupHandle(info);	// info->LocalHandle.get();
 	if (!h)
 		return L"";
@@ -172,11 +172,6 @@ LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				item.pszText = (PWSTR)(PCWSTR)data->Name;
 				break;
 
-				//case 3:	// create time
-				//	if (data->CreateTime > 0)
-				//		::StringCchCopy(item.pszText, item.cchTextMax, (PCWSTR)CTime(*(FILETIME*)&data->CreateTime).Format(L"%D %X"));
-				//	break;
-
 			case 3:	// handles
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->HandleCount);
 				break;
@@ -212,10 +207,19 @@ LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL &) {
 	return FALSE;
 }
 
+LRESULT CObjectsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
+	Refresh();
+	return 0;
+}
+
 void CObjectsView::Refresh() {
+	CWaitCursor wait;
 	m_ObjMgr.EnumProcesses();
 	m_ObjMgr.EnumTypes();
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename);
 	m_Objects = m_ObjMgr.GetObjects();
-	SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	if (GetSortColumn() >= 0)
+		DoSort(GetSortInfo());
+
+	SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
 }

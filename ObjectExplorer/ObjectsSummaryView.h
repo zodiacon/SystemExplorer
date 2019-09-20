@@ -54,15 +54,15 @@ private:
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
-	std::shared_ptr<ObjectTypeInfoEx> GetItem(int index) const;
+	std::shared_ptr<ObjectTypeInfo> GetItem(int index) const;
 	static PCWSTR PoolTypeToString(PoolType type);
-	bool CompareItems(const std::shared_ptr<ObjectTypeInfoEx>& item1, const std::shared_ptr<ObjectTypeInfoEx>& item2) const;
+	bool CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2) const;
 	void DoSort();
 	int MapChangeToColumn(ObjectManager::ChangeType type) const;
 
 private:
 	ObjectManager m_ObjectManager;
-	std::vector<std::shared_ptr<ObjectTypeInfoEx>> m_Items;
+	std::vector<std::shared_ptr<ObjectTypeInfo>> m_Items;
 	CUpdateUIBase& m_UIUpdate;
 	IMainFrame* m_pFrame;
 	int m_Interval = 1000;

@@ -36,6 +36,7 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectsView>, 1)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
+		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -44,9 +45,9 @@ public:
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 private:
-	std::shared_ptr<ObjectInfoEx>& GetItem(int index);
-	bool CompareItems(const ObjectInfoEx& o1, const ObjectInfoEx& o2, const SortInfo* si);
-	CString GetObjectDetails(ObjectInfoEx* info) const;
+	std::shared_ptr<ObjectInfo>& GetItem(int index);
+	bool CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si);
+	CString GetObjectDetails(ObjectInfo* info) const;
 	CString GetProcessHandleInfo(const HandleInfo& hi) const;
 
 private:
@@ -58,12 +59,13 @@ private:
 	LRESULT OnForwardMessage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	IMainFrame* m_pFrame;
 	static int ColumnCount;
 	CImageListManaged m_Images;
-	std::vector<std::shared_ptr<ObjectInfoEx>> m_Objects;
+	std::vector<std::shared_ptr<ObjectInfo>> m_Objects;
 	CUpdateUIBase* m_pUpdateUI;
 	IObjectsView* m_pView{ nullptr };
 	ObjectManager m_ObjMgr;

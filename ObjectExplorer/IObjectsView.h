@@ -2,11 +2,11 @@
 
 #define OM_ACTIVATE_PAGE (WM_APP+1)
 
-struct ObjectInfoEx;
+struct ObjectInfo;
 
 struct IObjectsView abstract {
 	virtual CString GetTitle() = 0;
-	virtual bool ShowObject(ObjectInfoEx*) {
+	virtual bool ShowObject(ObjectInfo*) {
 		return true;
 	}
 

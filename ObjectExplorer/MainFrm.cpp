@@ -71,32 +71,37 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	struct {
 		UINT icon;
 		PCWSTR name;
+		UINT id = 0;
 	} icons[] = {
 		{ IDI_GENERIC,		L"" },
-		{ IDI_PROCESS,		L"Process" },
-		{ IDI_THREAD,		L"Thread" },
-		{ IDI_JOB,			L"Job" },
-		{ IDI_MUTEX,		L"Mutant" },
-		{ IDI_EVENT,		L"Event" },
-		{ IDI_SEMAPHORE,	L"Semaphore" },
-		{ IDI_DESKTOP,		L"Desktop" },
-		{ IDI_WINSTATION,	L"WindowStation" },
-		{ IDI_PORT,			L"ALPC Port" },
-		{ IDI_KEY,			L"Key" },
-		{ IDI_DEVICE,		L"Device" },
-		{ IDI_FILE,			L"File" },
-		{ IDI_SYMLINK,		L"SymbolicLink" },
-		{ IDI_SECTION,		L"Section" },
-		{ IDI_DIRECTORY,	L"Directory" },
-		{ IDI_TIMER,		L"Timer" },
-		{ IDI_TOKEN,		L"Token" },
+		{ IDI_PROCESS,		L"Process",			ID_SHOWOBJECTSOFTYPE_PROCESS },
+		{ IDI_THREAD,		L"Thread",			ID_SHOWOBJECTSOFTYPE_THREAD },
+		{ IDI_JOB,			L"Job",				ID_SHOWOBJECTSOFTYPE_JOB },
+		{ IDI_MUTEX,		L"Mutant",			ID_SHOWOBJECTSOFTYPE_MUTEX },
+		{ IDI_EVENT,		L"Event",			ID_SHOWOBJECTSOFTYPE_EVENT },
+		{ IDI_SEMAPHORE,	L"Semaphore",		ID_SHOWOBJECTSOFTYPE_SEMAPHORE },
+		{ IDI_DESKTOP,		L"Desktop",			ID_SHOWOBJECTSOFTYPE_DESKTOP },
+		{ IDI_WINSTATION,	L"WindowStation",	ID_SHOWOBJECTSOFTYPE_WINDOWSTATION },
+		{ IDI_PORT,			L"ALPC Port",		ID_SHOWOBJECTSOFTYPE_ALPCPORT },
+		{ IDI_KEY,			L"Key",				ID_SHOWOBJECTSOFTYPE_KEY },
+		{ IDI_DEVICE,		L"Device",			ID_SHOWOBJECTSOFTYPE_DEVICE },
+		{ IDI_FILE,			L"File",			ID_SHOWOBJECTSOFTYPE_FILE },
+		{ IDI_SYMLINK,		L"SymbolicLink",	ID_SHOWOBJECTSOFTYPE_SYMBOLICLINK },
+		{ IDI_SECTION,		L"Section",			ID_SHOWOBJECTSOFTYPE_SECTION },
+		{ IDI_DIRECTORY,	L"Directory",		ID_SHOWOBJECTSOFTYPE_DIRECTORY },
+		{ IDI_TIMER,		L"Timer",			ID_SHOWOBJECTSOFTYPE_TIMER },
+		{ IDI_TOKEN,		L"Token",			ID_SHOWOBJECTSOFTYPE_TOKEN },
 	};
 
 	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
 	int index = 0;
 	for (auto& icon : icons) {
-		m_TabImages.AddIcon(AtlLoadIcon(icon.icon));
+		auto hIcon = (HICON)::LoadImage(ModuleHelper::GetResourceInstance(),
+			MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
+		m_TabImages.AddIcon(hIcon);
 		m_IconMap.insert({ icon.name, index++ });
+		if(icon.id)
+			m_CmdBar.AddIcon(hIcon, icon.id);
 	}
 
 	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));

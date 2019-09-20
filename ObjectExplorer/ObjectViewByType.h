@@ -8,7 +8,7 @@ public:
 
 	// Inherited via IObjectsView
 	CString GetTitle() override;
-	bool ShowObject(ObjectInfoEx* info) override;
+	bool ShowObject(ObjectInfo* info) override;
 
 private:
 	CString _type, _title;

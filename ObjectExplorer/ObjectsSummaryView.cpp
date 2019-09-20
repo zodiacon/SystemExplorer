@@ -275,7 +275,7 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 				for (int col = 0; col < ColumnCount; col++) {
 					GetItemText(i, col, temp);
 					text += temp;
-					if (col < 8)
+					if (col < ColumnCount - 1)
 						text += L",";
 				}
 				text += L"\r\n";
@@ -284,14 +284,14 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 			::WriteFile(hFile.get(), text.GetBuffer(), (text.GetLength() + 1) * sizeof(WCHAR), &bytes, nullptr);
 		}
 		else {
-			MessageBox(L"Failed to open file.", L"Kernel Object Viewer");
+			AtlMessageBox(*this, L"Failed to create file.", IDR_MAINFRAME);
 		}
 	}
 
 	return 0;
 }
 
-std::shared_ptr<ObjectTypeInfoEx> CObjectSummaryView::GetItem(int index) const {
+std::shared_ptr<ObjectTypeInfo> CObjectSummaryView::GetItem(int index) const {
 	return m_Items[index];
 }
 
@@ -309,7 +309,7 @@ PCWSTR CObjectSummaryView::PoolTypeToString(PoolType type) {
 	return L"Unknown";
 }
 
-bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfoEx>& item1, const std::shared_ptr<ObjectTypeInfoEx>& item2) const {
+bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2) const {
 	bool result = false;
 	switch (m_SortColumn) {
 		case 0:		// name

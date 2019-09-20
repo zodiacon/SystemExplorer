@@ -17,9 +17,9 @@
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
-std::vector<std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_types;
-std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesMap;
-std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfoEx>> ObjectManager::_typesNameMap;
+std::vector<std::shared_ptr<ObjectTypeInfo>> ObjectManager::_types;
+std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfo>> ObjectManager::_typesMap;
+std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfo>> ObjectManager::_typesNameMap;
 std::vector<ObjectManager::Change> ObjectManager::_changes;
 int64_t ObjectManager::_totalHandles;
 int64_t ObjectManager::_totalObjects;
@@ -47,7 +47,7 @@ int ObjectManager::EnumTypes() {
 	_totalHandles = _totalObjects = 0;
 
 	for (ULONG i = 0; i < count; i++) {
-		auto type = empty ? std::make_shared<ObjectTypeInfoEx>() : _typesMap[raw->TypeIndex];
+		auto type = empty ? std::make_shared<ObjectTypeInfo>() : _typesMap[raw->TypeIndex];
 		if (empty) {
 			type->GenericMapping = raw->GenericMapping;
 			type->TypeIndex = raw->TypeIndex;
@@ -140,7 +140,7 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 		hi->ProcessId = (ULONG)handle.UniqueProcessId;
 		hi->ObjectTypeIndex = handle.ObjectTypeIndex;
 		if (auto it = _objectsByAddress.find(handle.Object); it == _objectsByAddress.end()) {
-			auto obj = std::make_shared<ObjectInfoEx>();
+			auto obj = std::make_shared<ObjectInfo>();
 			obj->HandleCount = 1;
 			obj->Object = handle.Object;
 			obj->Handles.push_back(hi);
@@ -163,7 +163,7 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 	return true;
 }
 
-const std::vector<std::shared_ptr<ObjectInfoEx>>& ObjectManager::GetObjects() const {
+const std::vector<std::shared_ptr<ObjectInfo>>& ObjectManager::GetObjects() const {
 	return _objects;
 }
 
@@ -228,7 +228,7 @@ std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const
 	return nullptr;
 }
 
-HANDLE ObjectManager::DupHandle(ObjectInfoEx * pObject, ACCESS_MASK access) {
+HANDLE ObjectManager::DupHandle(ObjectInfo * pObject, ACCESS_MASK access) {
 	for (auto& h : pObject->Handles) {
 		auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, //access);
 			_typesMap.at(h->ObjectTypeIndex)->ValidAccessMask);
@@ -246,7 +246,7 @@ int64_t ObjectManager::GetTotalObjects() {
 	return _totalObjects;
 }
 
-bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid, USHORT type) const {
+bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, USHORT type) const {
 	static int processTypeIndex = _typesNameMap.find(L"Process")->second->TypeIndex;
 	static int threadTypeIndex = _typesNameMap.find(L"Thread")->second->TypeIndex;
 	static int fileTypeIndex = _typesNameMap.find(L"File")->second->TypeIndex;
@@ -290,15 +290,15 @@ bool ObjectManager::GetObjectInfo(ObjectInfoEx* info, HANDLE hObject, ULONG pid,
 	return false;
 }
 
-std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(USHORT index) {
+std::shared_ptr<ObjectTypeInfo> ObjectManager::GetType(USHORT index) {
 	return _typesMap.at(index);
 }
 
-std::shared_ptr<ObjectTypeInfoEx> ObjectManager::GetType(PCWSTR name) {
+std::shared_ptr<ObjectTypeInfo> ObjectManager::GetType(PCWSTR name) {
 	return _typesNameMap.at(name);
 }
 
-const std::vector<std::shared_ptr<ObjectTypeInfoEx>>& ObjectManager::GetObjectTypes() {
+const std::vector<std::shared_ptr<ObjectTypeInfo>>& ObjectManager::GetObjectTypes() {
 	return _types;
 }
 

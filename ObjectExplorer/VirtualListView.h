@@ -95,7 +95,7 @@ protected:
 		return true;
 	}
 
-	int GetSortColumn(UINT_PTR id) const {
+	int GetSortColumn(UINT_PTR id = 0) const {
 		auto si = FindById(id);
 		return si ? si->SortColumn : -1;
 	}
@@ -126,11 +126,14 @@ protected:
 	void DoSort(const SortInfo*) {}
 
 private:
-	SortInfo* FindById(UINT_PTR id) {
+	SortInfo* FindById(UINT_PTR id) const {
+		if (id == 0)
+			return m_Controls.empty() ? nullptr : &m_Controls[0];
 		for (auto& info : m_Controls)
 			if (info.Id == id)
 				return &info;
 		return nullptr;
 	}
-	std::vector<SortInfo> m_Controls;
+
+	mutable std::vector<SortInfo> m_Controls;
 };
