@@ -52,11 +52,8 @@ bool DriverHelper::InstallDriver() {
 		return false;
 
 	wil::unique_schandle hService(::CreateService(hScm.get(), L"KObjExp", nullptr, SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER,
-		SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, path, nullptr, nullptr, nullptr, nullptr, nullptr));
-	if (!hService)
-		return false;
-
-	return ::StartService(hService.get(), 0, nullptr) ? true : false;
+		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path, nullptr, nullptr, nullptr, nullptr, nullptr));
+	return hService != nullptr;
 }
 
 HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
@@ -95,7 +92,7 @@ bool DriverHelper::IsDriverLoaded() {
 	if (!hScm)
 		return false;
 
-	wil::unique_schandle hService(::OpenService(hScm.get(), L"KObjExp", SERVICE_ALL_ACCESS));
+	wil::unique_schandle hService(::OpenService(hScm.get(), L"KObjExp", SERVICE_QUERY_STATUS));
 	if (!hService)
 		return false;
 

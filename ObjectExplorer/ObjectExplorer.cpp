@@ -5,8 +5,8 @@
 
 #include "resource.h"
 
-#include "aboutdlg.h"
 #include "MainFrm.h"
+#include "DriverHelper.h"
 
 CAppModule _Module;
 
@@ -32,9 +32,20 @@ int Run(LPTSTR /*lpstrCmdLine*/ = nullptr, int nCmdShow = SW_SHOWDEFAULT) {
 	return nRet;
 }
 
-#include "NtDll.h"
+bool CheckInstall(PCWSTR cmdLine) {
+	if (::wcsstr(cmdLine, L"install")) {
+		if (!DriverHelper::LoadDriver())
+			if (DriverHelper::InstallDriver())
+				DriverHelper::LoadDriver();
+		return true;
+	}
+	return false;
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow) {
+	if (CheckInstall(lpstrCmdLine))
+		return 0;
+
 	//auto h = ::CreateWaitableTimer(nullptr, FALSE, nullptr);
 	//LARGE_INTEGER time;
 
@@ -53,7 +64,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lps
 	HRESULT hRes = ::CoInitialize(nullptr);
 	ATLASSERT(SUCCEEDED(hRes));
 
-	AtlInitCommonControls(ICC_COOL_CLASSES | ICC_BAR_CLASSES);	// add flags to support other controls
+	AtlInitCommonControls(ICC_COOL_CLASSES | ICC_BAR_CLASSES | ICC_LISTVIEW_CLASSES | ICC_TREEVIEW_CLASSES);
 
 	hRes = _Module.Init(nullptr, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));

@@ -10,6 +10,7 @@
 #include "MainFrm.h"
 #include "ObjectViewByType.h"
 #include "ObjectsSummaryView.h"
+#include "DriverHelper.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
@@ -27,6 +28,9 @@ LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	auto page = static_cast<int>(hdr->idFrom);
 	auto hWnd = m_view.GetPageHWND(page);
 	ATLASSERT(::IsWindow(hWnd));
+	if (!m_view.IsWindow())
+		return 0;
+
 	if (m_CurrentPage >= 0)
 		::SendMessage(m_view.GetPageHWND(m_CurrentPage), OM_ACTIVATE_PAGE, 0, 0);
 	::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
@@ -108,6 +112,21 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
 
 	m_view.SetImageList(m_TabImages);
+
+	if (!DriverHelper::IsDriverLoaded()) {
+		if (MessageBox(L"Kernel Driver not loaded. Most functionality will not be available. Install?", L"Object Explorer", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			WCHAR path[MAX_PATH];
+			::GetModuleFileName(nullptr, path, _countof(path));
+			SHELLEXECUTEINFO shi = { sizeof(shi) };
+			shi.lpFile = path;
+			shi.lpVerb = L"runas";
+			shi.lpParameters = L"install";
+			shi.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE | SEE_MASK_NOASYNC;
+			if (!::ShellExecuteEx(&shi)) {
+				MessageBox(L"Error running driver installer", L"Object Explorer", MB_ICONERROR);
+			}
+		}
+	}
 
 	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 

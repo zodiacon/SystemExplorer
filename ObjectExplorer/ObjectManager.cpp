@@ -266,10 +266,10 @@ bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, U
 					BYTE* buffer;
 				} data = { hDup, buffer };
 
-				wil::unique_handle hThread(::CreateThread(nullptr, 0, [](auto p) {
+				wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) {
 					auto d = (Data*)p;
 					return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
-					}, &data, 0, nullptr));
+					}, &data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
 				if (::WaitForSingleObject(hThread.get(), 5) == WAIT_TIMEOUT) {
 					::TerminateThread(hThread.get(), 1);
 				}

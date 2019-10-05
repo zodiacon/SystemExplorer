@@ -99,9 +99,7 @@ BEGIN
         BEGIN
             MENUITEM "&ALPC Port",                  ID_SHOWOBJECTSOFTYPE_ALPCPORT
             MENUITEM "&Desktop",                    ID_SHOWOBJECTSOFTYPE_DESKTOP
-            MENUITEM "Device",                      ID_SHOWOBJECTSOFTYPE_DEVICE
             MENUITEM "Directory",                   ID_SHOWOBJECTSOFTYPE_DIRECTORY
-            MENUITEM "Driver",                      ID_SHOWOBJECTSOFTYPE_DRIVER
             MENUITEM "Event",                       ID_SHOWOBJECTSOFTYPE_EVENT
             MENUITEM "&File",                       ID_SHOWOBJECTSOFTYPE_FILE
             MENUITEM "Job",                         ID_SHOWOBJECTSOFTYPE_JOB
