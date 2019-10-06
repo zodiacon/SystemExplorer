@@ -412,7 +412,15 @@ IDI_TYPES               ICON                    "res\\types.ico"
 // BIN
 //
 
-IDR_DRIVER              BIN                     "C:\\Dev\\ObjectExplorer\\x64\\Release\\KObjExp.sys"
+#if defined(_DEBUG) && defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
+#elif defined(_DEBUG) && !defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\Debug\\KObjExp.sys"
+#elif !defined(_DEBUG) && defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
+#else
+IDR_DRIVER              BIN                     "..\\Release\\KObjExp.sys"
+#endif
 
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
