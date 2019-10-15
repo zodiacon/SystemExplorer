@@ -11,6 +11,7 @@
 #include "ObjectViewByType.h"
 #include "ObjectsSummaryView.h"
 #include "DriverHelper.h"
+#include "HandlesView.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
@@ -31,7 +32,7 @@ LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	if (!m_view.IsWindow())
 		return 0;
 
-	if (m_CurrentPage >= 0)
+	if (m_CurrentPage >= 0 && m_CurrentPage < m_view.GetPageCount())
 		::SendMessage(m_view.GetPageHWND(m_CurrentPage), OM_ACTIVATE_PAGE, 0, 0);
 	::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
 	m_CurrentPage = page;
@@ -154,6 +155,15 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", m_ObjectsIcon, pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CHandlesView(this, this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	m_view.AddPage(pView->m_hWnd, L"All Handles", m_ObjectsIcon, pView);
 
 	return 0;
 }

@@ -96,6 +96,9 @@
     <ClCompile Include="ObjectsSummaryView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HandlesView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CustomeTabView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandlesView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

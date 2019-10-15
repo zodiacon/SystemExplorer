@@ -119,7 +119,13 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
         MENUITEM SEPARATOR
-        MENUITEM "Object &Manager",             ID_OBJECTS_OBJECTMANAGER
+        MENUITEM "Object &Manager Namespace",   ID_OBJECTS_OBJECTMANAGER
+    END
+    POPUP "&Handles"
+    BEGIN
+        MENUITEM "&All Handles",                ID_HANDLES_ALLHANDLES
+        MENUITEM SEPARATOR
+        MENUITEM "Show &Handles of Type",       ID_HANDLES_SHOWHANDLESOFTYPE
     END
     POPUP "&Search"
     BEGIN
@@ -183,6 +189,10 @@ IDI_TOKEN               ICON                    "res\\token.ico"
 IDI_PAUSE               ICON                    "res\\Waiting.ico"
 
 IDI_WINSTATION          ICON                    "res\\windowstation.ico"
+
+IDI_OBJECTS             ICON                    "res\\objects.ico"
+
+IDI_TYPES               ICON                    "res\\types.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -386,43 +396,6 @@ BEGIN
 END
 
 #endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (United Kingdom) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_OBJECTS             ICON                    "res\\objects.ico"
-
-IDI_TYPES               ICON                    "res\\types.ico"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// BIN
-//
-
-#if defined(_DEBUG) && defined(_WIN64)
-IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
-#elif defined(_DEBUG) && !defined(_WIN64)
-IDR_DRIVER              BIN                     "..\\Debug\\KObjExp.sys"
-#elif !defined(_DEBUG) && defined(_WIN64)
-IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
-#else
-IDR_DRIVER              BIN                     "..\\Release\\KObjExp.sys"
-#endif
-
-#endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

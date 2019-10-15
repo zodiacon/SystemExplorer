@@ -21,6 +21,7 @@ struct HandleInfo {
 	ULONG GrantedAccess;
 	ULONG HandleAttributes;
 	USHORT ObjectTypeIndex;
+	CString Name;
 };
 
 struct ObjectInfo {
@@ -72,6 +73,7 @@ struct ProcessInfo {
 class ObjectManager {
 public:
 	bool EnumHandlesAndObjects(PCWSTR type = nullptr);
+	bool EnumHandles(PCWSTR type = nullptr);
 	int EnumTypes();
 
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetObjects() const;
@@ -96,9 +98,13 @@ public:
 	const std::vector<Change>& GetChanges() const;
 
 	bool GetObjectInfo(ObjectInfo* p, HANDLE hObject, ULONG pid, USHORT type) const;
+	CString GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const;
+	CString GetObjectName(HANDLE hDup, USHORT type) const;
+
 	static std::shared_ptr<ObjectTypeInfo> GetType(USHORT index);
 	static std::shared_ptr<ObjectTypeInfo> GetType(PCWSTR name);
 	static const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetObjectTypes();
+	const std::vector<std::shared_ptr<HandleInfo>>& GetHandles() const;
 
 private:
 	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;

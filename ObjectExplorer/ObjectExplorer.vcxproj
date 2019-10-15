@@ -121,7 +121,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -187,7 +187,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>Sync</ExceptionHandling>
       <DebugInformationFormat />
-      <PreprocessorDefinitions>_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -218,6 +218,7 @@
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
     <ClCompile Include="FileObjectType.cpp" />
+    <ClCompile Include="HandlesView.cpp" />
     <ClCompile Include="JobObjectType.cpp" />
     <ClCompile Include="KeyObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="FileObjectType.h" />
+    <ClInclude Include="HandlesView.h" />
     <ClInclude Include="IObjectsView.h" />
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />

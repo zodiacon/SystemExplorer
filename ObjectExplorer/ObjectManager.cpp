@@ -119,8 +119,6 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 
 	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)buffer.get();
 	auto count = p->NumberOfHandles;
-	_handles.clear();
-	_handles.reserve(count);
 	_objects.clear();
 	_objectsByAddress.clear();
 	_objects.reserve(count / 2);
@@ -155,9 +153,48 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 			it->second->HandleCount++;
 			it->second->Handles.push_back(hi);
 		}
+	}
 
+	return true;
+}
 
-		_handles.push_back(hi);
+bool ObjectManager::EnumHandles(PCWSTR type) {
+	EnumTypes();
+	EnumProcesses();
+
+	ULONG len = 1 << 25;
+	std::unique_ptr<BYTE[]> buffer;
+	do {
+		buffer = std::make_unique<BYTE[]>(len);
+		auto status = NT::NtQuerySystemInformation(NT::SystemExtendedHandleInformation, buffer.get(), len, &len);
+		if (status == STATUS_INFO_LENGTH_MISMATCH) {
+			len <<= 1;
+			continue;
+		}
+		if (status == 0)
+			break;
+		return false;
+	} while (true);
+
+	auto filteredTypeIndex = type == nullptr || ::wcslen(type) == 0 ? -1 : _typesNameMap.at(type)->TypeIndex;
+
+	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)buffer.get();
+	auto count = p->NumberOfHandles;
+	_handles.clear();
+	_handles.reserve(count);
+	for (decltype(count) i = 0; i < count; i++) {
+		auto& handle = p->Handles[i];
+		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
+			continue;
+
+		auto hi = std::make_shared<HandleInfo>();
+		hi->HandleValue = (ULONG)handle.HandleValue;
+		hi->GrantedAccess = handle.GrantedAccess;
+		hi->Object = handle.Object;
+		hi->HandleAttributes = handle.HandleAttributes;
+		hi->ProcessId = (ULONG)handle.UniqueProcessId;
+		hi->ObjectTypeIndex = handle.ObjectTypeIndex;
+		_handles.emplace_back(hi);
 	}
 
 	return true;
@@ -247,47 +284,62 @@ int64_t ObjectManager::GetTotalObjects() {
 }
 
 bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, USHORT type) const {
+	auto hDup = DupHandle(info);
+	if (hDup) {
+		info->Name = GetObjectName(hDup, type);
+		::CloseHandle(hDup);
+		return true;
+	}
+	return false;
+}
+
+CString ObjectManager::GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const {
+	auto hDup = DriverHelper::DupHandle(hObject, pid, 0);
+	return GetObjectName(hDup, type);
+}
+
+CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) const {
 	static int processTypeIndex = _typesNameMap.find(L"Process")->second->TypeIndex;
 	static int threadTypeIndex = _typesNameMap.find(L"Thread")->second->TypeIndex;
 	static int fileTypeIndex = _typesNameMap.find(L"File")->second->TypeIndex;
 	ATLASSERT(processTypeIndex > 0 && threadTypeIndex > 0);
 
-	auto hDup = DupHandle(info);
-	if (hDup) {
-		do {
-			if (type == processTypeIndex || type == threadTypeIndex)
-				break;
+	CString sname;
+	do {
+		if (type == processTypeIndex || type == threadTypeIndex)
+			break;
 
-			BYTE buffer[2048];
-			if (type == fileTypeIndex) {
-				// special case for files in case they're locked
-				struct Data {
-					HANDLE hDup;
-					BYTE* buffer;
-				} data = { hDup, buffer };
+		BYTE buffer[2048];
+		if (type == fileTypeIndex) {
+			// special case for files in case they're locked
+			struct Data {
+				HANDLE hDup;
+				BYTE* buffer;
+			} data = { hDup, buffer };
 
-				wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) {
-					auto d = (Data*)p;
-					return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
-					}, &data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
-				if (::WaitForSingleObject(hThread.get(), 5) == WAIT_TIMEOUT) {
-					::TerminateThread(hThread.get(), 1);
-				}
-				else {
+			wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) {
+				auto d = (Data*)p;
+				return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
+				}, &data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
+			if (::WaitForSingleObject(hThread.get(), 6) == WAIT_TIMEOUT) {
+				::TerminateThread(hThread.get(), 1);
+			}
+			else {
+				DWORD code;
+				::GetExitCodeThread(hThread.get(), &code);
+				if (code == STATUS_SUCCESS) {
 					auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
-					info->Name = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
+					sname = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
 				}
 			}
-			else if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectNameInformation, buffer, sizeof(buffer), nullptr))) {
-				auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
-				info->Name = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
-			}
-		} while (false);
-		ATLASSERT(hDup);
-		::CloseHandle(hDup);
-		return true;
-	}
-	return false;
+		}
+		else if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectNameInformation, buffer, sizeof(buffer), nullptr))) {
+			auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
+			sname = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
+		}
+	} while (false);
+
+	return sname;
 }
 
 std::shared_ptr<ObjectTypeInfo> ObjectManager::GetType(USHORT index) {
@@ -300,6 +352,10 @@ std::shared_ptr<ObjectTypeInfo> ObjectManager::GetType(PCWSTR name) {
 
 const std::vector<std::shared_ptr<ObjectTypeInfo>>& ObjectManager::GetObjectTypes() {
 	return _types;
+}
+
+const std::vector<std::shared_ptr<HandleInfo>>& ObjectManager::GetHandles() const {
+	return _handles;
 }
 
 ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {
