@@ -275,6 +275,11 @@ HANDLE ObjectManager::DupHandle(ObjectInfo * pObject, ACCESS_MASK access) {
 	return nullptr;
 }
 
+HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access) {
+	auto hDup = DriverHelper::DupHandle(h, pid, _typesMap.at(type)->ValidAccessMask);
+	return hDup;
+}
+
 int64_t ObjectManager::GetTotalHandles() {
 	return _totalHandles;
 }
@@ -319,7 +324,7 @@ CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) const {
 
 			wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) {
 				auto d = (Data*)p;
-				return (DWORD)NT_SUCCESS(NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr));
+				return (DWORD)NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr);
 				}, &data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
 			if (::WaitForSingleObject(hThread.get(), 6) == WAIT_TIMEOUT) {
 				::TerminateThread(hThread.get(), 1);

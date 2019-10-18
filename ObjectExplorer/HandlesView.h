@@ -12,10 +12,13 @@ public:
 
 	CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr);
 
+	void DoSort(const SortInfo* si);
+
 	BEGIN_MSG_MAP(CHandlesView)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		CHAIN_MSG_MAP_ALT(CVirtualListView<CHandlesView>, 1)
 	END_MSG_MAP()
 
 private:
@@ -24,7 +27,9 @@ private:
 	LRESULT OnContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 private:
+	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
+	static CString HandleAttributesToString(ULONG attributes);
 
 private:
 	ObjectManager m_ObjMgr;

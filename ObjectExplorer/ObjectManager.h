@@ -82,6 +82,7 @@ public:
 	const CString& GetProcessNameById(DWORD id) const;
 
 	static HANDLE DupHandle(ObjectInfo* pObject, ACCESS_MASK access = GENERIC_READ);
+	static HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0);
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();

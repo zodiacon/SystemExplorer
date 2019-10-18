@@ -27,14 +27,17 @@ BOOL CMainFrame::OnIdle() {
 
 LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	auto page = static_cast<int>(hdr->idFrom);
-	auto hWnd = m_view.GetPageHWND(page);
-	ATLASSERT(::IsWindow(hWnd));
-	if (!m_view.IsWindow())
-		return 0;
-
+	HWND hWnd = nullptr;
+	if (page >= 0) {
+		hWnd = m_view.GetPageHWND(page);
+		ATLASSERT(::IsWindow(hWnd));
+		if (!m_view.IsWindow())
+			return 0;
+	}
 	if (m_CurrentPage >= 0 && m_CurrentPage < m_view.GetPageCount())
 		::SendMessage(m_view.GetPageHWND(m_CurrentPage), OM_ACTIVATE_PAGE, 0, 0);
-	::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
+	if(hWnd)
+		::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
 	m_CurrentPage = page;
 
 	return 0;
@@ -76,26 +79,26 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	struct {
 		UINT icon;
 		PCWSTR name;
-		UINT id = 0;
+		UINT id[2];
 	} icons[] = {
 		{ IDI_GENERIC,		L"" },
-		{ IDI_PROCESS,		L"Process",			ID_SHOWOBJECTSOFTYPE_PROCESS },
-		{ IDI_THREAD,		L"Thread",			ID_SHOWOBJECTSOFTYPE_THREAD },
-		{ IDI_JOB,			L"Job",				ID_SHOWOBJECTSOFTYPE_JOB },
-		{ IDI_MUTEX,		L"Mutant",			ID_SHOWOBJECTSOFTYPE_MUTEX },
-		{ IDI_EVENT,		L"Event",			ID_SHOWOBJECTSOFTYPE_EVENT },
-		{ IDI_SEMAPHORE,	L"Semaphore",		ID_SHOWOBJECTSOFTYPE_SEMAPHORE },
-		{ IDI_DESKTOP,		L"Desktop",			ID_SHOWOBJECTSOFTYPE_DESKTOP },
-		{ IDI_WINSTATION,	L"WindowStation",	ID_SHOWOBJECTSOFTYPE_WINDOWSTATION },
-		{ IDI_PORT,			L"ALPC Port",		ID_SHOWOBJECTSOFTYPE_ALPCPORT },
-		{ IDI_KEY,			L"Key",				ID_SHOWOBJECTSOFTYPE_KEY },
-		{ IDI_DEVICE,		L"Device",			ID_SHOWOBJECTSOFTYPE_DEVICE },
-		{ IDI_FILE,			L"File",			ID_SHOWOBJECTSOFTYPE_FILE },
-		{ IDI_SYMLINK,		L"SymbolicLink",	ID_SHOWOBJECTSOFTYPE_SYMBOLICLINK },
-		{ IDI_SECTION,		L"Section",			ID_SHOWOBJECTSOFTYPE_SECTION },
-		{ IDI_DIRECTORY,	L"Directory",		ID_SHOWOBJECTSOFTYPE_DIRECTORY },
-		{ IDI_TIMER,		L"Timer",			ID_SHOWOBJECTSOFTYPE_TIMER },
-		{ IDI_TOKEN,		L"Token",			ID_SHOWOBJECTSOFTYPE_TOKEN },
+		{ IDI_PROCESS,		L"Process",			{ ID_SHOWOBJECTSOFTYPE_PROCESS		, ID_SHOWHANDLESOFTYPE_PROCESS		} },
+		{ IDI_THREAD,		L"Thread",			{ ID_SHOWOBJECTSOFTYPE_THREAD		, ID_SHOWHANDLESOFTYPE_THREAD			} },
+		{ IDI_JOB,			L"Job",				{ ID_SHOWOBJECTSOFTYPE_JOB			, ID_SHOWHANDLESOFTYPE_JOB			} },
+		{ IDI_MUTEX,		L"Mutant",			{ ID_SHOWOBJECTSOFTYPE_MUTEX		, ID_SHOWHANDLESOFTYPE_MUTEX			} },
+		{ IDI_EVENT,		L"Event",			{ ID_SHOWOBJECTSOFTYPE_EVENT		, ID_SHOWHANDLESOFTYPE_EVENT			} },
+		{ IDI_SEMAPHORE,	L"Semaphore",		{ ID_SHOWOBJECTSOFTYPE_SEMAPHORE	, ID_SHOWHANDLESOFTYPE_SEMAPHORE		} },
+		{ IDI_DESKTOP,		L"Desktop",			{ ID_SHOWOBJECTSOFTYPE_DESKTOP		, ID_SHOWHANDLESOFTYPE_DESKTOP			} },
+		{ IDI_WINSTATION,	L"WindowStation",	{ ID_SHOWOBJECTSOFTYPE_WINDOWSTATION, ID_SHOWHANDLESOFTYPE_WINDOWSTATION } },
+		{ IDI_PORT,			L"ALPC Port",		{ ID_SHOWOBJECTSOFTYPE_ALPCPORT		, ID_SHOWHANDLESOFTYPE_ALPCPORT	} },
+		{ IDI_KEY,			L"Key",				{ ID_SHOWOBJECTSOFTYPE_KEY			, ID_SHOWHANDLESOFTYPE_KEY		} },
+		{ IDI_DEVICE,		L"Device",			{ ID_SHOWOBJECTSOFTYPE_DEVICE		} },
+		{ IDI_FILE,			L"File",			{ ID_SHOWOBJECTSOFTYPE_FILE			, ID_SHOWHANDLESOFTYPE_FILE		} },
+		{ IDI_SYMLINK,		L"SymbolicLink",	{ ID_SHOWOBJECTSOFTYPE_SYMBOLICLINK , ID_SHOWHANDLESOFTYPE_SYMBOLICLINK	} },
+		{ IDI_SECTION,		L"Section",			{ ID_SHOWOBJECTSOFTYPE_SECTION		, ID_SHOWHANDLESOFTYPE_SECTION	} },
+		{ IDI_DIRECTORY,	L"Directory",		{ ID_SHOWOBJECTSOFTYPE_DIRECTORY	, ID_SHOWHANDLESOFTYPE_DIRECTORY		} },
+		{ IDI_TIMER,		L"Timer",			{ ID_SHOWOBJECTSOFTYPE_TIMER		, ID_SHOWHANDLESOFTYPE_TIMER		} },
+		{ IDI_TOKEN,		L"Token",			{ ID_SHOWOBJECTSOFTYPE_TOKEN		, ID_SHOWHANDLESOFTYPE_TOKEN	} },
 	};
 
 	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
@@ -105,8 +108,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
 		m_TabImages.AddIcon(hIcon);
 		m_IconMap.insert({ icon.name, index++ });
-		if(icon.id)
-			m_CmdBar.AddIcon(hIcon, icon.id);
+		for(auto& id : icon.id)
+			m_CmdBar.AddIcon(hIcon, id);
 	}
 
 	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));
@@ -235,9 +238,22 @@ LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
 	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
 
-	m_view.AddPage(tab->m_hWnd, type, GetIconIndexByType(type), tab);
+	m_view.AddPage(tab->m_hWnd, type + L" Objects", GetIconIndexByType(type), tab);
 
 	return LRESULT();
+}
+
+LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
+	CString type;
+	m_CmdBar.GetMenu().GetMenuStringW(id, type, 0);
+	type.Replace(L"&", L"");
+
+	auto pView = new CHandlesView(this, this, type);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	m_view.AddPage(pView->m_hWnd, type + L" Handles", GetIconIndexByType(type), pView);
+
+	return 0;
 }
 
 LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {

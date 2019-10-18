@@ -1,8 +1,57 @@
 #include "stdafx.h"
 #include "HandlesView.h"
+#include <algorithm>
+#include <execution>
 
 CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type) :
 	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type) {
+}
+
+void CHandlesView::DoSort(const SortInfo* si) {
+	CWaitCursor wait;
+	std::sort(std::execution::par_unseq, m_Handles.begin(), m_Handles.end(), [this, si](const auto& o1, const auto& o2) {
+		return CompareItems(*o1.get(), *o2.get(), si);
+		});
+
+	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+}
+
+bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
+	switch (si->SortColumn) {
+		case 0:		// type
+			return SortStrings(m_ObjMgr.GetType(h1.ObjectTypeIndex)->TypeName, m_ObjMgr.GetType(h2.ObjectTypeIndex)->TypeName, si->SortAscending);
+
+		case 1:		// address
+			return SortNumbers(h1.Object, h2.Object, si->SortAscending);
+
+		case 2:		// name
+			if ((h1.HandleAttributes & 0x8000) == 0) {
+				h1.Name = m_ObjMgr.GetObjectName(ULongToHandle(h1.HandleValue), h1.ProcessId, h1.ObjectTypeIndex);
+				h1.HandleAttributes |= 0x8000;
+			}
+			if ((h2.HandleAttributes & 0x8000) == 0) {
+				h2.Name = m_ObjMgr.GetObjectName(ULongToHandle(h2.HandleValue), h2.ProcessId, h2.ObjectTypeIndex);
+				h2.HandleAttributes |= 0x8000;
+			}
+			return SortStrings(h1.Name, h2.Name, si->SortAscending);
+
+		case 3:		// handle
+			return SortNumbers(h1.HandleValue, h2.HandleValue, si->SortAscending);
+
+		case 4:		// process name
+			return SortStrings(m_ObjMgr.GetProcessNameById(h1.ProcessId), m_ObjMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
+
+		case 5:		// PID
+			return SortNumbers(h1.ProcessId, h2.ProcessId, si->SortAscending);
+
+		case 6:		// attributes
+			return SortNumbers(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
+
+		case 7:		// access mask
+			return SortNumbers(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
+	}
+
+	return false;
 }
 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
@@ -20,9 +69,10 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Name", 330 },
 		{ L"Handle", 100, LVCFMT_RIGHT },
 		{ L"Process Name", 160 },
-		{ L"PID", 450 },
+		{ L"PID", 100 },
 		{ L"Attributes", 100 },
-		//{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
+		{ L"Access Mask", 100, LVCFMT_RIGHT },
+		{ L"Details", 300 }
 	};
 
 	m_ColumnCount = _countof(columns);
@@ -77,6 +127,24 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data->ProcessId, data->ProcessId);
 				break;
 
+			case 6:	// attributes
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%s (%d)", HandleAttributesToString(data->HandleAttributes), data->HandleAttributes & 0x7fff);
+				break;
+
+			case 7:	// access mask
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->GrantedAccess);
+				break;
+				
+			case 8:	// details
+				auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
+				if (h) {
+					auto& type = m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeDetails;
+					CString details = type ? type->GetDetails(h) : L"";
+					if (!details.IsEmpty())
+						::StringCchCopy(item.pszText, item.cchTextMax, details);
+					::CloseHandle(h);
+				}
+				break;
 		}
 	}
 	if (item.mask & LVIF_IMAGE) {
@@ -93,4 +161,18 @@ void CHandlesView::Refresh() {
 	m_ObjMgr.EnumHandles(m_HandleType);
 	m_Handles = m_ObjMgr.GetHandles();
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+}
+
+CString CHandlesView::HandleAttributesToString(ULONG attributes) {
+	CString result;
+	if (attributes & HANDLE_FLAG_INHERIT)
+		result += L", Inherit";
+	if (attributes & HANDLE_FLAG_PROTECT_FROM_CLOSE)
+		result += L", Protect";
+
+	if (result.IsEmpty())
+		result = L"None";
+	else
+		result = result.Mid(2);
+	return result;
 }
