@@ -260,7 +260,6 @@ LRESULT CObjectSummaryView::OnSelectionChanged(int, LPNMHDR, BOOL &) {
 }
 
 void CObjectSummaryView::OnViewActivated() {
-	int zz = 9;
 }
 
 LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {

@@ -13,6 +13,9 @@
 #include "DriverHelper.h"
 #include "HandlesView.h"
 
+const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
+
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
 		return TRUE;
@@ -155,8 +158,7 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	auto pView = new CObjectsView(this, this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
-		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", m_ObjectsIcon, pView);
 
 	return 0;
@@ -164,8 +166,7 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CHandlesView(this, this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Handles", m_ObjectsIcon, pView);
 
 	return 0;
@@ -235,12 +236,11 @@ LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
 	type.Replace(L"&", L"");
 
 	auto tab = new CObjectsView(this, this, type);
-	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
 	m_view.AddPage(tab->m_hWnd, type + L" Objects", GetIconIndexByType(type), tab);
 
-	return LRESULT();
+	return 0;
 }
 
 LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
@@ -249,8 +249,7 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 	type.Replace(L"&", L"");
 
 	auto pView = new CHandlesView(this, this, type);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, type + L" Handles", GetIconIndexByType(type), pView);
 
 	return 0;
@@ -258,8 +257,7 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
 	auto tab = new CObjectSummaryView(this, *this);
-	tab->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL, 0);
+	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
 	m_view.AddPage(tab->m_hWnd, L"Types", m_TypesIcon, tab);
 	return 0;
