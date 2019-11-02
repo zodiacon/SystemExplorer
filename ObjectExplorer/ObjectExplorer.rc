@@ -144,6 +144,8 @@ BEGIN
             MENUITEM "Token",                       ID_SHOWHANDLESOFTYPE_TOKEN
             MENUITEM "&WindowStation",              ID_SHOWHANDLESOFTYPE_WINDOWSTATION
         END
+        MENUITEM SEPARATOR
+        MENUITEM "Show Handle in &Process...",  ID_HANDLES_SHOWHANDLEINPROCESS
     END
     POPUP "&Search"
     BEGIN
@@ -224,8 +226,18 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.2\n\n(C)2019 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.3\n\n(C)2019 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
+END
+
+IDD_PROCSELECT DIALOGEX 0, 0, 309, 276
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Process Selector"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,96,255,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,162,255,50,14
+    CONTROL         "",IDC_PROCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,295,219
 END
 
 
@@ -243,6 +255,14 @@ BEGIN
         RIGHTMARGIN, 180
         TOPMARGIN, 7
         BOTTOMMARGIN, 95
+    END
+
+    IDD_PROCSELECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 269
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -322,6 +342,11 @@ BEGIN
     0
 END
 
+IDD_PROCSELECT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -330,7 +355,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.2 (C)2019 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.3 (C)2019 Pavel Yosifovich"
 END
 
 STRINGTABLE

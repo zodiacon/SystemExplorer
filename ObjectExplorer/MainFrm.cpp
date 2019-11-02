@@ -12,6 +12,7 @@
 #include "ObjectsSummaryView.h"
 #include "DriverHelper.h"
 #include "HandlesView.h"
+#include "ProcessSelectDlg.h"
 
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
@@ -260,6 +261,21 @@ LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
 	m_view.AddPage(tab->m_hWnd, L"Types", m_TypesIcon, tab);
+	return 0;
+}
+
+LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
+	CProcessSelectDlg dlg;
+	if (dlg.DoModal() == IDOK) {
+		auto pid = dlg.GetSelectedProcess();
+		auto pView = new CHandlesView(this, this, nullptr, pid);
+		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
+		CString title;
+		title.Format(L"Handles (PID %d)", pid);
+		m_view.AddPage(pView->m_hWnd, title, 1, pView);
+
+	}
+
 	return 0;
 }
 

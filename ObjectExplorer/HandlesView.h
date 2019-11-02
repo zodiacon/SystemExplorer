@@ -10,7 +10,7 @@ class CHandlesView :
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr);
+	CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr, DWORD pid = 0);
 
 	void DoSort(const SortInfo* si);
 
@@ -37,6 +37,7 @@ private:
 	IMainFrame* m_pFrame;
 	CUpdateUIBase* m_pUI;
 	int m_ColumnCount;
+	int m_Pid;
 	std::vector<std::shared_ptr<HandleInfo>> m_Handles;
 };
 

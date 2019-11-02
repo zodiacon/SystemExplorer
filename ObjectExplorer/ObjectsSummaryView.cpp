@@ -67,18 +67,18 @@ LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM wParam, LPARAM, BOOL&) {
 LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	DefWindowProc();
 
-	InsertColumn(0, L"Name", LVCFMT_LEFT, 130);
+	InsertColumn(0, L"Name", LVCFMT_LEFT, 180);
 	InsertColumn(1, L"Index", LVCFMT_RIGHT, 50);
 	InsertColumn(2, L"Objects", LVCFMT_RIGHT, 100);
 	InsertColumn(3, L"Handles", LVCFMT_RIGHT, 100);
 	InsertColumn(4, L"Peak Objects", LVCFMT_RIGHT, 100);
 	InsertColumn(5, L"Peak Handles", LVCFMT_RIGHT, 100);
 	InsertColumn(6, L"Pool Type", LVCFMT_LEFT, 110);
-	InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 110);
-	InsertColumn(8, L"Default Non-Paged Charge", LVCFMT_RIGHT, 110);
-	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 110);
+	InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
+	InsertColumn(8, L"Default Non-Paged Charge", LVCFMT_RIGHT, 130);
+	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP, 0);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP | LVS_EX_ONECLICKACTIVATE | LVS_EX_UNDERLINEHOT, 0);
 
 	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 

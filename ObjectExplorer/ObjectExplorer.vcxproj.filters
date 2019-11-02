@@ -99,6 +99,12 @@
     <ClCompile Include="HandlesView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinStationObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessSelectDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -189,6 +195,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HandlesView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinStationObjectType.h">
+      <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessSelectDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

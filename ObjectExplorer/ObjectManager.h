@@ -72,8 +72,8 @@ struct ProcessInfo {
 
 class ObjectManager {
 public:
-	bool EnumHandlesAndObjects(PCWSTR type = nullptr);
-	bool EnumHandles(PCWSTR type = nullptr);
+	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0);
+	bool EnumHandles(PCWSTR type = nullptr, DWORD pid = 0);
 	int EnumTypes();
 
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetObjects() const;
@@ -106,12 +106,16 @@ public:
 	static std::shared_ptr<ObjectTypeInfo> GetType(PCWSTR name);
 	static const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetObjectTypes();
 	const std::vector<std::shared_ptr<HandleInfo>>& GetHandles() const;
+	const std::vector<ProcessInfo>& GetProcesses() const {
+		return _processes;
+	}
 
 private:
 	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
 
 private:
 	std::unordered_map<DWORD, ProcessInfo> _processesById;
+	std::vector<ProcessInfo> _processes;
 	static std::vector<std::shared_ptr<ObjectTypeInfo>> _types;
 	static std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfo>> _typesMap;
 	static std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfo>> _typesNameMap;

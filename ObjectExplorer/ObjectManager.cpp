@@ -14,6 +14,7 @@
 #include "TokenObjectType.h"
 #include "FileObjectType.h"
 #include "TimerObjectType.h"
+#include "WinStationObjectType.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -97,7 +98,7 @@ int ObjectManager::EnumTypes() {
 	return static_cast<int>(_types.size());
 }
 
-bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
+bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 	EnumTypes();
 	EnumProcesses();
 
@@ -130,6 +131,9 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
 			continue;
 
+		if (pid && handle.UniqueProcessId != pid)
+			continue;
+
 		auto hi = std::make_shared<HandleInfo>();
 		hi->HandleValue = (ULONG)handle.HandleValue;
 		hi->GrantedAccess = handle.GrantedAccess;
@@ -158,7 +162,7 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type) {
 	return true;
 }
 
-bool ObjectManager::EnumHandles(PCWSTR type) {
+bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
 	EnumTypes();
 	EnumProcesses();
 
@@ -184,6 +188,9 @@ bool ObjectManager::EnumHandles(PCWSTR type) {
 	_handles.reserve(count);
 	for (decltype(count) i = 0; i < count; i++) {
 		auto& handle = p->Handles[i];
+		if (pid && handle.UniqueProcessId != pid)
+			continue;
+
 		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
 			continue;
 
@@ -217,10 +224,16 @@ bool ObjectManager::EnumProcesses() {
 
 	_processesById.clear();
 	_processesById.reserve(256);
+	_processes.clear();
+	_processes.reserve(256);
 
 	do {
+		if (pe.th32ProcessID == 0)
+			continue;
+
 		ProcessInfo pi(pe.th32ProcessID, pe.szExeFile);
 		_processesById.emplace(pe.th32ProcessID, pi);
+		_processes.emplace_back(pi);
 	} while (::Process32Next(hSnapshot.get(), &pe));
 
 	return true;
@@ -261,6 +274,8 @@ std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const
 		return std::make_unique<FileObjectType>(typeIndex, name);
 	if (name == L"Timer")
 		return std::make_unique<TimerObjectType>(typeIndex, name);
+	if (name == L"WindowStation")
+		return std::make_unique<WinStationObjectType>(typeIndex, name);
 
 	return nullptr;
 }

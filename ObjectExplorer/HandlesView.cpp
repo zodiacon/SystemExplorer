@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <execution>
 
-CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type) :
-	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type) {
+CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type, DWORD pid) :
+	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type), m_Pid(pid) {
 }
 
 void CHandlesView::DoSort(const SortInfo* si) {
@@ -57,7 +57,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_UNDERLINEHOT | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -158,7 +158,7 @@ LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
 }
 
 void CHandlesView::Refresh() {
-	m_ObjMgr.EnumHandles(m_HandleType);
+	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
 	m_Handles = m_ObjMgr.GetHandles();
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 }
