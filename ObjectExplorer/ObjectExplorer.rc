@@ -438,6 +438,21 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// BIN
+//
+
+#if defined(_DEBUG) && defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
+#elif defined(_DEBUG) && !defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\Debug\\KObjExp.sys"
+#elif !defined(_DEBUG) && defined(_WIN64)
+IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
+#else
+IDR_DRIVER              BIN                     "..\\Release\\KObjExp.sys"
+#endif
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
