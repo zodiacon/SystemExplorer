@@ -8,12 +8,19 @@ CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR 
 }
 
 void CHandlesView::DoSort(const SortInfo* si) {
+	if (si == nullptr)
+		return;
 	CWaitCursor wait;
 	std::sort(std::execution::par_unseq, m_Handles.begin(), m_Handles.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
 
 	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+}
+
+bool CHandlesView::IsSortable(int col) const {
+	// details column cannot be sorted
+	return col != 8;
 }
 
 bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
@@ -57,7 +64,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_UNDERLINEHOT | LVS_EX_HEADERDRAGDROP);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -69,7 +76,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Name", 330 },
 		{ L"Handle", 100, LVCFMT_RIGHT },
 		{ L"Process Name", 160 },
-		{ L"PID", 100 },
+		{ L"PID", m_Pid == 0 ? 100 : 1, LVCFMT_RIGHT | (m_Pid == 0 ? 0 : LVCFMT_FIXED_WIDTH) },
 		{ L"Attributes", 100 },
 		{ L"Access Mask", 100, LVCFMT_RIGHT },
 		{ L"Details", 300 }
@@ -153,13 +160,45 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
+	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, GetSelectedCount() > 0);
+
+	return 0;
+}
+
 LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
-	return LRESULT();
+	return 0;
+}
+
+LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
+	auto selected = GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+
+	auto& item = m_Handles[selected];
+	if (MessageBox(L"Closing a handle can potentially make the process unstable. Continue?", L"Object Explorer",
+		MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDNO)
+		return 0;
+
+	auto hDup = m_ObjMgr.DupHandle(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex, 
+		0, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
+	if (!hDup) {
+		AtlMessageBox(*this, L"Failed to close handle", L"Object Explorer", MB_ICONERROR);
+		return 0;
+	}
+	::CloseHandle(hDup);
+
+	return 0;
+}
+
+LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
+	Refresh();
+	return 0;
 }
 
 void CHandlesView::Refresh() {
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
 	m_Handles = m_ObjMgr.GetHandles();
+	DoSort(GetSortInfo());
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 }
 

@@ -12,4 +12,5 @@ struct DupHandleData {
 	ULONG Handle;
 	ULONG SourcePid;
 	ACCESS_MASK AccessMask;
+	ULONG Flags;
 };

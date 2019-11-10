@@ -111,7 +111,7 @@ LRESULT CObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
 LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_UNDERLINEHOT | LVS_EX_HEADERDRAGDROP);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -137,7 +137,6 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
-	//SetTimer(1, 2000, nullptr);
 
 	return 0;
 }

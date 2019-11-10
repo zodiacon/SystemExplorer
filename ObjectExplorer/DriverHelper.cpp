@@ -71,7 +71,7 @@ HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
 		? hObject : nullptr;
 }
 
-HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access) {
+HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DWORD flags) {
 	if (!OpenDevice())
 		return nullptr;
 
@@ -79,6 +79,7 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access) {
 	data.AccessMask = access;
 	data.Handle = HandleToUlong(hObject);
 	data.SourcePid = pid;
+	data.Flags = flags;
 
 	DWORD bytes;
 	HANDLE hTarget = nullptr;

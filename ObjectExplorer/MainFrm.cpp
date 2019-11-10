@@ -293,3 +293,4 @@ int CMainFrame::GetIconIndexByType(PCWSTR type) const {
 	auto it = m_IconMap.find(type);
 	return it == m_IconMap.end() ? 0 : it->second;
 }
+

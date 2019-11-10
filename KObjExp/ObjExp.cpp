@@ -111,7 +111,7 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 
 			HANDLE hTarget;
 			status = ZwDuplicateObject(hProcess, ULongToHandle(data->Handle), NtCurrentProcess(),
-				&hTarget, data->AccessMask, 0, DUPLICATE_SAME_ACCESS);
+				&hTarget, data->AccessMask, 0, data->Flags);
 			ZwClose(hProcess);
 			if (!NT_SUCCESS(status)) {
 				KdPrint(("Failed to duplicate handle (0x%8X)\n", status));

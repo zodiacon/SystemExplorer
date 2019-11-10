@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.779
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29505.145
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ObjectExplorer", "ObjectExplorer\ObjectExplorer.vcxproj", "{A5D618EB-BD6E-4769-8EF9-92ACE34C5DA4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{05F68EEB-2380-455B-9C29-88708E749013} = {05F68EEB-2380-455B-9C29-88708E749013}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KObjExp", "KObjExp\KObjExp.vcxproj", "{05F68EEB-2380-455B-9C29-88708E749013}"
 EndProject

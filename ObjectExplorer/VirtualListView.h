@@ -38,9 +38,16 @@ protected:
 		return -1;
 	}
 
+	bool IsSortable(int) const {
+		return true;
+	}
+
 	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto lv = (NMLISTVIEW*)hdr;	
 		auto col = lv->iSubItem;
+		auto p = static_cast<T*>(this);
+		if (!p->IsSortable(col))
+			return 0;
 
 		auto si = FindById(hdr->idFrom);
 		if (si == nullptr) {

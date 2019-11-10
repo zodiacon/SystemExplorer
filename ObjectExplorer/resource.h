@@ -28,6 +28,7 @@
 #define IDI_ICON1                       223
 #define IDI_TYPES                       223
 #define IDD_PROCSELECT                  224
+#define IDR_BIN1                        226
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define ID_WINDOW_CLOSE                 32772
@@ -75,13 +76,15 @@
 #define ID_SHOWHANDLESOFTYPE_DIRECTORY  32819
 #define ID_SHOWHANDLESOFTYPE_SECTION    32820
 #define ID_HANDLES_SHOWHANDLEINPROCESS  32823
+#define ID_HANDLES_PIPES                32824
+#define ID_HANDLES_CLOSEHANDLE          32825
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        226
-#define _APS_NEXT_COMMAND_VALUE         32824
+#define _APS_NEXT_RESOURCE_VALUE        227
+#define _APS_NEXT_COMMAND_VALUE         32826
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -82,7 +82,7 @@ public:
 	const CString& GetProcessNameById(DWORD id) const;
 
 	static HANDLE DupHandle(ObjectInfo* pObject, ACCESS_MASK access = GENERIC_READ);
-	static HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0);
+	static HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0, DWORD flags = DUPLICATE_SAME_ACCESS);
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();
@@ -125,5 +125,6 @@ private:
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
 	static std::vector<Change> _changes;
 	static int64_t _totalHandles, _totalObjects;
+	bool _skipThisProcess = false;
 };
 

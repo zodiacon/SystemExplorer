@@ -194,6 +194,10 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
 		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
 			continue;
 
+		// skip Object Explorer process?
+		if (_skipThisProcess && handle.UniqueProcessId == ::GetCurrentProcessId())
+			continue;
+
 		auto hi = std::make_shared<HandleInfo>();
 		hi->HandleValue = (ULONG)handle.HandleValue;
 		hi->GrantedAccess = handle.GrantedAccess;
@@ -290,8 +294,8 @@ HANDLE ObjectManager::DupHandle(ObjectInfo * pObject, ACCESS_MASK access) {
 	return nullptr;
 }
 
-HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access) {
-	auto hDup = DriverHelper::DupHandle(h, pid, _typesMap.at(type)->ValidAccessMask);
+HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access, DWORD flags) {
+	auto hDup = DriverHelper::DupHandle(h, pid, _typesMap.at(type)->ValidAccessMask, flags);
 	return hDup;
 }
 
@@ -315,7 +319,9 @@ bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, U
 
 CString ObjectManager::GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const {
 	auto hDup = DriverHelper::DupHandle(hObject, pid, 0);
-	return GetObjectName(hDup, type);
+	auto name = GetObjectName(hDup, type);
+	::CloseHandle(hDup);
+	return name;
 }
 
 CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) const {
