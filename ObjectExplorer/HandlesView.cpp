@@ -95,6 +95,13 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
+	auto pMsg = reinterpret_cast<MSG*>(lParam);
+	LRESULT result;
+	handled = ProcessWindowMessage(*this, pMsg->message, pMsg->wParam, pMsg->lParam, result, 1);
+	return result;
+}
+
 LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMLVDISPINFO*)hdr;
 	auto& item = lv->item;
@@ -167,6 +174,10 @@ LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
 }
 
 LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
+	CMenu menu;
+	menu.LoadMenuW(IDR_CONTEXT);
+	m_pFrame->TrackPopupMenu(menu.GetSubMenu(0), *this);
+
 	return 0;
 }
 
@@ -176,7 +187,7 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 
 	auto& item = m_Handles[selected];
 	if (MessageBox(L"Closing a handle can potentially make the process unstable. Continue?", L"Object Explorer",
-		MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDNO)
+		MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 
 	auto hDup = m_ObjMgr.DupHandle(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex, 
@@ -186,6 +197,9 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 		return 0;
 	}
 	::CloseHandle(hDup);
+	m_Handles.erase(m_Handles.begin() + selected);
+	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	RedrawItems(selected, selected + GetCountPerPage());
 
 	return 0;
 }

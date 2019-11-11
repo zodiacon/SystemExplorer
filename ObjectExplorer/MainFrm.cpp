@@ -47,6 +47,26 @@ LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
+	CMenu menu;
+	menu.LoadMenuW(IDR_CONTEXT);
+	auto tab = static_cast<int>(hdr->idFrom);
+	POINT pt;
+	::GetCursorPos(&pt);
+	auto cmd = (UINT)m_CmdBar.TrackPopupMenu(menu.GetSubMenu(1), TPM_RETURNCMD, pt.x, pt.y);
+	switch (cmd) {
+		case ID_WINDOW_CLOSE:
+			m_view.RemovePage(tab);
+			return 0;
+
+		case ID_WINDOW_CLOSEALLBUTTHIS:
+			CloseAllBut(tab);
+			return 0;
+
+	}
+	return SendMessage(WM_COMMAND, cmd);
+}
+
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_CmdBar.AttachMenu(GetMenu());
@@ -224,6 +244,11 @@ LRESULT CMainFrame::OnWindowCloseAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	return 0;
 }
 
+LRESULT CMainFrame::OnCloseAllButThis(WORD, WORD, HWND, BOOL&) {
+	CloseAllBut(m_view.GetActivePage());
+	return 0;
+}
+
 LRESULT CMainFrame::OnWindowActivate(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	int nPage = wID - ID_WINDOW_TABFIRST;
 	m_view.SetActivePage(nPage);
@@ -277,6 +302,13 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 	}
 
 	return 0;
+}
+
+void CMainFrame::CloseAllBut(int tab) {
+	while (m_view.GetPageCount() > tab + 1)
+		m_view.RemovePage(m_view.GetPageCount() - 1);
+	while (m_view.GetPageCount() > 1)
+		m_view.RemovePage(0);
 }
 
 BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd) {

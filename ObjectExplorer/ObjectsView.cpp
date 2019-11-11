@@ -121,11 +121,9 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Type", 140 },
 		{ L"Address", 140, LVCFMT_RIGHT },
 		{ L"Name", 330 },
-		//{ L"Create Time", 120 },
 		{ L"Handles", 100, LVCFMT_RIGHT },
 		{ L"First Handle", 160, LVCFMT_LEFT },
 		{ L"Details", 450 },
-		//{ L"Non-Paged Pool", 100, LVCFMT_RIGHT },
 	};
 
 	ColumnCount = _countof(columns);
@@ -146,9 +144,9 @@ LRESULT CObjectsView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 }
 
 LRESULT CObjectsView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
-	auto msg = (MSG*)lParam;
+	auto msg = reinterpret_cast<MSG*>(lParam);
 	LRESULT result = 0;
-	//handled = ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 2);
+	handled = ProcessWindowMessage(*this, msg->message, msg->wParam, msg->lParam, result, 1);
 	return result;
 }
 
@@ -208,6 +206,11 @@ LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL &) {
 
 LRESULT CObjectsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	Refresh();
+	return 0;
+}
+
+LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
+	m_pUpdateUI->UIEnable(ID_EDIT_COPY, GetSelectedIndex() >= 0);
 	return 0;
 }
 

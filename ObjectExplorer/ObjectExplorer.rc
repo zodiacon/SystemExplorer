@@ -120,6 +120,8 @@ BEGIN
         MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
         MENUITEM SEPARATOR
         MENUITEM "Object &Manager Namespace",   ID_OBJECTS_OBJECTMANAGER
+        MENUITEM SEPARATOR
+        MENUITEM "&Drivers",                    ID_OBJECTS_DRIVERS
     END
     POPUP "&Handles"
     BEGIN
@@ -159,10 +161,24 @@ BEGIN
     BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
         MENUITEM "Close &All",                  ID_WINDOW_CLOSE_ALL
+        MENUITEM "Close All but &This",         ID_WINDOW_CLOSEALLBUTTHIS
     END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About Object Explorer...",   ID_APP_ABOUT
+    END
+END
+
+IDR_CONTEXT MENU
+BEGIN
+    POPUP "handle"
+    BEGIN
+        MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE
+    END
+    POPUP "tab"
+    BEGIN
+        MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
+        MENUITEM "Close All but &This",         ID_WINDOW_CLOSEALLBUTTHIS
     END
 END
 
