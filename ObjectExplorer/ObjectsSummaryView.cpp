@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include <algorithm>
-
+#include "ClipboardHelper.h"
 #include "ObjectsSummaryView.h"
 
 BOOL CObjectSummaryView::PreTranslateMessage(MSG* pMsg) {
@@ -235,20 +235,7 @@ LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
 		text += L"\r\n";
 	}
 
-	if (OpenClipboard()) {
-		::EmptyClipboard();
-		auto size = (text.GetLength() + 1) * sizeof(WCHAR);
-		auto hData = ::GlobalAlloc(GMEM_MOVEABLE, size);
-		if (hData) {
-			auto p = ::GlobalLock(hData);
-			if (p) {
-				::memcpy(p, text.GetBuffer(), size);
-				::GlobalUnlock(p);
-				::SetClipboardData(CF_UNICODETEXT, hData);
-			}
-		}
-		::CloseClipboard();
-	}
+	ClipboardHelper::CopyText(*this, text);
 
 	return 0;
 }

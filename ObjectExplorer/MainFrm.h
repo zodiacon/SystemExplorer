@@ -36,6 +36,7 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_OBJECTS_ALLHANDLESFOROBJECT, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
@@ -90,6 +91,8 @@ private:
 
 private:
 	void CloseAllBut(int page);
+	void InitCommandBar();
+	void InitToolBar(CToolBarCtrl& tb);
 
 private:
 	CTabView m_view;
@@ -98,5 +101,5 @@ private:
 	CImageListManaged m_TabImages;
 	std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
-	int m_ObjectsIcon, m_TypesIcon;
+	int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon;
 };

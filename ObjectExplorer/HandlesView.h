@@ -15,6 +15,7 @@ public:
 
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
+	static CString HandleAttributesToString(ULONG attributes);
 
 	BEGIN_MSG_MAP(CHandlesView)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
@@ -40,7 +41,6 @@ private:
 private:
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
-	static CString HandleAttributesToString(ULONG attributes);
 
 private:
 	ObjectManager m_ObjMgr;
@@ -50,5 +50,6 @@ private:
 	int m_ColumnCount;
 	int m_Pid;
 	std::vector<std::shared_ptr<HandleInfo>> m_Handles;
+	wil::unique_handle m_hProcess;
 };
 

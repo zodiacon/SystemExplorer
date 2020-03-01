@@ -29,8 +29,14 @@
 #define IDI_TYPES                       223
 #define IDD_PROCSELECT                  224
 #define IDR_CONTEXT                     227
+#define IDD_HANDLES                     228
+#define IDI_COPY                        230
+#define IDI_REFRESH                     231
+#define IDI_ICON2                       232
+#define IDI_HANDLES                     232
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
+#define IDC_HANDLES                     1000
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -80,13 +86,14 @@
 #define ID_HANDLES_CLOSEHANDLE          32825
 #define ID_OBJECTS_DRIVERS              32826
 #define ID_WINDOW_CLOSEALLBUTTHIS       32827
+#define ID_OBJECTS_ALLHANDLESFOROBJECT  32828
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        228
-#define _APS_NEXT_COMMAND_VALUE         32828
+#define _APS_NEXT_RESOURCE_VALUE        233
+#define _APS_NEXT_COMMAND_VALUE         32829
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

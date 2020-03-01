@@ -10,6 +10,8 @@
 #include "ClipboardHelper.h"
 #include "ProcessHelper.h"
 #include "IObjectsView.h"
+#include "SortHelper.h"
+#include "ObjectHandlesDlg.h"
 
 int CObjectsView::ColumnCount;
 
@@ -41,16 +43,16 @@ std::shared_ptr<ObjectInfo>& CObjectsView::GetItem(int index) {
 bool CObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
-			return SortStrings(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
+			return SortHelper::SortStrings(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
 
 		case 1:		// address
-			return SortNumbers(o1.Object, o2.Object, si->SortAscending);
+			return SortHelper::SortNumbers(o1.Object, o2.Object, si->SortAscending);
 
 		case 2:		// name
-			return SortStrings(o1.Name, o2.Name, si->SortAscending);
+			return SortHelper::SortStrings(o1.Name, o2.Name, si->SortAscending);
 
 		case 3:		// handles
-			return SortNumbers(o1.HandleCount, o2.HandleCount, si->SortAscending);
+			return SortHelper::SortNumbers(o1.HandleCount, o2.HandleCount, si->SortAscending);
 
 	}
 
@@ -211,6 +213,17 @@ LRESULT CObjectsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
 	m_pUpdateUI->UIEnable(ID_EDIT_COPY, GetSelectedIndex() >= 0);
+	m_pUpdateUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, GetSelectedIndex() >= 0);
+
+	return 0;
+}
+
+LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
+	ATLASSERT(GetSelectedIndex() >= 0);
+	auto& item = GetItem(GetSelectedIndex());
+	CObjectHandlesDlg dlg(item.get(), m_ObjMgr);
+	dlg.DoModal();
+
 	return 0;
 }
 

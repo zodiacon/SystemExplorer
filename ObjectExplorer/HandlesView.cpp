@@ -2,9 +2,12 @@
 #include "HandlesView.h"
 #include <algorithm>
 #include <execution>
+#include "SortHelper.h"
+#include <string>
 
 CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type, DWORD pid) :
 	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type), m_Pid(pid) {
+	m_hProcess.reset(::OpenProcess(SYNCHRONIZE, FALSE, pid));
 }
 
 void CHandlesView::DoSort(const SortInfo* si) {
@@ -26,10 +29,10 @@ bool CHandlesView::IsSortable(int col) const {
 bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
-			return SortStrings(m_ObjMgr.GetType(h1.ObjectTypeIndex)->TypeName, m_ObjMgr.GetType(h2.ObjectTypeIndex)->TypeName, si->SortAscending);
+			return SortHelper::SortStrings(m_ObjMgr.GetType(h1.ObjectTypeIndex)->TypeName, m_ObjMgr.GetType(h2.ObjectTypeIndex)->TypeName, si->SortAscending);
 
 		case 1:		// address
-			return SortNumbers(h1.Object, h2.Object, si->SortAscending);
+			return SortHelper::SortNumbers(h1.Object, h2.Object, si->SortAscending);
 
 		case 2:		// name
 			if ((h1.HandleAttributes & 0x8000) == 0) {
@@ -40,22 +43,22 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 				h2.Name = m_ObjMgr.GetObjectName(ULongToHandle(h2.HandleValue), h2.ProcessId, h2.ObjectTypeIndex);
 				h2.HandleAttributes |= 0x8000;
 			}
-			return SortStrings(h1.Name, h2.Name, si->SortAscending);
+			return SortHelper::SortStrings(h1.Name, h2.Name, si->SortAscending);
 
 		case 3:		// handle
-			return SortNumbers(h1.HandleValue, h2.HandleValue, si->SortAscending);
+			return SortHelper::SortNumbers(h1.HandleValue, h2.HandleValue, si->SortAscending);
 
 		case 4:		// process name
-			return SortStrings(m_ObjMgr.GetProcessNameById(h1.ProcessId), m_ObjMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
+			return SortHelper::SortStrings(m_ObjMgr.GetProcessNameById(h1.ProcessId), m_ObjMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
 
 		case 5:		// PID
-			return SortNumbers(h1.ProcessId, h2.ProcessId, si->SortAscending);
+			return SortHelper::SortNumbers(h1.ProcessId, h2.ProcessId, si->SortAscending);
 
 		case 6:		// attributes
-			return SortNumbers(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
+			return SortHelper::SortNumbers(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
 
 		case 7:		// access mask
-			return SortNumbers(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
+			return SortHelper::SortNumbers(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
 	}
 
 	return false;
@@ -210,6 +213,11 @@ LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 }
 
 void CHandlesView::Refresh() {
+	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
+		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
+		SetItemCount(0);
+		return;
+	}
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo());

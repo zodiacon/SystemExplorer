@@ -224,6 +224,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
+    <ClCompile Include="ObjectHandlesDlg.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="ObjectsSummaryView.cpp" />
     <ClCompile Include="ObjectType.cpp" />
@@ -234,6 +235,7 @@
     <ClCompile Include="SectionObjectType.cpp" />
     <ClCompile Include="SecurityHelper.cpp" />
     <ClCompile Include="SemaphoreObjectType.cpp" />
+    <ClCompile Include="SortHelper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -261,6 +263,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MutexObjectType.h" />
     <ClInclude Include="NtDll.h" />
+    <ClInclude Include="ObjectHandlesDlg.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="ObjectsSummaryView.h" />
     <ClInclude Include="ObjectType.h" />
@@ -286,18 +289,21 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\briefcase.ico" />
+    <Image Include="res\copy.ico" />
     <Image Include="res\desktop.ico" />
     <Image Include="res\device.ico" />
     <Image Include="res\directory.ico" />
     <Image Include="res\event.ico" />
     <Image Include="res\file.ico" />
     <Image Include="res\generic.ico" />
+    <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />
     <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
     <Image Include="res\objects.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />
+    <Image Include="res\refresh.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
     <Image Include="res\symboliclink.ico" />

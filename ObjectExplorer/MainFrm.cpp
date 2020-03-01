@@ -70,14 +70,18 @@ LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_CmdBar.AttachMenu(GetMenu());
-	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	SetMenu(nullptr);
+	m_CmdBar.m_bAlphaImages = true;
+	InitCommandBar();
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	CToolBarCtrl tb;
+	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
+	InitToolBar(tb);
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, nullptr, TRUE);
+	CReBarCtrl(m_hWndToolBar).LockBands(TRUE);
 
 	CreateSimpleStatusBar();
 
@@ -87,8 +91,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
-
-	CReBarCtrl(m_hWndToolBar).LockBands(TRUE);
+	UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, FALSE);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -138,6 +141,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));
 	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
+	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_HANDLES));
 
 	m_view.SetImageList(m_TabImages);
 
@@ -188,7 +192,7 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CHandlesView(this, this);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Handles", m_ObjectsIcon, pView);
+	m_view.AddPage(pView->m_hWnd, L"All Handles", m_HandlesIcon, pView);
 
 	return 0;
 }
@@ -326,3 +330,41 @@ int CMainFrame::GetIconIndexByType(PCWSTR type) const {
 	return it == m_IconMap.end() ? 0 : it->second;
 }
 
+void CMainFrame::InitCommandBar() {
+	struct {
+		UINT id, icon;
+	} cmds[] = {
+		{ ID_EDIT_COPY, IDI_COPY },
+		{ ID_VIEW_REFRESH, IDI_REFRESH },
+		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
+		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
+		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
+	};
+	for (auto& cmd : cmds)
+		m_CmdBar.AddIcon(AtlLoadIcon(cmd.icon), cmd.id);
+}
+
+void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
+	CImageList tbImages;
+	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
+	tb.SetImageList(tbImages);
+
+	struct {
+		UINT id;
+		int image;
+		int style = BTNS_BUTTON;
+	} buttons[] = {
+		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
+		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
+		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
+	};
+	for (auto& b : buttons) {
+		if (b.id == 0)
+			tb.AddSeparator(0);
+		else {
+			int image = tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, nullptr, 0);
+		}
+	}
+
+}

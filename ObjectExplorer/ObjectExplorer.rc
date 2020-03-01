@@ -47,27 +47,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Toolbar
-//
-
-IDR_MAINFRAME TOOLBAR 16, 16
-BEGIN
-    BUTTON      ID_FILE_SAVE
-    SEPARATOR
-    BUTTON      ID_EDIT_COPY
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Menu
 //
 
@@ -116,6 +95,7 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "&All Objects",                ID_OBJECTS_ALLOBJECTS
+        MENUITEM "&All Handles for Object...",  ID_OBJECTS_ALLHANDLESFOROBJECT
         MENUITEM SEPARATOR
         MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
         MENUITEM SEPARATOR
@@ -180,6 +160,7 @@ BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
         MENUITEM "Close All but &This",         ID_WINDOW_CLOSEALLBUTTHIS
     END
+    MENUITEM "object",                      0
 END
 
 
@@ -234,6 +215,12 @@ IDI_OBJECTS             ICON                    "res\\objects.ico"
 
 IDI_TYPES               ICON                    "res\\types.ico"
 
+IDI_COPY                ICON                    "res\\copy.ico"
+
+IDI_REFRESH             ICON                    "res\\refresh.ico"
+
+IDI_HANDLES             ICON                    "res\\handles.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -260,6 +247,14 @@ BEGIN
     CONTROL         "",IDC_PROCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,295,219
 END
 
+IDD_HANDLES DIALOGEX 0, 0, 555, 304
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Handles for Object"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_HANDLES,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,541,290
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -283,6 +278,14 @@ BEGIN
         RIGHTMARGIN, 302
         TOPMARGIN, 7
         BOTTOMMARGIN, 269
+    END
+
+    IDD_HANDLES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 548
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 297
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -363,6 +366,11 @@ BEGIN
 END
 
 IDD_PROCSELECT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_HANDLES AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

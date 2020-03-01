@@ -1,13 +1,11 @@
 #pragma once
 
-#include <string>
-
 template<typename T>
 struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
-	ALT_MSG_MAP(1)
+		ALT_MSG_MAP(1)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
 	END_MSG_MAP()
@@ -19,32 +17,47 @@ struct CVirtualListView {
 		bool SortAscending;
 	};
 
+	bool ClearSort(UINT_PTR id) {
+		auto si = FindById(id);
+		if (si == nullptr)
+			return false;
+
+		auto header = CListViewCtrl(si->hWnd).GetHeader();
+		HDITEM h;
+		h.mask = HDI_FORMAT;
+		header.GetItem(si->SortColumn, &h);
+		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
+		header.SetItem(si->SortColumn, &h);
+		si->SortColumn = -1;
+		return true;
+	}
+
 protected:
 	LRESULT OnFindItem(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto fi = (NMLVFINDITEM*)hdr;
 		auto text = fi->lvfi.psz;
 		auto len = ::wcslen(text);
-		auto list = static_cast<T*>(this);
+		auto list = fi->hdr.hwndFrom;
 
-		int selected = list->GetSelectedIndex();
+		if (ListView_GetSelectedCount(list) == 0)
+			return 0;
+
+		int selected = ListView_GetNextItem(list, -1, LVIS_SELECTED);
 		int start = selected + 1;
-		int count = list->GetItemCount();
+		int count = ListView_GetItemCount(list);
+		WCHAR name[256];
 		for (int i = start; i < count + start; i++) {
-			CString name;
-			list->GetItemText(i % count, 0, name);
+			ListView_GetItemText(list, i % count, 0, name, _countof(name));
 			if (::_wcsnicmp(name, text, len) == 0)
 				return i % count;
 		}
 		return -1;
 	}
 
-	bool IsSortable(int) const {
-		return true;
-	}
-
 	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
-		auto lv = (NMLISTVIEW*)hdr;	
+		auto lv = (NMLISTVIEW*)hdr;
 		auto col = lv->iSubItem;
+
 		auto p = static_cast<T*>(this);
 		if (!p->IsSortable(col))
 			return 0;
@@ -87,18 +100,7 @@ protected:
 		return 0;
 	}
 
-	bool ClearSort(UINT_PTR id) {
-		auto si = FindById(id);
-		if (si == nullptr)
-			return false;
-
-		auto header = CListViewCtrl(si->hWnd).GetHeader();
-		HDITEM h;
-		h.mask = HDI_FORMAT;
-		header.GetItem(si->SortColumn, &h);
-		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
-		header.SetItem(si->SortColumn, &h);
-		si->SortColumn = -1;
+	bool IsSortable(int) const {
 		return true;
 	}
 
@@ -106,7 +108,7 @@ protected:
 		auto si = FindById(id);
 		return si ? si->SortColumn : -1;
 	}
-	int IsSortAscending(UINT_PTR id) const{
+	int IsSortAscending(UINT_PTR id) const {
 		auto si = FindById(id);
 		return si ? si->SortAscending : false;
 	}
@@ -115,19 +117,6 @@ protected:
 		if (id == 0 && m_Controls.empty())
 			return nullptr;
 		return id == 0 ? &m_Controls[0] : FindById(id);
-	}
-
-	static bool SortStrings(const CString& s1, const CString& s2, bool ascending) {
-		return ascending ? s2.CompareNoCase(s1) > 0 : s2.CompareNoCase(s1) < 0;
-	}
-
-	static bool SortStrings(const std::string& s1, const std::string& s2, bool ascending) {
-		return ascending ? s2.compare(s1) > 0 : s2.compare(s1) < 0;
-	}
-
-	template<typename Number>
-	static bool SortNumbers(const Number& n1, const Number& n2, bool ascending) {
-		return ascending ? n2 > n1 : n2 < n1;
 	}
 
 	void DoSort(const SortInfo*) {}
