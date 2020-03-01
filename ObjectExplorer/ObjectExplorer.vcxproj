@@ -288,8 +288,10 @@
     <ResourceCompile Include="ObjectExplorer.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\about.ico" />
     <Image Include="res\briefcase.ico" />
     <Image Include="res\copy.ico" />
+    <Image Include="res\delete.ico" />
     <Image Include="res\desktop.ico" />
     <Image Include="res\device.ico" />
     <Image Include="res\directory.ico" />
@@ -301,8 +303,12 @@
     <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
     <Image Include="res\objects.ico" />
+    <Image Include="res\package.ico" />
+    <Image Include="res\pause.ico" />
+    <Image Include="res\pin_green.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />
+    <Image Include="res\process_view.ico" />
     <Image Include="res\refresh.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
@@ -316,6 +322,7 @@
     <Image Include="res\windowstation.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Release\KObjExp.sys" />
     <None Include="..\x64\Release\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>

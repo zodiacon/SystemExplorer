@@ -222,7 +222,8 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(GetSelectedIndex() >= 0);
 	auto& item = GetItem(GetSelectedIndex());
 	CObjectHandlesDlg dlg(item.get(), m_ObjMgr);
-	dlg.DoModal();
+	CImageList il = m_pFrame->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->TypeName)));
 
 	return 0;
 }

@@ -1,10 +1,23 @@
 #pragma once
 
 #include "resource.h"
-#include "ObjectManager.h"
+#include "VirtualListView.h"
 
-class CProcessSelectDlg : public CDialogImpl<CProcessSelectDlg> {
+class CProcessSelectDlg :
+	public CDialogImpl<CProcessSelectDlg>,
+	public CVirtualListView<CProcessSelectDlg>,
+	public CCustomDraw<CProcessSelectDlg> {
 public:
+	friend struct CVirtualListView<CProcessSelectDlg>;
+
+	struct ProcessInfo {
+		CString Name;
+		CString Path;
+		DWORD Id;
+		DWORD Session;
+		int Image;
+	};
+
 	enum { IDD = IDD_PROCSELECT };
 
 	int GetSelectedProcess() const;
@@ -13,25 +26,32 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
+		NOTIFY_CODE_HANDLER(NM_DBLCLK, OnDblClickItem)
+		CHAIN_MSG_MAP(CVirtualListView<CProcessSelectDlg>)
+		CHAIN_MSG_MAP(CCustomDraw<CProcessSelectDlg>)
 	END_MSG_MAP()
+
+protected:
+	void DoSort(const SortInfo* si);
 
 private:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnDblClickItem(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 	void InitProcessList();
-	static int CALLBACK CompareItems(LPARAM i1, LPARAM i2, LPARAM col);
-	int CompareItems(LPARAM i1, LPARAM i2);
+	void EnumProcesses();
+	static bool CompareItems(const ProcessInfo& p1, const ProcessInfo& p2, int col, bool asc);
 
 private:
-	int m_SortColumn = -1;
+	std::vector<ProcessInfo> m_Items;
 	int m_SelectedPid = -1;
-	bool m_SortAscending = true;
+	CString m_Name;
 	CListViewCtrl m_List;
-	ObjectManager m_ObjMgr;
+	CImageList m_Images;
 };
 

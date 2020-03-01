@@ -40,10 +40,12 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto index = (int)cd->dwItemSpec;
 	auto& item = GetItem(index);
 	auto& changes = m_ObjectManager.GetChanges();
+	lcd->clrText = RGB(0, 0, 0);
 
 	for (auto& change : changes) {
 		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == sub) {
-			lcd->clrTextBk = std::get<2>(change) > 0 ? RGB(0, 255, 0) : RGB(255, 0, 0);
+			lcd->clrTextBk = std::get<2>(change) >= 0 ? RGB(0, 255, 0) : RGB(255, 0, 0);
+			lcd->clrText = std::get<2>(change) >= 0 ? RGB(0, 0, 0) : RGB(255, 255, 255);
 		}
 	}
 	return CDRF_NOTIFYITEMDRAW;
@@ -273,6 +275,20 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 			AtlMessageBox(*this, L"Failed to create file.", IDR_MAINFRAME);
 		}
 	}
+
+	return 0;
+}
+
+LRESULT CObjectSummaryView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
+	auto pMsg = reinterpret_cast<MSG*>(lParam);
+	LRESULT result;
+	handled = ProcessWindowMessage(*this, pMsg->message, pMsg->wParam, pMsg->lParam, result, 1);
+	return result;
+}
+
+LRESULT CObjectSummaryView::OnPause(WORD, WORD, HWND, BOOL&) {
+	auto paused = TogglePause();
+	m_UIUpdate.UISetCheck(ID_VIEW_PAUSE, paused);
 
 	return 0;
 }

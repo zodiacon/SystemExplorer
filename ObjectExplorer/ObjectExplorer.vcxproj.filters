@@ -292,17 +292,36 @@
     <Image Include="res\refresh.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\delete.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\process_view.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\about.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\package.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\pause.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\pin_green.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\x64\Release\KObjExp.sys" />
+    <None Include="..\Release\KObjExp.sys" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ObjectExplorer.rc">
-      <Filter>Resource Files\Icons</Filter>
+      <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

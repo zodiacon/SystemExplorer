@@ -98,6 +98,12 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
+	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, FALSE);
+
+	return DefWindowProc();
+}
+
 LRESULT CHandlesView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
 	auto pMsg = reinterpret_cast<MSG*>(lParam);
 	LRESULT result;
@@ -171,7 +177,7 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
-	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, GetSelectedCount() > 0);
+	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, GetSelectedIndex() >= 0);
 
 	return 0;
 }

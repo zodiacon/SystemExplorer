@@ -34,6 +34,12 @@
 #define IDI_REFRESH                     231
 #define IDI_ICON2                       232
 #define IDI_HANDLES                     232
+#define IDI_PROCESS_VIEW                233
+#define IDI_DELETE                      234
+#define IDI_ABOUT                       236
+#define IDI_ICON3                       237
+#define IDI_PACKAGE                     237
+#define IDI_PIN                         238
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -92,7 +98,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        233
+#define _APS_NEXT_RESOURCE_VALUE        239
 #define _APS_NEXT_COMMAND_VALUE         32829
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

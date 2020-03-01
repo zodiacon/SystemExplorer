@@ -141,6 +141,10 @@
   <ItemGroup>
     <ClInclude Include="KObjExp.h" />
     <ClInclude Include="ObjExp.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="KObjExp.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

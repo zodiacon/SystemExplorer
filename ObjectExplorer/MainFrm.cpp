@@ -18,10 +18,13 @@ const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
+	if (m_view.PreTranslateMessage(pMsg))
+		return TRUE;
+
 	if (CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
 		return TRUE;
 
-	return m_view.PreTranslateMessage(pMsg);
+	return FALSE;
 }
 
 BOOL CMainFrame::OnIdle() {
@@ -92,6 +95,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 	UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, FALSE);
+	UIEnable(ID_HANDLES_CLOSEHANDLE, FALSE);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -308,6 +312,16 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnForward(WORD, WORD, HWND, BOOL& bHandled) {
+	auto msg = GetCurrentMessage();
+	auto hPage = m_view.GetPageHWND(m_view.GetActivePage());
+	//LRESULT result;
+	//bHandled = m_view.ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 1);
+	if (hPage)
+		::SendMessage(hPage, msg->message, msg->wParam, msg->lParam);
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -335,10 +349,16 @@ void CMainFrame::InitCommandBar() {
 		UINT id, icon;
 	} cmds[] = {
 		{ ID_EDIT_COPY, IDI_COPY },
+		{ ID_VIEW_PAUSE, IDI_PAUSE },
 		{ ID_VIEW_REFRESH, IDI_REFRESH },
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
 		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
+		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
+		{ ID_HANDLES_CLOSEHANDLE, IDI_DELETE },
+		{ ID_APP_ABOUT, IDI_ABOUT },
+		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
+
 	};
 	for (auto& cmd : cmds)
 		m_CmdBar.AddIcon(AtlLoadIcon(cmd.icon), cmd.id);
@@ -354,9 +374,16 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		int image;
 		int style = BTNS_BUTTON;
 	} buttons[] = {
+		{ ID_VIEW_REFRESH, IDI_REFRESH },
+		{ 0 },
+		{ ID_VIEW_PAUSE, IDI_PAUSE },
+		{ 0 },
 		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
+		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
+		{ 0 },
+		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
 	};
 	for (auto& b : buttons) {
 		if (b.id == 0)
@@ -366,5 +393,4 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, nullptr, 0);
 		}
 	}
-
 }
