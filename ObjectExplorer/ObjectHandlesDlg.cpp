@@ -41,9 +41,13 @@ LRESULT CObjectHandlesDlg::OnInitDialog(UINT, WPARAM, LPARAM lParam, BOOL&) {
 	m_Handles = m_pObject->Handles;
 	m_List.SetItemCount(m_pObject->HandleCount);
 
+	CString text;
+	text.Format(L"Handles: %u", m_pObject->HandleCount);
+	SetDlgItemText(IDC_COUNT, text);
+	SetDlgItemText(IDC_NAME, m_pObject->Name);
+
 	SetIcon((HICON)lParam, FALSE);
 
-	CString text;
 	GetWindowText(text);
 	text.Format(L"%s 0x%p (%s)", text, m_pObject->Object, m_pObject->TypeName);
 	SetWindowText(text);
