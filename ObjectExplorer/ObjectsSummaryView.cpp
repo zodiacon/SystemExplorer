@@ -243,12 +243,18 @@ LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
 }
 
 LRESULT CObjectSummaryView::OnSelectionChanged(int, LPNMHDR, BOOL &) {
-	m_UIUpdate.UIEnable(ID_EDIT_COPY, GetSelectedCount() > 0);
+	UpdateUI();
 
 	return 0;
 }
 
 void CObjectSummaryView::OnViewActivated() {
+}
+
+void CObjectSummaryView::UpdateUI() {
+	m_UIUpdate.UIEnable(ID_EDIT_COPY, GetSelectedCount() > 0);
+	m_UIUpdate.UIEnable(ID_TYPE_ALLHANDLES, GetSelectedCount() == 1);
+	m_UIUpdate.UIEnable(ID_TYPE_ALLOBJECTS, GetSelectedCount() == 1);
 }
 
 LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
@@ -284,6 +290,30 @@ LRESULT CObjectSummaryView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& 
 	LRESULT result;
 	handled = ProcessWindowMessage(*this, pMsg->message, pMsg->wParam, pMsg->lParam, result, 1);
 	return result;
+}
+
+LRESULT CObjectSummaryView::OnContextMenu(UINT, WPARAM, LPARAM lParam, BOOL&) {
+	UpdateUI();
+
+	CMenu menu;
+	menu.LoadMenu(IDR_CONTEXT);
+	m_pFrame->TrackPopupMenu(menu.GetSubMenu(3), *this);
+
+	return 0;
+}
+
+LRESULT CObjectSummaryView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
+	auto& item = GetItem(GetSelectedIndex());
+	m_pFrame->ShowAllHandles(item->TypeName);
+
+	return 0;
+}
+
+LRESULT CObjectSummaryView::OnShowAllObjects(WORD, WORD, HWND, BOOL&) {
+	auto& item = GetItem(GetSelectedIndex());
+	m_pFrame->ShowAllObjects(item->TypeName);
+	
+	return 0;
 }
 
 LRESULT CObjectSummaryView::OnPause(WORD, WORD, HWND, BOOL&) {

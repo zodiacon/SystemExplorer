@@ -20,7 +20,7 @@ public:
 
 	enum { IDD = IDD_PROCSELECT };
 
-	int GetSelectedProcess() const;
+	int GetSelectedProcess(CString& name) const;
 
 	BEGIN_MSG_MAP(CProcessSelectDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)

@@ -43,6 +43,7 @@
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
+#define IDC_GITHUB                      1001
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -93,14 +94,19 @@
 #define ID_OBJECTS_DRIVERS              32826
 #define ID_WINDOW_CLOSEALLBUTTHIS       32827
 #define ID_OBJECTS_ALLHANDLESFOROBJECT  32828
+#define ID_OPTIONS_ALWAYSONTOP          32829
+#define ID_OPTIONS_ALWAYSONTOP32830     32830
+#define ID_OBJECT                       32831
+#define ID_TYPE_ALLOBJECTS              32832
+#define ID_TYPE_ALLHANDLES              32833
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        239
-#define _APS_NEXT_COMMAND_VALUE         32829
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_COMMAND_VALUE         32834
+#define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -198,10 +198,14 @@ LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL &) {
 		if (!m_pView->GetContextMenu(id, index))
 			return FALSE;
 
-		CMenuHandle menu = AtlLoadMenu(id);
+		CMenu menu = AtlLoadMenu(id);
 		if (!menu)
 			return FALSE;
 		return m_pFrame->TrackPopupMenu(menu.GetSubMenu(index), *this);
+	}
+	else {
+		CMenu menu = AtlLoadMenu(IDR_CONTEXT);
+		m_pFrame->TrackPopupMenu(menu.GetSubMenu(2), *this);
 	}
 	return FALSE;
 }

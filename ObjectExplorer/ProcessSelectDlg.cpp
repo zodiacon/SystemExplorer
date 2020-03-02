@@ -5,7 +5,8 @@
 #include <algorithm>
 #include "SortHelper.h"
 
-int CProcessSelectDlg::GetSelectedProcess() const {
+int CProcessSelectDlg::GetSelectedProcess(CString& name) const {
+	name = m_Name;
 	return m_SelectedPid;
 }
 
@@ -100,27 +101,19 @@ void CProcessSelectDlg::EnumProcesses() {
 	Process32First(hSnapshot, &pe);
 	WCHAR path[MAX_PATH];
 	DWORD len;
-	do {
-		auto hProcess = ::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe.th32ProcessID);
-		if (!hProcess)
-			continue;
-
+	while(::Process32Next(hSnapshot, &pe)) {
 		ProcessInfo pi;
-		pi.Name = pe.szExeFile;
-		len = MAX_PATH;
-		if (::QueryFullProcessImageName(hProcess, 0, path, &len))
-			pi.Path = path;
 		HICON hIcon;
-		if (::ExtractIconEx(pi.Path, 0, nullptr, &hIcon, 1)) {
+		if (::ExtractIconEx(pe.szExeFile, 0, nullptr, &hIcon, 1) == 1) {
 			pi.Image = m_Images.AddIcon(hIcon);
 		}
 		else
 			pi.Image = 0;
+		pi.Name = pe.szExeFile;
 		pi.Id = pe.th32ProcessID;
 		::ProcessIdToSessionId(pi.Id, &pi.Session);
 		m_Items.push_back(std::move(pi));
-		::CloseHandle(hProcess);
-	} while (::Process32Next(hSnapshot, &pe));
+	}
 	::CloseHandle(hSnapshot);
 }
 

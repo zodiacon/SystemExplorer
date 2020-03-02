@@ -253,6 +253,31 @@ const std::vector<ObjectManager::Change>& ObjectManager::GetChanges() const {
 	return _changes;
 }
 
+std::vector<ObjectNameAndType> ObjectManager::EnumDirectoryObjects(PCWSTR path) {
+	std::vector<ObjectNameAndType> objects;
+	HANDLE hDirectory;
+	OBJECT_ATTRIBUTES attr;
+	if(!NT_SUCCESS(NT::NtOpenDirectoryObject(&hDirectory, DIRECTORY_QUERY, &attr)))
+		return objects;
+
+	objects.reserve(128);
+	BYTE buffer[1 << 11];
+	auto info = reinterpret_cast<NT::OBJECT_DIRECTORY_INFORMATION*>(buffer);
+	bool first = true;
+	ULONG size;
+	for (ULONG index = 0; ; index++) {
+		if (!NT_SUCCESS(NT::NtQueryDirectoryObject(hDirectory, info, sizeof(buffer), FALSE, first, &index, &size)))
+			break;
+		first = false;
+		ObjectNameAndType data;
+		data.Name = std::wstring(info->Name.Buffer, info->Name.Length / sizeof(WCHAR));
+		data.TypeName = std::wstring(info->TypeName.Buffer, info->TypeName.Length / sizeof(WCHAR));
+
+		objects.push_back(std::move(data));
+	}
+	return objects;
+}
+
 std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) const {
 	if (name == L"Mutant")
 		return std::make_unique<MutexObjectType>(typeIndex, name);

@@ -8,7 +8,6 @@
 #include "aboutdlg.h"
 #include "ObjectsView.h"
 #include "MainFrm.h"
-#include "ObjectViewByType.h"
 #include "ObjectsSummaryView.h"
 #include "DriverHelper.h"
 #include "HandlesView.h"
@@ -269,10 +268,7 @@ LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
 	m_CmdBar.GetMenu().GetMenuStringW(id, type, 0);
 	type.Replace(L"&", L"");
 
-	auto tab = new CObjectsView(this, this, type);
-	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-
-	m_view.AddPage(tab->m_hWnd, type + L" Objects", GetIconIndexByType(type), tab);
+	ShowAllObjects(type);
 
 	return 0;
 }
@@ -282,9 +278,7 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 	m_CmdBar.GetMenu().GetMenuStringW(id, type, 0);
 	type.Replace(L"&", L"");
 
-	auto pView = new CHandlesView(this, this, type);
-	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, type + L" Handles", GetIconIndexByType(type), pView);
+	ShowAllHandles(type);
 
 	return 0;
 }
@@ -300,13 +294,13 @@ LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
 LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 	CProcessSelectDlg dlg;
 	if (dlg.DoModal() == IDOK) {
-		auto pid = dlg.GetSelectedProcess();
+		CString name;
+		auto pid = dlg.GetSelectedProcess(name);
 		auto pView = new CHandlesView(this, this, nullptr, pid);
 		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 		CString title;
-		title.Format(L"Handles (PID %d)", pid);
+		title.Format(L"Handles (%s: %d)", name, pid);
 		m_view.AddPage(pView->m_hWnd, title, 1, pView);
-
 	}
 
 	return 0;
@@ -315,10 +309,16 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 LRESULT CMainFrame::OnForward(WORD, WORD, HWND, BOOL& bHandled) {
 	auto msg = GetCurrentMessage();
 	auto hPage = m_view.GetPageHWND(m_view.GetActivePage());
-	//LRESULT result;
-	//bHandled = m_view.ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 1);
 	if (hPage)
 		::SendMessage(hPage, msg->message, msg->wParam, msg->lParam);
+	return 0;
+}
+
+LRESULT CMainFrame::OnAlwaysOnTop(WORD, WORD id, HWND, BOOL&) {
+	bool onTop = GetExStyle() & WS_EX_TOPMOST;
+	SetWindowPos(onTop ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	UISetCheck(id, !onTop);
+
 	return 0;
 }
 
@@ -393,4 +393,17 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, nullptr, 0);
 		}
 	}
+}
+
+void CMainFrame::ShowAllHandles(PCWSTR type) {
+	auto pView = new CHandlesView(this, this, type);
+	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
+	m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles", GetIconIndexByType(type), pView);
+
+}
+
+void CMainFrame::ShowAllObjects(PCWSTR type) {
+	auto tab = new CObjectsView(this, this, type);
+	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
+	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), tab);
 }

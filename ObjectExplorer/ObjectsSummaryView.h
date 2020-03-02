@@ -22,11 +22,13 @@ public:
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	void OnViewActivated();
+	void UpdateUI();
 
 	BEGIN_MSG_MAP(CObjectSummaryView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
+		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
@@ -34,6 +36,8 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPause)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
 		COMMAND_ID_HANDLER(ID_FILE_SAVE, OnExport)
+		COMMAND_ID_HANDLER(ID_TYPE_ALLHANDLES, OnShowAllHandles)
+		COMMAND_ID_HANDLER(ID_TYPE_ALLOBJECTS, OnShowAllObjects)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CObjectSummaryView>, 1)
 		DEFAULT_REFLECTION_HANDLER()
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
@@ -52,6 +56,9 @@ private:
 	LRESULT OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnForwardMessage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnContextMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

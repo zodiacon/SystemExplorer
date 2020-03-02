@@ -70,6 +70,11 @@ struct ProcessInfo {
 	CString Name;
 };
 
+struct ObjectNameAndType {
+	std::wstring Name;
+	std::wstring TypeName;
+};
+
 class ObjectManager {
 public:
 	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0);
@@ -109,6 +114,8 @@ public:
 	const std::vector<ProcessInfo>& GetProcesses() const {
 		return _processes;
 	}
+
+	static std::vector<ObjectNameAndType> EnumDirectoryObjects(PCWSTR path);
 
 private:
 	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
