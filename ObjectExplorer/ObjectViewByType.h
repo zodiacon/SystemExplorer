@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IObjectsView.h"
+#include "Interfaces.h"
 
 class ObjectViewByType : public IObjectsView {
 public:

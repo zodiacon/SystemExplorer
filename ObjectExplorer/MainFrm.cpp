@@ -12,6 +12,7 @@
 #include "DriverHelper.h"
 #include "HandlesView.h"
 #include "ProcessSelectDlg.h"
+#include "ObjectManagerView.h"
 
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
@@ -145,6 +146,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));
 	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
 	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_HANDLES));
+	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_PACKAGE));
 
 	m_view.SetImageList(m_TabImages);
 
@@ -319,6 +321,13 @@ LRESULT CMainFrame::OnAlwaysOnTop(WORD, WORD id, HWND, BOOL&) {
 	SetWindowPos(onTop ? HWND_NOTOPMOST : HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	UISetCheck(id, !onTop);
 
+	return 0;
+}
+
+LRESULT CMainFrame::OnShowObjectManager(WORD, WORD, HWND, BOOL&) {
+	auto view = new CObjectManagerView(this);
+	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	m_view.AddPage(view->m_hWnd, L"Object Manager", m_ObjectManagerIcon, view);
 	return 0;
 }
 

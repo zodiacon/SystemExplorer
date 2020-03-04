@@ -92,6 +92,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -127,6 +128,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -159,6 +161,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -192,6 +195,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -226,6 +230,7 @@
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectHandlesDlg.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="ObjectManagerView.cpp" />
     <ClCompile Include="ObjectsSummaryView.cpp" />
     <ClCompile Include="ObjectType.cpp" />
     <ClCompile Include="ObjectViewByType.cpp" />
@@ -257,7 +262,7 @@
     <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="FileObjectType.h" />
     <ClInclude Include="HandlesView.h" />
-    <ClInclude Include="IObjectsView.h" />
+    <ClInclude Include="Interfaces.h" />
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />
     <ClInclude Include="MainFrm.h" />
@@ -265,6 +270,7 @@
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectHandlesDlg.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="ObjectManagerView.h" />
     <ClInclude Include="ObjectsSummaryView.h" />
     <ClInclude Include="ObjectType.h" />
     <ClInclude Include="ObjectViewByType.h" />
@@ -297,6 +303,8 @@
     <Image Include="res\directory.ico" />
     <Image Include="res\event.ico" />
     <Image Include="res\file.ico" />
+    <Image Include="res\folder.ico" />
+    <Image Include="res\folder_closed.ico" />
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />
@@ -322,8 +330,6 @@
     <Image Include="res\windowstation.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Release\KObjExp.sys" />
-    <None Include="..\x64\Release\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

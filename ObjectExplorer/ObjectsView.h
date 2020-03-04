@@ -6,7 +6,7 @@
 
 #include "ObjectManager.h"
 #include "VirtualListView.h"
-#include "IObjectsView.h"
+#include "Interfaces.h"
 
 struct IObjectsView;
 struct IMainFrame;

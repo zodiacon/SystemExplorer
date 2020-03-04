@@ -11,9 +11,10 @@
 
 #define DIRECTORY_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 0xF)
 
+#define STATUS_ACCESS_DENIED             ((NTSTATUS)0xC0000022L)
+
 extern "C" {
 	namespace NT {
-
 		typedef struct _OBJECT_DIRECTORY_INFORMATION {
 			UNICODE_STRING Name;
 			UNICODE_STRING TypeName;
@@ -336,7 +337,7 @@ extern "C" {
 			_In_ ULONG Length,
 			_Out_ PULONG ResultLength);
 
-		NTSTATUS	NTAPI NtQuerySymbolicLinkObject(
+		NTSTATUS NTAPI NtQuerySymbolicLinkObject(
 			_In_ HANDLE LinkHandle,
 			_Inout_ PUNICODE_STRING LinkTarget,
 			_Out_opt_ PULONG ReturnedLength);
@@ -355,7 +356,12 @@ extern "C" {
 			_In_ ACCESS_MASK AccessMask,
 			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
 
-		NTSTATUS	NTAPI NtQueryDirectoryObject(
+		NTSTATUS NTAPI NtOpenSymbolicLinkObject(
+			_Out_  PHANDLE LinkHandle,
+			_In_   ACCESS_MASK DesiredAccess,
+			_In_   POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtQueryDirectoryObject(
 			_In_ HANDLE hDirectory,
 			_Out_ POBJECT_DIRECTORY_INFORMATION DirectoryEntryBuffer,
 			_In_ ULONG DirectoryEntryBufferSize,
@@ -363,6 +369,71 @@ extern "C" {
 			_In_ BOOLEAN bFirstEntry,
 			_In_ PULONG  EntryIndex,
 			_Out_ PULONG  BytesReturned);
+
+		NTSTATUS NTAPI NtOpenEvent(
+			_Out_  PHANDLE EventHandle,
+			_In_   ACCESS_MASK DesiredAccess,
+			_In_   POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtQuerySecurityObject(
+			_In_ HANDLE hObject,
+			_In_ SECURITY_INFORMATION SecurityInfoRequested,
+			_In_ PSECURITY_DESCRIPTOR pSecurityDescriptor,
+			_In_ ULONG pSecurityDescriptorLength,
+			_Out_ PULONG BytesRequired);
+
+		NTSTATUS NTAPI NtOpenMutant(
+			_Out_ PHANDLE hMutex,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenSemaphore(
+			_Out_ PHANDLE hSemaphore,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenSection(
+			_Out_ PHANDLE phSection,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenIoCompletion(
+			_Out_ PHANDLE phIoCompletionPort,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenFile(
+			_Out_ PHANDLE phFile,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes,
+			_Out_ PIO_STATUS_BLOCK pIoStatusBlock,
+			_In_ ULONG ShareMode,
+			_In_ ULONG OpenMode);
+
+		NTSTATUS NTAPI NtOpenEventPair(
+			_Out_ PHANDLE hEventPair,
+			_In_ ACCESS_MASK AccessMask,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenTimer(
+			_Out_ PHANDLE phTimer,
+			_In_ ACCESS_MASK AccessMask,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenKey(
+			_Out_ PHANDLE phKey,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenJobObject(
+			_Out_ PHANDLE JobHandle,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtOpenSession(
+			_Out_ PHANDLE SessionHandle,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
 
 	}
 }

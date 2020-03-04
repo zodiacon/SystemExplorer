@@ -17,7 +17,7 @@ struct CVirtualListView {
 		bool SortAscending;
 	};
 
-	bool ClearSort(UINT_PTR id) {
+	bool ClearSort(UINT_PTR id = 0) {
 		auto si = FindById(id);
 		if (si == nullptr)
 			return false;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VirtualListView.h"
-#include "IObjectsView.h"
+#include "Interfaces.h"
 #include "ObjectManager.h"
 #include "resource.h"
 

@@ -9,7 +9,7 @@
 #include "ObjectsView.h"
 #include "ClipboardHelper.h"
 #include "ProcessHelper.h"
-#include "IObjectsView.h"
+#include "Interfaces.h"
 #include "SortHelper.h"
 #include "ObjectHandlesDlg.h"
 

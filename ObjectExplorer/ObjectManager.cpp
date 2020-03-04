@@ -255,27 +255,52 @@ const std::vector<ObjectManager::Change>& ObjectManager::GetChanges() const {
 
 std::vector<ObjectNameAndType> ObjectManager::EnumDirectoryObjects(PCWSTR path) {
 	std::vector<ObjectNameAndType> objects;
-	HANDLE hDirectory;
+	wil::unique_handle hDirectory;
 	OBJECT_ATTRIBUTES attr;
-	if(!NT_SUCCESS(NT::NtOpenDirectoryObject(&hDirectory, DIRECTORY_QUERY, &attr)))
+	UNICODE_STRING name;
+	RtlInitUnicodeString(&name, path);
+	InitializeObjectAttributes(&attr, &name, 0, nullptr, nullptr);
+	if(!NT_SUCCESS(NT::NtOpenDirectoryObject(hDirectory.addressof(), DIRECTORY_QUERY, &attr)))
 		return objects;
 
 	objects.reserve(128);
-	BYTE buffer[1 << 11];
+	BYTE buffer[1 << 12];
 	auto info = reinterpret_cast<NT::OBJECT_DIRECTORY_INFORMATION*>(buffer);
 	bool first = true;
-	ULONG size;
-	for (ULONG index = 0; ; index++) {
-		if (!NT_SUCCESS(NT::NtQueryDirectoryObject(hDirectory, info, sizeof(buffer), FALSE, first, &index, &size)))
+	ULONG size, index = 0;
+	for(;;) {
+		auto start = index;
+		if (!NT_SUCCESS(NT::NtQueryDirectoryObject(hDirectory.get(), info, sizeof(buffer), FALSE, first, &index, &size)))
 			break;
 		first = false;
-		ObjectNameAndType data;
-		data.Name = std::wstring(info->Name.Buffer, info->Name.Length / sizeof(WCHAR));
-		data.TypeName = std::wstring(info->TypeName.Buffer, info->TypeName.Length / sizeof(WCHAR));
+		for (ULONG i = 0; i < index - start; i++) {
+			ObjectNameAndType data;
+			auto& p = info[i];
+			data.Name = std::wstring(p.Name.Buffer, p.Name.Length / sizeof(WCHAR));
+			data.TypeName = std::wstring(p.TypeName.Buffer, p.TypeName.Length / sizeof(WCHAR));
 
-		objects.push_back(std::move(data));
+			objects.push_back(std::move(data));
+		}
 	}
 	return objects;
+}
+
+CString ObjectManager::GetSymbolicLinkTarget(PCWSTR path) {
+	wil::unique_handle hLink;
+	OBJECT_ATTRIBUTES attr;
+	CString target;
+	UNICODE_STRING name;
+	RtlInitUnicodeString(&name, path);
+	InitializeObjectAttributes(&attr, &name, 0, nullptr, nullptr);
+	if (NT_SUCCESS(NT::NtOpenSymbolicLinkObject(hLink.addressof(), GENERIC_READ, &attr))) {
+		WCHAR buffer[1 << 10];
+		UNICODE_STRING result;
+		result.Buffer = buffer;
+		result.MaximumLength = sizeof(buffer);
+		if(NT_SUCCESS(NT::NtQuerySymbolicLinkObject(hLink.get(), &result, nullptr)))
+			target.SetString(result.Buffer, result.Length / sizeof(WCHAR));
+	}
+	return target;
 }
 
 std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) const {
@@ -322,6 +347,52 @@ HANDLE ObjectManager::DupHandle(ObjectInfo * pObject, ACCESS_MASK access) {
 HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access, DWORD flags) {
 	auto hDup = DriverHelper::DupHandle(h, pid, _typesMap.at(type)->ValidAccessMask, flags);
 	return hDup;
+}
+
+NTSTATUS ObjectManager::OpenObject(PCWSTR path, PCWSTR typeName, HANDLE* pHandle, DWORD access) {
+	ATLASSERT(pHandle);
+	if (pHandle == nullptr)
+		return STATUS_INVALID_PARAMETER;
+
+	//auto hObject = DriverHelper::OpenHandle(path, access);
+	//if (hObject) {
+	//	*pHandle = hObject;
+	//	return STATUS_SUCCESS;
+	//}
+
+	HANDLE hObject = nullptr;
+	CString type(typeName);
+	OBJECT_ATTRIBUTES attr;
+	UNICODE_STRING uname;
+	RtlInitUnicodeString(&uname, path);
+	InitializeObjectAttributes(&attr, &uname, 0, nullptr, nullptr);
+	NTSTATUS status = STATUS_UNSUCCESSFUL;
+
+	if (type == L"Event")
+		status = NT::NtOpenEvent(&hObject, access, &attr);
+	else if (type == L"Mutant")
+		status = NT::NtOpenMutant(&hObject, access, &attr);
+	else if (type == L"Section")
+		status = NT::NtOpenSection(&hObject, access, &attr);
+	else if (type == L"Semaphore")
+		status = NT::NtOpenSemaphore(&hObject, access, &attr);
+	else if (type == "EventPair")
+		status = NT::NtOpenEventPair(&hObject, access, &attr);
+	else if (type == L"IoCompletion")
+		status = NT::NtOpenIoCompletion(&hObject, access, &attr);
+	else if (type == L"SymbolicLink")
+		status = NT::NtOpenSymbolicLinkObject(&hObject, access, &attr);
+	else if (type == L"Key")
+		status = NT::NtOpenKey(&hObject, access, &attr);
+	else if (type == L"Job")
+		status = NT::NtOpenJobObject(&hObject, access, &attr);
+	else if (type == L"File") {
+		IO_STATUS_BLOCK ioStatus;
+		status = NT::NtOpenFile(&hObject, access, &attr, &ioStatus, FILE_SHARE_READ | FILE_SHARE_WRITE, 0);
+	}
+
+	*pHandle = hObject;
+	return status;
 }
 
 int64_t ObjectManager::GetTotalHandles() {

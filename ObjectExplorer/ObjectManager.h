@@ -87,7 +87,8 @@ public:
 	const CString& GetProcessNameById(DWORD id) const;
 
 	static HANDLE DupHandle(ObjectInfo* pObject, ACCESS_MASK access = GENERIC_READ);
-	static HANDLE ObjectManager::DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0, DWORD flags = DUPLICATE_SAME_ACCESS);
+	static HANDLE DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0, DWORD flags = DUPLICATE_SAME_ACCESS);
+	static NTSTATUS OpenObject(PCWSTR path, PCWSTR type, HANDLE* pHandle, DWORD access = GENERIC_READ);
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();
@@ -116,6 +117,7 @@ public:
 	}
 
 	static std::vector<ObjectNameAndType> EnumDirectoryObjects(PCWSTR path);
+	static CString GetSymbolicLinkTarget(PCWSTR path);
 
 private:
 	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ObjectManager.h"
-#include "IObjectsView.h"
+#include "Interfaces.h"
 
 class CObjectSummaryView :
 	public CWindowImpl<CObjectSummaryView, CListViewCtrl>,

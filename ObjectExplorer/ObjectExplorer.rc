@@ -242,6 +242,10 @@ IDI_PACKAGE             ICON                    "res\\package.ico"
 
 IDI_PIN                 ICON                    "res\\pin_green.ico"
 
+IDI_FOLDER              ICON                    "res\\folder.ico"
+
+IDI_FOLDER_CLOSED       ICON                    "res\\folder_closed.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -254,7 +258,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.4\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.5\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -409,20 +413,12 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// BIN
-//
-
-IDR_DRIVER              BIN                     "..\\Release\\KObjExp.sys"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // String Table
 //
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.4 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.5 (C)2019-2020 Pavel Yosifovich"
 END
 
 STRINGTABLE
@@ -509,6 +505,7 @@ END
 STRINGTABLE
 BEGIN
     ID_OBJECTS_ALLOBJECTS   "Show all objects in the system\nAll Objects"
+    ID_OBJECTS_OBJECTMANAGER "Show object manager namespace\nObject Manager"
     ID_OBJECTS_ALLOBJECTTYPES "Show all object types\nObject Types"
 END
 

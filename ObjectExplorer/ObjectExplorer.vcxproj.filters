@@ -19,6 +19,9 @@
     <Filter Include="Resource Files\Icons">
       <UniqueIdentifier>{1d972aeb-12f3-48cd-b0ce-d451ac851283}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Bin">
+      <UniqueIdentifier>{cacf0b0e-f8a1-49f7-b962-81a371de23cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -111,6 +114,9 @@
     <ClCompile Include="SortHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectManagerView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -188,9 +194,6 @@
     <ClInclude Include="ObjectsView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IObjectsView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectViewByType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -210,6 +213,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjectHandlesDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManagerView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -310,11 +319,15 @@
     <Image Include="res\pin_green.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\folder.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\folder_closed.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="..\x64\Release\KObjExp.sys" />
-    <None Include="..\Release\KObjExp.sys" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />

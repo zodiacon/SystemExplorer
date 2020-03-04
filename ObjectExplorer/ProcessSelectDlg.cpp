@@ -99,8 +99,6 @@ void CProcessSelectDlg::EnumProcesses() {
 	PROCESSENTRY32 pe;
 	pe.dwSize = sizeof(pe);
 	Process32First(hSnapshot, &pe);
-	WCHAR path[MAX_PATH];
-	DWORD len;
 	while(::Process32Next(hSnapshot, &pe)) {
 		ProcessInfo pi;
 		HICON hIcon;

@@ -71,6 +71,18 @@ HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
 		? hObject : nullptr;
 }
 
+HANDLE DriverHelper::OpenHandle(PCWSTR name, ACCESS_MASK access) {
+	if (!OpenDevice())
+		return nullptr;
+
+	HANDLE hObject = nullptr;
+	DWORD bytes;
+	auto size = DWORD((::wcslen(name) + 1) * sizeof(WCHAR));
+	::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_OBJECT_BY_NAME, (PVOID)name, size,
+		&hObject, sizeof(hObject), &bytes, nullptr);
+	return hObject;
+}
+
 HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DWORD flags) {
 	if (!OpenDevice())
 		return nullptr;
