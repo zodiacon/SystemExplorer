@@ -330,6 +330,7 @@
     <Image Include="res\windowstation.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Bin\x64\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

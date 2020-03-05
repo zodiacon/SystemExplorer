@@ -13,6 +13,7 @@
 #include "HandlesView.h"
 #include "ProcessSelectDlg.h"
 #include "ObjectManagerView.h"
+#include "SecurityHelper.h"
 
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
@@ -151,16 +152,23 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_view.SetImageList(m_TabImages);
 
 	if (!DriverHelper::IsDriverLoaded()) {
-		if (MessageBox(L"Kernel Driver not loaded. Most functionality will not be available. Install?", L"Object Explorer", MB_YESNO | MB_ICONQUESTION) == IDYES) {
-			WCHAR path[MAX_PATH];
-			::GetModuleFileName(nullptr, path, _countof(path));
-			SHELLEXECUTEINFO shi = { sizeof(shi) };
-			shi.lpFile = path;
-			shi.lpVerb = L"runas";
-			shi.lpParameters = L"install";
-			shi.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE | SEE_MASK_NOASYNC;
-			if (!::ShellExecuteEx(&shi)) {
-				MessageBox(L"Error running driver installer", L"Object Explorer", MB_ICONERROR);
+		if (!SecurityHelper::IsRunningElevated()) {
+			if (MessageBox(L"Kernel Driver not loaded. Most functionality will not be available. Install?", L"Object Explorer", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+				WCHAR path[MAX_PATH];
+				::GetModuleFileName(nullptr, path, _countof(path));
+				SHELLEXECUTEINFO shi = { sizeof(shi) };
+				shi.lpFile = path;
+				shi.lpVerb = L"runas";
+				shi.lpParameters = L"install";
+				shi.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE | SEE_MASK_NOASYNC;
+				if (!::ShellExecuteEx(&shi)) {
+					MessageBox(L"Error running driver installer", L"Object Explorer", MB_ICONERROR);
+				}
+			}
+		}
+		else {
+			if (!DriverHelper::InstallDriver() || !DriverHelper::LoadDriver()) {
+				MessageBox(L"Failed to install driver. Some functionality will not be available.", L"Object Explorer", MB_ICONERROR);
 			}
 		}
 	}
