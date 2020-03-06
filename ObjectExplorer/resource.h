@@ -43,6 +43,12 @@
 #define IDI_FOLDER                      239
 #define IDI_ICON5                       240
 #define IDI_FOLDER_CLOSED               240
+#define IDI_ATOM                        243
+#define IDI_BATTERY                     244
+#define IDI_CAR                         245
+#define IDI_DRAM                        246
+#define IDI_FILTER                      247
+#define IDI_FILTER_UP                   248
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -71,10 +77,12 @@
 #define ID_SHOWOBJECTSOFTYPE_SECTION    32792
 #define ID_SHOWOBJECTSOFTYPE_DEVICE     32793
 #define ID_SHOWOBJECTSOFTYPE_DRIVER     32794
-#define ID_OBJECTS_ALLOBJECTS           32795
-#define ID_VIEW_PAUSE                   32796
-#define ID_OBJECTS_OBJECTMANAGER        32797
-#define ID_OBJECTS_ALLOBJECTTYPES       32798
+#define ID_SHOWOBJECTSOFTYPE_POWERREQUEST 32795
+
+#define ID_OBJECTS_ALLOBJECTS           32800
+#define ID_VIEW_PAUSE                   32801
+#define ID_OBJECTS_OBJECTMANAGER        32802
+#define ID_OBJECTS_ALLOBJECTTYPES       32803
 #define ID_HANDLES_ALLHANDLES           32804
 #define ID_HANDLES_SHOWHANDLESOFTYPE    32805
 #define ID_SHOWHANDLESOFTYPE_PROCESS    32805
@@ -93,6 +101,8 @@
 #define ID_SHOWHANDLESOFTYPE_KEY        32818
 #define ID_SHOWHANDLESOFTYPE_DIRECTORY  32819
 #define ID_SHOWHANDLESOFTYPE_SECTION    32820
+#define ID_SHOWHANDLESOFTYPE_POWERREQUEST 32821
+
 #define ID_HANDLES_SHOWHANDLEINPROCESS  32823
 #define ID_HANDLES_PIPES                32824
 #define ID_HANDLES_CLOSEHANDLE          32825
@@ -109,8 +119,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        243
-#define _APS_NEXT_COMMAND_VALUE         32836
+#define _APS_NEXT_RESOURCE_VALUE        249
+#define _APS_NEXT_COMMAND_VALUE         32837
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

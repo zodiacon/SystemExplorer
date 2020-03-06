@@ -80,5 +80,6 @@ private:
 	int m_SortColumn = -1;
 	bool m_SortAscending;
 	bool m_Paused = false;
+	CFont m_BoldFont, m_NormalFont;
 };
 

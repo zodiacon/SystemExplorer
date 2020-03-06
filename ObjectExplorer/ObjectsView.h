@@ -14,6 +14,7 @@ struct IMainFrame;
 class CObjectsView : 
 	public CWindowImpl<CObjectsView, CListViewCtrl>,
 	public CMessageFilter,
+	public CCustomDraw<CObjectsView>,
 	public CVirtualListView<CObjectsView> {
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())

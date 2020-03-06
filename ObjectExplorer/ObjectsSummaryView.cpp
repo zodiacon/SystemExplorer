@@ -34,6 +34,13 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto sub = lcd->iSubItem;
 	lcd->clrTextBk = CLR_INVALID;
 
+	if (sub == 0) {
+		::SelectObject(cd->hdc, m_BoldFont);
+		return CDRF_DODEFAULT;
+	}
+	else {
+		::SelectObject(cd->hdc, m_NormalFont);
+	}
 	if (sub < 2 || sub > 5)
 		return CDRF_DODEFAULT;
 
@@ -79,6 +86,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
 	InsertColumn(8, L"Default Non-Paged Charge", LVCFMT_RIGHT, 130);
 	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
+	InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
 
 	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP, 0);
 
@@ -91,6 +99,9 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	SetTimer(1, m_Interval, nullptr);
 
 	m_UIUpdate.UIEnable(ID_EDIT_COPY, FALSE);
+
+	m_NormalFont.CreatePointFont(90, L"Arial");
+	m_BoldFont.CreatePointFont(90, L"Arial", nullptr, true);
 
 	return 0;
 }
@@ -165,6 +176,11 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 			case 9:		// valid access mask
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->ValidAccessMask);
 				break;
+
+			case 10:	// generic mapping
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"Read: 0x%08X, Write: 0x%08X, Execute: 0x%08X, All: 0x%08X",
+					data->GenericMapping.GenericRead, data->GenericMapping.GenericWrite, data->GenericMapping.GenericExecute, data->GenericMapping.GenericAll);
+				break;
 		}
 	}
 	if (lv->item.mask & LVIF_IMAGE) {
@@ -176,6 +192,9 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 LRESULT CObjectSummaryView::OnColumnClick(int, LPNMHDR hdr, BOOL &) {
 	auto lv = (NMLISTVIEW*)hdr;
 	auto col = lv->iSubItem;
+	if (col == 10)
+		return 0;
+
 	auto oldSortColumn = m_SortColumn;
 	if (col == m_SortColumn)
 		m_SortAscending = !m_SortAscending;
@@ -275,7 +294,7 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 				text += L"\r\n";
 			}
 			DWORD bytes;
-			::WriteFile(hFile.get(), text.GetBuffer(), (text.GetLength() + 1) * sizeof(WCHAR), &bytes, nullptr);
+			::WriteFile(hFile.get(), text.GetBuffer(), text.GetLength() * sizeof(WCHAR), &bytes, nullptr);
 		}
 		else {
 			AtlMessageBox(*this, L"Failed to create file.", IDR_MAINFRAME);

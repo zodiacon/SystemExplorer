@@ -256,7 +256,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
-    <ClInclude Include="CustomeTabView.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
@@ -295,16 +294,22 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\about.ico" />
+    <Image Include="res\atom.ico" />
+    <Image Include="res\battery.ico" />
     <Image Include="res\briefcase.ico" />
+    <Image Include="res\car_compact_green.ico" />
     <Image Include="res\copy.ico" />
     <Image Include="res\delete.ico" />
     <Image Include="res\desktop.ico" />
     <Image Include="res\device.ico" />
     <Image Include="res\directory.ico" />
+    <Image Include="res\dram.ico" />
     <Image Include="res\event.ico" />
     <Image Include="res\file.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />
+    <Image Include="res\funnel.ico" />
+    <Image Include="res\funnel_up.ico" />
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />

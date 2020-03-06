@@ -22,6 +22,9 @@
     <Filter Include="Bin">
       <UniqueIdentifier>{cacf0b0e-f8a1-49f7-b962-81a371de23cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Bin\x64">
+      <UniqueIdentifier>{c086b17e-82bb-4424-bca9-601d7e36171e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -200,9 +203,6 @@
     <ClInclude Include="ObjectsSummaryView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomeTabView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HandlesView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -325,10 +325,30 @@
     <Image Include="res\folder_closed.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\atom.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\battery.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\car_compact_green.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\dram.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\funnel.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\funnel_up.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Bin\x64\KObjExp.sys" />
+    <None Include="Bin\x64\KObjExp.sys">
+      <Filter>Bin\x64</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />
