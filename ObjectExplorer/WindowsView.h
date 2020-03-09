@@ -5,9 +5,11 @@
 #include "ObjectManager.h"
 
 class CWindowsView : 
-	public CWindowImpl<CWindowsView>,
+	public CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CWindowsView> {
 public:
+	using BaseFrame = CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>;
+
 	DECLARE_WND_CLASS(nullptr)
 
 	CWindowsView(IMainFrame* frame);
@@ -16,13 +18,14 @@ public:
 
 	BEGIN_MSG_MAP(CWindowsView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		//MESSAGE_HANDLER(WM_SIZE, OnSize)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnListGetDispInfo)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(IdRefreshTree, OnRefreshTree)
 		COMMAND_ID_HANDLER(IdOnlyVisible, OnRefreshTreeVisible)
 		COMMAND_ID_HANDLER(IdOnlyWithTitle, OnRefreshTreeWithTitle)
+		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CWindowsView>)
 	END_MSG_MAP()
 

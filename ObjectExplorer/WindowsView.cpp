@@ -15,19 +15,19 @@ void CWindowsView::SetDesktopOptions(bool defaultDesktopOnly) {
 }
 
 LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	m_Splitter.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-	m_ToolbarSplitter.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, WS_EX_WINDOWEDGE);
-	m_ToolbarSplitter.SetSplitterExtendedStyle(SPLIT_NONINTERACTIVE);
+
+	auto hWndToolBar = m_Toolbar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
+	InitTreeToolbar(m_Toolbar);
+
+	m_hWndToolBar =	CreateSimpleReBarCtrl(m_hWnd);
+	AddSimpleReBarBand(m_Toolbar);
+
+	m_hWndClient = m_Splitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 
 	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL);
-	m_Tree.Create(m_ToolbarSplitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
+	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
-	m_Toolbar.Create(m_ToolbarSplitter, rcDefault, nullptr, 
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS | CCS_NODIVIDER | CCS_NOPARENTALIGN | CCS_NOMOVEY, WS_EX_CLIENTEDGE);
-	m_Toolbar.SetExtendedStyle(TBSTYLE_EX_DOUBLEBUFFER);
-	m_Toolbar.SetButtonStructSize();
-	m_ToolbarSplitter.SetSplitterPanes(m_Toolbar, m_Tree);
 
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR | ILC_COLOR32, 2, 0);
@@ -43,13 +43,8 @@ LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.InsertColumn(2, L"Details", LVCFMT_LEFT, 550);
 
 	m_Splitter.SetSplitterExtendedStyle(SPLIT_FLATBAR | SPLIT_PROPORTIONAL);
-	m_Splitter.SetSplitterPanes(m_ToolbarSplitter, m_List);
+	m_Splitter.SetSplitterPanes(m_Tree, m_List);
 	m_Splitter.SetSplitterPosPct(30);
-	m_Splitter.UpdateSplitterLayout();
-
-	InitTreeToolbar(m_Toolbar);
-
-	m_ToolbarSplitter.UpdateSplitterLayout();
 
 	InitTree();
 

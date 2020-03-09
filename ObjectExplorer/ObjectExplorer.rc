@@ -290,7 +290,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.5\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.55\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -402,13 +402,13 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", "ObjectExplorer Module"
+            VALUE "FileDescription", "ObjectExplorer Application"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "ObjectExplorer"
             VALUE "LegalCopyright", "Copyright 2019"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
-            VALUE "ProductName", "ObjectExplorer Module"
-            VALUE "ProductVersion", "1, 0, 0, 1"
+            VALUE "ProductName", "ObjectExplorer"
+            VALUE "ProductVersion", "0, 5, 5, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -417,32 +417,6 @@ BEGIN
     END
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_ABOUTBOX AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_PROCSELECT AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_HANDLES AFX_DIALOG_LAYOUT
-BEGIN
-    0,
-    0, 0, 100, 100,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
-END
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
@@ -450,7 +424,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.5 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.55 (C)2019-2020 Pavel Yosifovich"
 END
 
 STRINGTABLE
@@ -542,7 +516,8 @@ END
 STRINGTABLE
 BEGIN
     1280                    "Refresh the Windows tree\nRefresh Tree"
-    1281                    "Toggle visible windows only\nVisible Windows"
+    1281                    "Toggle windows with titles\nWindows with Titles"
+    1282                    "Toggle visible windows only\nVisible Windows"
 END
 
 #endif    // English (United States) resources
