@@ -7,7 +7,7 @@ static PCWSTR properties[] = {
 	L"Handle", L"Owner Thread", L"Owner Process", L"Style", L"Extended Style", L"Class Name", L"Rectangle"
 };
 
-CWindowsView::CWindowsView(IMainFrame* frame) : m_pFrame(frame) {
+CWindowsView::CWindowsView(IMainFrame* frame) : m_pFrame(frame), m_SearchCombo(this, 1), m_SearchEdit(this, 2) {
 }
 
 void CWindowsView::SetDesktopOptions(bool defaultDesktopOnly) {
@@ -15,8 +15,8 @@ void CWindowsView::SetDesktopOptions(bool defaultDesktopOnly) {
 }
 
 LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-
-	auto hWndToolBar = m_Toolbar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
+	auto hWndToolBar = m_Toolbar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+	m_Toolbar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
 	InitTreeToolbar(m_Toolbar);
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
@@ -32,7 +32,7 @@ LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR | ILC_COLOR32, 2, 0);
 	UINT icons[] = { IDI_DESKTOP, IDI_WINDOW, IDI_NOACCESS, IDI_WINDOW_BLACK };
-	for(auto icon : icons)
+	for (auto icon : icons)
 		images.AddIcon(AtlLoadIcon(icon));
 
 	m_Tree.SetImageList(images, TVSIL_NORMAL);
@@ -69,7 +69,7 @@ LRESULT CWindowsView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				break;
 
 			case 1:
-				if(::IsWindow(m_SelectedHwnd))
+				if (::IsWindow(m_SelectedHwnd))
 					::StringCchCopy(item.pszText, item.cchTextMax, GetPropertyValue(m_SelectedHwnd, index));
 				break;
 
@@ -110,6 +110,51 @@ LRESULT CWindowsView::OnRefreshTreeWithTitle(WORD, WORD, HWND, BOOL&) {
 		m_TreeViewOptions &= ~TreeViewOptions::WithTitleOnly;
 
 	InitTree();
+	return 0;
+}
+
+LRESULT CWindowsView::OnFind(WORD, WORD, HWND, BOOL&) {
+	m_SearchCombo.SetFocus();
+	return 0;
+}
+
+LRESULT CWindowsView::OnFindNext(WORD, WORD, HWND, BOOL&) {
+	CString text;
+	m_SearchEdit.GetWindowText(text);
+	if (text.IsEmpty())
+		return 0;
+
+	text.MakeLower();
+	auto item = m_Tree.GetSelectedItem();
+	if (item == nullptr)
+		item = m_Tree.GetRootItem();
+
+	CString itemText;
+	while (item) {
+		auto next = item.GetChild();
+		if (next == nullptr)
+			next = item.GetNext(TVGN_NEXT);
+		if (next == nullptr)
+			break;
+		next.GetText(itemText);
+		ATLTRACE(L"Item text: %s\n", itemText);
+		if (itemText.MakeLower().Find(text) >= 0) {
+			next.Select(TVGN_CARET);
+			next.EnsureVisible();
+			m_Tree.SetFocus();
+			break;
+		}
+		item = next;
+	}
+	return 0;
+}
+
+LRESULT CWindowsView::OnComboKeyDown(UINT, WPARAM wParam, LPARAM, BOOL& handled) {
+	if (wParam == VK_RETURN) {
+		PostMessage(WM_COMMAND, ID_EDIT_FIND_NEXT);
+		return 0;
+	}
+	handled = FALSE;
 	return 0;
 }
 
@@ -169,6 +214,8 @@ void CWindowsView::UpdateList(bool newNode) {
 	}
 }
 
+#define ID_VIEW_SEARCH 0x510
+
 void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 	CImageList tbImages;
 	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
@@ -179,21 +226,30 @@ void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 		int image;
 		int style = BTNS_BUTTON;
 		int state = TBSTATE_ENABLED;
+		PCWSTR text = nullptr;
 	} buttons[] = {
 		{ IdRefreshTree, IDI_REFRESH },
 		{ 0 },
 		{ IdOnlyVisible, IDI_WINDOW, BTNS_CHECK, TBSTATE_CHECKED | TBSTATE_ENABLED },
 		{ IdOnlyWithTitle, IDI_WINDOW_TITLE, BTNS_CHECK },
+		{ 0 },
+		{ ID_VIEW_SEARCH, IDI_FIND, BTNS_SHOWTEXT, TBSTATE_ENABLED, L"Find: " },
 	};
 	for (auto& b : buttons) {
 		if (b.id == 0)
 			tb.AddSeparator(0);
 		else {
-			int image = tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
-			tb.AddButton(b.id, b.style, b.state, image, nullptr, 0);
+			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
 		}
 	}
-	tb.AutoSize();
+
+	auto hCombo = CreateToolbarComboBox(tb, ID_VIEW_SEARCH, 24, 16, CBS_DROPDOWN);
+	m_SearchCombo.SubclassWindow(hCombo);
+
+	COMBOBOXINFO cbi = { sizeof(cbi) };
+	m_SearchCombo.GetComboBoxInfo(&cbi);
+	m_SearchEdit.SubclassWindow(cbi.hwndItem);
 }
 
 CTreeItem CWindowsView::InsertWindow(HWND hWnd, HTREEITEM hParent) {
@@ -277,6 +333,6 @@ CString CWindowsView::GetPropertyDetails(HWND hWnd, int index) const {
 			break;
 
 	}
-	
+
 	return text;
 }

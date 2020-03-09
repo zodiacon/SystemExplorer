@@ -56,6 +56,11 @@
 #define IDI_WINDOW_TITLE                253
 #define IDI_ICON4                       254
 #define IDI_FACTORY                     254
+#define IDI_FIND                        255
+#define IDI_ICON7                       256
+#define IDI_BRUSH                       256
+#define IDI_ICON6                       257
+#define IDI_FIND_NEXT                   257
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -87,7 +92,6 @@
 #define ID_SHOWOBJECTSOFTYPE_DRIVER     32794
 #define ID_SHOWOBJECTSOFTYPE_POWERREQUEST 32795
 #define ID_SHOWOBJECTSOFTYPE_WORKERFACTORY 32796
-
 #define ID_OBJECTS_ALLOBJECTS           32800
 #define ID_VIEW_PAUSE                   32801
 #define ID_OBJECTS_OBJECTMANAGER        32802
@@ -112,7 +116,6 @@
 #define ID_SHOWHANDLESOFTYPE_SECTION    32820
 #define ID_SHOWHANDLESOFTYPE_POWERREQUEST 32821
 #define ID_SHOWHANDLESOFTYPE_WORKERFACTORY 32822
-
 #define ID_HANDLES_SHOWHANDLEINPROCESS  32823
 #define ID_HANDLES_PIPES                32824
 #define ID_HANDLES_CLOSEHANDLE          32825
@@ -133,7 +136,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        255
+#define _APS_NEXT_RESOURCE_VALUE        258
 #define _APS_NEXT_COMMAND_VALUE         32841
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101

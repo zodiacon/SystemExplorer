@@ -6,12 +6,14 @@
 
 #include "ObjectManager.h"
 #include "INterfaces.h"
+#include "ToolBarHelper.h"
 
 #define WINDOW_MENU_POSITION	8
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CUpdateUI<CMainFrame>,
+	public CToolBarHelper<CMainFrame>,
 	public IMainFrame,
 	public CMessageFilter, 
 	public CIdleHandler {
@@ -21,11 +23,7 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
-	template<typename View = CWindow>
-	View* GetActiveView() {
-		auto n = m_view.GetActivePage();
-		return n < 0 ? nullptr : static_cast<View*>(m_view.GetPageData(n));
-	};
+	CCommandBarCtrl m_CmdBar;
 
 	// Inherited via IMainFrame
 	BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd) override;
@@ -72,6 +70,7 @@ public:
 		NOTIFY_CODE_HANDLER(TBVN_CONTEXTMENU, OnTabContextMenu)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+		CHAIN_MSG_MAP(CToolBarHelper<CMainFrame>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
@@ -113,7 +112,6 @@ private:
 
 private:
 	CTabView m_view;
-	CCommandBarCtrl m_CmdBar;
 	ObjectManager m_ObjMgr;
 	CImageListManaged m_TabImages;
 	std::unordered_map<std::wstring, int> m_IconMap;

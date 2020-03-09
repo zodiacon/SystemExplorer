@@ -61,6 +61,9 @@ BEGIN
     POPUP "&Edit"
     BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "&Find...\tCtrl+F",            ID_EDIT_FIND
+        MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
     END
     POPUP "&View"
     BEGIN
@@ -147,6 +150,7 @@ BEGIN
     POPUP "&Search"
     BEGIN
         MENUITEM "&Find...\tCtrl+F",            ID_EDIT_FIND
+        MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
     END
     POPUP "O&ptions"
     BEGIN
@@ -183,6 +187,48 @@ BEGIN
     BEGIN
         MENUITEM "All Objects",                 ID_TYPE_ALLOBJECTS
         MENUITEM "All Handles",                 ID_TYPE_ALLHANDLES
+    END
+    POPUP "handletype"
+    BEGIN
+        MENUITEM "&ALPC Port",                  ID_SHOWHANDLESOFTYPE_ALPCPORT
+        MENUITEM "&Desktop",                    ID_SHOWHANDLESOFTYPE_DESKTOP
+        MENUITEM "Directory",                   ID_SHOWHANDLESOFTYPE_DIRECTORY
+        MENUITEM "Event",                       ID_SHOWHANDLESOFTYPE_EVENT
+        MENUITEM "&File",                       ID_SHOWHANDLESOFTYPE_FILE
+        MENUITEM "Job",                         ID_SHOWHANDLESOFTYPE_JOB
+        MENUITEM "Key",                         ID_SHOWHANDLESOFTYPE_KEY
+        MENUITEM "Mutant",                      ID_SHOWHANDLESOFTYPE_MUTEX
+        MENUITEM "Power&Request",               ID_SHOWHANDLESOFTYPE_POWERREQUEST
+        MENUITEM "&Process",                    ID_SHOWHANDLESOFTYPE_PROCESS
+        MENUITEM "&Section",                    ID_SHOWHANDLESOFTYPE_SECTION
+        MENUITEM "Semaphore",                   ID_SHOWHANDLESOFTYPE_SEMAPHORE
+        MENUITEM "&SymbolicLink",               ID_SHOWHANDLESOFTYPE_SYMBOLICLINK
+        MENUITEM "&Thread",                     ID_SHOWHANDLESOFTYPE_THREAD
+        MENUITEM "&Timer",                      ID_SHOWHANDLESOFTYPE_TIMER
+        MENUITEM "Token",                       ID_SHOWHANDLESOFTYPE_TOKEN
+        MENUITEM "Tp&WorkerFactory",            ID_SHOWHANDLESOFTYPE_WORKERFACTORY
+        MENUITEM "&WindowStation",              ID_SHOWHANDLESOFTYPE_WINDOWSTATION
+    END
+    POPUP "objecttype"
+    BEGIN
+        MENUITEM "&ALPC Port",                  ID_SHOWOBJECTSOFTYPE_ALPCPORT
+        MENUITEM "&Desktop",                    ID_SHOWOBJECTSOFTYPE_DESKTOP
+        MENUITEM "Directory",                   ID_SHOWOBJECTSOFTYPE_DIRECTORY
+        MENUITEM "Event",                       ID_SHOWOBJECTSOFTYPE_EVENT
+        MENUITEM "&File",                       ID_SHOWOBJECTSOFTYPE_FILE
+        MENUITEM "Job",                         ID_SHOWOBJECTSOFTYPE_JOB
+        MENUITEM "Key",                         ID_SHOWOBJECTSOFTYPE_KEY
+        MENUITEM "Mutant",                      ID_SHOWOBJECTSOFTYPE_MUTEX
+        MENUITEM "Power&Request",               ID_SHOWOBJECTSOFTYPE_POWERREQUEST
+        MENUITEM "&Process",                    ID_SHOWOBJECTSOFTYPE_PROCESS
+        MENUITEM "&Section",                    ID_SHOWOBJECTSOFTYPE_SECTION
+        MENUITEM "Semaphore",                   ID_SHOWOBJECTSOFTYPE_SEMAPHORE
+        MENUITEM "&SymbolicLink",               ID_SHOWOBJECTSOFTYPE_SYMBOLICLINK
+        MENUITEM "&Thread",                     ID_SHOWOBJECTSOFTYPE_THREAD
+        MENUITEM "&Timer",                      ID_SHOWOBJECTSOFTYPE_TIMER
+        MENUITEM "Token",                       ID_SHOWOBJECTSOFTYPE_TOKEN
+        MENUITEM "Tp&WorkerFactory",            ID_SHOWOBJECTSOFTYPE_WORKERFACTORY
+        MENUITEM "&WindowStation",              ID_SHOWOBJECTSOFTYPE_WINDOWSTATION
     END
 END
 
@@ -281,6 +327,12 @@ IDI_WINDOW_BLACK        ICON                    "res\\window_black.ico"
 IDI_WINDOW_TITLE        ICON                    "res\\window_title.ico"
 
 IDI_FACTORY             ICON                    "res\\factory.ico"
+
+IDI_FIND                ICON                    "res\\find.ico"
+
+IDI_BRUSH               ICON                    "res\\paint_brush2.ico"
+
+IDI_FIND_NEXT           ICON                    "res\\find_next.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -381,6 +433,7 @@ BEGIN
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     VK_F5,          ID_VIEW_REFRESH,        VIRTKEY, NOINVERT
     VK_F4,          ID_WINDOW_CLOSE,        VIRTKEY, CONTROL, NOINVERT
+    VK_F3,          ID_EDIT_FIND_NEXT,      VIRTKEY, NOINVERT
 END
 
 

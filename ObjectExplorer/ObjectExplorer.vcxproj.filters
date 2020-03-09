@@ -25,6 +25,12 @@
     <Filter Include="Bin\x64">
       <UniqueIdentifier>{c086b17e-82bb-4424-bca9-601d7e36171e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Views">
+      <UniqueIdentifier>{1ced88e2-896c-4bcd-9ac6-c5025e168c66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{02a8505c-f3e2-40cd-a87f-e87644ef9aab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -34,9 +40,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MainFrm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AboutDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
@@ -93,34 +96,13 @@
     <ClCompile Include="TimerObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectsView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectViewByType.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectsSummaryView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HandlesView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WinStationObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessSelectDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectHandlesDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SortHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectManagerView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowHelper.cpp">
@@ -129,15 +111,36 @@
     <ClCompile Include="WorkerFactoryObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
+    <ClCompile Include="HandlesView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManagerView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectsSummaryView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectsView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectHandlesDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessSelectDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MainFrm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AboutDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -203,34 +206,13 @@
     <ClInclude Include="TimerObjectType.h">
       <Filter>ObjectTypes</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectsView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectViewByType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectsSummaryView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HandlesView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WinStationObjectType.h">
       <Filter>ObjectTypes</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessSelectDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectHandlesDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectManagerView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Interfaces.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowsView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowHelper.h">
@@ -238,6 +220,30 @@
     </ClInclude>
     <ClInclude Include="WorkerFactoryObjectType.h">
       <Filter>ObjectTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsSummaryView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManagerView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="HandlesView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessSelectDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectHandlesDlg.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -378,6 +384,15 @@
     </Image>
     <Image Include="res\factory.ico">
       <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\paint_brush2.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\find.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\find_next.ico">
+      <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

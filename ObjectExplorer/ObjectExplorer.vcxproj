@@ -313,6 +313,8 @@
     <Image Include="res\event.ico" />
     <Image Include="res\factory.ico" />
     <Image Include="res\file.ico" />
+    <Image Include="res\find.ico" />
+    <Image Include="res\find_next.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />
     <Image Include="res\funnel.ico" />
@@ -324,6 +326,7 @@
     <Image Include="res\ObjectExplorer.ico" />
     <Image Include="res\objects.ico" />
     <Image Include="res\package.ico" />
+    <Image Include="res\paint_brush2.ico" />
     <Image Include="res\pause.ico" />
     <Image Include="res\pin_green.ico" />
     <Image Include="res\port.ico" />

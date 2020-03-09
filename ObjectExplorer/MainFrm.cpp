@@ -80,12 +80,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	InitCommandBar();
 
 	CToolBarCtrl tb;
-	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
+	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+	tb.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
 	InitToolBar(tb);
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, nullptr, TRUE);
+
 	CReBarCtrl(m_hWndToolBar).LockBands(TRUE);
 
 	CreateSimpleStatusBar();
@@ -396,11 +398,16 @@ void CMainFrame::InitCommandBar() {
 		{ ID_APP_ABOUT, IDI_ABOUT },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
-
+		{ ID_GUI_GDIOBJECTSINPROCESS, IDI_BRUSH },
+		{ ID_EDIT_FIND, IDI_FIND },
+		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
 	};
 	for (auto& cmd : cmds)
 		m_CmdBar.AddIcon(AtlLoadIcon(cmd.icon), cmd.id);
 }
+
+#define ID_OBJECTS_OFTYPE 200
+#define ID_HANDLES_OFTYPE 201
 
 void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 	CImageList tbImages;
@@ -411,6 +418,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		UINT id;
 		int image;
 		int style = BTNS_BUTTON;
+		PCWSTR text = nullptr;
 	} buttons[] = {
 		{ ID_VIEW_REFRESH, IDI_REFRESH },
 		{ 0 },
@@ -424,15 +432,21 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
 		{ 0 },
 		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
+		{ 0 },
+		{ ID_OBJECTS_OFTYPE, IDI_OBJECTS, BTNS_SHOWTEXT, L"Objects" },
+		{ 0 },
+		{ ID_HANDLES_OFTYPE, IDI_HANDLES, BTNS_SHOWTEXT, L"Handles" },
 	};
 	for (auto& b : buttons) {
 		if (b.id == 0)
 			tb.AddSeparator(0);
 		else {
 			int image = tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
-			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, nullptr, 0);
+			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, b.text, 0);
 		}
 	}
+	AddToolBarDropDownMenu(tb, ID_HANDLES_OFTYPE, IDR_CONTEXT, 4);
+	AddToolBarDropDownMenu(tb, ID_OBJECTS_OFTYPE, IDR_CONTEXT, 5);
 }
 
 void CMainFrame::ShowAllHandles(PCWSTR type) {

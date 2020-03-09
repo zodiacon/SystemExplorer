@@ -3,10 +3,12 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ObjectManager.h"
+#include "ToolBarHelper.h"
 
 class CWindowsView : 
 	public CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>,
-	public CVirtualListView<CWindowsView> {
+	public CVirtualListView<CWindowsView>,
+	public CToolBarHelper<CWindowsView> {
 public:
 	using BaseFrame = CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>;
 
@@ -24,11 +26,19 @@ public:
 		COMMAND_ID_HANDLER(IdRefreshTree, OnRefreshTree)
 		COMMAND_ID_HANDLER(IdOnlyVisible, OnRefreshTreeVisible)
 		COMMAND_ID_HANDLER(IdOnlyWithTitle, OnRefreshTreeWithTitle)
+		COMMAND_ID_HANDLER(ID_EDIT_FIND, OnFind)
+		COMMAND_ID_HANDLER(ID_EDIT_FIND_NEXT, OnFindNext)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CWindowsView>)
+		CHAIN_MSG_MAP(CToolBarHelper<CWindowsView>)
+	ALT_MSG_MAP(1)
+	ALT_MSG_MAP(2)
+		MESSAGE_HANDLER(WM_CHAR, OnComboKeyDown)
 	END_MSG_MAP()
 
 	void SetDesktopOptions(bool defaultDesktopOnly = true);
+
+	CCommandBarCtrl m_CmdBar;		// unused
 
 	enum class TreeViewOptions {
 		None = 0,
@@ -44,6 +54,9 @@ private:
 	LRESULT OnRefreshTree(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnRefreshTreeVisible(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnRefreshTreeWithTitle(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnFindNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnComboKeyDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	void InitTree();
 	void UpdateList(bool newNode);
@@ -60,6 +73,8 @@ private:
 	HWND m_SelectedHwnd;
 	IMainFrame* m_pFrame;
 	ObjectManager m_ObjMgr;
+	CContainedWindowT<CComboBox> m_SearchCombo;
+	CContainedWindowT<CEdit> m_SearchEdit;
 	TreeViewOptions m_TreeViewOptions = TreeViewOptions::VisibleOnly;
 	bool m_DefaultDesktopOnly = true;
 };
