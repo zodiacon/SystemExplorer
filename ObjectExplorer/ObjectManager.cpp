@@ -403,6 +403,26 @@ int64_t ObjectManager::GetTotalObjects() {
 	return _totalObjects;
 }
 
+std::vector<HWND> ObjectManager::EnumDsktopWindows(HANDLE hDesktop) {
+	std::vector<HWND> windows;
+	windows.reserve(128);
+
+	::EnumDesktopWindows((HDESK)hDesktop, [](auto h, auto p) {
+		reinterpret_cast<std::vector<HWND>*>(p)->push_back(h);
+		return TRUE;
+		}, reinterpret_cast<LPARAM>(&windows));
+	return windows;
+}
+
+std::vector<HWND> ObjectManager::EnumChildWindows(HWND hWnd) {
+	std::vector<HWND> windows;
+	::EnumChildWindows(hWnd, [](auto h, auto p) {
+		reinterpret_cast<std::vector<HWND>*>(p)->push_back(h);
+		return TRUE;
+		}, reinterpret_cast<LPARAM>(&windows));
+	return windows;
+}
+
 bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, USHORT type) const {
 	auto hDup = DupHandle(info);
 	if (hDup) {

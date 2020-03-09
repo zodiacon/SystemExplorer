@@ -134,6 +134,14 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE, INACTIVE
     END
+    POPUP "&GUI"
+    BEGIN
+        MENUITEM "All Windows in Default Desktop", ID_GUI_ALLWINDOWSINDEFAULTDESKTOP
+        MENUITEM "&All Windows",                ID_DESKTOPS_ALLWINDOWS
+        MENUITEM SEPARATOR
+        MENUITEM "&Windows in Process...",      ID_GUI_WINDOWSINPROCESS
+        MENUITEM "&GDI Objects in Process...",  ID_GUI_GDIOBJECTSINPROCESS
+    END
     POPUP "&Search"
     BEGIN
         MENUITEM "&Find...\tCtrl+F",            ID_EDIT_FIND
@@ -259,6 +267,16 @@ IDI_DRAM                ICON                    "res\\dram.ico"
 IDI_FILTER              ICON                    "res\\funnel.ico"
 
 IDI_FILTER_UP           ICON                    "res\\funnel_up.ico"
+
+IDI_WINDOW              ICON                    "res\\window.ico"
+
+IDI_WINDOWS             ICON                    "res\\windows.ico"
+
+IDI_NOACCESS            ICON                    "res\\sign_forbidden.ico"
+
+IDI_WINDOW_BLACK        ICON                    "res\\window_black.ico"
+
+IDI_WINDOW_TITLE        ICON                    "res\\window_title.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -509,10 +527,6 @@ END
 STRINGTABLE
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
-END
-
-STRINGTABLE
-BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
@@ -521,17 +535,14 @@ BEGIN
     ID_OBJECTS_ALLOBJECTS   "Show all objects in the system\nAll Objects"
     ID_OBJECTS_OBJECTMANAGER "Show object manager namespace\nObject Manager"
     ID_OBJECTS_ALLOBJECTTYPES "Show all object types\nObject Types"
-END
-
-STRINGTABLE
-BEGIN
     ID_HANDLES_ALLHANDLES   "Show all user mode handles in the system\nAll Handles"
+    ID_HANDLES_SHOWHANDLEINPROCESS "Show all handles in a selected process\nHandles in Process"
 END
 
 STRINGTABLE
 BEGIN
-    ID_HANDLES_SHOWHANDLEINPROCESS 
-                            "Show all handles in a selected process\nHandles in Process"
+    1280                    "Refresh the Windows tree\nRefresh Tree"
+    1281                    "Toggle visible windows only\nVisible Windows"
 END
 
 #endif    // English (United States) resources

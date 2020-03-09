@@ -252,6 +252,8 @@
     <ClCompile Include="ThreadObjectType.cpp" />
     <ClCompile Include="TimerObjectType.cpp" />
     <ClCompile Include="TokenObjectType.cpp" />
+    <ClCompile Include="WindowHelper.cpp" />
+    <ClCompile Include="WindowsView.cpp" />
     <ClCompile Include="WinStationObjectType.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -287,6 +289,8 @@
     <ClInclude Include="TimerObjectType.h" />
     <ClInclude Include="TokenObjectType.h" />
     <ClInclude Include="VirtualListView.h" />
+    <ClInclude Include="WindowHelper.h" />
+    <ClInclude Include="WindowsView.h" />
     <ClInclude Include="WinStationObjectType.h" />
   </ItemGroup>
   <ItemGroup>
@@ -325,6 +329,7 @@
     <Image Include="res\refresh.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
+    <Image Include="res\sign_forbidden.ico" />
     <Image Include="res\symboliclink.ico" />
     <Image Include="res\thread.ico" />
     <Image Include="res\timer.ico" />
@@ -332,7 +337,11 @@
     <Image Include="res\toolbar.bmp" />
     <Image Include="res\types.ico" />
     <Image Include="res\Waiting.ico" />
+    <Image Include="res\window.ico" />
+    <Image Include="res\windows.ico" />
     <Image Include="res\windowstation.ico" />
+    <Image Include="res\window_black.ico" />
+    <Image Include="res\window_title.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bin\x64\KObjExp.sys" />

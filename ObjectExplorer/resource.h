@@ -49,12 +49,18 @@
 #define IDI_DRAM                        246
 #define IDI_FILTER                      247
 #define IDI_FILTER_UP                   248
+#define IDI_WINDOW                      249
+#define IDI_WINDOWS                     250
+#define IDI_NOACCESS                    251
+#define IDI_WINDOW_BLACK                252
+#define IDI_WINDOW_TITLE                253
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
 #define IDC_NAME                        1002
 #define IDC_COUNT                       1003
+#define IDS_STRING1281                  1281
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -78,7 +84,6 @@
 #define ID_SHOWOBJECTSOFTYPE_DEVICE     32793
 #define ID_SHOWOBJECTSOFTYPE_DRIVER     32794
 #define ID_SHOWOBJECTSOFTYPE_POWERREQUEST 32795
-
 #define ID_OBJECTS_ALLOBJECTS           32800
 #define ID_VIEW_PAUSE                   32801
 #define ID_OBJECTS_OBJECTMANAGER        32802
@@ -102,7 +107,6 @@
 #define ID_SHOWHANDLESOFTYPE_DIRECTORY  32819
 #define ID_SHOWHANDLESOFTYPE_SECTION    32820
 #define ID_SHOWHANDLESOFTYPE_POWERREQUEST 32821
-
 #define ID_HANDLES_SHOWHANDLEINPROCESS  32823
 #define ID_HANDLES_PIPES                32824
 #define ID_HANDLES_CLOSEHANDLE          32825
@@ -114,13 +118,17 @@
 #define ID_OBJECT                       32831
 #define ID_TYPE_ALLOBJECTS              32832
 #define ID_TYPE_ALLHANDLES              32833
+#define ID_DESKTOPS_ALLWINDOWS          32837
+#define ID_GUI_WINDOWSINPROCESS         32838
+#define ID_GUI_GDIOBJECTSINPROCESS      32839
+#define ID_GUI_ALLWINDOWSINDEFAULTDESKTOP 32840
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        249
-#define _APS_NEXT_COMMAND_VALUE         32837
+#define _APS_NEXT_RESOURCE_VALUE        254
+#define _APS_NEXT_COMMAND_VALUE         32841
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -234,8 +234,6 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 
 void CObjectsView::Refresh() {
 	CWaitCursor wait;
-	m_ObjMgr.EnumProcesses();
-	m_ObjMgr.EnumTypes();
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename);
 	m_Objects = m_ObjMgr.GetObjects();
 	if (GetSortColumn() >= 0)

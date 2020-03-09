@@ -92,6 +92,8 @@ public:
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();
+	static std::vector<HWND> EnumDsktopWindows(HANDLE hDesktop);
+	static std::vector<HWND> EnumChildWindows(HWND hWnd);
 
 	enum class ChangeType {
 		NoChange,

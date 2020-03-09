@@ -14,6 +14,7 @@
 #include "ProcessSelectDlg.h"
 #include "ObjectManagerView.h"
 #include "SecurityHelper.h"
+#include "WindowsView.h"
 
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
@@ -138,7 +139,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
 	int index = 0;
 	for (auto& icon : icons) {
-		auto hIcon = (HICON)::LoadImage(ModuleHelper::GetResourceInstance(),
+		auto hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(),
 			MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
 		m_TabImages.AddIcon(hIcon);
 		m_IconMap.insert({ icon.name, index++ });
@@ -150,6 +151,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
 	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_HANDLES));
 	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_PACKAGE));
+	m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_WINDOWS));
 
 	m_view.SetImageList(m_TabImages);
 
@@ -341,6 +343,21 @@ LRESULT CMainFrame::OnShowObjectManager(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnShowAllWindows(WORD, WORD, HWND, BOOL&) {
+	auto view = new CWindowsView(this);
+	view->SetDesktopOptions(false);
+	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	m_view.AddPage(view->m_hWnd, L"All Windows", m_WindowsIcon, view);
+	return 0;
+}
+
+LRESULT CMainFrame::OnShowAllWindowsDefaultDesktop(WORD, WORD, HWND, BOOL&) {
+	auto view = new CWindowsView(this);
+	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	m_view.AddPage(view->m_hWnd, L"Windows (Default Desktop)", m_WindowsIcon, view);
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -377,6 +394,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_HANDLES_CLOSEHANDLE, IDI_DELETE },
 		{ ID_APP_ABOUT, IDI_ABOUT },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
+		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
 
 	};
 	for (auto& cmd : cmds)
@@ -403,6 +421,8 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ 0 },
 		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
+		{ 0 },
+		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
 	};
 	for (auto& b : buttons) {
 		if (b.id == 0)
