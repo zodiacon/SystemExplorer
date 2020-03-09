@@ -82,7 +82,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"PID", m_Pid == 0 ? 100 : 1, LVCFMT_RIGHT | (m_Pid == 0 ? 0 : LVCFMT_FIXED_WIDTH) },
 		{ L"Attributes", 100 },
 		{ L"Access Mask", 100, LVCFMT_RIGHT },
-		{ L"Details", 300 }
+		{ L"Details", 500 }
 	};
 
 	m_ColumnCount = _countof(columns);

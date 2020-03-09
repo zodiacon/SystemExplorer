@@ -125,7 +125,7 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Name", 330 },
 		{ L"Handles", 100, LVCFMT_RIGHT },
 		{ L"First Handle", 160, LVCFMT_LEFT },
-		{ L"Details", 450 },
+		{ L"Details", 500 },
 	};
 
 	ColumnCount = _countof(columns);

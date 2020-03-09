@@ -126,6 +126,9 @@
     <ClCompile Include="WindowHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WorkerFactoryObjectType.cpp">
+      <Filter>ObjectTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="WindowHelper.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkerFactoryObjectType.h">
+      <Filter>ObjectTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -368,6 +374,9 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\window_title.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\factory.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

@@ -20,6 +20,53 @@ extern "C" {
 			UNICODE_STRING TypeName;
 		} OBJECT_DIRECTORY_INFORMATION, * POBJECT_DIRECTORY_INFORMATION;
 
+		typedef enum _WORKERFACTORYINFOCLASS {
+			WorkerFactoryTimeout, // q; s: LARGE_INTEGER
+			WorkerFactoryRetryTimeout, // q; s: LARGE_INTEGER
+			WorkerFactoryIdleTimeout, // q; s: LARGE_INTEGER
+			WorkerFactoryBindingCount,
+			WorkerFactoryThreadMinimum, // q; s: ULONG
+			WorkerFactoryThreadMaximum, // q; s: ULONG
+			WorkerFactoryPaused, // ULONG or BOOLEAN
+			WorkerFactoryBasicInformation, // WORKER_FACTORY_BASIC_INFORMATION
+			WorkerFactoryAdjustThreadGoal,
+			WorkerFactoryCallbackType,
+			WorkerFactoryStackInformation, // 10
+			WorkerFactoryThreadBasePriority,
+			WorkerFactoryTimeoutWaiters, // since THRESHOLD
+			WorkerFactoryFlags,
+			WorkerFactoryThreadSoftMaximum,
+			WorkerFactoryThreadCpuSets, // since REDSTONE5
+			MaxWorkerFactoryInfoClass
+		} WORKERFACTORYINFOCLASS;
+
+		typedef struct _WORKER_FACTORY_BASIC_INFORMATION {
+			LARGE_INTEGER Timeout;
+			LARGE_INTEGER RetryTimeout;
+			LARGE_INTEGER IdleTimeout;
+			BOOLEAN Paused;
+			BOOLEAN TimerSet;
+			BOOLEAN QueuedToExWorker;
+			BOOLEAN MayCreate;
+			BOOLEAN CreateInProgress;
+			BOOLEAN InsertedIntoQueue;
+			BOOLEAN Shutdown;
+			ULONG BindingCount;
+			ULONG ThreadMinimum;
+			ULONG ThreadMaximum;
+			ULONG PendingWorkerCount;
+			ULONG WaitingWorkerCount;
+			ULONG TotalWorkerCount;
+			ULONG ReleaseCount;
+			LONGLONG InfiniteWaitGoal;
+			PVOID StartRoutine;
+			PVOID StartParameter;
+			HANDLE ProcessId;
+			SIZE_T StackReserve;
+			SIZE_T StackCommit;
+			NTSTATUS LastThreadCreationStatus;
+		} WORKER_FACTORY_BASIC_INFORMATION, * PWORKER_FACTORY_BASIC_INFORMATION;
+
 		typedef struct _SYSTEM_OBJECTTYPE_INFORMATION {
 			ULONG NextEntryOffset;
 			ULONG NumberOfObjects;
@@ -434,6 +481,14 @@ extern "C" {
 			_Out_ PHANDLE SessionHandle,
 			_In_ ACCESS_MASK DesiredAccess,
 			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtQueryInformationWorkerFactory(
+				_In_ HANDLE WorkerFactoryHandle,
+				_In_ WORKERFACTORYINFOCLASS WorkerFactoryInformationClass,
+				_Out_writes_bytes_(WorkerFactoryInformationLength) PVOID WorkerFactoryInformation,
+				_In_ ULONG WorkerFactoryInformationLength,
+				_Out_opt_ PULONG ReturnLength
+				);
 
 	}
 }

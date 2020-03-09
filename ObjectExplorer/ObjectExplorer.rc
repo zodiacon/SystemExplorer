@@ -91,6 +91,7 @@ BEGIN
             MENUITEM "&Thread",                     ID_SHOWOBJECTSOFTYPE_THREAD
             MENUITEM "&Timer",                      ID_SHOWOBJECTSOFTYPE_TIMER
             MENUITEM "Token",                       ID_SHOWOBJECTSOFTYPE_TOKEN
+            MENUITEM "Tp&WorkerFactory",            ID_SHOWOBJECTSOFTYPE_WORKERFACTORY
             MENUITEM "&WindowStation",              ID_SHOWOBJECTSOFTYPE_WINDOWSTATION
         END
         MENUITEM SEPARATOR
@@ -125,6 +126,7 @@ BEGIN
             MENUITEM "&Thread",                     ID_SHOWHANDLESOFTYPE_THREAD
             MENUITEM "&Timer",                      ID_SHOWHANDLESOFTYPE_TIMER
             MENUITEM "Token",                       ID_SHOWHANDLESOFTYPE_TOKEN
+            MENUITEM "Tp&WorkerFactory",            ID_SHOWHANDLESOFTYPE_WORKERFACTORY
             MENUITEM "&WindowStation",              ID_SHOWHANDLESOFTYPE_WINDOWSTATION
         END
         MENUITEM SEPARATOR
@@ -278,6 +280,8 @@ IDI_WINDOW_BLACK        ICON                    "res\\window_black.ico"
 
 IDI_WINDOW_TITLE        ICON                    "res\\window_title.ico"
 
+IDI_FACTORY             ICON                    "res\\factory.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -417,6 +421,7 @@ BEGIN
     END
 END
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
@@ -501,6 +506,10 @@ END
 STRINGTABLE
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE
+BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
@@ -510,7 +519,12 @@ BEGIN
     ID_OBJECTS_OBJECTMANAGER "Show object manager namespace\nObject Manager"
     ID_OBJECTS_ALLOBJECTTYPES "Show all object types\nObject Types"
     ID_HANDLES_ALLHANDLES   "Show all user mode handles in the system\nAll Handles"
-    ID_HANDLES_SHOWHANDLEINPROCESS "Show all handles in a selected process\nHandles in Process"
+END
+
+STRINGTABLE
+BEGIN
+    ID_HANDLES_SHOWHANDLEINPROCESS 
+                            "Show all handles in a selected process\nHandles in Process"
 END
 
 STRINGTABLE

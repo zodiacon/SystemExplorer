@@ -75,6 +75,9 @@ struct ObjectNameAndType {
 	std::wstring TypeName;
 };
 
+struct GdiObject {
+};
+
 class ObjectManager {
 public:
 	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0);
@@ -94,6 +97,7 @@ public:
 	static int64_t GetTotalObjects();
 	static std::vector<HWND> EnumDsktopWindows(HANDLE hDesktop);
 	static std::vector<HWND> EnumChildWindows(HWND hWnd);
+	static std::vector<GdiObject> EnumGdiObjects(DWORD pid);
 
 	enum class ChangeType {
 		NoChange,

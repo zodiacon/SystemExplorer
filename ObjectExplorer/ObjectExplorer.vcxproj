@@ -255,6 +255,7 @@
     <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="WindowsView.cpp" />
     <ClCompile Include="WinStationObjectType.cpp" />
+    <ClCompile Include="WorkerFactoryObjectType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
@@ -292,6 +293,7 @@
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="WindowsView.h" />
     <ClInclude Include="WinStationObjectType.h" />
+    <ClInclude Include="WorkerFactoryObjectType.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ObjectExplorer.rc" />
@@ -309,6 +311,7 @@
     <Image Include="res\directory.ico" />
     <Image Include="res\dram.ico" />
     <Image Include="res\event.ico" />
+    <Image Include="res\factory.ico" />
     <Image Include="res\file.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />

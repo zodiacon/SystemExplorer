@@ -19,13 +19,13 @@ LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	auto hWndToolBar = m_Toolbar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
 	InitTreeToolbar(m_Toolbar);
 
-	m_hWndToolBar =	CreateSimpleReBarCtrl(m_hWnd);
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(m_Toolbar);
 
-	m_hWndClient = m_Splitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+	m_hWndClient = m_Splitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, WS_EX_CLIENTEDGE);
 
 	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
-		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL);
+		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL | LVS_NOSORTHEADER);
 	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
 
@@ -48,20 +48,6 @@ LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	InitTree();
 
-	return 0;
-}
-
-LRESULT CWindowsView::OnSize(UINT, WPARAM, LPARAM lParam, BOOL&) {
-	auto x = GET_X_LPARAM(lParam), y = GET_Y_LPARAM(lParam);
-	if (m_Splitter) {
-		m_Splitter.MoveWindow(0, 0, x, y);
-	}
-	if(m_Toolbar) {
-		CRect rc;
-		m_Toolbar.GetClientRect(&rc);
-		if(rc.Height() > 0)
-			m_ToolbarSplitter.SetSplitterPos(rc.Height());
-	}
 	return 0;
 }
 

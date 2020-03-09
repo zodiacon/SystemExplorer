@@ -132,8 +132,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		{ IDI_DIRECTORY,	L"Directory",		{ ID_SHOWOBJECTSOFTYPE_DIRECTORY	, ID_SHOWHANDLESOFTYPE_DIRECTORY		} },
 		{ IDI_TIMER,		L"Timer",			{ ID_SHOWOBJECTSOFTYPE_TIMER		, ID_SHOWHANDLESOFTYPE_TIMER		} },
 		{ IDI_TOKEN,		L"Token",			{ ID_SHOWOBJECTSOFTYPE_TOKEN		, ID_SHOWHANDLESOFTYPE_TOKEN	} },
-		{ IDI_CAR,			L"Driver",			{ 0, 0	} },
+		{ IDI_CAR,			L"Driver",			{ 0, 0 } },
 		{ IDI_ATOM,			L"PowerRequest",	{ ID_SHOWOBJECTSOFTYPE_POWERREQUEST, ID_SHOWHANDLESOFTYPE_POWERREQUEST	} },
+		{ IDI_FACTORY,		L"TpWorkerFactory",	{ ID_SHOWOBJECTSOFTYPE_WORKERFACTORY, ID_SHOWHANDLESOFTYPE_WORKERFACTORY	} },
 	};
 
 	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
@@ -301,7 +302,7 @@ LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
 	auto tab = new CObjectSummaryView(this, *this);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
-	m_view.AddPage(tab->m_hWnd, L"Types", m_TypesIcon, tab);
+	m_view.AddPage(tab->m_hWnd, L"Object Types", m_TypesIcon, tab);
 	return 0;
 }
 

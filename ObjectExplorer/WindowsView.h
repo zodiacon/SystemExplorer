@@ -18,7 +18,6 @@ public:
 
 	BEGIN_MSG_MAP(CWindowsView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		//MESSAGE_HANDLER(WM_SIZE, OnSize)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnListGetDispInfo)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
@@ -39,7 +38,6 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTreeSelectionChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnListGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -58,7 +56,6 @@ private:
 	CTreeViewCtrlEx m_Tree;
 	CListViewCtrl m_List;
 	CSplitterWindow m_Splitter;
-	CHorSplitterWindow m_ToolbarSplitter;
 	CToolBarCtrl m_Toolbar;
 	HWND m_SelectedHwnd;
 	IMainFrame* m_pFrame;

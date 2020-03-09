@@ -15,6 +15,7 @@
 #include "FileObjectType.h"
 #include "TimerObjectType.h"
 #include "WinStationObjectType.h"
+#include "WorkerFactoryObjectType.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -330,6 +331,8 @@ std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const
 		return std::make_unique<TimerObjectType>(typeIndex, name);
 	if (name == L"WindowStation")
 		return std::make_unique<WinStationObjectType>(typeIndex, name);
+	if (name == L"TpWorkerFactory")
+		return std::make_unique<WorkerFactoryObjectType>(typeIndex, name);
 
 	return nullptr;
 }
