@@ -334,6 +334,8 @@ IDI_BRUSH               ICON                    "res\\paint_brush2.ico"
 
 IDI_FIND_NEXT           ICON                    "res\\find_next.ico"
 
+IDI_WINDOW_CLOSE        ICON                    "res\\window_close.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

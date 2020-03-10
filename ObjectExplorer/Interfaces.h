@@ -24,4 +24,5 @@ struct IMainFrame {
 	virtual int GetIconIndexByType(PCWSTR type) const = 0;
 	virtual void ShowAllHandles(PCWSTR typename) = 0;
 	virtual void ShowAllObjects(PCWSTR typename) = 0;
+	virtual CUpdateUIBase* GetUpdateUI() = 0;
 };

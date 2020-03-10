@@ -1,7 +1,5 @@
 #pragma once
 
-//#define STATUS_UNSUCCESSFUL              ((NTSTATUS)0xC0000001L)
-
 #include "ObjectType.h"
 
 struct ObjectTypeInfo;
@@ -75,7 +73,22 @@ struct ObjectNameAndType {
 	std::wstring TypeName;
 };
 
+enum class GdiObjectType {
+	DeviceContext = 1,
+	Region = 4,
+	Bitmap = 5,
+	Palette = 8,
+	Font = 10,
+	Brush = 0x10,
+	Metafile = 0x15,
+};
+
 struct GdiObject {
+	HGDIOBJ Handle;
+	GdiObjectType Type;
+	USHORT Count;
+	USHORT Index;
+	void* KernelAddress;
 };
 
 class ObjectManager {
@@ -126,7 +139,7 @@ public:
 	static CString GetSymbolicLinkTarget(PCWSTR path);
 
 private:
-	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name) const;
+	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name);
 
 private:
 	std::unordered_map<DWORD, ProcessInfo> _processesById;

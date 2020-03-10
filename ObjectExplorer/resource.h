@@ -61,6 +61,8 @@
 #define IDI_BRUSH                       256
 #define IDI_ICON6                       257
 #define IDI_FIND_NEXT                   257
+#define IDI_ICON8                       258
+#define IDI_WINDOW_CLOSE                258
 #define IDC_LIST1                       1000
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -136,7 +138,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        258
+#define _APS_NEXT_RESOURCE_VALUE        259
 #define _APS_NEXT_COMMAND_VALUE         32841
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101

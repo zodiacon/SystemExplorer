@@ -158,6 +158,15 @@ LRESULT CWindowsView::OnComboKeyDown(UINT, WPARAM wParam, LPARAM, BOOL& handled)
 	return 0;
 }
 
+LRESULT CWindowsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+	if (activate) {
+		auto ui = m_pFrame->GetUpdateUI();
+		ui->UIEnable(ID_EDIT_FIND, TRUE);
+		ui->UIEnable(ID_EDIT_FIND_NEXT, TRUE);
+	}
+	return 0;
+}
+
 void CWindowsView::InitTree() {
 	m_Tree.LockWindowUpdate();
 	m_Tree.DeleteAllItems();

@@ -100,6 +100,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 	UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, FALSE);
 	UIEnable(ID_HANDLES_CLOSEHANDLE, FALSE);
+	UIEnable(ID_EDIT_FIND, FALSE);
+	UIEnable(ID_EDIT_FIND_NEXT, FALSE);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -109,6 +111,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
+	m_view.SetTitleBarWindow(m_hWnd);
 
 	// icons
 	struct {
@@ -181,6 +184,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	}
 
 	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
+
+	ObjectManager::EnumGdiObjects(15720);
 
 	return 0;
 }
@@ -401,6 +406,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_GUI_GDIOBJECTSINPROCESS, IDI_BRUSH },
 		{ ID_EDIT_FIND, IDI_FIND },
 		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
+		{ ID_WINDOW_CLOSE, IDI_WINDOW_CLOSE },
 	};
 	for (auto& cmd : cmds)
 		m_CmdBar.AddIcon(AtlLoadIcon(cmd.icon), cmd.id);
@@ -460,4 +466,8 @@ void CMainFrame::ShowAllObjects(PCWSTR type) {
 	auto tab = new CObjectsView(this, this, type);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), tab);
+}
+
+CUpdateUIBase* CMainFrame::GetUpdateUI() {
+	return this;
 }

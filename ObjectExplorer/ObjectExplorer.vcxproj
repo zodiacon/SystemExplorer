@@ -347,6 +347,7 @@
     <Image Include="res\windows.ico" />
     <Image Include="res\windowstation.ico" />
     <Image Include="res\window_black.ico" />
+    <Image Include="res\window_close.ico" />
     <Image Include="res\window_title.ico" />
   </ItemGroup>
   <ItemGroup>

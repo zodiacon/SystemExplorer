@@ -392,7 +392,10 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\find_next.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\window_close.ico">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

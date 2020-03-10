@@ -20,6 +20,7 @@ public:
 
 	BEGIN_MSG_MAP(CWindowsView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnListGetDispInfo)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
@@ -57,6 +58,7 @@ private:
 	LRESULT OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFindNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnComboKeyDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	void InitTree();
 	void UpdateList(bool newNode);

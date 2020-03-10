@@ -304,7 +304,8 @@ CString ObjectManager::GetSymbolicLinkTarget(PCWSTR path) {
 	return target;
 }
 
-std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) const {
+std::unique_ptr<ObjectType> ObjectManager::CreateObjectType(int typeIndex, const CString& name) {
+	EnumProcesses();
 	if (name == L"Mutant")
 		return std::make_unique<MutexObjectType>(typeIndex, name);
 	if (name == L"Process")
@@ -424,6 +425,52 @@ std::vector<HWND> ObjectManager::EnumChildWindows(HWND hWnd) {
 		return TRUE;
 		}, reinterpret_cast<LPARAM>(&windows));
 	return windows;
+}
+
+std::vector<GdiObject> ObjectManager::EnumGdiObjects(DWORD pid) {
+	struct GDICELL {
+		PVOID KernelAddress;
+		USHORT ProcessId;
+		USHORT Count;
+		USHORT Upper;
+		USHORT Type;
+		PVOID UserAddress;
+	};
+
+	std::vector<GdiObject> objects;
+
+	auto hProcess = ::GetCurrentProcess();
+
+	PROCESS_BASIC_INFORMATION pbi;
+	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), nullptr);
+	auto const GdiSharedHandleTable = 0xf8;
+
+	GDICELL* GdiAddress;
+	SIZE_T read;
+	if (!::ReadProcessMemory(hProcess, (BYTE*)pbi.PebBaseAddress + GdiSharedHandleTable, &GdiAddress, sizeof(GdiAddress), &read))
+		return objects;
+
+	unsigned tableSize = 64 << 10;
+	auto table = std::make_unique<GDICELL[]>(tableSize);
+	if (!::ReadProcessMemory(hProcess, GdiAddress, table.get(), tableSize * sizeof(GDICELL), &read))
+		return objects;
+
+	objects.reserve(128);
+	for (unsigned i = 0; i < tableSize; i++) {
+		auto obj = table.get() + i;
+		if ((obj->ProcessId >> 2) != ((pid & 0xffff)) >> 2)
+			continue;
+
+		GdiObject object;
+		object.Index = (USHORT)i;
+		object.Handle = ULongToHandle((obj->Upper << 16UL) + i);
+		object.Type = (GdiObjectType)(obj->Type & 0x7f);
+		object.Count = obj->Count;
+		object.KernelAddress = obj->KernelAddress;
+		objects.push_back(object);
+	}
+
+	return objects;
 }
 
 bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, USHORT type) const {
