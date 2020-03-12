@@ -82,17 +82,18 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -118,17 +119,18 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -158,10 +160,11 @@
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -192,10 +195,11 @@
       <DebugInformationFormat />
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -233,13 +237,14 @@
     <ClCompile Include="ObjectManagerView.cpp" />
     <ClCompile Include="ObjectsSummaryView.cpp" />
     <ClCompile Include="ObjectType.cpp" />
-    <ClCompile Include="ObjectViewByType.cpp" />
     <ClCompile Include="ProcessHelper.cpp" />
     <ClCompile Include="ProcessObjectType.cpp" />
     <ClCompile Include="ProcessSelectDlg.cpp" />
+    <ClCompile Include="ProgressDlg.cpp" />
     <ClCompile Include="SectionObjectType.cpp" />
     <ClCompile Include="SecurityHelper.cpp" />
     <ClCompile Include="SemaphoreObjectType.cpp" />
+    <ClCompile Include="ServicesView.cpp" />
     <ClCompile Include="SortHelper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -275,14 +280,16 @@
     <ClInclude Include="ObjectManagerView.h" />
     <ClInclude Include="ObjectsSummaryView.h" />
     <ClInclude Include="ObjectType.h" />
-    <ClInclude Include="ObjectViewByType.h" />
     <ClInclude Include="ProcessHelper.h" />
     <ClInclude Include="ProcessObjectType.h" />
     <ClInclude Include="ProcessSelectDlg.h" />
+    <ClInclude Include="ProgressDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SectionObjectType.h" />
     <ClInclude Include="SecurityHelper.h" />
     <ClInclude Include="SemaphoreObjectType.h" />
+    <ClInclude Include="ServicesView.h" />
+    <ClInclude Include="SortHelper.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ObjectsView.h" />
     <ClInclude Include="SymbolicLinkObjectType.h" />
@@ -319,9 +326,16 @@
     <Image Include="res\folder_closed.ico" />
     <Image Include="res\funnel.ico" />
     <Image Include="res\funnel_up.ico" />
+    <Image Include="res\gear.ico" />
+    <Image Include="res\gears.ico" />
+    <Image Include="res\gear_delete.ico" />
+    <Image Include="res\gear_pause.ico" />
+    <Image Include="res\gear_run.ico" />
+    <Image Include="res\gear_stop.ico" />
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />
+    <Image Include="res\media_step_forward.ico" />
     <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
     <Image Include="res\objects.ico" />
@@ -329,6 +343,7 @@
     <Image Include="res\paint_brush2.ico" />
     <Image Include="res\pause.ico" />
     <Image Include="res\pin_green.ico" />
+    <Image Include="res\play.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />
     <Image Include="res\process_view.ico" />
@@ -336,6 +351,7 @@
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
     <Image Include="res\sign_forbidden.ico" />
+    <Image Include="res\stop.ico" />
     <Image Include="res\symboliclink.ico" />
     <Image Include="res\thread.ico" />
     <Image Include="res\timer.ico" />
@@ -356,6 +372,11 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ObjExpCore\ObjExpCore.vcxproj">
+      <Project>{cafa77fb-4a19-47b4-909c-9af25f0091a7}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

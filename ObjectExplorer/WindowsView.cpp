@@ -152,6 +152,11 @@ LRESULT CWindowsView::OnFindNext(WORD, WORD, HWND, BOOL&) {
 LRESULT CWindowsView::OnComboKeyDown(UINT, WPARAM wParam, LPARAM, BOOL& handled) {
 	if (wParam == VK_RETURN) {
 		PostMessage(WM_COMMAND, ID_EDIT_FIND_NEXT);
+		CString text;
+		m_SearchEdit.GetWindowText(text);
+		m_SearchCombo.InsertString(0, text);
+		if (m_SearchCombo.GetCount() > 10)
+			m_SearchCombo.DeleteString(10);
 		return 0;
 	}
 	handled = FALSE;

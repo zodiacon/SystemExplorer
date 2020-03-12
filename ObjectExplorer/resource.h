@@ -4,6 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
+#define IDS_TITLE                       129
 #define IDR_DRIVER                      202
 #define IDI_JOB                         203
 #define IDI_DESKTOP                     204
@@ -57,19 +58,28 @@
 #define IDI_ICON4                       254
 #define IDI_FACTORY                     254
 #define IDI_FIND                        255
-#define IDI_ICON7                       256
 #define IDI_BRUSH                       256
-#define IDI_ICON6                       257
 #define IDI_FIND_NEXT                   257
 #define IDI_ICON8                       258
 #define IDI_WINDOW_CLOSE                258
-#define IDC_LIST1                       1000
+#define IDI_SERVICE                     259
+#define IDI_SERVICE_DELETE              260
+#define IDI_SERVICE_PAUSE               261
+#define IDI_SERVICE_RUNNING             262
+#define IDI_SERVICE_STOP                263
+#define IDI_SERVICES                    264
+#define IDI_PLAY                        265
+#define IDI_STOP                        266
+#define IDD_PROGRESS                    267
+#define IDI_ICON6                       270
+#define IDI_RESUME                      270
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
 #define IDC_NAME                        1002
 #define IDC_COUNT                       1003
-#define IDS_STRING1281                  1281
+#define IDC_PROGRESS                    1005
+#define IDC_MESSAGE                     1006
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -133,14 +143,24 @@
 #define ID_GUI_WINDOWSINPROCESS         32838
 #define ID_GUI_GDIOBJECTSINPROCESS      32839
 #define ID_GUI_ALLWINDOWSINDEFAULTDESKTOP 32840
+#define ID_SYSTEM_SERVICES              32841
+#define ID_SYSTEM_DEVICES               32842
+#define ID_SYSTEM_DRIVERS               32843
+#define ID_SERVICE_START                32844
+#define ID_SERVICE_STOP                 32845
+#define ID_SERVICE_PAUSE                32846
+#define ID_SERVICE_CONTINUE             32847
+#define ID_SERVICE_UNINSTALL            32848
+#define ID_FILE_RUNASADMINISTRATOR      32849
+#define ID_SYSTEM_COM                   32850
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        259
-#define _APS_NEXT_COMMAND_VALUE         32841
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_RESOURCE_VALUE        271
+#define _APS_NEXT_COMMAND_VALUE         32851
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

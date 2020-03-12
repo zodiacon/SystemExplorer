@@ -21,3 +21,15 @@ HICON SecurityHelper::GetShieldIcon() {
 
 	return ssii.hIcon;
 }
+
+bool SecurityHelper::RunElevated(PCWSTR param, bool ui) {
+	WCHAR path[MAX_PATH];
+	::GetModuleFileName(nullptr, path, _countof(path));
+	SHELLEXECUTEINFO shi = { sizeof(shi) };
+	shi.lpFile = path;
+	shi.nShow = SW_SHOWDEFAULT;
+	shi.lpVerb = L"runas";
+	shi.lpParameters = param;
+	shi.fMask = (ui ? 0 : (SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE)) | SEE_MASK_NOASYNC;
+	return ::ShellExecuteEx(&shi);
+}

@@ -12,7 +12,7 @@
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
-	public CUpdateUI<CMainFrame>,
+	public CAutoUpdateUI<CMainFrame>,
 	public CToolBarHelper<CMainFrame>,
 	public IMainFrame,
 	public CMessageFilter, 
@@ -26,26 +26,19 @@ public:
 	CCommandBarCtrl m_CmdBar;
 
 	// Inherited via IMainFrame
-	BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd) override;
+	BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT*, UINT) override;
 	HIMAGELIST GetImageList() override;
 	int GetIconIndexByType(PCWSTR type) const override;
 	void ShowAllHandles(PCWSTR type) override;
 	void ShowAllObjects(PCWSTR type) override;
 	CUpdateUIBase* GetUpdateUI() override;
-
-	BEGIN_UPDATE_UI_MAP(CMainFrame)
-		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
-		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
-		UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_OBJECTS_ALLHANDLESFOROBJECT, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_HANDLES_CLOSEHANDLE, UPDUI_MENUPOPUP)
-		UPDATE_ELEMENT(ID_VIEW_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_TYPE_ALLHANDLES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_TYPE_ALLOBJECTS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_OPTIONS_ALWAYSONTOP, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_EDIT_FIND, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-		UPDATE_ELEMENT(ID_EDIT_FIND_NEXT, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-	END_UPDATE_UI_MAP()
+	int AddBand(HWND hControl, PCWSTR title) override;
+	bool RemoveBand(int index) override;
+	bool AddToCommandBar(UINT id, UINT icon, HICON = nullptr) override;
+	bool AddMenu(HMENU hMenu) override;
+	bool RemoveMenu(HMENU hToolbar) override;
+	bool AddToolBar(HWND hToolbar) override;
+	bool RemoveToolBar(HWND hToolbar) override;
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -59,19 +52,21 @@ public:
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLOBJECTS, OnViewAllObjects)
 		COMMAND_ID_HANDLER(ID_HANDLES_ALLHANDLES, OnShowAllHandles)
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnShowHandlesInProcess)
+		COMMAND_ID_HANDLER(ID_SYSTEM_SERVICES, OnViewSystemServices)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
 		COMMAND_ID_HANDLER(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
 		COMMAND_ID_HANDLER(ID_OBJECTS_OBJECTMANAGER, OnShowObjectManager)
 		COMMAND_ID_HANDLER(ID_DESKTOPS_ALLWINDOWS, OnShowAllWindows)
+		COMMAND_ID_HANDLER(ID_FILE_RUNASADMINISTRATOR, OnRunAsAdmin)
 		COMMAND_ID_HANDLER(ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, OnShowAllWindowsDefaultDesktop)
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
-		COMMAND_RANGE_HANDLER(ID_SHOWOBJECTSOFTYPE_PROCESS, ID_SHOWOBJECTSOFTYPE_PROCESS + 20, OnShowObjectOfType)
-		COMMAND_RANGE_HANDLER(ID_SHOWHANDLESOFTYPE_PROCESS, ID_SHOWHANDLESOFTYPE_PROCESS + 20, OnShowHandlesOfType)
-		COMMAND_RANGE_HANDLER(32767, 65535, OnForward)
+		COMMAND_RANGE_HANDLER(ID_SHOWOBJECTSOFTYPE_PROCESS, ID_SHOWOBJECTSOFTYPE_PROCESS + 17, OnShowObjectOfType)
+		COMMAND_RANGE_HANDLER(ID_SHOWHANDLESOFTYPE_PROCESS, ID_SHOWHANDLESOFTYPE_PROCESS + 17, OnShowHandlesOfType)
+		COMMAND_RANGE_HANDLER(32768, 65535, OnForward)
 		NOTIFY_CODE_HANDLER(TBVN_PAGEACTIVATED, OnTabActivated)
 		NOTIFY_CODE_HANDLER(TBVN_CONTEXTMENU, OnTabContextMenu)
-		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
+		CHAIN_MSG_MAP(CAutoUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CToolBarHelper<CMainFrame>)
 		REFLECT_NOTIFICATIONS()
@@ -88,6 +83,7 @@ private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewSystemServices(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnForwardMsg(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -107,6 +103,7 @@ private:
 	LRESULT OnShowObjectManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllWindows(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllWindowsDefaultDesktop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnRunAsAdmin(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
@@ -119,5 +116,5 @@ private:
 	CImageListManaged m_TabImages;
 	std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
-	int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon;
+	int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
 };

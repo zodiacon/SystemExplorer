@@ -15,9 +15,7 @@
 #include "ObjectManagerView.h"
 #include "SecurityHelper.h"
 #include "WindowsView.h"
-
-const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
+#include "ServicesView.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (m_view.PreTranslateMessage(pMsg))
@@ -74,7 +72,17 @@ LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-	m_CmdBar.AttachMenu(GetMenu());
+	CMenuHandle hMenu = GetMenu();
+	if (SecurityHelper::IsRunningElevated()) {
+		hMenu.GetSubMenu(0).DeleteMenu(ID_FILE_RUNASADMINISTRATOR, MF_BYCOMMAND);
+		CString text;
+		GetWindowText(text);
+		SetWindowText(text + L" (Administrator)");
+	}
+
+	UIAddMenu(hMenu);
+	UIAddMenu(IDR_CONTEXT);
+	m_CmdBar.AttachMenu(hMenu);
 	SetMenu(nullptr);
 	m_CmdBar.m_bAlphaImages = true;
 	InitCommandBar();
@@ -104,7 +112,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UIEnable(ID_EDIT_FIND_NEXT, FALSE);
 
 	// register object for message filtering and idle updates
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	auto pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != nullptr);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
@@ -158,21 +166,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_HANDLES));
 	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_PACKAGE));
 	m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_WINDOWS));
+	m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_SERVICES));
 
 	m_view.SetImageList(m_TabImages);
 
 	if (!DriverHelper::IsDriverLoaded()) {
 		if (!SecurityHelper::IsRunningElevated()) {
 			if (MessageBox(L"Kernel Driver not loaded. Most functionality will not be available. Install?", L"Object Explorer", MB_YESNO | MB_ICONQUESTION) == IDYES) {
-				WCHAR path[MAX_PATH];
-				::GetModuleFileName(nullptr, path, _countof(path));
-				SHELLEXECUTEINFO shi = { sizeof(shi) };
-				shi.lpFile = path;
-				shi.lpVerb = L"runas";
-				shi.lpParameters = L"install";
-				shi.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE | SEE_MASK_NOASYNC;
-				if (!::ShellExecuteEx(&shi)) {
-					MessageBox(L"Error running driver installer", L"Object Explorer", MB_ICONERROR);
+				if(!SecurityHelper::RunElevated(L"install", false)) {
+					AtlMessageBox(*this, L"Error running driver installer", IDS_TITLE, MB_ICONERROR);
 				}
 			}
 		}
@@ -184,8 +186,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	}
 
 	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
-
-	ObjectManager::EnumGdiObjects(15720);
 
 	return 0;
 }
@@ -203,6 +203,14 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	PostMessage(WM_CLOSE);
+	return 0;
+}
+
+LRESULT CMainFrame::OnViewSystemServices(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CServicesView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Services", m_ServicesIcon, pView);
+
 	return 0;
 }
 
@@ -366,6 +374,14 @@ LRESULT CMainFrame::OnShowAllWindowsDefaultDesktop(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnRunAsAdmin(WORD, WORD, HWND, BOOL&) {
+	if (SecurityHelper::RunElevated(nullptr, true)) {
+		SendMessage(WM_CLOSE);
+	}
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -373,10 +389,13 @@ void CMainFrame::CloseAllBut(int tab) {
 		m_view.RemovePage(0);
 }
 
-BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd) {
-	POINT pt;
-	::GetCursorPos(&pt);
-	return m_CmdBar.TrackPopupMenu(hMenu, 0, pt.x, pt.y);
+BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT* pt, UINT flags) {
+	POINT pos;
+	if (pt)
+		pos = *pt;
+	else
+	::GetCursorPos(&pos);
+	return m_CmdBar.TrackPopupMenu(hMenu, flags, pos.x, pos.y);
 }
 
 HIMAGELIST CMainFrame::GetImageList() {
@@ -391,6 +410,7 @@ int CMainFrame::GetIconIndexByType(PCWSTR type) const {
 void CMainFrame::InitCommandBar() {
 	struct {
 		UINT id, icon;
+		HICON hIcon = nullptr;
 	} cmds[] = {
 		{ ID_EDIT_COPY, IDI_COPY },
 		{ ID_VIEW_PAUSE, IDI_PAUSE },
@@ -407,9 +427,16 @@ void CMainFrame::InitCommandBar() {
 		{ ID_EDIT_FIND, IDI_FIND },
 		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
 		{ ID_WINDOW_CLOSE, IDI_WINDOW_CLOSE },
+		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
+		{ ID_FILE_RUNASADMINISTRATOR, 0, SecurityHelper::GetShieldIcon() },
+		{ ID_SERVICE_START, IDI_PLAY },
+		{ ID_SERVICE_STOP, IDI_STOP },
+		{ ID_SERVICE_PAUSE, IDI_PAUSE },
+		{ ID_SERVICE_CONTINUE, IDI_RESUME },
 	};
-	for (auto& cmd : cmds)
-		m_CmdBar.AddIcon(AtlLoadIcon(cmd.icon), cmd.id);
+	for (auto& cmd : cmds) {
+		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
+	}
 }
 
 #define ID_OBJECTS_OFTYPE 200
@@ -434,6 +461,8 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
+		{ 0 },
+		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
 		{ 0 },
 		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
 		{ 0 },
@@ -470,4 +499,49 @@ void CMainFrame::ShowAllObjects(PCWSTR type) {
 
 CUpdateUIBase* CMainFrame::GetUpdateUI() {
 	return this;
+}
+
+int CMainFrame::AddBand(HWND hControl, PCWSTR title) {
+	::SetParent(hControl, m_hWnd);
+	if (!AddSimpleReBarBand(hControl, title, FALSE))
+		return -1;
+	CReBarCtrl rb(m_hWndToolBar);
+	REBARBANDINFO info = { sizeof(info) };
+	info.fMask = RBBIM_COLORS;
+	info.clrBack = RGB(255, 255, 0);
+	rb.SetBandInfo(rb.GetBandCount() - 1, &info);
+	rb.LockBands(TRUE);
+	
+	SizeSimpleReBarBands();
+	UIAddToolBar(hControl);
+	return rb.GetBandCount() - 1;
+}
+
+bool CMainFrame::RemoveBand(int index) {
+	CReBarCtrl rb(m_hWndToolBar);
+	REBARBANDINFO info = { sizeof(info) };
+	info.fMask = RBBIM_CHILD;
+	rb.GetBandInfo(index, &info);
+	UIRemove(info.hwndChild);
+	return CReBarCtrl(m_hWndToolBar).DeleteBand(index);
+}
+
+bool CMainFrame::AddToCommandBar(UINT id, UINT icon, HICON hIcon) {
+	return m_CmdBar.AddIcon(icon ? AtlLoadIcon(icon) : hIcon, id);
+}
+
+bool CMainFrame::AddMenu(HMENU hMenu) {
+	return UIAddMenu(hMenu);
+}
+
+bool CMainFrame::AddToolBar(HWND hToolbar) {
+	return UIAddToolBar(hToolbar);
+}
+
+bool CMainFrame::RemoveMenu(HMENU hMenu) {
+	return false;
+}
+
+bool CMainFrame::RemoveToolBar(HWND hToolbar) {
+	return false;
 }

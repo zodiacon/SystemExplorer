@@ -54,6 +54,7 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "&Run as Administrator",       ID_FILE_RUNASADMINISTRATOR
         MENUITEM "&Save...\tCtrl+S",            ID_FILE_SAVE
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
@@ -104,8 +105,6 @@ BEGIN
         MENUITEM "All Object &Types",           ID_OBJECTS_ALLOBJECTTYPES
         MENUITEM SEPARATOR
         MENUITEM "Object &Manager Namespace",   ID_OBJECTS_OBJECTMANAGER
-        MENUITEM SEPARATOR
-        MENUITEM "&Drivers",                    ID_OBJECTS_DRIVERS
     END
     POPUP "&Handles"
     BEGIN
@@ -139,6 +138,13 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE, INACTIVE
     END
+    POPUP "&System"
+    BEGIN
+        MENUITEM "&Services",                   ID_SYSTEM_SERVICES
+        MENUITEM "&Devices",                    ID_SYSTEM_DEVICES
+        MENUITEM "&Drivers",                    ID_SYSTEM_DRIVERS
+        MENUITEM "&COM",                        ID_SYSTEM_COM
+    END
     POPUP "&GUI"
     BEGIN
         MENUITEM "All Windows in Default Desktop", ID_GUI_ALLWINDOWSINDEFAULTDESKTOP
@@ -147,16 +153,11 @@ BEGIN
         MENUITEM "&Windows in Process...",      ID_GUI_WINDOWSINPROCESS
         MENUITEM "&GDI Objects in Process...",  ID_GUI_GDIOBJECTSINPROCESS
     END
-    POPUP "&Search"
-    BEGIN
-        MENUITEM "&Find...\tCtrl+F",            ID_EDIT_FIND
-        MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
-    END
     POPUP "O&ptions"
     BEGIN
         MENUITEM "&Always On Top",              ID_OPTIONS_ALWAYSONTOP
     END
-    POPUP "&Window"
+    POPUP "&Tab"
     BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
         MENUITEM "Close &All",                  ID_WINDOW_CLOSE_ALL
@@ -229,6 +230,15 @@ BEGIN
         MENUITEM "Token",                       ID_SHOWOBJECTSOFTYPE_TOKEN
         MENUITEM "Tp&WorkerFactory",            ID_SHOWOBJECTSOFTYPE_WORKERFACTORY
         MENUITEM "&WindowStation",              ID_SHOWOBJECTSOFTYPE_WINDOWSTATION
+    END
+    POPUP "service"
+    BEGIN
+        MENUITEM "Start",                       ID_SERVICE_START
+        MENUITEM "Stop",                        ID_SERVICE_STOP
+        MENUITEM "Pause",                       ID_SERVICE_PAUSE
+        MENUITEM "Continue",                    ID_SERVICE_CONTINUE
+        MENUITEM SEPARATOR
+        MENUITEM "Uninstall",                   ID_SERVICE_UNINSTALL
     END
 END
 
@@ -336,6 +346,24 @@ IDI_FIND_NEXT           ICON                    "res\\find_next.ico"
 
 IDI_WINDOW_CLOSE        ICON                    "res\\window_close.ico"
 
+IDI_SERVICE             ICON                    "res\\gear.ico"
+
+IDI_SERVICE_DELETE      ICON                    "res\\gear_delete.ico"
+
+IDI_SERVICE_PAUSE       ICON                    "res\\gear_pause.ico"
+
+IDI_SERVICE_RUNNING     ICON                    "res\\gear_run.ico"
+
+IDI_SERVICE_STOP        ICON                    "res\\gear_stop.ico"
+
+IDI_SERVICES            ICON                    "res\\gears.ico"
+
+IDI_PLAY                ICON                    "res\\play.ico"
+
+IDI_STOP                ICON                    "res\\stop.ico"
+
+IDI_RESUME              ICON                    "res\\media_step_forward.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -348,7 +376,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.55\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.6\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -373,6 +401,16 @@ BEGIN
     LTEXT           "Total Handles:",IDC_COUNT,7,9,47,8
     LTEXT           "Name:",IDC_STATIC,138,9,22,8
     EDITTEXT        IDC_NAME,165,7,268,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_PROGRESS DIALOGEX 0, 0, 309, 92
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Object Explorer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,129,71,50,14
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,24,43,252,14
+    LTEXT           "Static",IDC_MESSAGE,30,18,246,8
 END
 
 
@@ -406,6 +444,14 @@ BEGIN
         RIGHTMARGIN, 486
         TOPMARGIN, 7
         BOTTOMMARGIN, 271
+    END
+
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 85
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -459,7 +505,7 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904B0"
+        BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "ObjectExplorer Application"
             VALUE "FileVersion", "1, 0, 0, 1"
@@ -467,7 +513,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright 2019"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
             VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 5, 5, 1"
+            VALUE "ProductVersion", "0, 6, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -479,12 +525,29 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PROGRESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.55 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.6 (C)2019-2020 Pavel Yosifovich"
+    IDS_TITLE               "Object Explorer"
 END
 
 STRINGTABLE
@@ -587,6 +650,14 @@ BEGIN
     1280                    "Refresh the Windows tree\nRefresh Tree"
     1281                    "Toggle windows with titles\nWindows with Titles"
     1282                    "Toggle visible windows only\nVisible Windows"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SERVICE_START        "Start the service\nStart Service"
+    ID_SERVICE_STOP         "Stop the service\nStop Service"
+    ID_SERVICE_PAUSE        "Pause the service\nPause Service"
+    ID_SERVICE_CONTINUE     "Resume the service\nResume Service"
 END
 
 #endif    // English (United States) resources
