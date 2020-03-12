@@ -2,9 +2,11 @@
 
 #include "ObjectManager.h"
 #include "Interfaces.h"
+#include "VirtualListView.h"
 
 class CObjectSummaryView :
 	public CWindowImpl<CObjectSummaryView, CListViewCtrl>,
+	public CVirtualListView<CObjectSummaryView>,
 	public CCustomDraw<CObjectSummaryView> {
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
@@ -17,12 +19,14 @@ public:
 
 	bool TogglePause();
 	void SetInterval(int interval);
+	bool IsSortable(int col) const;
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	void OnViewActivated();
 	void UpdateUI();
+	void DoSort(const SortInfo* si);
 
 	BEGIN_MSG_MAP(CObjectSummaryView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -30,8 +34,6 @@ public:
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnSelectionChanged)
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPause)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
@@ -39,9 +41,8 @@ public:
 		COMMAND_ID_HANDLER(ID_TYPE_ALLHANDLES, OnShowAllHandles)
 		COMMAND_ID_HANDLER(ID_TYPE_ALLOBJECTS, OnShowAllObjects)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CObjectSummaryView>, 1)
+		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectSummaryView>, 1)
 		DEFAULT_REFLECTION_HANDLER()
-		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
-		ALT_MSG_MAP(1)
 	END_MSG_MAP()
 
 private:
@@ -49,8 +50,6 @@ private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
-	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
-	LRESULT OnFindItem(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSelectionChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -67,8 +66,7 @@ private:
 
 	std::shared_ptr<ObjectTypeInfo> GetItem(int index) const;
 	static PCWSTR PoolTypeToString(PoolType type);
-	bool CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2) const;
-	void DoSort();
+	bool CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2, int col, bool asc) const;
 	int MapChangeToColumn(ObjectManager::ChangeType type) const;
 
 private:
@@ -77,9 +75,7 @@ private:
 	CUpdateUIBase& m_UIUpdate;
 	IMainFrame* m_pFrame;
 	int m_Interval = 1000;
-	int m_SortColumn = -1;
-	bool m_SortAscending;
-	bool m_Paused = false;
 	CFont m_BoldFont, m_NormalFont;
+	bool m_Paused = false;
 };
 

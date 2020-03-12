@@ -55,7 +55,7 @@ int ObjectManager::EnumTypes() {
 			type->TypeIndex = raw->TypeIndex;
 			type->DefaultNonPagedPoolCharge = raw->DefaultNonPagedPoolCharge;
 			type->DefaultPagedPoolCharge = raw->DefaultPagedPoolCharge;
-			type->TypeName = CString(raw->TypeName.Buffer, raw->TypeName.Length / 2);
+			type->TypeName = CString(raw->TypeName.Buffer, raw->TypeName.Length / sizeof(WCHAR));
 			type->PoolType = (PoolType)raw->PoolType;
 			type->DefaultNonPagedPoolCharge = raw->DefaultNonPagedPoolCharge;
 			type->DefaultPagedPoolCharge = raw->DefaultPagedPoolCharge;

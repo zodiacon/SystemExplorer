@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "ClipboardHelper.h"
 #include "ObjectsSummaryView.h"
+#include "SortHelper.h"
 
 BOOL CObjectSummaryView::PreTranslateMessage(MSG* pMsg) {
 	return FALSE;
@@ -23,6 +24,10 @@ bool CObjectSummaryView::TogglePause() {
 
 void CObjectSummaryView::SetInterval(int interval) {
 	m_Interval = interval;
+}
+
+bool CObjectSummaryView::IsSortable(int col) const {
+	return col != 10;
 }
 
 DWORD CObjectSummaryView::OnPrePaint(int, LPNMCUSTOMDRAW) {
@@ -110,8 +115,9 @@ LRESULT CObjectSummaryView::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL &) {
 	if (wParam == 1) {
 		KillTimer(1);
 		m_ObjectManager.EnumTypes();
-		if (m_SortColumn >= 0)
-			DoSort();
+		auto si = GetSortInfo();
+		if (si)
+			DoSort(si);
 		LockWindowUpdate();
 		RedrawItems(GetTopIndex(), GetCountPerPage() + GetTopIndex());
 		LockWindowUpdate(FALSE);
@@ -187,56 +193,6 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 		item.iImage = m_pFrame->GetIconIndexByType(data->TypeName);
 	}
 	return 0;
-}
-
-LRESULT CObjectSummaryView::OnColumnClick(int, LPNMHDR hdr, BOOL &) {
-	auto lv = (NMLISTVIEW*)hdr;
-	auto col = lv->iSubItem;
-	if (col == 10)
-		return 0;
-
-	auto oldSortColumn = m_SortColumn;
-	if (col == m_SortColumn)
-		m_SortAscending = !m_SortAscending;
-	else {
-		m_SortColumn = col;
-		m_SortAscending = true;
-	}
-
-	HDITEM h;
-	h.mask = HDI_FORMAT;
-	auto header = GetHeader();
-	header.GetItem(m_SortColumn, &h);
-	h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING | (m_SortAscending ? HDF_SORTUP : HDF_SORTDOWN);
-	header.SetItem(m_SortColumn, &h);
-
-	if (oldSortColumn >= 0 && oldSortColumn != m_SortColumn) {
-		h.mask = HDI_FORMAT;
-		header.GetItem(oldSortColumn, &h);
-		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
-		header.SetItem(oldSortColumn, &h);
-	}
-
-	DoSort();
-	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
-
-	return 0;
-}
-
-LRESULT CObjectSummaryView::OnFindItem(int, LPNMHDR hdr, BOOL &) {
-	auto fi = (NMLVFINDITEM*)hdr;
-	if (fi->lvfi.flags & (LVFI_PARTIAL | LVFI_SUBSTRING)) {
-		int start = fi->iStart;
-		auto count = GetItemCount();
-		auto text = fi->lvfi.psz;
-		auto len = ::wcslen(text);
-		for (int i = start; i < start + count; i++) {
-			auto index = i % count;
-			if (::_wcsnicmp(m_Items[index]->TypeName, text, len) == 0)
-				return index;
-		}
-	}
-	return -1;
 }
 
 LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
@@ -360,70 +316,25 @@ PCWSTR CObjectSummaryView::PoolTypeToString(PoolType type) {
 	return L"Unknown";
 }
 
-bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2) const {
-	bool result = false;
-	switch (m_SortColumn) {
-		case 0:		// name
-			result = item2->TypeName.CompareNoCase(item1->TypeName) >= 0;
-			break;
-
-		case 1:		// index
-			result = item2->TypeIndex > item1->TypeIndex;
-			break;
-
-		case 2:		// objects
-			result = m_SortAscending ?
-				(item2->TotalNumberOfObjects > item1->TotalNumberOfObjects) :
-				(item2->TotalNumberOfObjects < item1->TotalNumberOfObjects);
-			return result;
-
-		case 3:		// handles
-			result = m_SortAscending ?
-				(item2->TotalNumberOfHandles > item1->TotalNumberOfHandles) :
-				(item2->TotalNumberOfHandles < item1->TotalNumberOfHandles);
-			return result;
-
-		case 4:		// peak objects
-			result = m_SortAscending ?
-				(item2->HighWaterNumberOfObjects > item1->HighWaterNumberOfObjects) :
-				(item2->HighWaterNumberOfObjects < item1->HighWaterNumberOfObjects);
-			return result;
-
-		case 5:		// peak handles
-			result = m_SortAscending ?
-				(item2->HighWaterNumberOfHandles > item1->HighWaterNumberOfHandles) :
-				(item2->HighWaterNumberOfHandles < item1->HighWaterNumberOfHandles);
-			return result;
-
-		case 6:		// pool type
-			result = m_SortAscending ?
-				(item2->PoolType > item1->PoolType) : (item1->PoolType > item2->PoolType);
-			return result;
-
-		case 7:		// default non-paged charge
-			result = m_SortAscending ?
-				(item2->DefaultNonPagedPoolCharge > item1->DefaultNonPagedPoolCharge) :
-				(item1->DefaultNonPagedPoolCharge > item2->DefaultNonPagedPoolCharge);
-			return result;
-
-		case 8:		// default paged charge
-			result = m_SortAscending ?
-				(item2->DefaultPagedPoolCharge > item1->DefaultPagedPoolCharge) :
-				(item1->DefaultPagedPoolCharge > item2->DefaultPagedPoolCharge);
-			return result;
-
-		case 9:		// valid access mask
-			result = m_SortAscending ?
-				(item2->ValidAccessMask > item1->ValidAccessMask) :
-				(item1->ValidAccessMask > item2->ValidAccessMask);
-			return result;
+bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2, int col, bool asc) const {
+	switch (col) {
+		case 0: return SortHelper::SortStrings(item1->TypeName, item2->TypeName, asc);
+		case 1: return SortHelper::SortNumbers(item1->TypeIndex, item2->TypeIndex, asc);
+		case 2:	return SortHelper::SortNumbers(item1->TotalNumberOfObjects, item2->TotalNumberOfObjects, asc);
+		case 3:	return SortHelper::SortNumbers(item1->TotalNumberOfHandles, item2->TotalNumberOfHandles, asc);
+		case 4:	return SortHelper::SortNumbers(item1->HighWaterNumberOfObjects, item2->HighWaterNumberOfObjects, asc);
+		case 5:	return SortHelper::SortNumbers(item1->HighWaterNumberOfHandles, item2->HighWaterNumberOfHandles, asc);
+		case 6: return SortHelper::SortNumbers(item1->PoolType, item2->PoolType, asc);
+		case 7:	return SortHelper::SortNumbers(item1->DefaultNonPagedPoolCharge, item2->DefaultNonPagedPoolCharge, asc);
+		case 8:	return SortHelper::SortNumbers(item1->DefaultPagedPoolCharge, item2->DefaultPagedPoolCharge, asc);
+		case 9:	return SortHelper::SortNumbers(item1->ValidAccessMask, item2->ValidAccessMask, asc);
 	}
-	return m_SortAscending ? result : !result;
+	return false;
 }
 
-void CObjectSummaryView::DoSort() {
+void CObjectSummaryView::DoSort(const SortInfo* si) {
 	std::sort(m_Items.begin(), m_Items.end(),
-		[this](auto& i1, auto& i2) { return CompareItems(i1, i2); });
+		[&](auto& i1, auto& i2) { return CompareItems(i1, i2, si->SortColumn, si->SortAscending); });
 }
 
 int CObjectSummaryView::MapChangeToColumn(ObjectManager::ChangeType type) const {
