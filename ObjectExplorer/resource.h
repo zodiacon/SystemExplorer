@@ -73,6 +73,7 @@
 #define IDD_PROGRESS                    267
 #define IDI_ICON6                       270
 #define IDI_RESUME                      270
+#define IDD_SERVICE_INSTALLER           271
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -80,6 +81,8 @@
 #define IDC_COUNT                       1003
 #define IDC_PROGRESS                    1005
 #define IDC_MESSAGE                     1006
+#define IDC_EDIT2                       1008
+#define IDC_DISPLAYNAME                 1008
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -153,14 +156,15 @@
 #define ID_SERVICE_UNINSTALL            32848
 #define ID_FILE_RUNASADMINISTRATOR      32849
 #define ID_SYSTEM_COM                   32850
+#define ID_SYSTEM_INSTALLSERVICE        32851
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        271
-#define _APS_NEXT_COMMAND_VALUE         32851
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_RESOURCE_VALUE        273
+#define _APS_NEXT_COMMAND_VALUE         32852
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

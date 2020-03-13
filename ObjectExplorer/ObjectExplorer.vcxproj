@@ -223,10 +223,12 @@
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
+    <ClCompile Include="DeviceManagerView.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
     <ClCompile Include="FileObjectType.cpp" />
     <ClCompile Include="HandlesView.cpp" />
+    <ClCompile Include="ImageHelper.cpp" />
     <ClCompile Include="JobObjectType.cpp" />
     <ClCompile Include="KeyObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
@@ -265,10 +267,12 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
+    <ClInclude Include="DeviceManagerView.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="FileObjectType.h" />
     <ClInclude Include="HandlesView.h" />
+    <ClInclude Include="ImageHelper.h" />
     <ClInclude Include="Interfaces.h" />
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />

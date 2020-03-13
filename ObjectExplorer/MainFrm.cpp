@@ -16,6 +16,7 @@
 #include "SecurityHelper.h"
 #include "WindowsView.h"
 #include "ServicesView.h"
+#include "DeviceManagerView.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (m_view.PreTranslateMessage(pMsg))
@@ -161,13 +162,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			m_CmdBar.AddIcon(hIcon, id);
 	}
 
-	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_OBJECTS));
-	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_TYPES));
-	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_HANDLES));
-	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_PACKAGE));
-	m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_WINDOWS));
-	m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIcon(IDI_SERVICES));
-
+	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_OBJECTS, 64, 16, 16));
+	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_TYPES, 64, 16, 16));
+	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_HANDLES, 64, 16, 16));
+	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_PACKAGE, 64, 16, 16));
+	m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_WINDOWS, 64, 16, 16));
+	m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_SERVICES, 64, 16, 16));
+	m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
 	m_view.SetImageList(m_TabImages);
 
 	if (!DriverHelper::IsDriverLoaded()) {
@@ -210,6 +211,18 @@ LRESULT CMainFrame::OnViewSystemServices(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CServicesView(this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, L"Services", m_ServicesIcon, pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CDeviceManagerView(this);
+	auto hWnd = pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	if (!hWnd) {
+		delete pView;
+		return 0;
+	}
+	m_view.AddPage(hWnd, L"Devices", m_DevicesIcon, pView);
 
 	return 0;
 }
@@ -382,6 +395,14 @@ LRESULT CMainFrame::OnRunAsAdmin(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnBandRightClick(int, LPNMHDR, BOOL&) {
+	auto count = m_view.GetPageCount();
+	if (count == 0)
+		return 0;
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -433,6 +454,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SERVICE_STOP, IDI_STOP },
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
 		{ ID_SERVICE_CONTINUE, IDI_RESUME },
+		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
@@ -463,6 +485,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ 0 },
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
+		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ 0 },
 		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
 		{ 0 },

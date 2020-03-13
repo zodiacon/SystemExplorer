@@ -12,5 +12,8 @@
 #include <vector>
 #include <memory>
 #include <wil\resource.h>
+#include <SetupAPI.h>
+#include <string>
+#include <unordered_map>
 
 #endif //PCH_H
