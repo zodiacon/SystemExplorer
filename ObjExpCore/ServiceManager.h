@@ -19,7 +19,8 @@ namespace WinSys {
 		Stop = SERVICE_STOP,
 		PauseContinue = SERVICE_PAUSE_CONTINUE,
 		Interrogate = SERVICE_INTERROGATE,
-		UserDefinedControl = SERVICE_USER_DEFINED_CONTROL
+		UserDefinedControl = SERVICE_USER_DEFINED_CONTROL,
+		Delete = DELETE
 	};
 	DEFINE_ENUM_FLAG_OPERATORS(ServiceAccessMask);
 
@@ -64,6 +65,7 @@ namespace WinSys {
 			ServiceStartType startType, ServiceErrorControl errorControl, const std::wstring& imagePath);
 
 		static std::unique_ptr<Service> Install(const std::wstring& name, ServiceType type,	ServiceStartType startType, const std::wstring& imagePath);
+		static bool Uninstall(const std::wstring& name);
 
 	private:
 		static wil::unique_schandle OpenServiceHandle(const std::wstring& name, ServiceAccessMask accessMask = ServiceAccessMask::QueryConfig);

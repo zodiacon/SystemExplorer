@@ -6,12 +6,12 @@ class ObjectManager;
 
 class ProcessObjectType : public ObjectType {
 public:
-	ProcessObjectType(const ObjectManager& om, int index, PCWSTR name);
+	ProcessObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name);
 
 	// Inherited via ObjectType
 	virtual CString GetDetails(HANDLE hObject) override;
 
 private:
-	const ObjectManager& _om;
+	const WinSys::ProcessManager& _pm;
 };
 

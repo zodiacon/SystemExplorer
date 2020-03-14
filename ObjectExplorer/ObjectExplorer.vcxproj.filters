@@ -147,6 +147,9 @@
     <ClCompile Include="ImageHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectTypeFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="ImageHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTypeFactory.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

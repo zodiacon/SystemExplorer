@@ -5,6 +5,8 @@
 #include <algorithm>
 #include "SortHelper.h"
 #include "NtDll.h"
+#include "ObjectType.h"
+#include "ObjectTypeFactory.h"
 
 CObjectManagerView::CObjectManagerView(IMainFrame* frame) : m_pFrame(frame) {
 }
@@ -98,19 +100,22 @@ LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 
 		case 2:		// details
 			auto type = ObjectManager::GetType(data.Type);
-			if (type && type->TypeDetails) {
-				HANDLE hObject;
-				auto status = ObjectManager::OpenObject(
-					data.FullName, data.Type, &hObject,
-					data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
-				if (hObject) {
-					::StringCchCopy(item.pszText, item.cchTextMax, type->TypeDetails->GetDetails(hObject));
-					::CloseHandle(hObject);
+			if (type) {
+				auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
+				if (type) {
+					HANDLE hObject;
+					auto status = ObjectManager::OpenObject(
+						data.FullName, data.Type, &hObject,
+						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
+					if (hObject) {
+						::StringCchCopy(item.pszText, item.cchTextMax, details->GetDetails(hObject));
+						::CloseHandle(hObject);
+					}
+					else if (status == STATUS_ACCESS_DENIED)
+						item.pszText = L"<access denied>";
+					else if (status == STATUS_UNSUCCESSFUL)
+						item.pszText = L"<unavailable>";
 				}
-				else if (status == STATUS_ACCESS_DENIED)
-					item.pszText = L"<access denied>";
-				else if (status == STATUS_UNSUCCESSFUL)
-					item.pszText = L"<unavailable>";
 			}
 			break;
 		}

@@ -44,10 +44,6 @@ LRESULT CDeviceManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
 
-	CImageList images = DeviceManager::GetClassImageList();
-	m_ComputerIcon = images.AddIcon(ImageHelper::GetSystemIcon(SIID_DESKTOPPC));
-	m_Tree.SetImageList(images, TVSIL_NORMAL);
-
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 	m_List.InsertColumn(0, L"Property", LVCFMT_LEFT, 170);
 	m_List.InsertColumn(1, L"Value", LVCFMT_LEFT, 350);
@@ -100,6 +96,13 @@ LRESULT CDeviceManagerView::OnActivate(UINT, WPARAM, LPARAM, BOOL&) {
 void CDeviceManagerView::Refresh() {
 	m_Tree.LockWindowUpdate(TRUE);
 	m_Tree.DeleteAllItems();
+
+	CImageList images = DeviceManager::GetClassImageList();
+	m_ComputerIcon = images.AddIcon(ImageHelper::GetSystemIcon(SIID_DESKTOPPC));
+	auto old = m_Tree.SetImageList(images, TVSIL_NORMAL);
+	if (old)
+		old.Destroy();
+
 	m_Devices = m_DevMgr->EnumDevices();
 	std::unordered_map<GUID, HTREEITEM> devClasses;
 	devClasses.reserve(32);
@@ -123,7 +126,11 @@ void CDeviceManagerView::Refresh() {
 		}
 		auto hClass = devClasses[guid];
 		int image;
-		m_Tree.GetItemImage(hClass, image, image);
+		auto hIcon = m_DevMgr->GetDeviceIcon(di);
+		if (hIcon)
+			image = m_Tree.GetImageList().AddIcon(hIcon);
+		else
+			m_Tree.GetItemImage(hClass, image, image);
 		auto hItem = m_Tree.InsertItem(di.Description.c_str(), image, image, hClass, TVI_LAST);
 		m_Tree.SortChildren(hClass);
 		m_Tree.SetItemData(hItem, (DWORD_PTR)&di);

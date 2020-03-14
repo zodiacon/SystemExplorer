@@ -25,6 +25,7 @@ public:
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 	void DoSort(const SortInfo* si);
+	bool IsSortable(int col) const;
 
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 
@@ -36,12 +37,10 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
-		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
-		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectsView>, 1)
-	ALT_MSG_MAP(1)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
+		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectsView>, 1)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -61,7 +60,6 @@ private:
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnForwardMessage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

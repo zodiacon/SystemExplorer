@@ -662,6 +662,7 @@ END
 STRINGTABLE
 BEGIN
     ID_OBJECTS_ALLOBJECTS   "Show all objects in the system\nAll Objects"
+    ID_VIEW_PAUSE           "Pause or resume operation\nPause/Resume"
     ID_OBJECTS_OBJECTMANAGER "Show object manager namespace\nObject Manager"
     ID_OBJECTS_ALLOBJECTTYPES "Show all object types\nObject Types"
     ID_HANDLES_ALLHANDLES   "Show all user mode handles in the system\nAll Handles"
@@ -682,6 +683,10 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_GUI_ALLWINDOWSINDEFAULTDESKTOP 
+                            "View all top-level windows on the default desktop\nWindows"
+    ID_SYSTEM_SERVICES      "View all services\nServices"
+    ID_SYSTEM_DEVICES       "View all devices\nDevices"
     ID_SERVICE_START        "Start the service\nStart Service"
     ID_SERVICE_STOP         "Stop the service\nStop Service"
     ID_SERVICE_PAUSE        "Pause the service\nPause Service"

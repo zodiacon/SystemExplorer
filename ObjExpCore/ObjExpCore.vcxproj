@@ -94,6 +94,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>.\phnt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>.\phnt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,6 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>.\phnt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,6 +147,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>.\phnt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,8 +158,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="Keys.h" />
     <ClInclude Include="ObjExpCore.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Processes.h" />
+    <ClInclude Include="ProcessInfo.h" />
+    <ClInclude Include="ProcessManager.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="ServiceInfo.h" />
     <ClInclude Include="ServiceManager.h" />
@@ -169,6 +177,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Processes.cpp" />
+    <ClCompile Include="ProcessInfo.cpp" />
+    <ClCompile Include="ProcessManager.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="ServiceManager.cpp" />
   </ItemGroup>

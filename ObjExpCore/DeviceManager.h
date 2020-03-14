@@ -90,6 +90,7 @@ namespace WinSys {
 		std::vector<std::wstring> GetDeviceRegistryPropertyMultiString(const DeviceInfo& di, DeviceRegistryPropertyType type) const;
 		template<typename T>
 		T GetDeviceRegistryProperty(const DeviceInfo& di, DeviceRegistryPropertyType type) const;
+		HICON GetDeviceIcon(const DeviceInfo& di, bool big = false) const;
 
 		// device class
 		static std::wstring GetDeviceClassRegistryPropertyString(const GUID* guid, DeviceClassRegistryPropertyType type);

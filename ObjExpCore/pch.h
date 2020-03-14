@@ -8,7 +8,13 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define PHNT_MODE 1
+#define PHNT_VERSION PHNT_THRESHOLD
+
+#include <phnt_windows.h>
+#include <phnt.h>
+
 #include <vector>
 #include <memory>
 #include <wil\resource.h>

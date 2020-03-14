@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ObjectType.h"
 
 struct ObjectTypeInfo;
+class ObjectType;
 
 enum class PoolType {
 	PagedPool = 1,
@@ -58,7 +58,7 @@ struct ObjectTypeInfo {
 	bool SecurityRequired;
 	bool MaintainHandleCount;
 	std::vector<std::shared_ptr<ObjectInfo>> Objects;
-	std::unique_ptr<ObjectType> TypeDetails;
+//	std::unique_ptr<ObjectType> TypeDetails;
 };
 
 struct ProcessInfo {
@@ -137,9 +137,6 @@ public:
 
 	static std::vector<ObjectNameAndType> EnumDirectoryObjects(PCWSTR path);
 	static CString GetSymbolicLinkTarget(PCWSTR path);
-
-private:
-	std::unique_ptr<ObjectType> CreateObjectType(int typeIndex, const CString& name);
 
 private:
 	std::unordered_map<DWORD, ProcessInfo> _processesById;

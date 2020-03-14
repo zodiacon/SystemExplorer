@@ -4,6 +4,8 @@
 #include <execution>
 #include "SortHelper.h"
 #include <string>
+#include "ObjectType.h"
+#include "ObjectTypeFactory.h"
 
 CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type, DWORD pid) :
 	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type), m_Pid(pid) {
@@ -104,13 +106,6 @@ LRESULT CHandlesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	return DefWindowProc();
 }
 
-LRESULT CHandlesView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
-	auto pMsg = reinterpret_cast<MSG*>(lParam);
-	LRESULT result;
-	handled = ProcessWindowMessage(*this, pMsg->message, pMsg->wParam, pMsg->lParam, result, 1);
-	return result;
-}
-
 LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMLVDISPINFO*)hdr;
 	auto& item = lv->item;
@@ -161,7 +156,7 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 			case 8:	// details
 				auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
 				if (h) {
-					auto& type = m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeDetails;
+					auto& type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
 					CString details = type ? type->GetDetails(h) : L"";
 					if (!details.IsEmpty())
 						::StringCchCopy(item.pszText, item.cchTextMax, details);
@@ -224,6 +219,7 @@ void CHandlesView::Refresh() {
 		SetItemCount(0);
 		return;
 	}
+	CWaitCursor wait;
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo());

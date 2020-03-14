@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "DeviceManager.h"
 #include <assert.h>
+#include <newdev.h>
 
 #pragma comment(lib, "setupapi")
 
@@ -76,6 +77,13 @@ std::vector<std::wstring> WinSys::DeviceManager::GetDeviceRegistryPropertyMultiS
 		p += ::wcslen(p) + 1;
 	}
 	return result;
+}
+
+HICON WinSys::DeviceManager::GetDeviceIcon(const DeviceInfo& di, bool big) const {
+	HICON hIcon = nullptr;
+	auto size = big ? 32 : 16;
+	::SetupDiLoadDeviceIcon(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, size, size, 0, &hIcon);
+	return hIcon;
 }
 
 std::wstring WinSys::DeviceManager::GetDeviceClassRegistryPropertyString(const GUID* guid, DeviceClassRegistryPropertyType type) {

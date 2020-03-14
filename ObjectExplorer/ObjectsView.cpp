@@ -12,6 +12,8 @@
 #include "Interfaces.h"
 #include "SortHelper.h"
 #include "ObjectHandlesDlg.h"
+#include "ObjectType.h"
+#include "ObjectTypeFactory.h"
 
 int CObjectsView::ColumnCount;
 
@@ -30,6 +32,10 @@ void CObjectsView::DoSort(const SortInfo* si) {
 		});
 
 	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+}
+
+bool CObjectsView::IsSortable(int col) const {
+	return col < 4;
 }
 
 void CObjectsView::OnFinalMessage(HWND /*hWnd*/) {
@@ -65,7 +71,7 @@ CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
 	if (!h)
 		return L"";
 
-	auto& type = m_ObjMgr.GetType(info->TypeIndex)->TypeDetails;
+	auto type = ObjectTypeFactory::CreateObjectType(info->TypeIndex, info->TypeName);
 	CString details = type ? type->GetDetails(h) : L"";
 	::CloseHandle(h);
 	return details;
@@ -123,8 +129,8 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"Type", 140 },
 		{ L"Address", 140, LVCFMT_RIGHT },
 		{ L"Name", 330 },
-		{ L"Handles", 100, LVCFMT_RIGHT },
-		{ L"First Handle", 160, LVCFMT_LEFT },
+		{ L"Handles", 80, LVCFMT_RIGHT },
+		{ L"First Handle", 220, LVCFMT_LEFT },
 		{ L"Details", 500 },
 	};
 
@@ -143,13 +149,6 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CObjectsView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
-}
-
-LRESULT CObjectsView::OnForwardMessage(UINT, WPARAM, LPARAM lParam, BOOL& handled) {
-	auto msg = reinterpret_cast<MSG*>(lParam);
-	LRESULT result = 0;
-	handled = ProcessWindowMessage(*this, msg->message, msg->wParam, msg->lParam, result, 1);
-	return result;
 }
 
 LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {

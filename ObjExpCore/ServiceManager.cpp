@@ -154,3 +154,10 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const std::wstring& nam
 	return Install(name, L"", ServiceAccessMask::AllAccess, type, startType, ServiceErrorControl::Normal, imagePath);
 }
 
+bool WinSys::ServiceManager::Uninstall(const std::wstring& name) {
+	auto svc = OpenServiceHandle(name, ServiceAccessMask::Delete);
+	if (!svc)
+		return false;
+	return ::DeleteService(svc.get());
+}
+

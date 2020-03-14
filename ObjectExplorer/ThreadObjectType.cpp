@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "ThreadObjectType.h"
-#include "ObjectManager.h"
 
-ThreadObjectType::ThreadObjectType(const ObjectManager& om, int index, PCWSTR name) : 
-	ObjectType(index, name), _om(om) {
+ThreadObjectType::ThreadObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name) :
+	ObjectType(index, name), _pm(pm) {
 }
 
 CString ThreadObjectType::GetDetails(HANDLE hThread) {
@@ -15,12 +14,14 @@ CString ThreadObjectType::GetDetails(HANDLE hThread) {
 	auto pid = ::GetProcessIdOfThread(hThread);
 	FILETIME created{}, exited{}, kernel{}, user{};
 	ATLVERIFY(::GetThreadTimes(hThread, &created, &exited, &kernel, &user));
+	CString name;
+	auto info = _pm.GetProcessById(pid);
+	if (info)
+		name = info->GetImageName().c_str();
 	details.Format(L"TID: %d, PID: %d (%s) Created: %s, Exited: %s, CPU Time: %s",
-		tid, pid, _om.GetProcessNameById(pid),
-		CTime(created).Format(L"%D %X"),
+		tid, pid, name,	CTime(created).Format(L"%D %X"),
 		exited.dwHighDateTime + exited.dwLowDateTime == 0 ? L"(running)" : CTime(exited).Format(L"%D %X"),
 		CTimeSpan((*(int64_t*)& kernel + *(int64_t*)& user) / 10000000).Format(L"%D:%H:%M:%S"));
 
 	return details;
-
 }

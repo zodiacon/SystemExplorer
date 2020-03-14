@@ -2,16 +2,14 @@
 
 #include "ObjectType.h"
 
-class ObjectManager;
-
 class ThreadObjectType : public ObjectType {
 public:
-	ThreadObjectType(const ObjectManager& om, int index, PCWSTR name);
+	ThreadObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name);
 
 	// Inherited via ObjectType
 	virtual CString GetDetails(HANDLE hObject) override;
 
 private:
-	const ObjectManager& _om;
+	const WinSys::ProcessManager& _pm;
 };
 

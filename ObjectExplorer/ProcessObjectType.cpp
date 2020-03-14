@@ -1,18 +1,20 @@
 #include "stdafx.h"
 #include "ProcessObjectType.h"
 #include "ProcessHelper.h"
-#include "ObjectManager.h"
 
-ProcessObjectType::ProcessObjectType(const ObjectManager& om, int index, PCWSTR name) : 
-	ObjectType(index, name), _om(om) {
+ProcessObjectType::ProcessObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name) :
+	ObjectType(index, name), _pm(pm) {
 }
 
 CString ProcessObjectType::GetDetails(HANDLE hProcess) {
 	CString details;
 	auto pid = ::GetProcessId(hProcess);
 	auto name = ProcessHelper::GetProcessName(hProcess);
-	if (name.IsEmpty())
-		name = _om.GetProcessNameById(pid);
+	if (name.IsEmpty()) {
+		auto info = _pm.GetProcessById(pid);
+		if (info)
+			name = info->GetImageName().c_str();
+	}
 	FILETIME create, exit{}, dummy;
 	if (::GetProcessTimes(hProcess, &create, &exit, &dummy, &dummy)) {
 		details.Format(L"PID: %d (%s) Created: %s Exited: %s", pid, name,

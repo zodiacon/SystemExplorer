@@ -4,3 +4,6 @@
 #include "ServiceManager.h"
 #include "ServiceInfo.h"
 #include "DeviceManager.h"
+#include "ProcessManager.h"
+#include "ProcessInfo.h"
+#include "ThreadInfo.h"

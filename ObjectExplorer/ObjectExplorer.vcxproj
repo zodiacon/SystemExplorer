@@ -239,6 +239,7 @@
     <ClCompile Include="ObjectManagerView.cpp" />
     <ClCompile Include="ObjectsSummaryView.cpp" />
     <ClCompile Include="ObjectType.cpp" />
+    <ClCompile Include="ObjectTypeFactory.cpp" />
     <ClCompile Include="ProcessHelper.cpp" />
     <ClCompile Include="ProcessObjectType.cpp" />
     <ClCompile Include="ProcessSelectDlg.cpp" />
@@ -284,6 +285,7 @@
     <ClInclude Include="ObjectManagerView.h" />
     <ClInclude Include="ObjectsSummaryView.h" />
     <ClInclude Include="ObjectType.h" />
+    <ClInclude Include="ObjectTypeFactory.h" />
     <ClInclude Include="ProcessHelper.h" />
     <ClInclude Include="ProcessObjectType.h" />
     <ClInclude Include="ProcessSelectDlg.h" />
