@@ -184,6 +184,38 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 			len = NT_SUCCESS(status) ? sizeof(HANDLE) : 0;
 			break;
 		}
+
+		case IOCTL_KOBJEXP_GET_VERSION:
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.OutputBufferLength < sizeof(USHORT)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			*(USHORT*)Irp->AssociatedIrp.SystemBuffer = 0x0100;
+			len = sizeof(ULONG);
+			status = STATUS_SUCCESS;
+			break;
+
+		case IOCTL_KOBJEXP_GET_OBJECT_ADDRESS:
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.InputBufferLength < sizeof(HANDLE) || dic.OutputBufferLength < sizeof(void*)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			PVOID Object;
+			status = ObReferenceObjectByHandle(*(HANDLE*)Irp->AssociatedIrp.SystemBuffer, GENERIC_READ, nullptr, KernelMode, &Object, nullptr);
+			if (NT_SUCCESS(status)) {
+				*(PVOID*)Irp->AssociatedIrp.SystemBuffer = Object;
+				ObDereferenceObject(Object);
+				len = sizeof(Object);
+			}
+			break;
 	}
 
 	Irp->IoStatus.Status = status;

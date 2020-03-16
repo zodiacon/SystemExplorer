@@ -378,7 +378,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.61\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.63\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -536,7 +536,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright 2019"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
             VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 6, 0, 1"
+            VALUE "ProductVersion", "0, 6, 3, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -569,12 +569,20 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// BIN
+//
+
+IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.61 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.63 (C)2019-2020 Pavel Yosifovich"
     IDS_TITLE               "Object Explorer"
 END
 

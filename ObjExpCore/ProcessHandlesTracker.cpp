@@ -19,7 +19,7 @@ struct ProcessHandlesTracker::Impl {
 	Impl(uint32_t pid);
 	Impl(HANDLE hProcess);
 
-	uint32_t EnumHandles();
+	uint32_t EnumHandles(bool clearHistory);
 	const std::vector<HandleEntryInfo>& GetNewHandles() const {
 		return _newHandles;
 	}
@@ -33,7 +33,7 @@ private:
 	std::unordered_set<HandleEntryInfo> _handles;
 };
 
-ProcessHandlesTracker::Impl::Impl(uint32_t pid) : Impl::Impl(::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid)) {
+ProcessHandlesTracker::Impl::Impl(uint32_t pid) : Impl::Impl(::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, pid)) {
 }
 
 ProcessHandlesTracker::Impl::Impl(HANDLE hProcess) : _hProcess(hProcess) {
@@ -43,10 +43,17 @@ ProcessHandlesTracker::Impl::Impl(HANDLE hProcess) : _hProcess(hProcess) {
 	}
 }
 
-uint32_t ProcessHandlesTracker::Impl::EnumHandles() {
+uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 	if (!_hProcess)
 		return 0;
 
+	if (::WaitForSingleObject(_hProcess.get(), 0) == WAIT_OBJECT_0) {
+		_closedHandles.clear();
+		_closedHandles.insert(_closedHandles.begin(), _handles.begin(), _handles.end());
+		_newHandles.clear();
+		_handles.clear();
+		return 0;
+	}
 	auto size = 1 << 22;
 	ULONG len;
 	std::unique_ptr<BYTE[]> buffer;
@@ -63,6 +70,12 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles() {
 	}
 
 	auto info = reinterpret_cast<PROCESS_HANDLE_SNAPSHOT_INFORMATION*>(buffer.get());
+	if (clearHostory)
+		_handles.clear();
+
+	_newHandles.clear();
+	_closedHandles.clear();
+
 	if (_handles.empty()) {
 		_handles.reserve(info->NumberOfHandles);
 		for (ULONG i = 0; i < info->NumberOfHandles; i++) {
@@ -72,8 +85,6 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles() {
 		}
 	}
 	else {
-		_newHandles.clear();
-		_closedHandles.clear();
 		auto oldHandles = _handles;
 		for (ULONG i = 0; i < info->NumberOfHandles; i++) {
 			auto& entry = info->Handles[i];
@@ -88,8 +99,10 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles() {
 				oldHandles.erase(key);
 			}
 		}
-		for (auto& hi : oldHandles)
+		for (auto& hi : oldHandles) {
 			_closedHandles.push_back(hi);
+			_handles.erase(hi);
+		}
 	}
 
 	return static_cast<uint32_t>(_handles.size());
@@ -103,8 +116,8 @@ ProcessHandlesTracker::ProcessHandlesTracker(HANDLE hProcess) : _impl(new Impl(h
 
 WinSys::ProcessHandlesTracker::~ProcessHandlesTracker() = default;
 
-uint32_t ProcessHandlesTracker::EnumHandles() {
-	return _impl->EnumHandles();
+uint32_t ProcessHandlesTracker::EnumHandles(bool clearHistory) {
+	return _impl->EnumHandles(clearHistory);
 }
 
 const std::vector<HandleEntryInfo>& ProcessHandlesTracker::GetNewHandles() const {

@@ -33,16 +33,24 @@ int Run(LPTSTR /*lpstrCmdLine*/ = nullptr, int nCmdShow = SW_SHOWDEFAULT) {
 }
 
 bool CheckInstall(PCWSTR cmdLine) {
-	bool success = false;
+	bool parse = false, success = false;
 	if (::wcsstr(cmdLine, L"install")) {
-		if (!DriverHelper::LoadDriver())
+		parse = true;
+		success = DriverHelper::LoadDriver();
+		if (!success)
 			if (DriverHelper::InstallDriver())
 				success = DriverHelper::LoadDriver();
 		if (!success)
-			AtlMessageBox(nullptr, L"Failed to install/load kernel driver", L"Object Explorer");
-		return success;
+			AtlMessageBox(nullptr, L"Failed to install/load kernel driver", IDS_TITLE, MB_ICONERROR);
 	}
-	return false;
+	else if (::wcsstr(cmdLine, L"update")) {
+		parse = true;
+		success = DriverHelper::UpdateDriver();
+		if (!success) {
+			AtlMessageBox(nullptr, L"Failed to update kernel driver", IDS_TITLE, MB_ICONERROR);
+		}
+	}
+	return parse;
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow) {

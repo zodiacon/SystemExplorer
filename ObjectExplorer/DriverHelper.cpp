@@ -6,7 +6,7 @@
 
 HANDLE DriverHelper::_hDevice;
 
-bool DriverHelper::LoadDriver() {
+bool DriverHelper::LoadDriver(bool load) {
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
 	if (!hScm)
 		return false;
@@ -15,7 +15,14 @@ bool DriverHelper::LoadDriver() {
 	if (!hService)
 		return false;
 
-	return ::StartService(hService.get(), 0, nullptr) ? true : false;
+	SERVICE_STATUS status;
+	::QueryServiceStatus(hService.get(), &status);
+	if (load && status.dwCurrentState != SERVICE_RUNNING)
+		return ::StartService(hService.get(), 0, nullptr);
+	if(!load && status.dwCurrentState != SERVICE_STOPPED)
+		return ::ControlService(hService.get(), SERVICE_CONTROL_STOP, &status);
+
+	return true;
 }
 
 bool DriverHelper::InstallDriver() {
@@ -38,7 +45,7 @@ bool DriverHelper::InstallDriver() {
 	WCHAR path[MAX_PATH];
 	::GetSystemDirectory(path, MAX_PATH);
 	::wcscat_s(path, L"\\Drivers\\KObjExp.sys");
-	wil::unique_hfile hFile(::CreateFile(path, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_SYSTEM, nullptr));
+	wil::unique_hfile hFile(::CreateFile(path, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_SYSTEM, nullptr));
 	if (!hFile)
 		return false;
 
@@ -54,6 +61,25 @@ bool DriverHelper::InstallDriver() {
 	wil::unique_schandle hService(::CreateService(hScm.get(), L"KObjExp", nullptr, SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER,
 		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path, nullptr, nullptr, nullptr, nullptr, nullptr));
 	return hService != nullptr;
+}
+
+bool DriverHelper::UpdateDriver() {
+	bool open = _hDevice != nullptr;
+	if (open) {
+		::CloseHandle(_hDevice);
+		_hDevice = nullptr;
+	}
+	if (!LoadDriver(false))
+		return false;
+	if (!InstallDriver())
+		return false;
+	if (!LoadDriver())
+		return false;
+
+	if (open)
+		OpenDevice();
+
+	return true;
 }
 
 HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
@@ -102,6 +128,26 @@ HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
 		&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
 }
 
+PVOID DriverHelper::GetObjectAddress(HANDLE hObject) {
+	if (!OpenDevice())
+		return nullptr;
+
+	PVOID address = nullptr;
+	DWORD bytes;
+	::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_GET_OBJECT_ADDRESS, &hObject, sizeof(hObject), &address, sizeof(address), &bytes, nullptr);
+	return address;
+}
+
+USHORT DriverHelper::GetVersion() {
+	USHORT version = 0;
+	if (!OpenDevice())
+		return 0;
+
+	DWORD bytes;
+	::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_GET_VERSION, nullptr, 0, &version, sizeof(version), &bytes, nullptr);
+	return version;
+}
+
 bool DriverHelper::IsDriverLoaded() {
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE));
 	if (!hScm)
@@ -123,8 +169,10 @@ bool DriverHelper::OpenDevice() {
 		_hDevice = ::CreateFile(L"\\\\.\\KObjExp", GENERIC_WRITE | GENERIC_READ,
 			FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
 			OPEN_EXISTING, 0, nullptr);
-		if (_hDevice == INVALID_HANDLE_VALUE)
-			return nullptr;
+		if (_hDevice == INVALID_HANDLE_VALUE) {
+			_hDevice = nullptr;
+			return false;
+		}
 	}
-	return _hDevice != INVALID_HANDLE_VALUE;
+	return true;
 }

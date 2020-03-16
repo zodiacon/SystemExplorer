@@ -99,16 +99,25 @@ void CProcessSelectDlg::EnumProcesses() {
 	PROCESSENTRY32 pe;
 	pe.dwSize = sizeof(pe);
 	Process32First(hSnapshot, &pe);
+	WCHAR imagePath[MAX_PATH];
 	while(::Process32Next(hSnapshot, &pe)) {
 		ProcessInfo pi;
+		auto hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pe.th32ProcessID);
+		auto path = pe.szExeFile;
+		if (hProcess) {
+			DWORD size = _countof(imagePath);
+			if (::QueryFullProcessImageName(hProcess, 0, imagePath, &size))
+				path = imagePath;
+		}
 		HICON hIcon;
-		if (::ExtractIconEx(pe.szExeFile, 0, nullptr, &hIcon, 1) == 1) {
+		if (::ExtractIconEx(path, 0, nullptr, &hIcon, 1) == 1) {
 			pi.Image = m_Images.AddIcon(hIcon);
 		}
 		else
 			pi.Image = 0;
 		pi.Name = pe.szExeFile;
 		pi.Id = pe.th32ProcessID;
+		pi.Session = 0;
 		::ProcessIdToSessionId(pi.Id, &pi.Session);
 		m_Items.push_back(std::move(pi));
 	}

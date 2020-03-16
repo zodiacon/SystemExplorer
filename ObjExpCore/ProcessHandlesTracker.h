@@ -14,7 +14,7 @@ namespace WinSys {
 		ProcessHandlesTracker(HANDLE hProcess);
 		~ProcessHandlesTracker();
 
-		uint32_t EnumHandles();
+		uint32_t EnumHandles(bool clearHistory = false);
 		const std::vector<HandleEntryInfo>& GetNewHandles() const;
 		const std::vector<HandleEntryInfo>& GetClosedHandles() const;
 

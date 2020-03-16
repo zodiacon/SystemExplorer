@@ -7,6 +7,7 @@
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
 #include "DriverHelper.h"
+#include "NtDll.h"
 
 using namespace WinSys;
 
@@ -158,15 +159,22 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 			case 7:	// access mask
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->GrantedAccess);
 				break;
-				
+
 			case 8:	// details
-				auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
-				if (h) {
-					auto& type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
-					CString details = type ? type->GetDetails(h) : L"";
-					if (!details.IsEmpty())
-						::StringCchCopy(item.pszText, item.cchTextMax, details);
-					::CloseHandle(h);
+				if (::GetTickCount() > m_TargetUpdateTime || m_DetailsCache.find(data.get()) == m_DetailsCache.end()) {
+					auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
+					if (h) {
+						auto& type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
+						CString details = type ? type->GetDetails(h) : L"";
+						m_DetailsCache[data.get()] = details;
+						if (!details.IsEmpty())
+							::StringCchCopy(item.pszText, item.cchTextMax, details);
+						::CloseHandle(h);
+					}
+					m_TargetUpdateTime = ::GetTickCount() + 5000;
+				}
+				else {
+					::StringCchCopy(item.pszText, item.cchTextMax, m_DetailsCache[data.get()]);
 				}
 				break;
 		}
@@ -200,7 +208,7 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 		MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 
-	auto hDup = m_ObjMgr.DupHandle(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex, 
+	auto hDup = m_ObjMgr.DupHandle(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex,
 		0, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 	if (!hDup) {
 		AtlMessageBox(*this, L"Failed to close handle", L"Object Explorer", MB_ICONERROR);
@@ -219,6 +227,71 @@ LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+	if (id == 1 && m_HandleTracker) {
+		m_HandleTracker->EnumHandles();
+		ATLTRACE(L"New handles: %u, Closed handles: %u\n", m_HandleTracker->GetNewHandles().size(), m_HandleTracker->GetClosedHandles().size());
+
+		for (auto& h : m_HandleTracker->GetClosedHandles()) {
+			Change change;
+			change.Color = RGB(255, 0, 0);
+			change.Handle = HandleToUlong(h.HandleValue);
+			change.TargetTime = ::GetTickCount() + 2000;
+			change.IsNewHandle = false;
+			m_Changes.push_back(change);
+		}
+
+		for (auto& h : m_HandleTracker->GetNewHandles()) {
+			auto hi = std::make_shared<HandleInfo>();
+			hi->HandleValue = HandleToULong(h.HandleValue);
+			hi->ProcessId = m_Pid;
+			hi->ObjectTypeIndex = h.ObjectTypeIndex;
+			auto hDup = ObjectManager::DupHandle(h.HandleValue, m_Pid, h.ObjectTypeIndex);
+			if (hDup) {
+				NT::OBJECT_BASIC_INFORMATION info;
+				if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectBasicInformation, &info, sizeof(info), nullptr))) {
+					hi->GrantedAccess = info.GrantedAccess;
+					hi->HandleAttributes = info.Attributes;
+				}
+				hi->Name = m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex);
+				hi->Object = DriverHelper::GetObjectAddress(hDup);
+				::CloseHandle(hDup);
+			}
+			Change change;
+			change.Color = RGB(0, 255, 0);
+			change.Handle = hi->HandleValue;
+			change.TargetTime = ::GetTickCount() + 2000;
+			change.IsNewHandle = true;
+			m_Changes.push_back(change);
+			m_Handles.push_back(hi);
+		}
+
+		// process changes
+		for (int i = 0; i < m_Changes.size(); i++) {
+			auto& change = m_Changes[i];
+			if (change.TargetTime < ::GetTickCount()) {
+				if (!change.IsNewHandle) {
+					auto it = std::find_if(m_Handles.begin(), m_Handles.end(), [&](auto& hi) {
+						return hi->HandleValue == change.Handle;
+						});
+					if (it != m_Handles.end()) {
+						m_Handles.erase(it);
+					}
+				}
+				m_Changes.erase(m_Changes.begin() + i);
+				i--;
+			}
+		}
+
+		auto si = GetSortInfo();
+		if (si)
+			DoSort(si);
+		SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+	}
+	return 0;
+}
+
 void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
 		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
@@ -227,8 +300,14 @@ void CHandlesView::Refresh() {
 	}
 	CWaitCursor wait;
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
-	if(m_HandleTracker)
-		m_HandleTracker->EnumHandles();
+	if (m_HandleTracker) {
+		m_DetailsCache.clear();
+		m_DetailsCache.reserve(1024);
+		m_Changes.clear();
+		m_Changes.reserve(8);
+		m_HandleTracker->EnumHandles(true);
+		SetTimer(1, 1000, nullptr);
+	}
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo());
@@ -247,4 +326,29 @@ CString CHandlesView::HandleAttributesToString(ULONG attributes) {
 	else
 		result = result.Mid(2);
 	return result;
+}
+
+DWORD CHandlesView::OnPrePaint(int, LPNMCUSTOMDRAW) {
+	return CDRF_NOTIFYITEMDRAW;
+}
+
+DWORD CHandlesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	auto lcd = (LPNMLVCUSTOMDRAW)cd;
+	auto sub = lcd->iSubItem;
+	lcd->clrTextBk = CLR_INVALID;
+	int index = (int)cd->dwItemSpec;
+	auto& hi = m_Handles[index];
+
+	for (auto& change : m_Changes) {
+		if (change.Handle == hi->HandleValue) {
+			lcd->clrTextBk = change.Color;
+			break;
+		}
+	}
+
+	return CDRF_DODEFAULT;
+}
+
+DWORD CHandlesView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
+	return CDRF_NOTIFYITEMDRAW;
 }

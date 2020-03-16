@@ -373,6 +373,7 @@
     <Image Include="res\window_title.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\x64\Release\KObjExp.sys" />
     <None Include="Bin\x64\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>

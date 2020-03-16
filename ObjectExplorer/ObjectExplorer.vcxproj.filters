@@ -460,6 +460,7 @@
     <None Include="Bin\x64\KObjExp.sys">
       <Filter>Bin\x64</Filter>
     </None>
+    <None Include="..\x64\Release\KObjExp.sys" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />

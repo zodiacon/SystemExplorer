@@ -40,11 +40,9 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	lcd->clrTextBk = CLR_INVALID;
 
 	if (sub == 0) {
-//		::SelectObject(cd->hdc, m_BoldFont);
 		return CDRF_DODEFAULT;
 	}
 	else {
-//		::SelectObject(cd->hdc, m_NormalFont);
 	}
 	if (sub < 2 || sub > 5)
 		return CDRF_DODEFAULT;
@@ -60,7 +58,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			lcd->clrText = std::get<2>(change) >= 0 ? RGB(0, 0, 0) : RGB(255, 255, 255);
 		}
 	}
-	return CDRF_NOTIFYITEMDRAW;
+	return CDRF_DODEFAULT;
 }
 
 DWORD CObjectSummaryView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {

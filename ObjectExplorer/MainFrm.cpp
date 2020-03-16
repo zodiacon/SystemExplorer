@@ -173,7 +173,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	if (!DriverHelper::IsDriverLoaded()) {
 		if (!SecurityHelper::IsRunningElevated()) {
-			if (MessageBox(L"Kernel Driver not loaded. Most functionality will not be available. Install?", L"Object Explorer", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			if (AtlMessageBox(nullptr, L"Kernel Driver not loaded. Some functionality will not be available. Install?", 
+				IDS_TITLE, MB_YESNO | MB_ICONQUESTION) == IDYES) {
 				if(!SecurityHelper::RunElevated(L"install", false)) {
 					AtlMessageBox(*this, L"Error running driver installer", IDS_TITLE, MB_ICONERROR);
 				}
@@ -182,6 +183,21 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		else {
 			if (!DriverHelper::InstallDriver() || !DriverHelper::LoadDriver()) {
 				MessageBox(L"Failed to install driver. Some functionality will not be available.", L"Object Explorer", MB_ICONERROR);
+			}
+		}
+	}
+	if (DriverHelper::IsDriverLoaded()) {
+		if (DriverHelper::GetVersion() < DriverHelper::CurrentVersion) {
+			auto response = AtlMessageBox(nullptr, L"A newer driver is available with new functionality. Update?",
+				IDS_TITLE, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+			if (response == IDYES) {
+				if (SecurityHelper::IsRunningElevated()) {
+					if (!DriverHelper::UpdateDriver())
+						AtlMessageBox(nullptr, L"Failed to update driver", IDS_TITLE, MB_ICONERROR);
+				}
+				else {
+					SecurityHelper::RunElevated(L"update", false);
+				}
 			}
 		}
 	}
