@@ -12,7 +12,6 @@ public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
 	CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr, DWORD pid = 0);
-
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	static CString HandleAttributesToString(ULONG attributes);
@@ -43,6 +42,8 @@ private:
 
 private:
 	ObjectManager m_ObjMgr;
+	WinSys::ProcessManager m_ProcMgr;
+	std::unique_ptr<WinSys::ProcessHandlesTracker> m_HandleTracker;
 	CString m_HandleType;
 	IMainFrame* m_pFrame;
 	CUpdateUIBase* m_pUI;

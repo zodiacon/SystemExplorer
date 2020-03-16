@@ -74,9 +74,10 @@ private:
 	CToolBarCtrl m_Toolbar;
 	HWND m_SelectedHwnd;
 	IMainFrame* m_pFrame;
-	ObjectManager m_ObjMgr;
+	WinSys::ProcessManager m_ProcMgr;
 	CContainedWindowT<CComboBox> m_SearchCombo;
 	CContainedWindowT<CEdit> m_SearchEdit;
+	ObjectManager m_ObjMgr;
 	TreeViewOptions m_TreeViewOptions = TreeViewOptions::VisibleOnly;
 	bool m_DefaultDesktopOnly = true;
 };

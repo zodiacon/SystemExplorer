@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "ObjectHandlesDlg.h"
-#include "ObjectManager.h"
 #include "HandlesView.h"
 #include "SortHelper.h"
 #include <algorithm>
 
-CObjectHandlesDlg::CObjectHandlesDlg(ObjectInfo* info, ObjectManager& om) : m_pObject(info), m_ObjMgr(om) {
+CObjectHandlesDlg::CObjectHandlesDlg(ObjectInfo* info, WinSys::ProcessManager& pm) : m_pObject(info), m_ProcMgr(pm) {
 }
 
 void CObjectHandlesDlg::DoSort(const SortInfo* si) {
@@ -19,7 +18,7 @@ void CObjectHandlesDlg::DoSort(const SortInfo* si) {
 
 bool CObjectHandlesDlg::CompareItems(const HandleInfo* h1, const HandleInfo* h2, int col, bool asc) {
 	switch (col) {
-		case 0: return SortHelper::SortStrings(m_ObjMgr.GetProcessNameById(h1->ProcessId), m_ObjMgr.GetProcessNameById(h2->ProcessId), asc);
+		case 0: return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(h1->ProcessId), m_ProcMgr.GetProcessNameById(h2->ProcessId), asc);
 		case 1: return SortHelper::SortNumbers(h1->ProcessId, h2->ProcessId, asc);
 		case 2: return SortHelper::SortNumbers(h1->HandleValue, h2->HandleValue, asc);
 		case 3: return SortHelper::SortNumbers(h1->GrantedAccess, h2->GrantedAccess, asc);
@@ -71,7 +70,7 @@ LRESULT CObjectHandlesDlg::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	if (item.mask & LVIF_TEXT) {
 		switch (item.iSubItem) {
 		case 0:		// process name
-			::StringCchCopy(item.pszText, item.cchTextMax, m_ObjMgr.GetProcessNameById(data->ProcessId));
+			::StringCchCopy(item.pszText, item.cchTextMax, m_ProcMgr.GetProcessNameById(data->ProcessId).c_str());
 			break;
 
 		case 1:		// PID

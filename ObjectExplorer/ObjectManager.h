@@ -1,8 +1,6 @@
 #pragma once
 
-
 struct ObjectTypeInfo;
-class ObjectType;
 
 enum class PoolType {
 	PagedPool = 1,
@@ -58,14 +56,6 @@ struct ObjectTypeInfo {
 	bool SecurityRequired;
 	bool MaintainHandleCount;
 	std::vector<std::shared_ptr<ObjectInfo>> Objects;
-//	std::unique_ptr<ObjectType> TypeDetails;
-};
-
-struct ProcessInfo {
-	ProcessInfo(DWORD id, PCWSTR name);
-
-	DWORD Id;
-	CString Name;
 };
 
 struct ObjectNameAndType {
@@ -99,9 +89,6 @@ public:
 
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetObjects() const;
 
-	bool EnumProcesses();
-	const CString& GetProcessNameById(DWORD id) const;
-
 	static HANDLE DupHandle(ObjectInfo* pObject, ACCESS_MASK access = GENERIC_READ);
 	static HANDLE DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0, DWORD flags = DUPLICATE_SAME_ACCESS);
 	static NTSTATUS OpenObject(PCWSTR path, PCWSTR type, HANDLE* pHandle, DWORD access = GENERIC_READ);
@@ -131,16 +118,11 @@ public:
 	static std::shared_ptr<ObjectTypeInfo> GetType(PCWSTR name);
 	static const std::vector<std::shared_ptr<ObjectTypeInfo>>& GetObjectTypes();
 	const std::vector<std::shared_ptr<HandleInfo>>& GetHandles() const;
-	const std::vector<ProcessInfo>& GetProcesses() const {
-		return _processes;
-	}
 
 	static std::vector<ObjectNameAndType> EnumDirectoryObjects(PCWSTR path);
 	static CString GetSymbolicLinkTarget(PCWSTR path);
 
 private:
-	std::unordered_map<DWORD, ProcessInfo> _processesById;
-	std::vector<ProcessInfo> _processes;
 	static std::vector<std::shared_ptr<ObjectTypeInfo>> _types;
 	static std::unordered_map<int16_t, std::shared_ptr<ObjectTypeInfo>> _typesMap;
 	static std::unordered_map<std::wstring, std::shared_ptr<ObjectTypeInfo>> _typesNameMap;

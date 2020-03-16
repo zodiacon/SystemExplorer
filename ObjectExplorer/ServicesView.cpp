@@ -105,7 +105,7 @@ LRESULT CServicesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 
 			case 4:		// process name
 				if (pdata.ProcessId > 0) {
-					::StringCchCopy(item.pszText, item.cchTextMax, m_ObjMgr.GetProcessNameById(pdata.ProcessId));
+					::StringCchCopy(item.pszText, item.cchTextMax, m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str());
 				}
 				break;
 
@@ -277,7 +277,7 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 		case 2: return SortHelper::SortStrings(
 			ServiceStateToString(s1.GetStatusProcess().CurrentState), ServiceStateToString(s2.GetStatusProcess().CurrentState), asc);
 		case 3: return SortHelper::SortNumbers(s1.GetStatusProcess().ProcessId, s2.GetStatusProcess().ProcessId, asc);
-		case 4: return SortHelper::SortStrings(m_ObjMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), m_ObjMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
+		case 4: return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
 		case 5:	return SortHelper::SortStrings(ServiceStartTypeToString(*GetServiceInfoEx(s1.GetName()).GetConfiguration()),
 					ServiceStartTypeToString(*GetServiceInfoEx(s2.GetName()).GetConfiguration()), asc);
 	}
@@ -362,7 +362,7 @@ void CServicesView::InitToolBar(CToolBarCtrl& tb) {
 }
 
 void CServicesView::Refresh() {
-	m_ObjMgr.EnumProcesses();
+	m_ProcMgr.EnumProcesses();
 	m_ServicesEx.clear();
 	m_Services = WinSys::ServiceManager::EnumServices();
 	m_ServicesEx.reserve(m_Services.size());

@@ -7,3 +7,4 @@
 #include "ProcessManager.h"
 #include "ProcessInfo.h"
 #include "ThreadInfo.h"
+#include "ProcessHandlesTracker.h"

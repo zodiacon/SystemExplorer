@@ -58,103 +58,132 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 	const auto& dic = IoGetCurrentIrpStackLocation(Irp)->Parameters.DeviceIoControl;
 	auto status = STATUS_INVALID_DEVICE_REQUEST;
 	ULONG len = 0;
+	POBJECT_TYPE ObjectType = nullptr;
 
 	switch (dic.IoControlCode) {
-	case IOCTL_KOBJEXP_OPEN_OBJECT:
-	{
-		if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
-			status = STATUS_INVALID_PARAMETER;
-			break;
-		}
-		if (dic.InputBufferLength < sizeof(OpenObjectData)) {
-			status = STATUS_BUFFER_TOO_SMALL;
+		case IOCTL_KOBJEXP_OPEN_OBJECT:
+		{
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.InputBufferLength < sizeof(OpenObjectData)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+
+			if (dic.OutputBufferLength < sizeof(HANDLE)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+
+			auto data = static_cast<OpenObjectData*>(Irp->AssociatedIrp.SystemBuffer);
+			auto obj = data->Address;
+			status = ObReferenceObjectByPointer(obj, data->Access, nullptr, KernelMode);
+			if (!NT_SUCCESS(status))
+				break;
+
+			HANDLE hObject;
+			status = ObOpenObjectByPointer(data->Address, 0, nullptr, data->Access,
+				nullptr, KernelMode, &hObject);
+			if (NT_SUCCESS(status)) {
+				*static_cast<HANDLE*>(Irp->AssociatedIrp.SystemBuffer) = hObject;
+				len = sizeof(HANDLE);
+			}
+			ObDereferenceObject(obj);
 			break;
 		}
 
-		if (dic.OutputBufferLength < sizeof(HANDLE)) {
-			status = STATUS_BUFFER_TOO_SMALL;
-			break;
-		}
+		case IOCTL_KOBJEXP_DUP_HANDLE:
+		{
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.InputBufferLength < sizeof(DupHandleData)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
 
-		auto data = static_cast<OpenObjectData*>(Irp->AssociatedIrp.SystemBuffer);
-		auto obj = data->Address;
-		status = ObReferenceObjectByPointer(obj, data->Access, nullptr, KernelMode);
-		if (!NT_SUCCESS(status))
-			break;
+			if (dic.OutputBufferLength < sizeof(HANDLE)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			const auto data = static_cast<DupHandleData*>(Irp->AssociatedIrp.SystemBuffer);
 
-		HANDLE hObject;
-		status = ObOpenObjectByPointer(data->Address, 0, nullptr, data->Access,
-			nullptr, KernelMode, &hObject);
-		if (NT_SUCCESS(status)) {
-			*static_cast<HANDLE*>(Irp->AssociatedIrp.SystemBuffer) = hObject;
+			HANDLE hProcess;
+			OBJECT_ATTRIBUTES procAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(nullptr, OBJ_KERNEL_HANDLE);
+			CLIENT_ID pid{};
+			pid.UniqueProcess = UlongToHandle(data->SourcePid);
+			status = ZwOpenProcess(&hProcess, PROCESS_DUP_HANDLE, &procAttributes, &pid);
+			if (!NT_SUCCESS(status)) {
+				KdPrint(("Failed to open process %d (0x%08X)\n", data->SourcePid, status));
+				break;
+			}
+
+			HANDLE hTarget;
+			status = ZwDuplicateObject(hProcess, ULongToHandle(data->Handle), NtCurrentProcess(),
+				&hTarget, data->AccessMask, 0, data->Flags);
+			ZwClose(hProcess);
+			if (!NT_SUCCESS(status)) {
+				KdPrint(("Failed to duplicate handle (0x%8X)\n", status));
+				break;
+			}
+
+			*(HANDLE*)Irp->AssociatedIrp.SystemBuffer = hTarget;
 			len = sizeof(HANDLE);
-		}
-		ObDereferenceObject(obj);
-		break;
-	}
-
-	case IOCTL_KOBJEXP_DUP_HANDLE:
-	{
-		if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
-			status = STATUS_INVALID_PARAMETER;
-			break;
-		}
-		if (dic.InputBufferLength < sizeof(DupHandleData)) {
-			status = STATUS_BUFFER_TOO_SMALL;
 			break;
 		}
 
-		if (dic.OutputBufferLength < sizeof(HANDLE)) {
-			status = STATUS_BUFFER_TOO_SMALL;
-			break;
-		}
-		const auto data = static_cast<DupHandleData*>(Irp->AssociatedIrp.SystemBuffer);
+		case IOCTL_KOBJEXP_OPEN_EVENT_BY_NAME:
+			ObjectType = *ExEventObjectType;
+		case IOCTL_KOBJEXP_OPEN_SEMAPHORE_BY_NAME:
+			if (ObjectType == nullptr)
+				ObjectType = *ExSemaphoreObjectType;
+		case IOCTL_KOBJEXP_OPEN_JOB_BY_NAME:
+		{
+			if (ObjectType == nullptr)
+				ObjectType = *PsJobType;
 
-		HANDLE hProcess;
-		OBJECT_ATTRIBUTES procAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(nullptr, OBJ_KERNEL_HANDLE);
-		CLIENT_ID pid{};
-		pid.UniqueProcess = UlongToHandle(data->SourcePid);
-		status = ZwOpenProcess(&hProcess, PROCESS_DUP_HANDLE, &procAttributes, &pid);
-		if (!NT_SUCCESS(status)) {
-			KdPrint(("Failed to open process %d (0x%08X)\n", data->SourcePid, status));
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.OutputBufferLength < sizeof(HANDLE)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			auto name = (WCHAR*)Irp->AssociatedIrp.SystemBuffer;
+			if (name[dic.InputBufferLength / sizeof(WCHAR) - 1] != L'\0') {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			OBJECT_ATTRIBUTES attr;
+			UNICODE_STRING uname;
+			RtlInitUnicodeString(&uname, name);
+			InitializeObjectAttributes(&attr, &uname, 0, nullptr, nullptr);
+			status = ObOpenObjectByName(&attr, ObjectType, KernelMode, nullptr, GENERIC_READ, nullptr, (HANDLE*)name);
+			len = NT_SUCCESS(status) ? sizeof(HANDLE) : 0;
 			break;
 		}
 
-		HANDLE hTarget;
-		status = ZwDuplicateObject(hProcess, ULongToHandle(data->Handle), NtCurrentProcess(),
-			&hTarget, data->AccessMask, 0, data->Flags);
-		ZwClose(hProcess);
-		if (!NT_SUCCESS(status)) {
-			KdPrint(("Failed to duplicate handle (0x%8X)\n", status));
+		case IOCTL_KOBJEXP_OPEN_PROCESS:
+		{
+			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+			if (dic.InputBufferLength < sizeof(OpenProcessData) || dic.OutputBufferLength < sizeof(HANDLE)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			auto data = (OpenProcessData*)Irp->AssociatedIrp.SystemBuffer;
+			OBJECT_ATTRIBUTES attr = RTL_CONSTANT_OBJECT_ATTRIBUTES(nullptr, 0);
+			CLIENT_ID id = { UlongToHandle(data->ProcessId) };
+			status = ZwOpenProcess((HANDLE*)data, data->AccessMask, &attr, &id);
+			len = NT_SUCCESS(status) ? sizeof(HANDLE) : 0;
 			break;
 		}
-
-		*(HANDLE*)Irp->AssociatedIrp.SystemBuffer = hTarget;
-		len = sizeof(HANDLE);
-		break;
-	}
-
-	case IOCTL_KOBJEXP_OPEN_OBJECT_BY_NAME:
-		if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
-			status = STATUS_INVALID_PARAMETER;
-			break;
-		}
-		if (dic.OutputBufferLength < sizeof(HANDLE)) {
-			status = STATUS_BUFFER_TOO_SMALL;
-			break;
-		}
-		auto name = (WCHAR*)Irp->AssociatedIrp.SystemBuffer;
-		if (name[dic.InputBufferLength / sizeof(WCHAR) - 1] != L'\0') {
-			status = STATUS_INVALID_PARAMETER;
-			break;
-		}
-		OBJECT_ATTRIBUTES attr;
-		UNICODE_STRING uname;
-		RtlInitUnicodeString(&uname, name);
-		InitializeObjectAttributes(&attr, &uname, 0, nullptr, nullptr);
-		status = ObOpenObjectByName(&attr, nullptr, KernelMode, nullptr, GENERIC_READ, nullptr, (HANDLE*)name);
-		len = NT_SUCCESS(status) ? sizeof(HANDLE) : 0;
-		break;
 	}
 
 	Irp->IoStatus.Status = status;

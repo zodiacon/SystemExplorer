@@ -5,14 +5,13 @@
 
 struct ObjectInfo;
 struct HandleInfo;
-class ObjectManager;
 
 class CObjectHandlesDlg : 
 	public CDialogImpl<CObjectHandlesDlg>,
 	public CDialogResize<CObjectHandlesDlg>,
 	public CVirtualListView<CObjectHandlesDlg> {
 public:
-	CObjectHandlesDlg(ObjectInfo* info, ObjectManager& om);
+	CObjectHandlesDlg(ObjectInfo* info, WinSys::ProcessManager& pm);
 	enum { IDD = IDD_HANDLES };
 
 	void DoSort(const SortInfo* si);
@@ -41,6 +40,6 @@ private:
 	CListViewCtrl m_List;
 	ObjectInfo* m_pObject;
 	std::vector<std::shared_ptr<HandleInfo>> m_Handles;
-	ObjectManager& m_ObjMgr;
+	WinSys::ProcessManager& m_ProcMgr;
 };
 

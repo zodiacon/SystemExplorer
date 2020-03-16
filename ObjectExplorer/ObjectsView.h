@@ -74,5 +74,6 @@ private:
 	CUpdateUIBase* m_pUpdateUI;
 	IObjectsView* m_pView{ nullptr };
 	ObjectManager m_ObjMgr;
+	WinSys::ProcessManager m_ProcMgr;
 	CString m_Typename;
 };

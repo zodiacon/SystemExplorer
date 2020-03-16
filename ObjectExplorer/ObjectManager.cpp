@@ -2,7 +2,6 @@
 #include "ObjectManager.h"
 #include "DriverHelper.h"
 #include "NtDll.h"
-#include "ObjectTypeFactory.h"
 
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
@@ -74,8 +73,6 @@ int ObjectManager::EnumTypes() {
 		if (empty) {
 			_types.emplace_back(type);
 			_typesMap.insert({ type->TypeIndex, type });
-			//auto typeObject = ObjectTypeFactory::CreateObjectType(*this, type->TypeIndex, type->TypeName);
-			//type->TypeDetails = std::move(typeObject);
 			_typesNameMap.insert({ std::wstring(type->TypeName), type });
 		}
 
@@ -88,7 +85,6 @@ int ObjectManager::EnumTypes() {
 
 bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 	EnumTypes();
-	EnumProcesses();
 
 	ULONG len = 1 << 25;
 	std::unique_ptr<BYTE[]> buffer;
@@ -152,7 +148,6 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 
 bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
 	EnumTypes();
-	EnumProcesses();
 
 	ULONG len = 1 << 25;
 	std::unique_ptr<BYTE[]> buffer;
@@ -201,40 +196,6 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
 
 const std::vector<std::shared_ptr<ObjectInfo>>& ObjectManager::GetObjects() const {
 	return _objects;
-}
-
-bool ObjectManager::EnumProcesses() {
-	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
-	if (!hSnapshot)
-		return false;
-
-	PROCESSENTRY32 pe;
-	pe.dwSize = sizeof(pe);
-
-	if (!::Process32First(hSnapshot.get(), &pe))
-		return false;
-
-	_processesById.clear();
-	_processesById.reserve(256);
-	_processes.clear();
-	_processes.reserve(256);
-
-	do {
-		if (pe.th32ProcessID == 0)
-			continue;
-
-		ProcessInfo pi(pe.th32ProcessID, pe.szExeFile);
-		_processesById.emplace(pe.th32ProcessID, pi);
-		_processes.emplace_back(pi);
-	} while (::Process32Next(hSnapshot.get(), &pe));
-
-	return true;
-}
-
-const CString& ObjectManager::GetProcessNameById(DWORD id) const {
-	static CString empty;
-	auto it = _processesById.find(id);
-	return it == _processesById.end() ? empty : it->second.Name;
 }
 
 const std::vector<ObjectManager::Change>& ObjectManager::GetChanges() const {
@@ -503,5 +464,3 @@ const std::vector<std::shared_ptr<HandleInfo>>& ObjectManager::GetHandles() cons
 	return _handles;
 }
 
-ProcessInfo::ProcessInfo(DWORD id, PCWSTR name) : Id(id), Name(name) {
-}

@@ -3,7 +3,6 @@
 #include "Interfaces.h"
 #include "resource.h"
 #include "VirtualListView.h"
-#include "ObjectManager.h"
 
 struct ServiceInfoEx {
 	ServiceInfoEx(PCWSTR name);
@@ -77,7 +76,7 @@ private:
 	IMainFrame* m_pFrame;
 	CToolBarCtrl m_ToolBar;
 	CListViewCtrl m_List;
-	ObjectManager m_ObjMgr;
+	WinSys::ProcessManager m_ProcMgr;
 	bool m_RunningElevated;
 };
 

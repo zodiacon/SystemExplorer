@@ -45,6 +45,9 @@
     <ClInclude Include="ProcessInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProcessHandlesTracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjExpCore.cpp">
@@ -69,6 +72,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessHandlesTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -37,6 +37,7 @@ namespace WinSys {
 
 		[[nodiscard]] size_t GetThreadCount() const;
 		[[nodiscard]] size_t GetProcessCount() const;
+		[[nodiscard]] std::wstring GetProcessNameById(uint32_t pid) const;
 
 	private:
 		struct Impl;

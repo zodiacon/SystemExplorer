@@ -71,18 +71,6 @@ HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
 		? hObject : nullptr;
 }
 
-HANDLE DriverHelper::OpenHandle(PCWSTR name, ACCESS_MASK access) {
-	if (!OpenDevice())
-		return nullptr;
-
-	HANDLE hObject = nullptr;
-	DWORD bytes;
-	auto size = DWORD((::wcslen(name) + 1) * sizeof(WCHAR));
-	::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_OBJECT_BY_NAME, (PVOID)name, size,
-		&hObject, sizeof(hObject), &bytes, nullptr);
-	return hObject;
-}
-
 HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DWORD flags) {
 	if (!OpenDevice())
 		return nullptr;
@@ -98,6 +86,20 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DW
 	return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_DUP_HANDLE, &data, sizeof(data),
 		&hTarget, sizeof(hTarget), &bytes, nullptr)
 		? hTarget : nullptr;
+}
+
+HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
+	if (!OpenDevice())
+		return nullptr;
+
+	OpenProcessData data;
+	data.AccessMask = access;
+	data.ProcessId = pid;
+	HANDLE hProcess;
+	DWORD bytes;
+
+	return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
+		&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
 }
 
 bool DriverHelper::IsDriverLoaded() {

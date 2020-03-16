@@ -80,7 +80,7 @@ CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
 CString CObjectsView::GetProcessHandleInfo(const HandleInfo & hi) const {
 	CString info;
 	info.Format(L"H: %d, PID: %d (%s)",
-		hi.HandleValue, hi.ProcessId, (PCWSTR)m_ObjMgr.GetProcessNameById(hi.ProcessId));
+		hi.HandleValue, hi.ProcessId, m_ProcMgr.GetProcessNameById(hi.ProcessId).c_str());
 	return info;
 }
 
@@ -224,7 +224,7 @@ LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
 LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(GetSelectedIndex() >= 0);
 	auto& item = GetItem(GetSelectedIndex());
-	CObjectHandlesDlg dlg(item.get(), m_ObjMgr);
+	CObjectHandlesDlg dlg(item.get(), m_ProcMgr);
 	CImageList il = m_pFrame->GetImageList();
 	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->TypeName)));
 
@@ -233,8 +233,8 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 
 void CObjectsView::Refresh() {
 	CWaitCursor wait;
-	m_ObjMgr.EnumProcesses();
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename);
+	m_ProcMgr.EnumProcesses();
 	m_Objects = m_ObjMgr.GetObjects();
 	if (GetSortColumn() >= 0)
 		DoSort(GetSortInfo());

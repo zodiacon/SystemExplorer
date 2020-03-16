@@ -6,10 +6,16 @@
 #include <string>
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
+#include "DriverHelper.h"
+
+using namespace WinSys;
 
 CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type, DWORD pid) :
 	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(::OpenProcess(SYNCHRONIZE, FALSE, pid));
+	if (pid) {
+		m_HandleTracker.reset(new ProcessHandlesTracker(pid));
+	}
 }
 
 void CHandlesView::DoSort(const SortInfo* si) {
@@ -51,7 +57,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 			return SortHelper::SortNumbers(h1.HandleValue, h2.HandleValue, si->SortAscending);
 
 		case 4:		// process name
-			return SortHelper::SortStrings(m_ObjMgr.GetProcessNameById(h1.ProcessId), m_ObjMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
+			return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(h1.ProcessId), m_ProcMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
 
 		case 5:		// PID
 			return SortHelper::SortNumbers(h1.ProcessId, h2.ProcessId, si->SortAscending);
@@ -138,7 +144,7 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				break;
 
 			case 4:	// process name
-				item.pszText = (PWSTR)(PCWSTR)m_ObjMgr.GetProcessNameById(data->ProcessId);
+				::StringCchCopy(item.pszText, item.cchTextMax, m_ProcMgr.GetProcessNameById(data->ProcessId).c_str());
 				break;
 
 			case 5:	// PID
@@ -221,6 +227,9 @@ void CHandlesView::Refresh() {
 	}
 	CWaitCursor wait;
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
+	if(m_HandleTracker)
+		m_HandleTracker->EnumHandles();
+	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo());
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);

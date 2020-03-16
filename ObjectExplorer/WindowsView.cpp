@@ -175,7 +175,7 @@ LRESULT CWindowsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
 void CWindowsView::InitTree() {
 	m_Tree.LockWindowUpdate();
 	m_Tree.DeleteAllItems();
-	m_ObjMgr.EnumProcesses();
+	m_ProcMgr.EnumProcesses();
 
 	if (m_DefaultDesktopOnly) {
 		auto root = m_Tree.InsertItem(L"Default", 0, 0, TVI_ROOT, TVI_LAST);
@@ -330,7 +330,7 @@ CString CWindowsView::GetPropertyDetails(HWND hWnd, int index) const {
 		{
 			DWORD pid;
 			::GetWindowThreadProcessId(hWnd, &pid);
-			text = m_ObjMgr.GetProcessNameById(pid);
+			text = m_ProcMgr.GetProcessNameById(pid).c_str();
 			break;
 		}
 

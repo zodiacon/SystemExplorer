@@ -161,13 +161,18 @@ size_t WinSys::ProcessManager::GetProcessCount() const {
 	return _impl->GetProcesses().size();
 }
 
+std::wstring ProcessManager::GetProcessNameById(uint32_t pid) const {
+	auto pi = GetProcessById(pid);
+	return pi ? pi->GetImageName() : L"";
+}
+
 size_t ProcessManager::EnumProcessesAndThreads(size_t extraBytesProcess, size_t extraBytesThread) {
 	return _impl->EnumProcesses(true, extraBytesProcess, extraBytesThread);
 }
 
 size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, size_t extraBytesProcess, size_t extraBytesThread) {
 	std::vector<std::shared_ptr<ProcessInfo>> processes;
-	processes.reserve(_processes.size() == 0 ? 256 : _processes.size() + 10);
+	processes.reserve(_processes.empty() ? 256 : _processes.size() + 10);
 	ProcessMap processesByKey;
 	processesByKey.reserve(_processes.size() == 0 ? 256 : _processes.size() + 10);
 	_processesById.clear();
