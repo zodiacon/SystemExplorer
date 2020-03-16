@@ -12,7 +12,7 @@ class CHandlesView :
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr, DWORD pid = 0);
+	CHandlesView(IMainFrame* pFrame, PCWSTR type = nullptr, DWORD pid = 0);
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	static CString HandleAttributesToString(ULONG attributes);
@@ -29,7 +29,9 @@ public:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
+		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPauseResume)
 		COMMAND_ID_HANDLER(ID_HANDLES_CLOSEHANDLE, OnCloseHandle)
+		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CHandlesView>, 1)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CHandlesView>, 1)
 	END_MSG_MAP()
@@ -43,10 +45,13 @@ private:
 	LRESULT OnCloseHandle(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnPauseResume(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
+	void UpdateUI();
 
 private:
 	struct Change {
@@ -69,5 +74,6 @@ private:
 	DWORD m_TargetUpdateTime = 0;
 	std::vector<Change> m_Changes;
 	wil::unique_handle m_hProcess;
+	bool m_Paused = false;
 };
 

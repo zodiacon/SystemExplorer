@@ -16,16 +16,29 @@ bool DriverHelper::LoadDriver(bool load) {
 		return false;
 
 	SERVICE_STATUS status;
+	bool success = true;
+	DWORD targetState;
 	::QueryServiceStatus(hService.get(), &status);
-	if (load && status.dwCurrentState != SERVICE_RUNNING)
-		return ::StartService(hService.get(), 0, nullptr);
-	if(!load && status.dwCurrentState != SERVICE_STOPPED)
-		return ::ControlService(hService.get(), SERVICE_CONTROL_STOP, &status);
+	if (load && status.dwCurrentState != (targetState = SERVICE_RUNNING))
+		success = ::StartService(hService.get(), 0, nullptr);
+	else if (!load && status.dwCurrentState != (targetState = SERVICE_STOPPED))
+		success = ::ControlService(hService.get(), SERVICE_CONTROL_STOP, &status);
+	else
+		return true;
 
-	return true;
+	if (!success)
+		return false;
+
+	for (int i = 0; i < 20; i++) {
+		::QueryServiceStatus(hService.get(), &status);
+		if (status.dwCurrentState == targetState)
+			return true;
+		::Sleep(200);
+	}
+	return false;
 }
 
-bool DriverHelper::InstallDriver() {
+bool DriverHelper::InstallDriver(bool justCopy) {
 	if (!SecurityHelper::IsRunningElevated())
 		return false;
 
@@ -54,6 +67,9 @@ bool DriverHelper::InstallDriver() {
 	if (bytes != size)
 		return false;
 
+	if (justCopy)
+		return true;
+
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
 	if (!hScm)
 		return false;
@@ -64,20 +80,12 @@ bool DriverHelper::InstallDriver() {
 }
 
 bool DriverHelper::UpdateDriver() {
-	bool open = _hDevice != nullptr;
-	if (open) {
-		::CloseHandle(_hDevice);
-		_hDevice = nullptr;
-	}
 	if (!LoadDriver(false))
 		return false;
-	if (!InstallDriver())
+	if (!InstallDriver(true))
 		return false;
 	if (!LoadDriver())
 		return false;
-
-	if (open)
-		OpenDevice();
 
 	return true;
 }
@@ -146,6 +154,18 @@ USHORT DriverHelper::GetVersion() {
 	DWORD bytes;
 	::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_GET_VERSION, nullptr, 0, &version, sizeof(version), &bytes, nullptr);
 	return version;
+}
+
+USHORT DriverHelper::GetCurrentVersion() {
+	return DRIVER_CURRENT_VERSION;
+}
+
+bool DriverHelper::CloseDevice() {
+	if (_hDevice) {
+		::CloseHandle(_hDevice);
+		_hDevice = nullptr;
+	}
+	return true;
 }
 
 bool DriverHelper::IsDriverLoaded() {

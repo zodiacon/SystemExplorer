@@ -116,6 +116,7 @@ private:
 
 private:
 	CTabView m_view;
+	CMultiPaneStatusBarCtrl m_StatusBar;
 	ObjectManager m_ObjMgr;
 	CImageListManaged m_TabImages;
 	std::unordered_map<std::wstring, int> m_IconMap;

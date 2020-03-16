@@ -30,6 +30,8 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 
 BOOL CMainFrame::OnIdle() {
 	UIUpdateToolBar();
+	UIUpdateStatusBar();
+
 	return FALSE;
 }
 
@@ -100,11 +102,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CReBarCtrl(m_hWndToolBar).LockBands(TRUE);
 
 	CreateSimpleStatusBar();
+	m_StatusBar.SubclassWindow(m_hWndStatusBar);
+	int parts[] = { 0, 200, 400, 600 };
+	m_StatusBar.SetParts(_countof(parts), parts);
 
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr, 
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	UIAddToolBar(hWndToolBar);
+	UIAddStatusBar(m_hWndStatusBar, _countof(parts));
+
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 	UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, FALSE);
@@ -187,7 +194,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		}
 	}
 	if (DriverHelper::IsDriverLoaded()) {
-		if (DriverHelper::GetVersion() < DriverHelper::CurrentVersion) {
+		if (DriverHelper::GetVersion() < DriverHelper::GetCurrentVersion()) {
 			auto response = AtlMessageBox(nullptr, L"A newer driver is available with new functionality. Update?",
 				IDS_TITLE, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
 			if (response == IDYES) {
@@ -196,6 +203,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 						AtlMessageBox(nullptr, L"Failed to update driver", IDS_TITLE, MB_ICONERROR);
 				}
 				else {
+					DriverHelper::CloseDevice();
 					SecurityHelper::RunElevated(L"update", false);
 				}
 			}
@@ -252,7 +260,7 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 }
 
 LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	auto pView = new CHandlesView(this, this);
+	auto pView = new CHandlesView(this);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Handles", m_HandlesIcon, pView);
 
@@ -355,7 +363,7 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 	if (dlg.DoModal() == IDOK) {
 		CString name;
 		auto pid = dlg.GetSelectedProcess(name);
-		auto pView = new CHandlesView(this, this, nullptr, pid);
+		auto pView = new CHandlesView(this, nullptr, pid);
 		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 		CString title;
 		title.Format(L"Handles (%s: %d)", name, pid);
@@ -524,7 +532,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 }
 
 void CMainFrame::ShowAllHandles(PCWSTR type) {
-	auto pView = new CHandlesView(this, this, type);
+	auto pView = new CHandlesView(this, type);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles", GetIconIndexByType(type), pView);
 

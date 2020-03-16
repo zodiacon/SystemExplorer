@@ -71,6 +71,7 @@ LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM wParam, LPARAM, BOOL&) {
 	else {
 		if (!m_Paused)
 			SetTimer(1, m_Interval);
+		UpdateUI();
 	}
 
 	return 0;
@@ -228,6 +229,7 @@ void CObjectSummaryView::UpdateUI() {
 	m_UIUpdate.UIEnable(ID_EDIT_COPY, GetSelectedCount() > 0);
 	m_UIUpdate.UIEnable(ID_TYPE_ALLHANDLES, GetSelectedCount() == 1);
 	m_UIUpdate.UIEnable(ID_TYPE_ALLOBJECTS, GetSelectedCount() == 1);
+	m_UIUpdate.UISetCheck(ID_VIEW_PAUSE, m_Paused);
 }
 
 LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {

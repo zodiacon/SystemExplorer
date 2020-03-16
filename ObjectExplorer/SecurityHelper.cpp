@@ -30,6 +30,12 @@ bool SecurityHelper::RunElevated(PCWSTR param, bool ui) {
 	shi.nShow = SW_SHOWDEFAULT;
 	shi.lpVerb = L"runas";
 	shi.lpParameters = param;
-	shi.fMask = (ui ? 0 : (SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE)) | SEE_MASK_NOASYNC;
-	return ::ShellExecuteEx(&shi);
+	shi.fMask = (ui ? 0 : (SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE)) | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS;
+	auto ok =::ShellExecuteEx(&shi);
+	if (!ok)
+		return false;
+
+	auto rc = ::WaitForSingleObject(shi.hProcess, 5000);
+	::CloseHandle(shi.hProcess);
+	return rc == WAIT_OBJECT_0;
 }

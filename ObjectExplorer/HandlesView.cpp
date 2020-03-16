@@ -11,8 +11,8 @@
 
 using namespace WinSys;
 
-CHandlesView::CHandlesView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type, DWORD pid) :
-	m_pUI(pUpdateUI), m_pFrame(pFrame), m_HandleType(type), m_Pid(pid) {
+CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) :
+	m_pFrame(pFrame), m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(::OpenProcess(SYNCHRONIZE, FALSE, pid));
 	if (pid) {
 		m_HandleTracker.reset(new ProcessHandlesTracker(pid));
@@ -292,13 +292,40 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+	if (m_HandleTracker) {
+		if (activate) {
+			if (!m_Paused) {
+				Refresh();
+				SetTimer(1, 1000, nullptr);
+			}
+			UpdateUI();
+		}
+		else {
+			KillTimer(1);
+		}
+	}
+	return 0;
+}
+
+LRESULT CHandlesView::OnPauseResume(WORD, WORD, HWND, BOOL&) {
+	m_Paused = !m_Paused;
+	if (m_HandleTracker) {
+		if (m_Paused)
+			KillTimer(1);
+		else
+			SetTimer(1, 1000, nullptr);
+	}
+	UpdateUI();
+	return 0;
+}
+
 void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
 		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
 		SetItemCount(0);
 		return;
 	}
-	CWaitCursor wait;
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
 	if (m_HandleTracker) {
 		m_DetailsCache.clear();
@@ -306,12 +333,17 @@ void CHandlesView::Refresh() {
 		m_Changes.clear();
 		m_Changes.reserve(8);
 		m_HandleTracker->EnumHandles(true);
-		SetTimer(1, 1000, nullptr);
+		if (!m_Paused)
+			SetTimer(1, 1000, nullptr);
 	}
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo());
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+}
+
+void CHandlesView::UpdateUI() {
+	m_pUI->UISetCheck(ID_VIEW_PAUSE, m_Paused);
 }
 
 CString CHandlesView::HandleAttributesToString(ULONG attributes) {

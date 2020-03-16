@@ -194,8 +194,8 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 				status = STATUS_BUFFER_TOO_SMALL;
 				break;
 			}
-			*(USHORT*)Irp->AssociatedIrp.SystemBuffer = 0x0100;
-			len = sizeof(ULONG);
+			*(USHORT*)Irp->AssociatedIrp.SystemBuffer = DRIVER_CURRENT_VERSION;
+			len = sizeof(USHORT);
 			status = STATUS_SUCCESS;
 			break;
 

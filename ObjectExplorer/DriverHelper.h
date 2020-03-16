@@ -1,10 +1,8 @@
 #pragma once
 
 struct DriverHelper final {
-	static const USHORT CurrentVersion = 0x100;
-
 	static bool LoadDriver(bool load = true);
-	static bool InstallDriver();
+	static bool InstallDriver(bool justCopy = false);
 	static bool UpdateDriver();
 	static bool IsDriverLoaded();
 	static HANDLE OpenHandle(void* pObject, ACCESS_MASK);
@@ -12,6 +10,8 @@ struct DriverHelper final {
 	static HANDLE OpenProcess(DWORD pid, ACCESS_MASK access = PROCESS_QUERY_INFORMATION);
 	static PVOID GetObjectAddress(HANDLE hObject);
 	static USHORT GetVersion();
+	static USHORT GetCurrentVersion();
+	static bool CloseDevice();
 
 private:
 	static bool OpenDevice();
