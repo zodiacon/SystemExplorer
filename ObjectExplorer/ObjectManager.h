@@ -81,6 +81,13 @@ struct GdiObject {
 	void* KernelAddress;
 };
 
+struct ObjectAndHandleStats {
+	int64_t TotalHandles;
+	int64_t TotalObjects;
+	int64_t PeakHandles;
+	int64_t PeakObjects;
+};
+
 class ObjectManager {
 public:
 	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0);
@@ -92,6 +99,7 @@ public:
 	static HANDLE DupHandle(ObjectInfo* pObject, ACCESS_MASK access = GENERIC_READ);
 	static HANDLE DupHandle(HANDLE h, DWORD pid, USHORT type, ACCESS_MASK access = 0, DWORD flags = DUPLICATE_SAME_ACCESS);
 	static NTSTATUS OpenObject(PCWSTR path, PCWSTR type, HANDLE* pHandle, DWORD access = GENERIC_READ);
+	static bool GetStats(ObjectAndHandleStats& stats);
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();

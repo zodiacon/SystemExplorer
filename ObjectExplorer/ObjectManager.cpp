@@ -13,12 +13,12 @@ int64_t ObjectManager::_totalHandles;
 int64_t ObjectManager::_totalObjects;
 
 int ObjectManager::EnumTypes() {
-	ULONG len = 1 << 17;
-	auto buffer = std::make_unique<BYTE[]>(len);
-	if (!NT_SUCCESS(NT::NtQueryObject(nullptr, NT::ObjectTypesInformation, buffer.get(), len, &len)))
+	const ULONG len = 1 << 14;
+	BYTE buffer[len];
+	if (!NT_SUCCESS(NT::NtQueryObject(nullptr, NT::ObjectTypesInformation, buffer, len, nullptr)))
 		return 0;
 
-	auto p = reinterpret_cast<NT::OBJECT_TYPES_INFORMATION*>(buffer.get());
+	auto p = reinterpret_cast<NT::OBJECT_TYPES_INFORMATION*>(buffer);
 	bool empty = _types.empty();
 
 	auto count = p->NumberOfTypes;
@@ -464,3 +464,26 @@ const std::vector<std::shared_ptr<HandleInfo>>& ObjectManager::GetHandles() cons
 	return _handles;
 }
 
+bool ObjectManager::GetStats(ObjectAndHandleStats& stats) {
+	const ULONG len = 1 << 14;
+	BYTE buffer[len];
+	if (!NT_SUCCESS(NT::NtQueryObject(nullptr, NT::ObjectTypesInformation, buffer, len, nullptr)))
+		return false;
+
+	auto p = reinterpret_cast<NT::OBJECT_TYPES_INFORMATION*>(buffer);
+	auto count = p->NumberOfTypes;
+	::ZeroMemory(&stats, sizeof(stats));
+	auto raw = &p->TypeInformation[0];
+
+	for (ULONG i = 0; i < count; i++) {
+		stats.TotalHandles += raw->TotalNumberOfHandles;
+		stats.TotalObjects += raw->TotalNumberOfObjects;
+		stats.PeakHandles += raw->HighWaterNumberOfHandles;
+		stats.PeakObjects += raw->HighWaterNumberOfObjects;
+
+		auto temp = (BYTE*)raw + sizeof(NT::OBJECT_TYPE_INFORMATION) + raw->TypeName.MaximumLength;
+		temp += sizeof(PVOID) - 1;
+		raw = reinterpret_cast<NT::OBJECT_TYPE_INFORMATION*>((ULONG_PTR)temp / sizeof(PVOID) * sizeof(PVOID));
+	}
+	return true;
+}

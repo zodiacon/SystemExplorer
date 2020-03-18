@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "resource.h"
-
+#include <Psapi.h>
 #include "aboutdlg.h"
 #include "ObjectsView.h"
 #include "MainFrm.h"
@@ -30,7 +30,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 
 BOOL CMainFrame::OnIdle() {
 	UIUpdateToolBar();
-	UIUpdateStatusBar();
+	//UIUpdateStatusBar();
 
 	return FALSE;
 }
@@ -103,7 +103,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CreateSimpleStatusBar();
 	m_StatusBar.SubclassWindow(m_hWndStatusBar);
-	int parts[] = { 0, 200, 400, 600 };
+	int parts[] = { 100, 200, 300, 430, 560, 700, 830, 960, 1100 };
 	m_StatusBar.SetParts(_countof(parts), parts);
 
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr, 
@@ -211,12 +211,43 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	}
 
 	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
+	SetTimer(1, 1000, nullptr);
 
 	return 0;
 }
 
+#define ROUND_MEM(x) ((x + (1 << 17)) >> 18)
+
+LRESULT CMainFrame::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+	if (id == 1) {
+		static ObjectAndHandleStats stats;
+		static PERFORMANCE_INFORMATION pi = { sizeof(pi) };
+		CString text;
+		if (::GetPerformanceInfo(&pi, sizeof(pi))) {
+			text.Format(L"Processes: %u", pi.ProcessCount);
+			m_StatusBar.SetText(1, text);
+			text.Format(L"Threads: %u", pi.ThreadCount);
+			m_StatusBar.SetText(2, text);
+			text.Format(L"Commit: %d / %d GB", ROUND_MEM(pi.CommitTotal), ROUND_MEM(pi.CommitLimit));
+			m_StatusBar.SetText(3, text);
+			text.Format(L"RAM Avail: %d / %d GB", ROUND_MEM(pi.PhysicalAvailable), ROUND_MEM(pi.PhysicalTotal));
+			m_StatusBar.SetText(4, text);
+			text.Format(L"Kernel Paged: %u MB", pi.KernelPaged >> 8);
+			m_StatusBar.SetText(5, text);
+			text.Format(L"Kernel NP: %u MB", pi.KernelNonpaged >> 8);
+			m_StatusBar.SetText(6, text);
+		}
+		if (ObjectManager::GetStats(stats)) {
+			text.Format(L"Handles: %lld", stats.TotalHandles);
+			m_StatusBar.SetText(7, text);
+			text.Format(L"Objects: %lld", stats.TotalObjects);
+			m_StatusBar.SetText(8, text);
+		}
+	}
+	return 0;
+}
+
 LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) {
-	// unregister message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != nullptr);
 	pLoop->RemoveMessageFilter(this);
