@@ -88,7 +88,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	InsertColumn(5, L"Peak Handles", LVCFMT_RIGHT, 100);
 	InsertColumn(6, L"Pool Type", LVCFMT_LEFT, 110);
 	InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
-	InsertColumn(8, L"Default Non-Paged Charge", LVCFMT_RIGHT, 130);
+	InsertColumn(8, L"Default NP Charge", LVCFMT_RIGHT, 130);
 	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
 	InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
 
@@ -124,11 +124,6 @@ LRESULT CObjectSummaryView::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL &) {
 		if (!m_Paused)
 			SetTimer(1, m_Interval, nullptr);
 
-		//CString text;
-		//text.Format(L"Objects: %d", m_ObjectManager.GetTotalObjects());
-		//m_UIUpdate.UISetText(1, text);
-		//text.Format(L"Handles: %d", m_ObjectManager.GetTotalHandles());
-		//m_UIUpdate.UISetText(2, text);
 	}
 	return 0;
 }

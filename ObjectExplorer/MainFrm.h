@@ -35,10 +35,6 @@ public:
 	int AddBand(HWND hControl, PCWSTR title) override;
 	bool RemoveBand(int index) override;
 	bool AddToCommandBar(UINT id, UINT icon, HICON = nullptr) override;
-	bool AddMenu(HMENU hMenu) override;
-	bool RemoveMenu(HMENU hToolbar) override;
-	bool AddToolBar(HWND hToolbar) override;
-	bool RemoveToolBar(HWND hToolbar) override;
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)

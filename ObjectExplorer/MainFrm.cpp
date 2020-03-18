@@ -608,18 +608,3 @@ bool CMainFrame::AddToCommandBar(UINT id, UINT icon, HICON hIcon) {
 	return m_CmdBar.AddIcon(icon ? AtlLoadIcon(icon) : hIcon, id);
 }
 
-bool CMainFrame::AddMenu(HMENU hMenu) {
-	return UIAddMenu(hMenu);
-}
-
-bool CMainFrame::AddToolBar(HWND hToolbar) {
-	return UIAddToolBar(hToolbar);
-}
-
-bool CMainFrame::RemoveMenu(HMENU hMenu) {
-	return false;
-}
-
-bool CMainFrame::RemoveToolBar(HWND hToolbar) {
-	return false;
-}

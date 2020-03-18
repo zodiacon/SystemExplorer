@@ -35,7 +35,10 @@ bool SecurityHelper::RunElevated(PCWSTR param, bool ui) {
 	if (!ok)
 		return false;
 
-	auto rc = ::WaitForSingleObject(shi.hProcess, 5000);
+	DWORD rc = WAIT_OBJECT_0;
+	if (!ui) {
+		rc = ::WaitForSingleObject(shi.hProcess, 5000);
+	}
 	::CloseHandle(shi.hProcess);
 	return rc == WAIT_OBJECT_0;
 }
