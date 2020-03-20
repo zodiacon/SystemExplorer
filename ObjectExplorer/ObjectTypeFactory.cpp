@@ -46,7 +46,7 @@ std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, c
 	if (name == L"WindowStation")
 		return std::make_unique<WinStationObjectType>(typeIndex, name);
 	if (name == L"TpWorkerFactory")
-		return std::make_unique<WorkerFactoryObjectType>(typeIndex, name);
+		return std::make_unique<WorkerFactoryObjectType>(procMgr, typeIndex, name);
 
 	return nullptr;
 }
