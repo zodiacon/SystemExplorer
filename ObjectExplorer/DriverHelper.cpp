@@ -123,17 +123,17 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DW
 }
 
 HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
-	if (!OpenDevice())
-		return nullptr;
+	if (OpenDevice()) {
+		OpenProcessData data;
+		data.AccessMask = access;
+		data.ProcessId = pid;
+		HANDLE hProcess;
+		DWORD bytes;
 
-	OpenProcessData data;
-	data.AccessMask = access;
-	data.ProcessId = pid;
-	HANDLE hProcess;
-	DWORD bytes;
-
-	return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
-		&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
+		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
+			&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
+	}
+	return ::OpenProcess(access, FALSE, pid);
 }
 
 PVOID DriverHelper::GetObjectAddress(HANDLE hObject) {

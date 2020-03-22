@@ -359,7 +359,8 @@ bool Process::Impl::IsWow64Process() const {
 
 bool Process::Impl::IsManaged() const {
 	wil::unique_handle hProcess;
-	if (!::DuplicateHandle(::GetCurrentProcess(), _handle, ::GetCurrentProcess(), hProcess.addressof(), PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, 0))
+	if (!::DuplicateHandle(::GetCurrentProcess(), _handle, ::GetCurrentProcess(), hProcess.addressof(), 
+		PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, 0))
 		return false;
 
 	WCHAR filename[MAX_PATH], sysPath[MAX_PATH];

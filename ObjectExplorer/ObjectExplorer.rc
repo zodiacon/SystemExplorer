@@ -392,6 +392,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,96,242,50,14,WS_DISABLED
     PUSHBUTTON      "Cancel",IDCANCEL,162,242,50,14
     CONTROL         "",IDC_PROCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,295,219
+    PUSHBUTTON      "",IDC_REFRESH,282,234,26,24,BS_ICON
 END
 
 IDD_HANDLES DIALOGEX 0, 0, 493, 278
@@ -566,17 +567,18 @@ BEGIN
     0
 END
 
+IDD_PROCSELECT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // BIN
 //
 
-#ifdef _DEBUG
-IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
-#else
 IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
-#endif
 
 
 /////////////////////////////////////////////////////////////////////////////

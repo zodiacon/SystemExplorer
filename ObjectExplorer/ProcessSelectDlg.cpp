@@ -11,6 +11,9 @@ int CProcessSelectDlg::GetSelectedProcess(CString& name) const {
 }
 
 void CProcessSelectDlg::DoSort(const SortInfo* si) {
+	if (!si)
+		return;
+
 	std::sort(m_Items.begin(), m_Items.end(), [si](const auto& p1, const auto& p2) {
 		return CompareItems(p1, p2, si->SortColumn, si->SortAscending);
 		});
@@ -29,6 +32,8 @@ LRESULT CProcessSelectDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_Images.Create(16, 16, ILC_COLOR32, 32, 16);
 	m_Images.AddIcon(AtlLoadSysIcon(IDI_APPLICATION));
 	m_List.SetImageList(m_Images, LVSIL_SMALL);
+
+	((CButton)GetDlgItem(IDC_REFRESH)).SetIcon(AtlLoadIconImage(IDI_REFRESH, 0, 24, 24));
 
 	InitProcessList();
 
@@ -86,9 +91,16 @@ LRESULT CProcessSelectDlg::OnDblClickItem(int, LPNMHDR, BOOL&) {
 	return 0;
 }
 
+LRESULT CProcessSelectDlg::OnRefresh(WORD, WORD wID, HWND, BOOL&) {
+	InitProcessList();
+
+	return 0;
+}
+
 void CProcessSelectDlg::InitProcessList() {
 	EnumProcesses();
-	m_List.SetItemCount(static_cast<int>(m_Items.size()));
+	m_List.SetItemCountEx(static_cast<int>(m_Items.size()), LVSICF_NOSCROLL);
+	DoSort(GetSortInfo());
 }
 
 void CProcessSelectDlg::EnumProcesses() {

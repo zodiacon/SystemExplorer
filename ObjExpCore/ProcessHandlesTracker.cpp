@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ProcessHandlesTracker.h"
 #include <unordered_set>
+#include <assert.h>
 
 using namespace WinSys;
 
@@ -27,13 +28,18 @@ struct ProcessHandlesTracker::Impl {
 		return _closedHandles;
 	}
 
+	bool IsValid() const {
+		return _hProcess.is_valid();
+	}
+
 private:
 	wil::unique_handle _hProcess;
 	std::vector<HandleEntryInfo> _closedHandles, _newHandles;
 	std::unordered_set<HandleEntryInfo> _handles;
 };
 
-ProcessHandlesTracker::Impl::Impl(uint32_t pid) : Impl::Impl(::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, pid)) {
+ProcessHandlesTracker::Impl::Impl(uint32_t pid) : 
+	Impl::Impl(::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, pid)) {
 }
 
 ProcessHandlesTracker::Impl::Impl(HANDLE hProcess) : _hProcess(hProcess) {
@@ -47,7 +53,10 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 	if (!_hProcess)
 		return 0;
 
-	if (::WaitForSingleObject(_hProcess.get(), 0) == WAIT_OBJECT_0) {
+	auto rc = ::WaitForSingleObject(_hProcess.get(), 0);
+	assert(rc != WAIT_FAILED);
+
+	if (rc == WAIT_OBJECT_0) {
 		_closedHandles.clear();
 		_closedHandles.insert(_closedHandles.begin(), _handles.begin(), _handles.end());
 		_newHandles.clear();
@@ -115,6 +124,10 @@ ProcessHandlesTracker::ProcessHandlesTracker(HANDLE hProcess) : _impl(new Impl(h
 }
 
 WinSys::ProcessHandlesTracker::~ProcessHandlesTracker() = default;
+
+bool WinSys::ProcessHandlesTracker::IsValid() const {
+	return _impl->IsValid();
+}
 
 uint32_t ProcessHandlesTracker::EnumHandles(bool clearHistory) {
 	return _impl->EnumHandles(clearHistory);

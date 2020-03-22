@@ -13,9 +13,14 @@ using namespace WinSys;
 
 CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) :
 	m_pFrame(pFrame), m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
-	m_hProcess.reset(::OpenProcess(SYNCHRONIZE, FALSE, pid));
+	m_hProcess.reset(DriverHelper::OpenProcess(pid, SYNCHRONIZE));
 	if (pid) {
-		m_HandleTracker.reset(new ProcessHandlesTracker(pid));
+		auto hProcess = DriverHelper::OpenProcess(pid, SYNCHRONIZE | PROCESS_QUERY_INFORMATION);
+		m_HandleTracker.reset(new ProcessHandlesTracker(hProcess));
+		if (!m_HandleTracker->IsValid()) {
+			AtlMessageBox(nullptr, (L"Failed to open handle to process " + std::to_wstring(pid)).c_str(), IDS_TITLE, MB_ICONERROR);
+			m_HandleTracker.reset();
+		}
 	}
 }
 
