@@ -224,6 +224,7 @@
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
+    <ClCompile Include="DialogHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
     <ClCompile Include="FileObjectType.cpp" />
@@ -240,6 +241,7 @@
     <ClCompile Include="ObjectsSummaryView.cpp" />
     <ClCompile Include="ObjectType.cpp" />
     <ClCompile Include="ObjectTypeFactory.cpp" />
+    <ClCompile Include="PipesMailslotsDlg.cpp" />
     <ClCompile Include="ProcessHelper.cpp" />
     <ClCompile Include="ProcessObjectType.cpp" />
     <ClCompile Include="ProcessSelectDlg.cpp" />
@@ -269,6 +271,7 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="DeviceManagerView.h" />
+    <ClInclude Include="DialogHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
     <ClInclude Include="FileObjectType.h" />
@@ -286,6 +289,7 @@
     <ClInclude Include="ObjectsSummaryView.h" />
     <ClInclude Include="ObjectType.h" />
     <ClInclude Include="ObjectTypeFactory.h" />
+    <ClInclude Include="PipesMailslotsDlg.h" />
     <ClInclude Include="ProcessHelper.h" />
     <ClInclude Include="ProcessObjectType.h" />
     <ClInclude Include="ProcessSelectDlg.h" />
@@ -341,14 +345,17 @@
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />
+    <Image Include="res\mailbox.ico" />
     <Image Include="res\media_step_forward.ico" />
     <Image Include="res\mutex.ico" />
     <Image Include="res\ObjectExplorer.ico" />
     <Image Include="res\objects.ico" />
+    <Image Include="res\ok.ico" />
     <Image Include="res\package.ico" />
     <Image Include="res\paint_brush2.ico" />
     <Image Include="res\pause.ico" />
     <Image Include="res\pin_green.ico" />
+    <Image Include="res\pipe.ico" />
     <Image Include="res\play.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />

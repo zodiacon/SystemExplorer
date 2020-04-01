@@ -150,6 +150,12 @@
     <ClCompile Include="ObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DialogHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="PipesMailslotsDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -274,6 +280,12 @@
     </ClInclude>
     <ClInclude Include="ObjectManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="PipesMailslotsDlg.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -452,6 +464,15 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\media_step_forward.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\ok.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\mailbox.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\pipe.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

@@ -75,6 +75,10 @@
 #define IDI_RESUME                      270
 #define IDD_SERVICE_INSTALLER           271
 #define IDR_BIN1                        273
+#define IDI_OK                          275
+#define IDD_PIPES_MAILSLOTS             276
+#define IDI_MAILBOX                     278
+#define IDI_PIPE                        279
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -84,8 +88,10 @@
 #define IDC_MESSAGE                     1006
 #define IDC_EDIT2                       1008
 #define IDC_DISPLAYNAME                 1008
-#define IDC_BUTTON1                     1009
 #define IDC_REFRESH                     1009
+#define IDC_SERVICETYPE                 1010
+#define IDC_STARTTYPE                   1011
+#define IDC_LIST                        1011
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -158,14 +164,15 @@
 #define ID_FILE_RUNASADMINISTRATOR      32849
 #define ID_SYSTEM_COM                   32850
 #define ID_SYSTEM_INSTALLSERVICE        32851
+#define ID_OBJECTS_MAILSLOTS            32852
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        275
-#define _APS_NEXT_COMMAND_VALUE         32852
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_RESOURCE_VALUE        280
+#define _APS_NEXT_COMMAND_VALUE         32853
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -90,7 +90,7 @@ struct ObjectAndHandleStats {
 
 class ObjectManager {
 public:
-	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0);
+	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0, PCWSTR prefix = nullptr);
 	bool EnumHandles(PCWSTR type = nullptr, DWORD pid = 0);
 	int EnumTypes();
 

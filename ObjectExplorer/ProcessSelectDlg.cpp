@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ProcessSelectDlg.h"
 #include <string>
+#include "DialogHelper.h"
 #include <TlHelp32.h>
 #include <algorithm>
 #include "SortHelper.h"
@@ -20,6 +21,8 @@ void CProcessSelectDlg::DoSort(const SortInfo* si) {
 }
 
 LRESULT CProcessSelectDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
+	DialogHelper::AdjustOKCancelButtons(this);
+
 	CenterWindow(GetParent());
 	m_List.Attach(GetDlgItem(IDC_PROCLIST));
 

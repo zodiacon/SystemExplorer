@@ -83,7 +83,7 @@ int ObjectManager::EnumTypes() {
 	return static_cast<int>(_types.size());
 }
 
-bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
+bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix) {
 	EnumTypes();
 
 	ULONG len = 1 << 25;
@@ -109,6 +109,8 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 	_objects.reserve(count / 2);
 	_objectsByAddress.reserve(count / 2);
 
+	CString sprefix(prefix ? prefix : L"");
+
 	auto& handles = p->Handles;
 	for (decltype(count) i = 0; i < count; i++) {
 		auto& handle = handles[i];
@@ -117,6 +119,12 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 
 		if (pid && handle.UniqueProcessId != pid)
 			continue;
+
+		auto name = GetObjectName((HANDLE)handle.HandleValue, (ULONG)handle.UniqueProcessId, handle.ObjectTypeIndex);
+		if (prefix) {
+			if (name.IsEmpty() || name.Left(sprefix.GetLength()).CompareNoCase(sprefix) != 0)
+				continue;
+		}
 
 		auto hi = std::make_shared<HandleInfo>();
 		hi->HandleValue = (ULONG)handle.HandleValue;
@@ -132,7 +140,8 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid) {
 			obj->Handles.push_back(hi);
 			obj->TypeIndex = handle.ObjectTypeIndex;
 			obj->TypeName = GetType(obj->TypeIndex)->TypeName;
-			GetObjectInfo(obj.get(), (HANDLE)handle.HandleValue, (ULONG)handle.UniqueProcessId, handle.ObjectTypeIndex);
+			if(!name.IsEmpty())
+				obj->Name = name;
 
 			_objects.push_back(obj);
 			_objectsByAddress.insert({ handle.Object, obj });

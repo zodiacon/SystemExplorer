@@ -26,8 +26,8 @@ public:
 	BEGIN_MSG_MAP(CObjectHandlesDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-		CHAIN_MSG_MAP(CVirtualListView<CObjectHandlesDlg>)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
+		CHAIN_MSG_MAP(CVirtualListView<CObjectHandlesDlg>)
 		CHAIN_MSG_MAP(CDialogResize<CObjectHandlesDlg>)
 	END_MSG_MAP()
 

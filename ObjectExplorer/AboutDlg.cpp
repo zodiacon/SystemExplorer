@@ -4,10 +4,12 @@
 
 #include "stdafx.h"
 #include "resource.h"
-
 #include "aboutdlg.h"
+#include "DialogHelper.h"
 
 LRESULT CAboutDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+	DialogHelper::AdjustOKCancelButtons(this);
+
 	CenterWindow(GetParent());
 	return TRUE;
 }

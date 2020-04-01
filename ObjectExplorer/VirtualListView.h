@@ -5,6 +5,7 @@ struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		ALT_MSG_MAP(1)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
@@ -33,6 +34,18 @@ struct CVirtualListView {
 	}
 
 protected:
+	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
+		auto lv = (NMLVDISPINFO*)hdr;
+		auto& item = lv->item;
+		auto p = static_cast<T*>(this);
+		if (item.mask & LVIF_TEXT)
+			::StringCchCopy(item.pszText, item.cchTextMax, p->GetColumnText(item.iItem, item.iSubItem));
+		if (item.mask & LVIF_IMAGE)
+			item.iImage = p->GetRowImage(item.iItem);
+
+		return 0;
+	}
+
 	LRESULT OnFindItem(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto fi = (NMLVFINDITEM*)hdr;
 		auto text = fi->lvfi.psz;
@@ -120,6 +133,12 @@ protected:
 	}
 
 	void DoSort(const SortInfo*) {}
+	CString GetColumnText(int row, int column) {
+		return L"";
+	}
+	int GetRowImage(int row) {
+		return 0;
+	}
 
 private:
 	SortInfo* FindById(UINT_PTR id) const {

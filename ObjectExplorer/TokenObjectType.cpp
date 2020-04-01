@@ -5,7 +5,16 @@ TokenObjectType::TokenObjectType(int index, PCWSTR name) : ObjectType(index, nam
 }
 
 CString TokenObjectType::GetDetails(HANDLE hToken) {
-	return GetUserName(hToken) + L", " + GetLogonSessionId(hToken) + L", " + GetIntegirtyLevel(hToken);
+	TOKEN_STATISTICS stats;
+	ULONG len;
+	CString extra;
+	if (::GetTokenInformation(hToken, TokenStatistics, &stats, sizeof(stats), &len)) {
+		extra.Format(L", Logon sessoin: 0x%X, Type: %s, Groups: %u, Privileges: %u",
+			stats.AuthenticationId, stats.TokenType == TokenPrimary ? L"Primary" : L"Impersonation",
+			stats.GroupCount, stats.PrivilegeCount);
+	}
+
+	return GetUserName(hToken) + GetLogonSessionId(hToken, L", ") + GetIntegirtyLevel(hToken, L", ") + extra;
 }
 
 CString TokenObjectType::GetUserName(HANDLE hToken) {
@@ -24,16 +33,16 @@ CString TokenObjectType::GetUserName(HANDLE hToken) {
 	return details;
 }
 
-CString TokenObjectType::GetLogonSessionId(HANDLE hToken) {
+CString TokenObjectType::GetLogonSessionId(HANDLE hToken, const CString& prefix) {
 	DWORD id = 0, len;
 	CString details;
 	if (::GetTokenInformation(hToken, TokenSessionId, &id, sizeof(id), &len)) {
-		details.Format(L"Session: %d", id);
+		details.Format(L"%sSession: %d", (PCWSTR)prefix, id);
 	}
 	return details;
 }
 
-CString TokenObjectType::GetIntegirtyLevel(HANDLE hToken) {
+CString TokenObjectType::GetIntegirtyLevel(HANDLE hToken, const CString& prefix) {
 	BYTE buffer[TOKEN_INTEGRITY_LEVEL_MAX_SIZE];
 	DWORD len;
 	CString details;
@@ -49,7 +58,7 @@ CString TokenObjectType::GetIntegirtyLevel(HANDLE hToken) {
 			case SECURITY_MANDATORY_UNTRUSTED_RID: details = L"Untrusted"; break;
 			default: details = L"Unknown";
 		}
-		return L"Integrity: " + details;
+		return prefix + L"Integrity: " + details;
 	}
 	return L"";
 }

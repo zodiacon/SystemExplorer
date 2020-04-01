@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ProgressDlg.h"
+#include "DialogHelper.h"
 
 void CProgressDlg::ShowCancelButton(bool show) {
 	m_ShowCancel = show;
@@ -34,6 +35,8 @@ void CProgressDlg::Close() {
 }
 
 LRESULT CProgressDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
+	DialogHelper::AdjustOKCancelButtons(this);
+
 	m_Progress.Attach(GetDlgItem(IDC_PROGRESS));
 
 	if (!m_ShowCancel)

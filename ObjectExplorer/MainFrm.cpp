@@ -17,6 +17,7 @@
 #include "WindowsView.h"
 #include "ServicesView.h"
 #include "DeviceManagerView.h"
+#include "PipesMailslotsDlg.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (m_view.PreTranslateMessage(pMsg))
@@ -458,6 +459,20 @@ LRESULT CMainFrame::OnBandRightClick(int, LPNMHDR, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnShowAllPipes(WORD, WORD, HWND, BOOL&) {
+	CPipesMailslotsDlg dlg(CPipesMailslotsDlg::Type::Pipes);
+	dlg.DoModal();
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnShowAllMailslots(WORD, WORD, HWND, BOOL&) {
+	CPipesMailslotsDlg dlg(CPipesMailslotsDlg::Type::Mailslots);
+	dlg.DoModal();
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -510,6 +525,8 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
 		{ ID_SERVICE_CONTINUE, IDI_RESUME },
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
+		{ ID_HANDLES_PIPES, IDI_PIPE },
+		{ ID_OBJECTS_MAILSLOTS, IDI_MAILBOX },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);

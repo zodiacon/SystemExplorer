@@ -27,7 +27,8 @@ CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) :
 void CHandlesView::DoSort(const SortInfo* si) {
 	if (si == nullptr)
 		return;
-	CWaitCursor wait;
+	CWaitCursor wait(m_Pid == 0 && m_HandleType.IsEmpty());
+
 	std::sort(std::execution::par_unseq, m_Handles.begin(), m_Handles.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});

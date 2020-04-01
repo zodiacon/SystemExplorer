@@ -11,7 +11,7 @@ public:
 
 private:
 	static CString GetUserName(HANDLE hToken);
-	static CString GetLogonSessionId(HANDLE hToken);
-	static CString GetIntegirtyLevel(HANDLE hToken);
+	static CString GetLogonSessionId(HANDLE hToken, const CString& prefix);
+	static CString GetIntegirtyLevel(HANDLE hToken, const CString& prefix);
 };
 

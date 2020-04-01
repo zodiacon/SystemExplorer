@@ -2,6 +2,7 @@
 #include "ObjectHandlesDlg.h"
 #include "HandlesView.h"
 #include "SortHelper.h"
+#include "DialogHelper.h"
 #include <algorithm>
 
 CObjectHandlesDlg::CObjectHandlesDlg(ObjectInfo* info, WinSys::ProcessManager& pm) : m_pObject(info), m_ProcMgr(pm) {
@@ -28,6 +29,8 @@ bool CObjectHandlesDlg::CompareItems(const HandleInfo* h1, const HandleInfo* h2,
 }
 
 LRESULT CObjectHandlesDlg::OnInitDialog(UINT, WPARAM, LPARAM lParam, BOOL&) {
+	DialogHelper::AdjustOKCancelButtons(this);
+
 	m_List.Attach(GetDlgItem(IDC_HANDLES));
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 

@@ -105,6 +105,9 @@ BEGIN
         MENUITEM "Object &Types",               ID_OBJECTS_ALLOBJECTTYPES
         MENUITEM SEPARATOR
         MENUITEM "Object &Manager Namespace",   ID_OBJECTS_OBJECTMANAGER
+        MENUITEM SEPARATOR
+        MENUITEM "&Pipes...",                   ID_HANDLES_PIPES
+        MENUITEM "Mai&lslots...",               ID_OBJECTS_MAILSLOTS
     END
     POPUP "&Handles"
     BEGIN
@@ -133,8 +136,6 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "Handles in &Process...",      ID_HANDLES_SHOWHANDLEINPROCESS
-        MENUITEM SEPARATOR
-        MENUITEM "&Pipes...",                   ID_HANDLES_PIPES
         MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE, INACTIVE
     END
@@ -366,6 +367,12 @@ IDI_STOP                ICON                    "res\\stop.ico"
 
 IDI_RESUME              ICON                    "res\\media_step_forward.ico"
 
+IDI_OK                  ICON                    "res\\ok.ico"
+
+IDI_MAILBOX             ICON                    "res\\mailbox.ico"
+
+IDI_PIPE                ICON                    "res\\pipe.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -421,12 +428,24 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Install Service / Driver"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,126,150,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,252,155,50,14
-    LTEXT           "Name:",IDC_STATIC,6,12,22,8
-    EDITTEXT        IDC_NAME,55,10,78,14,ES_AUTOHSCROLL
-    LTEXT           "Display Name:",IDC_STATIC,6,30,46,8
-    EDITTEXT        IDC_DISPLAYNAME,55,28,120,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,96,155,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,162,155,50,14
+    RTEXT           "Name:",IDC_STATIC,28,12,22,8
+    EDITTEXT        IDC_NAME,55,10,89,14,ES_AUTOHSCROLL
+    RTEXT           "Display Name:",IDC_STATIC,4,30,46,8
+    EDITTEXT        IDC_DISPLAYNAME,55,28,167,14,ES_AUTOHSCROLL
+    RTEXT           "Service Type:",IDC_STATIC,5,49,45,8
+    COMBOBOX        IDC_SERVICETYPE,55,48,102,54,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Start Type:",IDC_STATIC,12,67,38,8
+    COMBOBOX        IDC_STARTTYPE,55,66,102,54,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PIPES_MAILSLOTS DIALOGEX 0, 0, 473, 343
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Dialog"
+FONT 8, "Segoe UI", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,6,6,462,330
 END
 
 
@@ -476,6 +495,14 @@ BEGIN
         RIGHTMARGIN, 302
         TOPMARGIN, 7
         BOTTOMMARGIN, 169
+    END
+
+    IDD_PIPES_MAILSLOTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 466
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 336
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -537,7 +564,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright 2019"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
             VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 6, 5, 2"
+            VALUE "ProductVersion", "0, 6, 7, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -572,6 +599,11 @@ BEGIN
     0
 END
 
+IDD_PIPES_MAILSLOTS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -588,7 +620,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.65 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.67 (C)2019-2020 Pavel Yosifovich"
     IDS_TITLE               "Object Explorer"
 END
 
