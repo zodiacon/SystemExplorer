@@ -17,13 +17,22 @@ CString CPipesMailslotsDlg::GetColumnText(int row, int col) {
 		case 2: text.Format(L"%u", item->HandleCount); break;
 		case 3: text.Format(L"%u (0x%u)", h->HandleValue, h->HandleValue); break;
 		case 4: text.Format(L"%u (0x%u)", h->ProcessId, h->ProcessId); break;
-		case 5: return m_ProcMgr.GetProcessNameById(h->ProcessId).c_str();
+		case 5: return GetProcessName(item.get()).c_str();
 	}
 	return text;
 }
 
 int CPipesMailslotsDlg::GetRowImage(int row) {
 	return 0;
+}
+
+void CPipesMailslotsDlg::DoSort(const SortInfo* si) {
+	if (si == nullptr)
+		return;
+
+	std::sort(m_Objects.begin(), m_Objects.end(), [=](const auto& i1, const auto& i2) {
+		return CompareItems(i1.get(), i2.get(), si->SortColumn, si->SortAscending);
+		});
 }
 
 LRESULT CPipesMailslotsDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
@@ -78,5 +87,28 @@ void CPipesMailslotsDlg::EnumObjects() {
 	ObjectManager om;
 	om.EnumHandlesAndObjects(L"File", 0, m_Prefix);
 	m_Objects = om.GetObjects();
+	m_ProcessNames.clear();
+	m_ProcessNames.reserve(m_Objects.size());
 	m_List.SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+}
+
+bool CPipesMailslotsDlg::CompareItems(const ObjectInfo* o1, const ObjectInfo* o2, int col, bool asc) const {
+	switch (col) {
+		case 0: return SortHelper::SortStrings(o1->Name, o2->Name, asc);
+		case 1: return SortHelper::SortNumbers(o1->Object, o2->Object, asc);
+		case 2: return SortHelper::SortNumbers(o1->HandleCount, o2->HandleCount, asc);
+		case 3: return SortHelper::SortNumbers(o1->Handles[0]->HandleValue, o2->Handles[0]->HandleValue, asc);
+		case 4: return SortHelper::SortNumbers(o1->Handles[0]->ProcessId, o2->Handles[0]->ProcessId, asc);
+		case 5: return SortHelper::SortStrings(GetProcessName(o1), GetProcessName(o2), asc);
+	}
+	return false;
+}
+
+std::wstring CPipesMailslotsDlg::GetProcessName(const ObjectInfo* obj) const {
+	if (const auto it = m_ProcessNames.find(obj); it != m_ProcessNames.end())
+		return it->second;
+
+	auto name = m_ProcMgr.GetProcessNameById(obj->Handles[0]->ProcessId);
+	m_ProcessNames.insert({ obj, name });
+	return name;
 }

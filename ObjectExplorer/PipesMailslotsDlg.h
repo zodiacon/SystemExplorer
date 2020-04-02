@@ -16,6 +16,7 @@ public:
 
 	CString GetColumnText(int row, int col);
 	int GetRowImage(int row);
+	void DoSort(const SortInfo* si);
 
 	enum { IDD = IDD_PIPES_MAILSLOTS };
 
@@ -42,9 +43,12 @@ private:
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void EnumObjects();
+	bool CompareItems(const ObjectInfo* o1, const ObjectInfo* o2, int col, bool asc) const;
+	std::wstring GetProcessName(const ObjectInfo*) const;
 
 private:
 	std::vector<std::shared_ptr<ObjectInfo>> m_Objects;
+	mutable std::unordered_map<const ObjectInfo*, std::wstring> m_ProcessNames;
 	WinSys::ProcessManager m_ProcMgr;
 	CListViewCtrl m_List;
 	Type m_Type;
