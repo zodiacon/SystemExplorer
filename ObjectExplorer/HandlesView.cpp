@@ -82,7 +82,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -289,7 +289,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 			}
 		}
 
-		auto si = GetSortInfo();
+		auto si = GetSortInfo(*this);
 		if (si)
 			DoSort(si);
 		SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
@@ -344,7 +344,7 @@ void CHandlesView::Refresh() {
 	}
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
-	DoSort(GetSortInfo());
+	DoSort(GetSortInfo(*this));
 	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 }
 

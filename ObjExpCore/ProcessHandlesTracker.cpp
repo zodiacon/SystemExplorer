@@ -123,7 +123,7 @@ ProcessHandlesTracker::ProcessHandlesTracker(uint32_t pid) : _impl(new Impl(pid)
 ProcessHandlesTracker::ProcessHandlesTracker(HANDLE hProcess) : _impl(new Impl(hProcess)) {
 }
 
-WinSys::ProcessHandlesTracker::~ProcessHandlesTracker() = default;
+ProcessHandlesTracker::~ProcessHandlesTracker() = default;
 
 bool WinSys::ProcessHandlesTracker::IsValid() const {
 	return _impl->IsValid();

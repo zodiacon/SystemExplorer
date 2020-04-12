@@ -162,7 +162,7 @@ void CObjectManagerView::UpdateList(bool newNode) {
 		ClearSort();
 	}
 	else {
-		auto si = GetSortInfo(0);
+		auto si = GetSortInfo(m_List);
 		if (si) {
 			if (si->SortColumn >= 0)
 				DoSort(si);

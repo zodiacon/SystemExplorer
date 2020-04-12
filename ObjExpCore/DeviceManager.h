@@ -109,7 +109,7 @@ namespace WinSys {
 
 	template<typename T>
 	inline T DeviceManager::GetDeviceRegistryProperty(const DeviceInfo& di, DeviceRegistryPropertyType type) const {
-		static_assert(std::is_pod<T>());
+		static_assert(std::is_trivially_copyable<T>());
 		T result{};
 
 		::SetupDiGetDeviceRegistryProperty(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, static_cast<DWORD>(type), nullptr,
@@ -119,7 +119,7 @@ namespace WinSys {
 
 	template<typename T>
 	inline T DeviceManager::GetDeviceClassRegistryProperty(const GUID* guid, DeviceClassRegistryPropertyType type) {
-		static_assert(std::is_pod<T>());
+		static_assert(std::is_trivially_copyable<T>());
 		T result{};
 		DWORD regType;
 		if (::SetupDiGetClassRegistryProperty(guid, static_cast<DWORD>(type), &regType,

@@ -156,6 +156,15 @@
     <ClCompile Include="PipesMailslotsDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="DetachHostWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColumnManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryMapView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -286,6 +295,15 @@
     </ClInclude>
     <ClInclude Include="PipesMailslotsDlg.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="DetachHostWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColumnManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryMapView.h">
+      <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -474,6 +492,18 @@
     </Image>
     <Image Include="res\pipe.ico">
       <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\window_new.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\commit.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\free.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\reserved.ico">
+      <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

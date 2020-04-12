@@ -5,7 +5,7 @@
 CPipesMailslotsDlg::CPipesMailslotsDlg(Type type) : m_Type(type) {
 }
 
-CString CPipesMailslotsDlg::GetColumnText(int row, int col) {
+CString CPipesMailslotsDlg::GetColumnText(HWND, int row, int col) {
 	auto& item = m_Objects[row];
 	CString text;
 
@@ -37,7 +37,7 @@ void CPipesMailslotsDlg::DoSort(const SortInfo* si) {
 
 LRESULT CPipesMailslotsDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.Attach(GetDlgItem(IDC_LIST));
-	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
+	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 
 	UINT icon = 0;
 	switch (m_Type) {

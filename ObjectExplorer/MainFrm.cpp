@@ -18,6 +18,14 @@
 #include "ServicesView.h"
 #include "DeviceManagerView.h"
 #include "PipesMailslotsDlg.h"
+#include "DetachHostWindow.h"
+#include "MemoryMapView.h"
+
+const UINT WINDOW_MENU_POSITION = 9;
+
+CMainFrame::CMainFrame() {
+	s_Frames++;
+}
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	if (m_view.PreTranslateMessage(pMsg))
@@ -36,6 +44,44 @@ BOOL CMainFrame::OnIdle() {
 	return FALSE;
 }
 
+void CMainFrame::OnFinalMessage(HWND) {
+	delete this;
+}
+
+LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
+	CProcessSelectDlg dlg;
+	if (dlg.DoModal() == IDOK) {
+		CString name;
+		auto pid = dlg.GetSelectedProcess(name);
+		auto view = new CMemoryMapView(pid);
+		if (!view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)) {
+			AtlMessageBox(*this, L"Process not accessible", IDS_TITLE, MB_ICONERROR);
+			delete view;
+		}
+		else {
+			name.Format(L"Memory (%s: %u)", name, pid);
+			m_view.AddPage(*view, name, 0, view);
+		}
+	}
+	return 0;
+}
+
+LRESULT CMainFrame::OnProcessThreads(WORD, WORD, HWND, BOOL&) {
+	return ShowNotImplemented();
+}
+
+LRESULT CMainFrame::OnProcessModules(WORD, WORD, HWND, BOOL&) {
+	return ShowNotImplemented();
+}
+
+LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
+	auto frame = new CMainFrame;
+	frame->CreateEx();
+	frame->ShowWindow(SW_SHOW);
+
+	return 0;
+}
+
 LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	auto page = static_cast<int>(hdr->idFrom);
 	HWND hWnd = nullptr;
@@ -47,7 +93,7 @@ LRESULT CMainFrame::OnTabActivated(int, LPNMHDR hdr, BOOL&) {
 	}
 	if (m_CurrentPage >= 0 && m_CurrentPage < m_view.GetPageCount())
 		::SendMessage(m_view.GetPageHWND(m_CurrentPage), OM_ACTIVATE_PAGE, 0, 0);
-	if(hWnd)
+	if (hWnd)
 		::SendMessage(hWnd, OM_ACTIVATE_PAGE, 1, 0);
 	m_CurrentPage = page;
 
@@ -107,7 +153,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	int parts[] = { 100, 200, 300, 430, 560, 700, 830, 960, 1100 };
 	m_StatusBar.SetParts(_countof(parts), parts);
 
-	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr, 
+	m_view.m_bDestroyImageList = false;
+	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr,
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	UIAddToolBar(hWndToolBar);
@@ -122,7 +169,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	// register object for message filtering and idle updates
 	auto pLoop = _Module.GetMessageLoop();
-	ATLASSERT(pLoop != nullptr);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
@@ -159,59 +205,68 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		{ IDI_FACTORY,		L"TpWorkerFactory",	{ ID_SHOWOBJECTSOFTYPE_WORKERFACTORY, ID_SHOWHANDLESOFTYPE_WORKERFACTORY	} },
 	};
 
-	m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
+	if (!m_TabImages) {
+		m_TabImages.Create(16, 16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 16, 8);
+		int index = 0;
+		for (auto& icon : icons) {
+			auto hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(),
+				MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
+			m_TabImages.AddIcon(hIcon);
+			m_IconMap.insert({ icon.name, index++ });
+		}
+
+		m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_OBJECTS, 64, 16, 16));
+		m_TypesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_TYPES, 64, 16, 16));
+		m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_HANDLES, 64, 16, 16));
+		m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_PACKAGE, 64, 16, 16));
+		m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_WINDOWS, 64, 16, 16));
+		m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_SERVICES, 64, 16, 16));
+		m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
+	}
+
 	int index = 0;
 	for (auto& icon : icons) {
-		auto hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(),
-			MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
-		m_TabImages.AddIcon(hIcon);
-		m_IconMap.insert({ icon.name, index++ });
-		for(auto& id : icon.id)
-			m_CmdBar.AddIcon(hIcon, id);
+		for (auto& id : icon.id)
+			m_CmdBar.AddIcon(m_TabImages.GetIcon(index), id);
+		index++;
 	}
-
-	m_ObjectsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_OBJECTS, 64, 16, 16));
-	m_TypesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_TYPES, 64, 16, 16));
-	m_HandlesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_HANDLES, 64, 16, 16));
-	m_ObjectManagerIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_PACKAGE, 64, 16, 16));
-	m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_WINDOWS, 64, 16, 16));
-	m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_SERVICES, 64, 16, 16));
-	m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
 	m_view.SetImageList(m_TabImages);
 
-	if (!DriverHelper::IsDriverLoaded()) {
-		if (!SecurityHelper::IsRunningElevated()) {
-			if (AtlMessageBox(nullptr, L"Kernel Driver not loaded. Some functionality will not be available. Install?", 
-				IDS_TITLE, MB_YESNO | MB_ICONQUESTION) == IDYES) {
-				if(!SecurityHelper::RunElevated(L"install", false)) {
-					AtlMessageBox(*this, L"Error running driver installer", IDS_TITLE, MB_ICONERROR);
+	if (s_Frames == 1) {
+		if (!DriverHelper::IsDriverLoaded()) {
+			if (!SecurityHelper::IsRunningElevated()) {
+				if (AtlMessageBox(nullptr, L"Kernel Driver not loaded. Some functionality will not be available. Install?",
+					IDS_TITLE, MB_YESNO | MB_ICONQUESTION) == IDYES) {
+					if (!SecurityHelper::RunElevated(L"install", false)) {
+						AtlMessageBox(*this, L"Error running driver installer", IDS_TITLE, MB_ICONERROR);
+					}
+				}
+			}
+			else {
+				if (!DriverHelper::InstallDriver() || !DriverHelper::LoadDriver()) {
+					MessageBox(L"Failed to install driver. Some functionality will not be available.", L"Object Explorer", MB_ICONERROR);
 				}
 			}
 		}
-		else {
-			if (!DriverHelper::InstallDriver() || !DriverHelper::LoadDriver()) {
-				MessageBox(L"Failed to install driver. Some functionality will not be available.", L"Object Explorer", MB_ICONERROR);
-			}
-		}
-	}
-	if (DriverHelper::IsDriverLoaded()) {
-		if (DriverHelper::GetVersion() < DriverHelper::GetCurrentVersion()) {
-			auto response = AtlMessageBox(nullptr, L"A newer driver is available with new functionality. Update?",
-				IDS_TITLE, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
-			if (response == IDYES) {
-				if (SecurityHelper::IsRunningElevated()) {
-					if (!DriverHelper::UpdateDriver())
-						AtlMessageBox(nullptr, L"Failed to update driver", IDS_TITLE, MB_ICONERROR);
-				}
-				else {
-					DriverHelper::CloseDevice();
-					SecurityHelper::RunElevated(L"update", false);
+		if (DriverHelper::IsDriverLoaded()) {
+			if (DriverHelper::GetVersion() < DriverHelper::GetCurrentVersion()) {
+				auto response = AtlMessageBox(nullptr, L"A newer driver is available with new functionality. Update?",
+					IDS_TITLE, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+				if (response == IDYES) {
+					if (SecurityHelper::IsRunningElevated()) {
+						if (!DriverHelper::UpdateDriver())
+							AtlMessageBox(nullptr, L"Failed to update driver", IDS_TITLE, MB_ICONERROR);
+					}
+					else {
+						DriverHelper::CloseDevice();
+						SecurityHelper::RunElevated(L"update", false);
+					}
 				}
 			}
 		}
-	}
 
-	PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
+		PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
+	}
 	SetTimer(1, 1000, nullptr);
 
 	return 0;
@@ -250,11 +305,10 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 
 LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) {
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
-	ATLASSERT(pLoop != nullptr);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
 
-	bHandled = FALSE;
+	bHandled = --s_Frames > 0;
 	return 1;
 }
 
@@ -362,7 +416,7 @@ LRESULT CMainFrame::OnWindowActivate(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 	return 0;
 }
 
-LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL &) {
+LRESULT CMainFrame::OnShowObjectOfType(WORD, WORD id, HWND, BOOL&) {
 	CString type;
 	m_CmdBar.GetMenu().GetMenuStringW(id, type, 0);
 	type.Replace(L"&", L"");
@@ -382,7 +436,7 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 	return 0;
 }
 
-LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL &) {
+LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL&) {
 	auto tab = new CObjectSummaryView(this, *this);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
@@ -473,6 +527,16 @@ LRESULT CMainFrame::OnShowAllMailslots(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnDetachTab(WORD, WORD, HWND, BOOL&) {
+	auto index = m_view.GetActivePage();
+	if (index < 0)
+		return 0;
+
+	DetachTab(index);
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -485,7 +549,7 @@ BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT* pt, UINT flags) {
 	if (pt)
 		pos = *pt;
 	else
-	::GetCursorPos(&pos);
+		::GetCursorPos(&pos);
 	return m_CmdBar.TrackPopupMenu(hMenu, flags, pos.x, pos.y);
 }
 
@@ -527,6 +591,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ ID_HANDLES_PIPES, IDI_PIPE },
 		{ ID_OBJECTS_MAILSLOTS, IDI_MAILBOX },
+		{ ID_TAB_NEWWINDOW, IDI_WINDOW_NEW },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
@@ -579,6 +644,32 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 	AddToolBarDropDownMenu(tb, ID_OBJECTS_OFTYPE, IDR_CONTEXT, 5);
 }
 
+bool CMainFrame::DetachTab(int page) {
+	auto hWnd = m_view.GetPageHWND(page);
+	ATLASSERT(hWnd);
+	CString title(m_view.GetPageTitle(page));
+	HICON hIcon = m_TabImages.GetIcon(m_view.GetPageImage(page));
+
+	m_view.m_bDestroyPageOnRemove = false;
+	m_view.RemovePage(page);
+	m_view.m_bDestroyPageOnRemove = true;
+
+	auto frame = new CDetachHostWindow;
+	frame->CreateEx();
+	frame->SetClient(hWnd);
+	frame->SetWindowText(title);
+	frame->SetIcon(hIcon, FALSE);
+	frame->ShowWindow(SW_SHOW);
+	ATLASSERT(::IsWindow(hWnd));
+
+	return true;
+}
+
+LRESULT CMainFrame::ShowNotImplemented() {
+	AtlMessageBox(*this, L"Not implemented yet :)", IDS_TITLE, MB_ICONINFORMATION);
+	return 0;
+}
+
 void CMainFrame::ShowAllHandles(PCWSTR type) {
 	auto pView = new CHandlesView(this, type);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
@@ -606,7 +697,7 @@ int CMainFrame::AddBand(HWND hControl, PCWSTR title) {
 	info.clrBack = RGB(255, 255, 0);
 	rb.SetBandInfo(rb.GetBandCount() - 1, &info);
 	rb.LockBands(TRUE);
-	
+
 	SizeSimpleReBarBands();
 	UIAddToolBar(hControl);
 	return rb.GetBandCount() - 1;

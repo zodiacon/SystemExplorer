@@ -213,7 +213,7 @@ void CDeviceManagerView::UpdateList() {
 		}
 		m_List.SetItemCount(static_cast<int>(m_ClassItems.size()));
 	}
-	auto si = GetSortInfo();
+	auto si = GetSortInfo(m_List);
 	if (si)
 		DoSort(si);
 }

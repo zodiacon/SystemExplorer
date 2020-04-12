@@ -409,18 +409,18 @@ extern "C" {
 			_In_   POBJECT_ATTRIBUTES ObjectAttributes);
 
 		NTSTATUS NTAPI NtQueryDirectoryObject(
-			_In_ HANDLE hDirectory,
+			_In_  HANDLE hDirectory,
 			_Out_ POBJECT_DIRECTORY_INFORMATION DirectoryEntryBuffer,
-			_In_ ULONG DirectoryEntryBufferSize,
-			_In_ BOOLEAN  bOnlyFirstEntry,
-			_In_ BOOLEAN bFirstEntry,
-			_In_ PULONG  EntryIndex,
+			_In_  ULONG DirectoryEntryBufferSize,
+			_In_  BOOLEAN  bOnlyFirstEntry,
+			_In_  BOOLEAN bFirstEntry,
+			_In_  PULONG  EntryIndex,
 			_Out_ PULONG  BytesReturned);
 
 		NTSTATUS NTAPI NtOpenEvent(
-			_Out_  PHANDLE EventHandle,
-			_In_   ACCESS_MASK DesiredAccess,
-			_In_   POBJECT_ATTRIBUTES ObjectAttributes);
+			_Out_ PHANDLE EventHandle,
+			_In_  ACCESS_MASK DesiredAccess,
+			_In_  POBJECT_ATTRIBUTES ObjectAttributes);
 
 		NTSTATUS NTAPI NtQuerySecurityObject(
 			_In_ HANDLE hObject,
@@ -441,13 +441,20 @@ extern "C" {
 
 		NTSTATUS NTAPI NtOpenSection(
 			_Out_ PHANDLE phSection,
-			_In_ ACCESS_MASK DesiredAccess,
-			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+			_In_  ACCESS_MASK DesiredAccess,
+			_In_  POBJECT_ATTRIBUTES ObjectAttributes);
 
 		NTSTATUS NTAPI NtOpenIoCompletion(
 			_Out_ PHANDLE phIoCompletionPort,
 			_In_ ACCESS_MASK DesiredAccess,
 			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
+
+		NTSTATUS NTAPI NtQueryIoCompletion(
+			_In_ HANDLE IoCompletionHandle,
+			_In_ IO_COMPLETION_INFORMATION_CLASS IoCompletionInformationClass,
+			_Out_writes_bytes_(IoCompletionInformationLength) PVOID IoCompletionInformation,
+			_In_ ULONG IoCompletionInformationLength,
+			_Out_opt_ PULONG ReturnLength);
 
 		NTSTATUS NTAPI NtOpenFile(
 			_Out_ PHANDLE phFile,
@@ -483,12 +490,10 @@ extern "C" {
 			_In_ POBJECT_ATTRIBUTES ObjectAttributes);
 
 		NTSTATUS NTAPI NtQueryInformationWorkerFactory(
-				_In_ HANDLE WorkerFactoryHandle,
-				_In_ WORKERFACTORYINFOCLASS WorkerFactoryInformationClass,
-				_Out_writes_bytes_(WorkerFactoryInformationLength) PVOID WorkerFactoryInformation,
-				_In_ ULONG WorkerFactoryInformationLength,
-				_Out_opt_ PULONG ReturnLength
-				);
-
+			_In_ HANDLE WorkerFactoryHandle,
+			_In_ WORKERFACTORYINFOCLASS WorkerFactoryInformationClass,
+			_Out_writes_bytes_(WorkerFactoryInformationLength) PVOID WorkerFactoryInformation,
+			_In_ ULONG WorkerFactoryInformationLength,
+			_Out_opt_ PULONG ReturnLength);
 	}
 }

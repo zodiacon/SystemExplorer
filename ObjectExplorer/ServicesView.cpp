@@ -40,7 +40,7 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	AddSimpleReBarBand(m_ToolBar);
 
 	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);
-	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_INFOTIP);
+	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 
 	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 170);
 	m_List.InsertColumn(1, L"Display Name", LVCFMT_LEFT, 280);

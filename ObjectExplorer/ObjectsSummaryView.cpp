@@ -114,7 +114,7 @@ LRESULT CObjectSummaryView::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL &) {
 	if (wParam == 1) {
 		KillTimer(1);
 		m_ObjectManager.EnumTypes();
-		auto si = GetSortInfo();
+		auto si = GetSortInfo(*this);
 		if (si)
 			DoSort(si);
 		LockWindowUpdate();

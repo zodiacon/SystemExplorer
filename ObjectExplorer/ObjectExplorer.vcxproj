@@ -87,7 +87,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -159,7 +159,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -194,7 +194,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <DebugInformationFormat />
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -223,6 +223,8 @@
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
+    <ClCompile Include="ColumnManager.cpp" />
+    <ClCompile Include="DetachHostWindow.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
     <ClCompile Include="DialogHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
@@ -233,6 +235,7 @@
     <ClCompile Include="JobObjectType.cpp" />
     <ClCompile Include="KeyObjectType.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MemoryMapView.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectHandlesDlg.cpp" />
@@ -270,6 +273,8 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="ClipboardHelper.h" />
+    <ClInclude Include="ColumnManager.h" />
+    <ClInclude Include="DetachHostWindow.h" />
     <ClInclude Include="DeviceManagerView.h" />
     <ClInclude Include="DialogHelper.h" />
     <ClInclude Include="DriverHelper.h" />
@@ -281,6 +286,7 @@
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MemoryMapView.h" />
     <ClInclude Include="MutexObjectType.h" />
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectHandlesDlg.h" />
@@ -321,6 +327,7 @@
     <Image Include="res\battery.ico" />
     <Image Include="res\briefcase.ico" />
     <Image Include="res\car_compact_green.ico" />
+    <Image Include="res\commit.ico" />
     <Image Include="res\copy.ico" />
     <Image Include="res\delete.ico" />
     <Image Include="res\desktop.ico" />
@@ -334,6 +341,7 @@
     <Image Include="res\find_next.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />
+    <Image Include="res\free.ico" />
     <Image Include="res\funnel.ico" />
     <Image Include="res\funnel_up.ico" />
     <Image Include="res\gear.ico" />
@@ -361,6 +369,7 @@
     <Image Include="res\process.ico" />
     <Image Include="res\process_view.ico" />
     <Image Include="res\refresh.ico" />
+    <Image Include="res\reserved.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
     <Image Include="res\sign_forbidden.ico" />
@@ -377,6 +386,7 @@
     <Image Include="res\windowstation.ico" />
     <Image Include="res\window_black.ico" />
     <Image Include="res\window_close.ico" />
+    <Image Include="res\window_new.ico" />
     <Image Include="res\window_title.ico" />
   </ItemGroup>
   <ItemGroup>

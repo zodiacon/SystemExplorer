@@ -13,18 +13,17 @@ CAppModule _Module;
 bool ParseCommandLine(PCWSTR cmdLine);
 
 int Run(LPTSTR /*lpstrCmdLine*/ = nullptr, int nCmdShow = SW_SHOWDEFAULT) {
-
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	CMainFrame wndMain;
+	auto frame = new CMainFrame;
 
-	if (wndMain.CreateEx() == nullptr) {
+	if (frame->CreateEx() == nullptr) {
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
 	}
 
-	wndMain.ShowWindow(nCmdShow);
+	frame->ShowWindow(nCmdShow);
 
 	int nRet = theLoop.Run();
 

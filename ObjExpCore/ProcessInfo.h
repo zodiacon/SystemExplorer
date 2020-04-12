@@ -17,6 +17,7 @@ namespace WinSys {
 		const std::wstring& GetPackageFullName() const { return _packageFullName; }
 		const std::wstring& GetNativeImagePath() const { return _nativeImagePath; }
 		const std::vector<std::shared_ptr<ThreadInfo>>& GetThreads() const;
+		const std::wstring& GetUserName() const;
 
 		int BasePriority;
 		uint32_t Id;
@@ -51,6 +52,7 @@ namespace WinSys {
 		int64_t WorkingSetPrivateSize; // since VISTA
 		int32_t CPU;
 		uint32_t JobObjectId;
+		std::unique_ptr<BYTE[]> UserSid;
 
 		ProcessOrThreadKey Key;
 
@@ -61,6 +63,7 @@ namespace WinSys {
 		std::wstring _processName;
 		std::wstring _nativeImagePath;
 		std::wstring _packageFullName;
+		mutable std::wstring _userName;
 		std::vector<std::shared_ptr<ThreadInfo>> _threads;
 	};
 }

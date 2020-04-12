@@ -141,12 +141,22 @@ BEGIN
     END
     POPUP "&System"
     BEGIN
+        MENUITEM "&Processes",                  ID_SYSTEM_PROCESSES
+        MENUITEM "&Threads",                    ID_SYSTEM_THREADS
         MENUITEM "&Services",                   ID_SYSTEM_SERVICES
         MENUITEM "&Devices",                    ID_SYSTEM_DEVICES
         MENUITEM "&Drivers",                    ID_SYSTEM_DRIVERS
         MENUITEM "&COM",                        ID_SYSTEM_COM
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE
+    END
+    POPUP "&Process"
+    BEGIN
+        MENUITEM "&Threads...",                 ID_PROCESS_THREADS
+        MENUITEM "Mo&dules...",                 ID_PROCESS_MODULES
+        MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
+        MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
+        MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
     END
     POPUP "&GUI"
     BEGIN
@@ -165,6 +175,8 @@ BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
         MENUITEM "Close &All",                  ID_WINDOW_CLOSE_ALL
         MENUITEM "Close All but &This",         ID_WINDOW_CLOSEALLBUTTHIS
+        MENUITEM SEPARATOR
+        MENUITEM "&New Window",                 ID_TAB_NEWWINDOW
     END
     POPUP "&Help"
     BEGIN
@@ -373,6 +385,14 @@ IDI_MAILBOX             ICON                    "res\\mailbox.ico"
 
 IDI_PIPE                ICON                    "res\\pipe.ico"
 
+IDI_WINDOW_NEW          ICON                    "res\\window_new.ico"
+
+IDI_COMMIT              ICON                    "res\\commit.ico"
+
+IDI_FREE                ICON                    "res\\free.ico"
+
+IDI_RESERVED            ICON                    "res\\reserved.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -385,21 +405,21 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.63\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.65\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
 END
 
-IDD_PROCSELECT DIALOGEX 0, 0, 309, 263
+IDD_PROCSELECT DIALOGEX 0, 0, 309, 302
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Process Selector"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,96,242,50,14,WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,162,242,50,14
-    CONTROL         "",IDC_PROCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,295,219
-    PUSHBUTTON      "",IDC_REFRESH,282,234,26,24,BS_ICON
+    DEFPUSHBUTTON   "OK",IDOK,96,281,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,162,281,50,14
+    CONTROL         "",IDC_PROCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,295,263
+    PUSHBUTTON      "",IDC_REFRESH,282,275,26,24,BS_ICON
 END
 
 IDD_HANDLES DIALOGEX 0, 0, 493, 278
@@ -470,7 +490,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 256
+        BOTTOMMARGIN, 295
     END
 
     IDD_HANDLES, DIALOG

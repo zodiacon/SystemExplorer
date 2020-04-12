@@ -14,7 +14,7 @@ public:
 
 	CPipesMailslotsDlg(Type type);
 
-	CString GetColumnText(int row, int col);
+	CString GetColumnText(HWND, int row, int col);
 	int GetRowImage(int row);
 	void DoSort(const SortInfo* si);
 

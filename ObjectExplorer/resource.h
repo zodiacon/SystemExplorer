@@ -79,6 +79,12 @@
 #define IDD_PIPES_MAILSLOTS             276
 #define IDI_MAILBOX                     278
 #define IDI_PIPE                        279
+#define IDI_ICON7                       280
+#define IDI_WINDOW_NEW                  280
+#define IDI_ICON9                       281
+#define IDI_COMMIT                      281
+#define IDI_FREE                        282
+#define IDI_RESERVED                    283
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -165,13 +171,21 @@
 #define ID_SYSTEM_COM                   32850
 #define ID_SYSTEM_INSTALLSERVICE        32851
 #define ID_OBJECTS_MAILSLOTS            32852
+#define ID_TAB_DETACH                   32853
+#define ID_SYSTEM_PROCESSES             32854
+#define ID_SYSTEM_THREADS               32855
+#define ID_PROCESS_MEMORYMAP            32856
+#define ID_PROCESS_THREADS              32857
+#define ID_PROCESS_MODULES              32858
+#define ID_PROCESS_HEAPS                32859
+#define ID_TAB_NEWWINDOW                32860
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        280
-#define _APS_NEXT_COMMAND_VALUE         32853
+#define _APS_NEXT_RESOURCE_VALUE        284
+#define _APS_NEXT_COMMAND_VALUE         32861
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

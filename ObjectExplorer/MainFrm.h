@@ -8,8 +8,6 @@
 #include "INterfaces.h"
 #include "ToolBarHelper.h"
 
-#define WINDOW_MENU_POSITION	8
-
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CAutoUpdateUI<CMainFrame>,
@@ -20,8 +18,10 @@ class CMainFrame :
 public:
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnIdle();
+	CMainFrame();
+	BOOL PreTranslateMessage(MSG* pMsg) override;
+	BOOL OnIdle() override;
+	void OnFinalMessage(HWND) override;
 
 	CCommandBarCtrl m_CmdBar;
 
@@ -59,6 +59,12 @@ public:
 		COMMAND_ID_HANDLER(ID_OBJECTS_OBJECTMANAGER, OnShowObjectManager)
 		COMMAND_ID_HANDLER(ID_DESKTOPS_ALLWINDOWS, OnShowAllWindows)
 		COMMAND_ID_HANDLER(ID_FILE_RUNASADMINISTRATOR, OnRunAsAdmin)
+		COMMAND_ID_HANDLER(ID_TAB_NEWWINDOW, OnNewWindow)
+
+		COMMAND_ID_HANDLER(ID_PROCESS_MEMORYMAP, OnProcessMemoryMap)
+		COMMAND_ID_HANDLER(ID_PROCESS_MODULES, OnProcessModules)
+		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
+
 		COMMAND_ID_HANDLER(ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, OnShowAllWindowsDefaultDesktop)
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
 		COMMAND_RANGE_HANDLER(ID_SHOWOBJECTSOFTYPE_PROCESS, ID_SHOWOBJECTSOFTYPE_PROCESS + 17, OnShowObjectOfType)
@@ -79,6 +85,11 @@ public:
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 private:
+	LRESULT OnProcessMemoryMap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 	LRESULT OnTabActivated(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnTabContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -110,19 +121,23 @@ private:
 	LRESULT OnBandRightClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllPipes(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllMailslots(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnDetachTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
 	void InitCommandBar();
 	void InitToolBar(CToolBarCtrl& tb);
+	bool DetachTab(int index);
+	LRESULT ShowNotImplemented();
 
 private:
 	CTabView m_view;
 	CMultiPaneStatusBarCtrl m_StatusBar;
 	ObjectManager m_ObjMgr;
-	CImageListManaged m_TabImages;
-	std::unordered_map<std::wstring, int> m_IconMap;
+	inline static CImageListManaged m_TabImages;
+	inline static std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
-	int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
-	int m_DevicesIcon;
+	inline static int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
+	inline static int m_DevicesIcon;
+	inline static int s_Frames;
 };

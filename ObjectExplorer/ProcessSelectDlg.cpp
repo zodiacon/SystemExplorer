@@ -26,7 +26,7 @@ LRESULT CProcessSelectDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	CenterWindow(GetParent());
 	m_List.Attach(GetDlgItem(IDC_PROCLIST));
 
-	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 
 	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 170);
 	m_List.InsertColumn(1, L"PID", LVCFMT_RIGHT, 130);
@@ -37,6 +37,8 @@ LRESULT CProcessSelectDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.SetImageList(m_Images, LVSIL_SMALL);
 
 	((CButton)GetDlgItem(IDC_REFRESH)).SetIcon(AtlLoadIconImage(IDI_REFRESH, 0, 24, 24));
+
+	SetIcon(AtlLoadIconImage(IDI_PROCESS, 0, 16, 16));
 
 	InitProcessList();
 
@@ -68,17 +70,17 @@ LRESULT CProcessSelectDlg::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 
 	if (item.mask & LVIF_TEXT) {
 		switch (col) {
-		case 0:		// name
-			item.pszText = (PWSTR)(PCWSTR)data.Name;
-			break;
+			case 0:		// name
+				item.pszText = (PWSTR)(PCWSTR)data.Name;
+				break;
 
-		case 1:		// ID
-			::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data.Id, data.Id);
-			break;
+			case 1:		// ID
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data.Id, data.Id);
+				break;
 
-		case 2:		// session
-			::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data.Session);
-			break;
+			case 2:		// session
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data.Session);
+				break;
 		}
 	}
 	if (item.mask & LVIF_IMAGE)
@@ -102,48 +104,53 @@ LRESULT CProcessSelectDlg::OnRefresh(WORD, WORD wID, HWND, BOOL&) {
 
 void CProcessSelectDlg::InitProcessList() {
 	EnumProcesses();
-	m_List.SetItemCountEx(static_cast<int>(m_Items.size()), LVSICF_NOSCROLL);
 	DoSort(GetSortInfo());
 }
 
 void CProcessSelectDlg::EnumProcesses() {
-	auto hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	ATLASSERT(hSnapshot != INVALID_HANDLE_VALUE);
-	m_Items.clear();
+	m_ProcMgr.EnumProcesses();
 
-	PROCESSENTRY32 pe;
-	pe.dwSize = sizeof(pe);
-	Process32First(hSnapshot, &pe);
+	m_Items.clear();
+	m_Items.reserve(m_ProcMgr.GetProcessCount());
+
+	std::unordered_map<std::wstring, int> images;
+	images.reserve(m_Items.size());
+
 	WCHAR imagePath[MAX_PATH];
-	while(::Process32Next(hSnapshot, &pe)) {
+	for (auto& p : m_ProcMgr.GetProcesses()) {
 		ProcessInfo pi;
-		auto hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pe.th32ProcessID);
-		auto path = pe.szExeFile;
+		auto hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, p->Id);
+		auto path = p->GetImageName().c_str();
 		if (hProcess) {
 			DWORD size = _countof(imagePath);
 			if (::QueryFullProcessImageName(hProcess, 0, imagePath, &size))
 				path = imagePath;
 		}
-		HICON hIcon;
-		if (::ExtractIconEx(path, 0, nullptr, &hIcon, 1) == 1) {
-			pi.Image = m_Images.AddIcon(hIcon);
+		auto it = images.find(path);
+		if (it != images.end())
+			pi.Image = it->second;
+		else {
+			HICON hIcon;
+			if (::ExtractIconEx(path, 0, nullptr, &hIcon, 1) == 1) {
+				pi.Image = m_Images.AddIcon(hIcon);
+				images.insert({ path, pi.Image });
+			}
+			else
+				pi.Image = 0;
 		}
-		else
-			pi.Image = 0;
-		pi.Name = pe.szExeFile;
-		pi.Id = pe.th32ProcessID;
-		pi.Session = 0;
-		::ProcessIdToSessionId(pi.Id, &pi.Session);
+		pi.Name = p->GetImageName().c_str();
+		pi.Id = p->Id;
+		pi.Session = p->SessionId;
 		m_Items.push_back(std::move(pi));
 	}
-	::CloseHandle(hSnapshot);
+	m_List.SetItemCountEx(static_cast<int>(m_Items.size()), LVSICF_NOSCROLL);
 }
 
 bool CProcessSelectDlg::CompareItems(const ProcessInfo& p1, const ProcessInfo& p2, int col, bool asc) {
 	switch (col) {
-	case 0:	return SortHelper::SortStrings(p1.Name, p2.Name, asc);
-	case 1: return SortHelper::SortNumbers(p1.Id, p2.Id, asc);
-	case 2: return SortHelper::SortNumbers(p1.Session, p2.Session, asc);
+		case 0:	return SortHelper::SortStrings(p1.Name, p2.Name, asc);
+		case 1: return SortHelper::SortNumbers(p1.Id, p2.Id, asc);
+		case 2: return SortHelper::SortNumbers(p1.Session, p2.Session, asc);
 	}
 	ATLASSERT(false);
 	return false;

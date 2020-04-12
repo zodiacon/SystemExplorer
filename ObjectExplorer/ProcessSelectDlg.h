@@ -16,6 +16,7 @@ public:
 		DWORD Id;
 		DWORD Session;
 		int Image;
+		CString UserName;
 	};
 
 	enum { IDD = IDD_PROCSELECT };
@@ -55,5 +56,6 @@ private:
 	CString m_Name;
 	CListViewCtrl m_List;
 	CImageList m_Images;
+	WinSys::ProcessManager m_ProcMgr;
 };
 
