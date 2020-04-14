@@ -57,7 +57,7 @@ protected:
 		if (item.mask & LVIF_IMAGE)
 			item.iImage = p->GetRowImage(item.iItem);
 		if (item.mask & LVIF_INDENT)
-			item.iIndent = p->GetRowIndent(item.iItem, item.iSubItem);
+			item.iIndent = p->GetRowIndent(item.iItem);
 
 		return 0;
 	}
@@ -69,7 +69,7 @@ protected:
 		auto list = fi->hdr.hwndFrom;
 
 		if (ListView_GetSelectedCount(list) == 0)
-			return 0;
+			return -1;
 
 		int selected = ListView_GetNextItem(list, -1, LVIS_SELECTED);
 		int start = selected + 1;
@@ -162,7 +162,7 @@ protected:
 		return 0;
 	}
 
-	int GetRowIndent(int row, int col) const {
+	int GetRowIndent(int row) const {
 		return 0;
 	}
 

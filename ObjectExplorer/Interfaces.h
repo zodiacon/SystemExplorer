@@ -28,7 +28,4 @@ struct IMainFrame {
 	virtual void ShowAllHandles(PCWSTR typename) = 0;
 	virtual void ShowAllObjects(PCWSTR typename) = 0;
 	virtual CUpdateUIBase* GetUpdateUI() = 0;
-	virtual int AddBand(HWND hControl, PCWSTR title = nullptr) = 0;
-	virtual bool RemoveBand(int index) = 0;
-	virtual bool AddToCommandBar(UINT id, UINT icon, HICON = nullptr) = 0;
 };

@@ -32,9 +32,6 @@ public:
 	void ShowAllHandles(PCWSTR type) override;
 	void ShowAllObjects(PCWSTR type) override;
 	CUpdateUIBase* GetUpdateUI() override;
-	int AddBand(HWND hControl, PCWSTR title) override;
-	bool RemoveBand(int index) override;
-	bool AddToCommandBar(UINT id, UINT icon, HICON = nullptr) override;
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)

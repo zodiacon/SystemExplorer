@@ -4,7 +4,8 @@
 
 class CMemoryMapView :
 	public CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>,
-	public CVirtualListView<CMemoryMapView> {
+	public CVirtualListView<CMemoryMapView>,
+	public CCustomDraw<CMemoryMapView> {
 public:
 	using BaseFrame = CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>;
 
@@ -14,6 +15,7 @@ public:
 
 	CString GetColumnText(HWND h, int row, int column) const;
 	int GetRowImage(int row) const;
+	int GetRowIndent(int row) const;
 
 	void DoSort(const SortInfo* si);
 
@@ -21,6 +23,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CMemoryMapView>)
+		CHAIN_MSG_MAP(CCustomDraw<CMemoryMapView>)
 	END_MSG_MAP()
 
 private:

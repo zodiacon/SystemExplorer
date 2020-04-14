@@ -687,32 +687,3 @@ CUpdateUIBase* CMainFrame::GetUpdateUI() {
 	return this;
 }
 
-int CMainFrame::AddBand(HWND hControl, PCWSTR title) {
-	::SetParent(hControl, m_hWnd);
-	if (!AddSimpleReBarBand(hControl, title, FALSE))
-		return -1;
-	CReBarCtrl rb(m_hWndToolBar);
-	REBARBANDINFO info = { sizeof(info) };
-	info.fMask = RBBIM_COLORS;
-	info.clrBack = RGB(255, 255, 0);
-	rb.SetBandInfo(rb.GetBandCount() - 1, &info);
-	rb.LockBands(TRUE);
-
-	SizeSimpleReBarBands();
-	UIAddToolBar(hControl);
-	return rb.GetBandCount() - 1;
-}
-
-bool CMainFrame::RemoveBand(int index) {
-	CReBarCtrl rb(m_hWndToolBar);
-	REBARBANDINFO info = { sizeof(info) };
-	info.fMask = RBBIM_CHILD;
-	rb.GetBandInfo(index, &info);
-	UIRemove(info.hwndChild);
-	return CReBarCtrl(m_hWndToolBar).DeleteBand(index);
-}
-
-bool CMainFrame::AddToCommandBar(UINT id, UINT icon, HICON hIcon) {
-	return m_CmdBar.AddIcon(icon ? AtlLoadIcon(icon) : hIcon, id);
-}
-

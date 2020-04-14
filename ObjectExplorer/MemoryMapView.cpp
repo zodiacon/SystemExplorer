@@ -34,6 +34,11 @@ int CMemoryMapView::GetRowImage(int row) const {
 	return 0;
 }
 
+int CMemoryMapView::GetRowIndent(int row) const {
+	auto& item = m_Items[row];
+	return item.State == MEM_FREE || item.AllocationBase == item.BaseAddress ? 0 : 1;
+}
+
 void CMemoryMapView::DoSort(const SortInfo* si) {
 	if (si == nullptr)
 		return;
@@ -53,7 +58,7 @@ LRESULT CMemoryMapView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | LVS_SINGLESEL | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 
-	m_List.InsertColumn(0, L"State", 0, 90);
+	m_List.InsertColumn(0, L"State", 0, 110);
 	m_List.InsertColumn(1, L"Address", LVCFMT_RIGHT, 140);
 	m_List.InsertColumn(2, L"Size", LVCFMT_RIGHT, 120);
 	m_List.InsertColumn(3, L"Type", LVCFMT_LEFT, 70);

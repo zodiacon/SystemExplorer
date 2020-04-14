@@ -497,13 +497,13 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\commit.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\free.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\reserved.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\free.ico">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
