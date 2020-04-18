@@ -17,7 +17,7 @@ CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {
 	switch (column) {
 		case 0: return StateToString(item.State);
 		case 1: text.Format(L"0x%016X", item.BaseAddress); break;
-		case 2: text.Format(L"0x%llX", item.RegionSize); break;
+		case 2: return FormatWithCommas(item.RegionSize >> 10) + L" KB";
 		case 3: return item.State != MEM_COMMIT ? L"" : TypeToString(item.Type);
 		case 4: return item.State != MEM_COMMIT ? L"" : ProtectionToString(item.Protect);
 		case 5: return item.State == MEM_FREE ? L"" : ProtectionToString(item.AllocationProtect);
@@ -60,7 +60,7 @@ DWORD CMemoryMapView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	int index = (int)cd->dwItemSpec;
 	auto& item = m_Items[index];
 
-	lcd->clrTextBk = UsageToBackColor(GetDetails(*item).Usage);
+	lcd->clrTextBk = UsageToBackColor(*item);
 
 	return CDRF_DODEFAULT;
 }
@@ -118,6 +118,7 @@ void CMemoryMapView::Refresh() {
 	m_Tracker->EnumRegions();
 	m_Items = m_Tracker->GetRegions();
 	m_Details.clear();
+	m_Details.reserve(m_Items.size() / 2);
 
 	// enum threads
 	m_ProcMgr.EnumProcessesAndThreads(m_Pid);
@@ -125,6 +126,7 @@ void CMemoryMapView::Refresh() {
 
 	// enum heaps
 	m_Heaps.clear();
+	m_Heaps.reserve(8);
 	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, m_Pid));
 	if (hSnapshot) {
 		HEAPLIST32 list;
@@ -140,6 +142,10 @@ void CMemoryMapView::Refresh() {
 			hi.Id = index++;
 			m_Heaps.push_back(hi);
 		} while (::Heap32ListNext(hSnapshot.get(), &list));
+	}
+
+	for (auto& mi : m_Items) {
+		GetDetails(*mi);
 	}
 
 	DoSort(GetSortInfo(m_List));
@@ -238,42 +244,61 @@ bool CMemoryMapView::CompareItems(WinSys::MemoryRegionItem& m1, WinSys::MemoryRe
 }
 
 PCWSTR CMemoryMapView::UsageToString(const WinSys::MemoryRegionItem& item) const {
-	if (item.State == MEM_FREE)
-		return L"";
+	auto it = m_Details.find(item.AllocationBase ? item.AllocationBase : item.BaseAddress);
+	MemoryUsage usage;
+	if (it != m_Details.end())
+		usage = it->second.Usage;
+	else
+		usage = item.State == MEM_FREE ? MemoryUsage::Unknown : MemoryUsage::PrivateData;
 
-	auto it = m_Details.find(item.BaseAddress);
-	if (it == m_Details.end())
-		return L"Data";
-
-	switch (it->second.Usage) {
+	switch (usage) {
 		case MemoryUsage::ThreadStack: return L"Stack";
 		case MemoryUsage::Image: return L"Image File";
 		case MemoryUsage::Mapped: return L"Mapped File";
 		case MemoryUsage::Heap: return L"Heap";
 		case MemoryUsage::PrivateData: return L"Data";
+		case MemoryUsage::Unusable: return L"Unusable";
 	}
 	return L"";
 }
 
-COLORREF CMemoryMapView::UsageToBackColor(MemoryUsage usage) {
-	switch (usage) {
+COLORREF CMemoryMapView::UsageToBackColor(const WinSys::MemoryRegionItem& item) const {
+	switch (GetDetails(item).Usage) {
 		case MemoryUsage::PrivateData: return RGB(255, 255, 0);
 		case MemoryUsage::ThreadStack: return RGB(0, 255, 128);
 		case MemoryUsage::Image: return RGB(255, 128, 128);
 		case MemoryUsage::Mapped: return RGB(128, 255, 255);
+		case MemoryUsage::Unusable: return RGB(192, 192, 192);
+		case MemoryUsage::Heap: return RGB(192, 128, 192);
 	}
 	return CLR_INVALID;
 }
 
+CString CMemoryMapView::FormatWithCommas(long long size) {
+	CString result;
+	result.Format(L"%lld", size);
+	int i = 3;
+	while (result.GetLength() - i > 0) {
+		result = result.Left(result.GetLength() - i) + L"," + result.Right(i);
+		i += 4;
+	}
+	return result;
+}
+
 CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegionItem& mi) const {
+	if (auto it = m_Details.find(mi.AllocationBase ? mi.AllocationBase : mi.BaseAddress); it != m_Details.end()) {
+		return it->second;
+	}
+
 	ItemDetails details;
 	details.Usage = MemoryUsage::Unknown;
-
-	if (mi.State == MEM_FREE)
+	if (mi.State == MEM_FREE) {
+		if (mi.RegionSize < (1 << 16)) {
+			details.Usage = MemoryUsage::Unusable;
+		}
+		m_Details.insert({ mi.BaseAddress, details });
 		return details;
-
-	if (auto it = m_Details.find(mi.BaseAddress); it != m_Details.end())
-		return it->second;
+	}
 
 	if (mi.State == MEM_COMMIT) {
 		if (mi.Type == MEM_IMAGE || mi.Type == MEM_MAPPED) {
@@ -299,11 +324,13 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 			}
 		}
 	}
-	for (auto& heap : m_Heaps) {
-		if (mi.AllocationBase <= (PVOID)heap.Address && mi.AllocationBase != nullptr && (BYTE*)mi.AllocationBase + mi.RegionSize > (PVOID)heap.Address) {
-			details.Usage = MemoryUsage::Heap;
-			details.Details.Format(L"Heap %u %s", heap.Id, HeapFlagsToString(heap.Flags));
-			break;
+	if (details.Usage == MemoryUsage::Unknown) {
+		for (auto& heap : m_Heaps) {
+			if (mi.AllocationBase <= (PVOID)heap.Address && mi.AllocationBase != nullptr && (BYTE*)mi.AllocationBase + mi.RegionSize > (PVOID)heap.Address) {
+				details.Usage = MemoryUsage::Heap;
+				details.Details.Format(L"Heap %u %s", heap.Id, HeapFlagsToString(heap.Flags));
+				break;
+			}
 		}
 	}
 
@@ -311,6 +338,6 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 		details.Usage = MemoryUsage::PrivateData;
 	}
 
-	m_Details.insert({ mi.BaseAddress, details });
+	m_Details.insert({ mi.AllocationBase, details });
 	return details;
 }

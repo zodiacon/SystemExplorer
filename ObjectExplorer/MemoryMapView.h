@@ -41,6 +41,7 @@ private:
 		Image,
 		Mapped,
 		ThreadStack,
+		Unusable,
 		Unknown = 99,
 	};
 
@@ -64,7 +65,8 @@ private:
 	bool CompareItems(WinSys::MemoryRegionItem& m1, WinSys::MemoryRegionItem& m2, int col, bool asc);
 	ItemDetails GetDetails(const WinSys::MemoryRegionItem& mi) const;
 	PCWSTR UsageToString(const WinSys::MemoryRegionItem& item) const;
-	static COLORREF UsageToBackColor(MemoryUsage usage);
+	COLORREF UsageToBackColor(const WinSys::MemoryRegionItem& item) const;
+	static CString FormatWithCommas(long long size);
 
 	DWORD m_Pid;
 	CListViewCtrl m_List, m_DetailsList;
