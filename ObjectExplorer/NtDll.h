@@ -20,6 +20,19 @@ extern "C" {
 			UNICODE_STRING TypeName;
 		} OBJECT_DIRECTORY_INFORMATION, * POBJECT_DIRECTORY_INFORMATION;
 
+		typedef enum _THREADINFOCLASS {
+			ThreadBasicInformation, // q: THREAD_BASIC_INFORMATION
+		} THREADINFOCLASS;
+
+		typedef struct _THREAD_BASIC_INFORMATION {
+			NTSTATUS ExitStatus;
+			PTEB TebBaseAddress;
+			CLIENT_ID ClientId;
+			ULONG_PTR AffinityMask;
+			KPRIORITY Priority;
+			LONG BasePriority;
+		} THREAD_BASIC_INFORMATION, * PTHREAD_BASIC_INFORMATION;
+
 		typedef enum _WORKERFACTORYINFOCLASS {
 			WorkerFactoryTimeout, // q; s: LARGE_INTEGER
 			WorkerFactoryRetryTimeout, // q; s: LARGE_INTEGER
@@ -495,5 +508,21 @@ extern "C" {
 			_Out_writes_bytes_(WorkerFactoryInformationLength) PVOID WorkerFactoryInformation,
 			_In_ ULONG WorkerFactoryInformationLength,
 			_Out_opt_ PULONG ReturnLength);
+
+		NTSTATUS NTAPI NtGetNextThread(
+			_In_ HANDLE ProcessHandle,
+			_In_ HANDLE ThreadHandle,
+			_In_ ACCESS_MASK DesiredAccess,
+			_In_ ULONG HandleAttributes,
+			_In_ ULONG Flags,
+			_Out_ PHANDLE NewThreadHandle);
+
+		NTSTATUS NTAPI NtQueryInformationThread(
+			_In_ HANDLE ThreadHandle,
+			_In_ THREADINFOCLASS ThreadInformationClass,
+			_Out_writes_bytes_(ThreadInformationLength) PVOID ThreadInformation,
+			_In_ ULONG ThreadInformationLength,
+			_Out_opt_ PULONG ReturnLength);
+
 	}
 }

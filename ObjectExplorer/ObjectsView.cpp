@@ -77,7 +77,7 @@ CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
 	return details;
 }
 
-CString CObjectsView::GetProcessHandleInfo(const HandleInfo & hi) const {
+CString CObjectsView::GetProcessHandleInfo(const HandleInfo& hi) const {
 	CString info;
 	info.Format(L"H: %d, PID: %d (%s)",
 		hi.HandleValue, hi.ProcessId, m_ProcMgr.GetProcessNameById(hi.ProcessId).c_str());
@@ -189,23 +189,10 @@ LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 	return 0;
 }
 
-LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL &) {
+LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMITEMACTIVATE*)hdr;
-	if (m_pView) {
-		UINT id;
-		int index;
-		if (!m_pView->GetContextMenu(id, index))
-			return FALSE;
-
-		CMenu menu = AtlLoadMenu(id);
-		if (!menu)
-			return FALSE;
-		return m_pFrame->TrackPopupMenu(menu.GetSubMenu(index), *this);
-	}
-	else {
-		CMenu menu = AtlLoadMenu(IDR_CONTEXT);
-		m_pFrame->TrackPopupMenu(menu.GetSubMenu(2), *this);
-	}
+	CMenu menu = AtlLoadMenu(IDR_CONTEXT);
+	m_pFrame->TrackPopupMenu(menu.GetSubMenu(2), *this);
 	return FALSE;
 }
 

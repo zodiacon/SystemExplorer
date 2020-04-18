@@ -57,6 +57,8 @@ BEGIN
         MENUITEM "&Run as Administrator",       ID_FILE_RUNASADMINISTRATOR
         MENUITEM "&Save...\tCtrl+S",            ID_FILE_SAVE
         MENUITEM SEPARATOR
+        MENUITEM "&New Window",                 ID_TAB_NEWWINDOW
+        MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "&Edit"

@@ -5,12 +5,13 @@
 #include "SortHelper.h"
 #include <algorithm>
 #include <Psapi.h>
+#include "ntdll.h"
 
 CMemoryMapView::CMemoryMapView(DWORD pid) : m_Pid(pid) {
 }
 
 CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {
-	auto& item = m_Items[row];
+	auto& item = *m_Items[row];
 	CString text;
 
 	switch (column) {
@@ -20,14 +21,14 @@ CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {
 		case 3: return item.State != MEM_COMMIT ? L"" : TypeToString(item.Type);
 		case 4: return item.State != MEM_COMMIT ? L"" : ProtectionToString(item.Protect);
 		case 5: return item.State == MEM_FREE ? L"" : ProtectionToString(item.AllocationProtect);
-		case 6: return GetDetails(item);
-		case 7: text.Format(L"0x%016X", item.AllocationBase); break;
+		case 6: return UsageToString(item);
+		case 7: return GetDetails(item).Details;
 	}
 	return text;
 }
 
 int CMemoryMapView::GetRowImage(int row) const {
-	switch (m_Items[row].State) {
+	switch (m_Items[row]->State) {
 		case MEM_COMMIT: return 2;
 		case MEM_RESERVE: return 1;
 	}
@@ -35,7 +36,7 @@ int CMemoryMapView::GetRowImage(int row) const {
 }
 
 int CMemoryMapView::GetRowIndent(int row) const {
-	auto& item = m_Items[row];
+	auto& item = *m_Items[row];
 	return item.State == MEM_FREE || item.AllocationBase == item.BaseAddress ? 0 : 1;
 }
 
@@ -44,16 +45,40 @@ void CMemoryMapView::DoSort(const SortInfo* si) {
 		return;
 
 	std::sort(m_Items.begin(), m_Items.end(), [=](auto& i1, auto& i2) {
-		return CompareItems(i1, i2, si->SortColumn, si->SortAscending);
+		return CompareItems(*i1, *i2, si->SortColumn, si->SortAscending);
 		});
 }
 
+DWORD CMemoryMapView::OnPrePaint(int, LPNMCUSTOMDRAW) {
+	return CDRF_NOTIFYITEMDRAW;
+}
+
+DWORD CMemoryMapView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	auto lcd = (LPNMLVCUSTOMDRAW)cd;
+	auto sub = lcd->iSubItem;
+	lcd->clrTextBk = CLR_INVALID;
+	int index = (int)cd->dwItemSpec;
+	auto& item = m_Items[index];
+
+	lcd->clrTextBk = UsageToBackColor(GetDetails(*item).Usage);
+
+	return CDRF_DODEFAULT;
+}
+
+DWORD CMemoryMapView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
+	return CDRF_NOTIFYITEMDRAW;
+}
+
 LRESULT CMemoryMapView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	m_hProcess.reset(DriverHelper::OpenProcess(m_Pid, PROCESS_QUERY_INFORMATION));
-	if (!m_hProcess)
+	m_hProcess = DriverHelper::OpenProcess(m_Pid, PROCESS_QUERY_INFORMATION);
+	if (m_hProcess == nullptr)
 		return -1;
 
-	::IsWow64Process(m_hProcess.get(), &m_Is32Bit);
+	m_Tracker.reset(new WinSys::ProcessVMTracker(m_hProcess));
+	if (m_Tracker == nullptr)
+		return -1;
+
+	m_hReadProcess.reset(DriverHelper::OpenProcess(m_Pid, PROCESS_VM_READ));
 
 	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | LVS_SINGLESEL | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
@@ -64,8 +89,8 @@ LRESULT CMemoryMapView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.InsertColumn(3, L"Type", LVCFMT_LEFT, 70);
 	m_List.InsertColumn(4, L"Protection", 0, 140);
 	m_List.InsertColumn(5, L"Alloc Protection", 0, 140);
-	m_List.InsertColumn(6, L"Details", 0, 400);
-//	m_List.InsertColumn(7, L"Base Address", LVCFMT_RIGHT, 140);
+	m_List.InsertColumn(6, L"Usage", 0, 90);
+	m_List.InsertColumn(7, L"Details", 0, 500);
 
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR32, 4, 0);
@@ -79,19 +104,44 @@ LRESULT CMemoryMapView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
+LRESULT CMemoryMapView::OnRefresh(WORD, WORD, HWND, BOOL&) {
+	CWaitCursor wait;
+	Refresh();
+
+	return 0;
+}
+
 void CMemoryMapView::Refresh() {
-	m_Items.clear();
-	m_Items.reserve(128);
+	if (m_Details.empty())
+		m_Details.reserve(128);
 
-	BYTE* address = nullptr;
-	MemoryItem mi;
-	for (;;) {
-		if (0 == ::VirtualQueryEx(m_hProcess.get(), address, &mi, sizeof(MEMORY_BASIC_INFORMATION)))
-			break;
+	m_Tracker->EnumRegions();
+	m_Items = m_Tracker->GetRegions();
+	m_Details.clear();
 
-		m_Items.push_back(mi);
-		address += mi.RegionSize;
+	// enum threads
+	m_ProcMgr.EnumProcessesAndThreads(m_Pid);
+	m_Threads = m_ProcMgr.GetThreads();
+
+	// enum heaps
+	m_Heaps.clear();
+	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, m_Pid));
+	if (hSnapshot) {
+		HEAPLIST32 list;
+		list.dwSize = sizeof(list);
+		HEAPENTRY32 entry;
+		entry.dwSize = sizeof(entry);
+		int index = 1;
+		::Heap32ListFirst(hSnapshot.get(), &list);
+		do {
+			HeapInfo hi;
+			hi.Address = list.th32HeapID;
+			hi.Flags = list.dwFlags;
+			hi.Id = index++;
+			m_Heaps.push_back(hi);
+		} while (::Heap32ListNext(hSnapshot.get(), &list));
 	}
+
 	DoSort(GetSortInfo(m_List));
 
 	m_List.SetItemCountEx(static_cast<int>(m_Items.size()), LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
@@ -154,42 +204,113 @@ PCWSTR CMemoryMapView::TypeToString(DWORD type) {
 	return L"";
 }
 
-bool CMemoryMapView::CompareItems(MemoryItem& m1, MemoryItem& m2, int col, bool asc) {
+CString CMemoryMapView::HeapFlagsToString(DWORD flags) {
+	CString text;
+	if (flags & HF32_DEFAULT)
+		text += L" [Default]";
+	if (flags & HF32_SHARED)
+		text += L" [Shared]";
+	return text;
+}
+
+bool CMemoryMapView::CompareItems(WinSys::MemoryRegionItem& m1, WinSys::MemoryRegionItem& m2, int col, bool asc) {
 	switch (col) {
 		case 0: return SortHelper::SortNumbers(m1.State, m2.State, asc);
 		case 1: return SortHelper::SortNumbers(m1.BaseAddress, m2.BaseAddress, asc);
 		case 2: return SortHelper::SortNumbers(m1.RegionSize, m2.RegionSize, asc);
 		case 3: return SortHelper::SortNumbers(m1.Type, m2.Type, asc);
-		case 4: 
+		case 4:
 			if (m1.State != MEM_COMMIT)
 				return false;
 			if (m2.State != MEM_COMMIT)
 				return true;
 			return SortHelper::SortNumbers(m1.Protect, m2.Protect, asc);
-		case 5: 
+		case 5:
 			if (m1.State == MEM_FREE)
 				return false;
 			if (m2.State == MEM_FREE)
 				return true;
 			return SortHelper::SortNumbers(m1.AllocationProtect, m2.AllocationProtect, asc);
-		case 6: return SortHelper::SortStrings(GetDetails(m1), GetDetails(m2), asc);
+		case 6: return SortHelper::SortNumbers(GetDetails(m1).Usage, GetDetails(m2).Usage, asc);
+		case 7: return SortHelper::SortStrings(GetDetails(m1).Details, GetDetails(m2).Details, asc);
 	}
 	return false;
 }
 
-const CString& CMemoryMapView::GetDetails(const MemoryItem& mi) const {
-	if (mi.AttemptDetails)
-		return mi.Details;
+PCWSTR CMemoryMapView::UsageToString(const WinSys::MemoryRegionItem& item) const {
+	if (item.State == MEM_FREE)
+		return L"";
 
-	mi.AttemptDetails = true;
-	if (mi.State != MEM_COMMIT)
-		return mi.Details;
+	auto it = m_Details.find(item.BaseAddress);
+	if (it == m_Details.end())
+		return L"Data";
 
-	if (mi.Type == MEM_IMAGE) {
-		WCHAR filename[MAX_PATH];
-		if (::GetMappedFileName(m_hProcess.get(), mi.BaseAddress, filename, MAX_PATH) > 0) {
-			return mi.Details = filename;
+	switch (it->second.Usage) {
+		case MemoryUsage::ThreadStack: return L"Stack";
+		case MemoryUsage::Image: return L"Image File";
+		case MemoryUsage::Mapped: return L"Mapped File";
+		case MemoryUsage::Heap: return L"Heap";
+		case MemoryUsage::PrivateData: return L"Data";
+	}
+	return L"";
+}
+
+COLORREF CMemoryMapView::UsageToBackColor(MemoryUsage usage) {
+	switch (usage) {
+		case MemoryUsage::PrivateData: return RGB(255, 255, 0);
+		case MemoryUsage::ThreadStack: return RGB(0, 255, 128);
+		case MemoryUsage::Image: return RGB(255, 128, 128);
+		case MemoryUsage::Mapped: return RGB(128, 255, 255);
+	}
+	return CLR_INVALID;
+}
+
+CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegionItem& mi) const {
+	ItemDetails details;
+	details.Usage = MemoryUsage::Unknown;
+
+	if (mi.State == MEM_FREE)
+		return details;
+
+	if (auto it = m_Details.find(mi.BaseAddress); it != m_Details.end())
+		return it->second;
+
+	if (mi.State == MEM_COMMIT) {
+		if (mi.Type == MEM_IMAGE || mi.Type == MEM_MAPPED) {
+			WCHAR filename[MAX_PATH];
+			if (::GetMappedFileName(m_hProcess, mi.BaseAddress, filename, MAX_PATH) > 0) {
+				details.Details = filename;
+				details.Usage = mi.Type == MEM_IMAGE ? MemoryUsage::Image : MemoryUsage::Mapped;
+			}
+		}
+		else {
+			if (m_hReadProcess) {
+				// try threads
+				for (auto& t : m_Threads) {
+					NT_TIB tib;
+					if (::ReadProcessMemory(m_hReadProcess.get(), t->TebBase, &tib, sizeof(tib), nullptr)) {
+						if (mi.BaseAddress >= tib.StackLimit && mi.BaseAddress < tib.StackBase) {
+							details.Details.Format(L"Thread %d (0x%X) stack", t->Id, t->Id);
+							details.Usage = MemoryUsage::ThreadStack;
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
-	return mi.Details;
+	for (auto& heap : m_Heaps) {
+		if (mi.AllocationBase <= (PVOID)heap.Address && mi.AllocationBase != nullptr && (BYTE*)mi.AllocationBase + mi.RegionSize > (PVOID)heap.Address) {
+			details.Usage = MemoryUsage::Heap;
+			details.Details.Format(L"Heap %u %s", heap.Id, HeapFlagsToString(heap.Flags));
+			break;
+		}
+	}
+
+	if (details.Usage == MemoryUsage::Unknown) {
+		details.Usage = MemoryUsage::PrivateData;
+	}
+
+	m_Details.insert({ mi.BaseAddress, details });
+	return details;
 }

@@ -5,22 +5,6 @@
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
 	LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS;
 
-struct ObjectInfo;
-
-struct IObjectsView abstract {
-	virtual CString GetTitle() = 0;
-	virtual bool ShowObject(ObjectInfo*) {
-		return true;
-	}
-
-	virtual bool GetContextMenu(UINT& menuId, int& index) const {
-		return false;
-	}
-
-	virtual void OnDoubleClick() {
-	}
-};
-
 struct IMainFrame {
 	virtual BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT* pt = nullptr, UINT flags = 0) = 0;
 	virtual HIMAGELIST GetImageList() = 0;

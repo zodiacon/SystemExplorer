@@ -127,7 +127,7 @@ LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CObjectManagerView::OnRefresh(WORD, WORD, HWND, BOOL&) {
-	UpdateList(false);
+	InitTree();
 	return 0;
 }
 

@@ -8,7 +8,6 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 
-struct IObjectsView;
 struct IMainFrame;
 
 class CObjectsView : 
@@ -72,7 +71,6 @@ private:
 	CImageListManaged m_Images;
 	std::vector<std::shared_ptr<ObjectInfo>> m_Objects;
 	CUpdateUIBase* m_pUpdateUI;
-	IObjectsView* m_pView{ nullptr };
 	ObjectManager m_ObjMgr;
 	WinSys::ProcessManager m_ProcMgr;
 	CString m_Typename;

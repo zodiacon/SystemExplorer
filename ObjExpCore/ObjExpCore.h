@@ -8,3 +8,4 @@
 #include "ProcessInfo.h"
 #include "ThreadInfo.h"
 #include "ProcessHandlesTracker.h"
+#include "ProcessVMTracker.h"

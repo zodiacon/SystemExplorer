@@ -38,7 +38,7 @@ struct ProcessManager::Impl {
 		}
 	}
 
-	size_t EnumProcesses(bool includeThreads, size_t extraProcessBytes, size_t extraThreadBytes);
+	size_t EnumProcesses(bool includeThreads, uint32_t pid, size_t extraProcessBytes, size_t extraThreadBytes);
 	std::shared_ptr<ProcessInfo> BuildProcessInfo(const SYSTEM_PROCESS_INFORMATION* info, bool includeThreads, ThreadMap
 		& threadsByKey, int64_t delta, std::shared_ptr<ProcessInfo> pi,	size_t extraBytesProcess, size_t extraBytesThread, bool extended);
 	std::vector<std::shared_ptr<ProcessInfo>>& GetProcesses() {
@@ -134,7 +134,7 @@ const std::vector<std::shared_ptr<ThreadInfo>>& ProcessManager::GetThreads() con
 }
 
 size_t ProcessManager::EnumProcesses() {
-	return _impl->EnumProcesses(false, 0, 0);
+	return _impl->EnumProcesses(false, 0, 0, 0);
 }
 
 std::shared_ptr<ThreadInfo> ProcessManager::GetThreadInfo(int index) const {
@@ -166,11 +166,11 @@ std::wstring ProcessManager::GetProcessNameById(uint32_t pid) const {
 	return pi ? pi->GetImageName() : L"";
 }
 
-size_t ProcessManager::EnumProcessesAndThreads(size_t extraBytesProcess, size_t extraBytesThread) {
-	return _impl->EnumProcesses(true, extraBytesProcess, extraBytesThread);
+size_t ProcessManager::EnumProcessesAndThreads(uint32_t pid, size_t extraBytesProcess, size_t extraBytesThread) {
+	return _impl->EnumProcesses(true, pid, extraBytesProcess, extraBytesThread);
 }
 
-size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, size_t extraBytesProcess, size_t extraBytesThread) {
+size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid, size_t extraBytesProcess, size_t extraBytesThread) {
 	std::vector<std::shared_ptr<ProcessInfo>> processes;
 	processes.reserve(_processes.empty() ? 256 : _processes.size() + 10);
 	ProcessMap processesByKey;
@@ -214,30 +214,31 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, size_t extraByte
 		auto p = reinterpret_cast<SYSTEM_PROCESS_INFORMATION*>(buffer.get());
 
 		for (;;) {
-			ProcessOrThreadKey key = { p->CreateTime.QuadPart, HandleToULong(p->UniqueProcessId) };
-			std::shared_ptr<ProcessInfo> pi;
-			if (auto it = _processesByKey.find(key); it == _processesByKey.end()) {
-				// new process
-				pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi, extraBytesProcess, extraBytesThread, extended);
-				_newProcesses.push_back(pi);
-				pi->CPU = 0;
-			}
-			else {
-				auto& pi2 = it->second;
-				auto cpu = delta == 0 ? 0 : (int32_t)((p->KernelTime.QuadPart + p->UserTime.QuadPart - pi2->UserTime - pi2->KernelTime) * 1000000 / delta / _totalProcessors);
-				pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi2, extraBytesProcess, extraBytesThread, extended);
-				pi->CPU = cpu;
+			if (pid == 0 || pid == HandleToULong(p->UniqueProcessId)) {
+				ProcessOrThreadKey key = { p->CreateTime.QuadPart, HandleToULong(p->UniqueProcessId) };
+				std::shared_ptr<ProcessInfo> pi;
+				if (auto it = _processesByKey.find(key); it == _processesByKey.end()) {
+					// new process
+					pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi, extraBytesProcess, extraBytesThread, extended);
+					_newProcesses.push_back(pi);
+					pi->CPU = 0;
+				}
+				else {
+					auto& pi2 = it->second;
+					auto cpu = delta == 0 ? 0 : (int32_t)((p->KernelTime.QuadPart + p->UserTime.QuadPart - pi2->UserTime - pi2->KernelTime) * 1000000 / delta / _totalProcessors);
+					pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi2, extraBytesProcess, extraBytesThread, extended);
+					pi->CPU = cpu;
 
-				// remove from known processes
-				_processesByKey.erase(key);
+					// remove from known processes
+					_processesByKey.erase(key);
+				}
+				processes.push_back(pi);
+				//
+				// add process to maps
+				//
+				processesByKey.insert(std::make_pair(key, pi));
+				_processesById.insert(std::make_pair(pi->Id, pi));
 			}
-			processes.push_back(pi);
-			//
-			// add process to maps
-			//
-			processesByKey.insert(std::make_pair(key, pi));
-			_processesById.insert(std::make_pair(pi->Id, pi));
-
 			if (p->NextEntryOffset == 0)
 				break;
 			p = reinterpret_cast<SYSTEM_PROCESS_INFORMATION*>((BYTE*)p + p->NextEntryOffset);

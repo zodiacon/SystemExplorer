@@ -60,7 +60,7 @@ LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
 		}
 		else {
 			name.Format(L"Memory (%s: %u)", name, pid);
-			m_view.AddPage(*view, name, 0, view);
+			m_view.AddPage(*view, name, m_MemoryIcon, view);
 		}
 	}
 	return 0;
@@ -222,6 +222,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		m_WindowsIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_WINDOWS, 64, 16, 16));
 		m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_SERVICES, 64, 16, 16));
 		m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
+		m_MemoryIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DRAM, 64, 16, 16));
 	}
 
 	int index = 0;
@@ -314,6 +315,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	PostMessage(WM_CLOSE);
+
 	return 0;
 }
 
@@ -592,6 +594,9 @@ void CMainFrame::InitCommandBar() {
 		{ ID_HANDLES_PIPES, IDI_PIPE },
 		{ ID_OBJECTS_MAILSLOTS, IDI_MAILBOX },
 		{ ID_TAB_NEWWINDOW, IDI_WINDOW_NEW },
+		{ ID_PROCESS_MEMORYMAP, IDI_DRAM },
+		{ ID_SYSTEM_PROCESSES, IDI_PROCESS },
+		{ ID_SYSTEM_THREADS, IDI_THREAD },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);

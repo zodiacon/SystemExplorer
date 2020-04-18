@@ -84,6 +84,10 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 
 	_newHandles.clear();
 	_closedHandles.clear();
+	if (_handles.empty()) {
+		_newHandles.reserve(1024);
+		_closedHandles.reserve(32);
+	}
 
 	if (_handles.empty()) {
 		_handles.reserve(info->NumberOfHandles);

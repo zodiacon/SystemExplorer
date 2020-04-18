@@ -165,6 +165,7 @@
     <ClInclude Include="ProcessHandlesTracker.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="ProcessManager.h" />
+    <ClInclude Include="ProcessVMTracker.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="ServiceInfo.h" />
     <ClInclude Include="ServiceManager.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="ProcessHandlesTracker.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessManager.cpp" />
+    <ClCompile Include="ProcessVMTracker.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="ServiceManager.cpp" />
   </ItemGroup>
