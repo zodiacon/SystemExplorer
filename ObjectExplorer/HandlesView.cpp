@@ -368,10 +368,12 @@ void CHandlesView::UpdateUI() {
 
 CString CHandlesView::HandleAttributesToString(ULONG attributes) {
 	CString result;
-	if (attributes & HANDLE_FLAG_INHERIT)
+	if (attributes & 2)
 		result += L", Inherit";
-	if (attributes & HANDLE_FLAG_PROTECT_FROM_CLOSE)
+	if (attributes & 1)
 		result += L", Protect";
+	if (attributes & 4)
+		result += L", Audit";
 
 	if (result.IsEmpty())
 		result = L"None";
