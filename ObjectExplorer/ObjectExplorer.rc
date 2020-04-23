@@ -190,6 +190,8 @@ IDR_CONTEXT MENU
 BEGIN
     POPUP "handle"
     BEGIN
+        MENUITEM "&All Handles for Object...",  ID_OBJECTS_ALLHANDLESFOROBJECT
+        MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE
     END
     POPUP "tab"
@@ -256,6 +258,11 @@ BEGIN
         MENUITEM "Continue",                    ID_SERVICE_CONTINUE
         MENUITEM SEPARATOR
         MENUITEM "Uninstall",                   ID_SERVICE_UNINSTALL
+    END
+    POPUP "header"
+    BEGIN
+        MENUITEM "Hide Column",                 ID_HEADER_HIDECOLUMN
+        MENUITEM "Columns...",                  ID_HEADER_COLUMNS
     END
 END
 
@@ -407,7 +414,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.65\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.68\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -586,7 +593,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright 2019"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
             VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 6, 7, 0"
+            VALUE "ProductVersion", "0, 6, 8, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -642,7 +649,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.67 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.68 (C)2019-2020 Pavel Yosifovich"
     IDS_TITLE               "Object Explorer"
 END
 

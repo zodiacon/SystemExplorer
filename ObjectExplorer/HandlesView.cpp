@@ -8,6 +8,7 @@
 #include "ObjectTypeFactory.h"
 #include "DriverHelper.h"
 #include "NtDll.h"
+#include "ObjectHandlesDlg.h"
 
 using namespace WinSys;
 
@@ -192,7 +193,9 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
-	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, GetSelectedIndex() >= 0);
+	auto index = GetSelectedIndex();
+	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, index >= 0);
+	m_pUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, index >= 0);
 
 	return 0;
 }
@@ -323,6 +326,17 @@ LRESULT CHandlesView::OnPauseResume(WORD, WORD, HWND, BOOL&) {
 			SetTimer(1, 1000, nullptr);
 	}
 	UpdateUI();
+	return 0;
+}
+
+LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
+	ATLASSERT(GetSelectedIndex() >= 0);
+	auto& item = m_Handles[GetSelectedIndex()];
+	ATLASSERT(item->ObjectInfo);
+	CObjectHandlesDlg dlg(item->ObjectInfo, m_ProcMgr);
+	CImageList il = m_pFrame->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->ObjectInfo->TypeName)));
+
 	return 0;
 }
 

@@ -8,7 +8,8 @@ enum class ColumnFlags {
 	Visible = 1,
 	Fixed = 2,
 	Const = 4,
-	Mandatory = 8
+	Mandatory = 8,
+	Modified = 0x80
 };
 DEFINE_ENUM_FLAG_OPERATORS(ColumnFlags);
 
@@ -27,6 +28,10 @@ public:
 	};
 
 	ColumnManager(HWND hListView) : m_ListView(hListView) {}
+	~ColumnManager();
+	ColumnManager(const ColumnManager&) = delete;
+	ColumnManager& operator=(const ColumnManager&) = delete;
+
 	HWND GetListView() const {
 		return m_ListView;
 	}
@@ -35,11 +40,15 @@ public:
 	void AddFromControl(HWND hList = nullptr);
 	void SetVisible(int column, bool visible);
 	bool IsVisible(int column) const;
+	bool IsModified(int column) const;
+	void SetModified(int column, bool modified);
 	bool IsConst(int column) const;
 	int AddColumn(PCWSTR name, int format, int width, ColumnFlags flags);
 	const ColumnInfo& GetColumn(int index) const;
 	const std::vector<int>& GetColumnsByCategory(PCWSTR category) const;
 	const std::vector<CString>& GetCategories() const;
+
+	void UpdateColumns();
 
 	int GetCount() const {
 		return static_cast<int>(m_Columns.size());
@@ -68,5 +77,6 @@ inline void ColumnManager::ColumnInfo::SetVisible(bool visible) {
 		Flags |= ColumnFlags::Visible;
 	else
 		Flags &= ~ColumnFlags::Visible;
+	Flags |= ColumnFlags::Modified;
 }
 

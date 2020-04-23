@@ -38,14 +38,15 @@ struct CVirtualListView {
 
 protected:
 	ColumnManager* GetColumnManager(HWND hListView) {
-		auto it = std::find_if(m_Columns.begin(), m_Columns.end(), [](auto& cm) {
+		auto it = std::find_if(m_Columns.begin(), m_Columns.end(), [=](auto& cm) {
 			return cm->GetListView() == hListView;
 			});
 		if (it != m_Columns.end())
-			return it->second.get();
+			return (*it).get();
 		auto cm = std::make_unique<ColumnManager>(hListView);
-		m_Columns.push_back(cm);
-		return cm.get();
+		auto pcm = cm.get();
+		m_Columns.push_back(std::move(cm));
+		return pcm;
 	}
 
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {

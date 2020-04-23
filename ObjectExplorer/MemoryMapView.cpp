@@ -271,6 +271,8 @@ COLORREF CMemoryMapView::UsageToBackColor(const WinSys::MemoryRegionItem& item) 
 		case MemoryUsage::Unusable: return RGB(192, 192, 192);
 		case MemoryUsage::Heap: return RGB(192, 128, 192);
 	}
+	if(item.State != MEM_FREE)
+		return RGB(255, 255, 0);
 	return CLR_INVALID;
 }
 
@@ -308,17 +310,15 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 				details.Usage = mi.Type == MEM_IMAGE ? MemoryUsage::Image : MemoryUsage::Mapped;
 			}
 		}
-		else {
-			if (m_hReadProcess) {
-				// try threads
-				for (auto& t : m_Threads) {
-					NT_TIB tib;
-					if (::ReadProcessMemory(m_hReadProcess.get(), t->TebBase, &tib, sizeof(tib), nullptr)) {
-						if (mi.BaseAddress >= tib.StackLimit && mi.BaseAddress < tib.StackBase) {
-							details.Details.Format(L"Thread %d (0x%X) stack", t->Id, t->Id);
-							details.Usage = MemoryUsage::ThreadStack;
-							break;
-						}
+		else if (m_hReadProcess) {
+			// try threads
+			for (auto& t : m_Threads) {
+				NT_TIB tib;
+				if (::ReadProcessMemory(m_hReadProcess.get(), t->TebBase, &tib, sizeof(tib), nullptr)) {
+					if (mi.BaseAddress >= tib.StackLimit && mi.BaseAddress < tib.StackBase) {
+						details.Details.Format(L"Thread %u (0x%X) stack", t->Id, t->Id);
+						details.Usage = MemoryUsage::ThreadStack;
+						break;
 					}
 				}
 			}
@@ -334,10 +334,8 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 		}
 	}
 
-	if (details.Usage == MemoryUsage::Unknown) {
-		details.Usage = MemoryUsage::PrivateData;
-	}
+	if (details.Usage != MemoryUsage::Unknown)
+		m_Details.insert({ mi.AllocationBase, details });
 
-	m_Details.insert({ mi.AllocationBase, details });
 	return details;
 }

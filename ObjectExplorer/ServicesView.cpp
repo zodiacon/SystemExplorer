@@ -42,12 +42,15 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 
-	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 170);
-	m_List.InsertColumn(1, L"Display Name", LVCFMT_LEFT, 280);
-	m_List.InsertColumn(2, L"State", LVCFMT_LEFT, 80);
-	m_List.InsertColumn(3, L"PID", LVCFMT_RIGHT, 100);
-	m_List.InsertColumn(4, L"Process Name", LVCFMT_LEFT, 150);
-	m_List.InsertColumn(5, L"Start Type", LVCFMT_LEFT, 150);
+	auto cm = GetColumnManager(m_List);
+	cm->AddColumn(L"Name", LVCFMT_LEFT, 170, ColumnFlags::Visible | ColumnFlags::Mandatory);
+	cm->AddColumn(L"Display Name", LVCFMT_LEFT, 280, ColumnFlags::Visible | ColumnFlags::Mandatory);
+	cm->AddColumn(L"State", LVCFMT_LEFT, 80, ColumnFlags::Visible);
+	cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, ColumnFlags::Visible);
+	cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, ColumnFlags::Visible);
+	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible);
+
+	cm->UpdateColumns();
 
 	UINT icons[] = { 
 		IDI_SERVICE, IDI_SERVICE_RUNNING, IDI_SERVICE_STOP, IDI_SERVICE_PAUSE
@@ -124,17 +127,34 @@ LRESULT CServicesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
-	auto index = m_List.GetSelectedIndex();
+	POINT pt;
+	::GetCursorPos(&pt);
+	CPoint pt2(pt);
+	auto header = m_List.GetHeader();
+	header.ScreenToClient(&pt);
+	HDHITTESTINFO hti;
+	hti.pt = pt;
+	int index = header.HitTest(&hti);
+	CMenuHandle hSubMenu;
+	CMenu menu;
+	menu.LoadMenu(IDR_CONTEXT);
 	if (index >= 0) {
-		auto item = (NMITEMACTIVATE*)hdr;
-		CMenu menu;
-		menu.LoadMenu(IDR_CONTEXT);
-		auto hSubMenu = menu.GetSubMenu(6);
-		CPoint pt(item->ptAction);
-		m_List.ClientToScreen(&pt);
-		UpdateUI(m_pFrame->GetUpdateUI());
-		m_pFrame->TrackPopupMenu(hSubMenu, nullptr, &pt);
+		// right-click header
+		hSubMenu = menu.GetSubMenu(7);
+		pt = pt2;
 	}
+	else {
+		index = m_List.GetSelectedIndex();
+		if (index >= 0) {
+			auto item = (NMITEMACTIVATE*)hdr;
+			hSubMenu = menu.GetSubMenu(6);
+			pt = item->ptAction;
+			m_List.ClientToScreen(&pt);
+			UpdateUI(m_pFrame->GetUpdateUI());
+		}
+	}
+	if(hSubMenu)
+		m_pFrame->TrackPopupMenu(hSubMenu, nullptr, &pt);
 	return 0;
 }
 

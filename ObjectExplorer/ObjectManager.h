@@ -10,6 +10,8 @@ enum class PoolType {
 	PagedPoolSessionNx = NonPagedPoolNx + 33
 };
 
+struct ObjectInfo;
+
 struct HandleInfo {
 	PVOID Object;
 	ULONG ProcessId;
@@ -18,6 +20,7 @@ struct HandleInfo {
 	ULONG HandleAttributes;
 	USHORT ObjectTypeIndex;
 	CString Name;
+	ObjectInfo* ObjectInfo;
 };
 
 struct ObjectInfo {

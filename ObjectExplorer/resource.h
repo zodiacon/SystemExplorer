@@ -81,7 +81,6 @@
 #define IDI_PIPE                        279
 #define IDI_ICON7                       280
 #define IDI_WINDOW_NEW                  280
-#define IDI_ICON9                       281
 #define IDI_COMMIT                      281
 #define IDI_FREE                        282
 #define IDI_RESERVED                    283
@@ -179,13 +178,15 @@
 #define ID_PROCESS_MODULES              32858
 #define ID_PROCESS_HEAPS                32859
 #define ID_TAB_NEWWINDOW                32860
+#define ID_HEADER_HIDECOLUMN            32861
+#define ID_HEADER_COLUMNS               32862
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        284
-#define _APS_NEXT_COMMAND_VALUE         32861
+#define _APS_NEXT_COMMAND_VALUE         32863
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

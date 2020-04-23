@@ -140,6 +140,7 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix)
 			obj->Handles.push_back(hi);
 			obj->TypeIndex = handle.ObjectTypeIndex;
 			obj->TypeName = GetType(obj->TypeIndex)->TypeName;
+			hi->ObjectInfo = obj.get();
 			if(!name.IsEmpty())
 				obj->Name = name;
 
@@ -147,9 +148,11 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix)
 			_objectsByAddress.insert({ handle.Object, obj });
 		}
 		else {
+			hi->ObjectInfo = nullptr;
 			it->second->HandleCount++;
 			it->second->Handles.push_back(hi);
 		}
+		_handles.push_back(hi);
 	}
 
 	return true;

@@ -31,6 +31,7 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPauseResume)
 		COMMAND_ID_HANDLER(ID_HANDLES_CLOSEHANDLE, OnCloseHandle)
+		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CHandlesView>, 1)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CHandlesView>, 1)
@@ -47,6 +48,7 @@ private:
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnPauseResume(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
