@@ -9,6 +9,7 @@
 #include "DriverHelper.h"
 #include "NtDll.h"
 #include "ObjectHandlesDlg.h"
+#include "AccessMaskDecoder.h"
 
 using namespace WinSys;
 
@@ -39,7 +40,7 @@ void CHandlesView::DoSort(const SortInfo* si) {
 
 bool CHandlesView::IsSortable(int col) const {
 	// details column cannot be sorted
-	return col != 8;
+	return col != 9;
 }
 
 bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
@@ -74,6 +75,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 			return SortHelper::SortNumbers(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
 
 		case 7:		// access mask
+		case 8:		// decoded access mask
 			return SortHelper::SortNumbers(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
 	}
 
@@ -83,7 +85,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -98,6 +100,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		{ L"PID", m_Pid == 0 ? 100 : 1, LVCFMT_RIGHT | (m_Pid == 0 ? 0 : LVCFMT_FIXED_WIDTH) },
 		{ L"Attributes", 100 },
 		{ L"Access Mask", 100, LVCFMT_RIGHT },
+		{ L"Decoded Access Mask", 200, LVCFMT_LEFT },
 		{ L"Details", 500 }
 	};
 
@@ -167,7 +170,11 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->GrantedAccess);
 				break;
 
-			case 8:	// details
+			case 8:	// decoded access mask
+				::StringCchCopy(item.pszText, item.cchTextMax, AccessMaskDecoder::DecodeAccessMask(m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName, data->GrantedAccess));
+				break;
+
+			case 9:	// details
 				if (::GetTickCount() > m_TargetUpdateTime || m_DetailsCache.find(data.get()) == m_DetailsCache.end()) {
 					auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
 					if (h) {
@@ -364,6 +371,10 @@ void CHandlesView::Refresh() {
 
 void CHandlesView::UpdateUI() {
 	m_pUI->UISetCheck(ID_VIEW_PAUSE, m_Paused);
+}
+
+CString CHandlesView::AccessMaskToString(PCWSTR type, ACCESS_MASK access) {
+	return CString();
 }
 
 CString CHandlesView::HandleAttributesToString(ULONG attributes) {

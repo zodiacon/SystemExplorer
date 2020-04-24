@@ -222,6 +222,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="AccessMaskDecoder.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="ColumnManager.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
@@ -272,6 +273,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="AccessMaskDecoder.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="DetachHostWindow.h" />

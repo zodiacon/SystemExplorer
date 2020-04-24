@@ -54,6 +54,7 @@ private:
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
 	void UpdateUI();
+	static CString AccessMaskToString(PCWSTR type, ACCESS_MASK access);
 
 private:
 	struct Change {

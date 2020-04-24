@@ -165,6 +165,9 @@
     <ClCompile Include="MemoryMapView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
+    <ClCompile Include="AccessMaskDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -304,6 +307,9 @@
     </ClInclude>
     <ClInclude Include="MemoryMapView.h">
       <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="AccessMaskDecoder.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
