@@ -49,7 +49,9 @@ void CMemoryMapView::DoSort(const SortInfo* si) {
 		});
 }
 
-DWORD CMemoryMapView::OnPrePaint(int, LPNMCUSTOMDRAW) {
+DWORD CMemoryMapView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
+	if (cd->hdr.hwndFrom != m_List)
+		return CDRF_DODEFAULT;
 	return CDRF_NOTIFYITEMDRAW;
 }
 
