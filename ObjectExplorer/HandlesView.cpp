@@ -35,7 +35,7 @@ void CHandlesView::DoSort(const SortInfo* si) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
 
-	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 bool CHandlesView::IsSortable(int col) const {
@@ -83,9 +83,12 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 }
 
 LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	DefWindowProc();
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+	auto hWndToolBar = CreateToolBar();
+	AddSimpleReBarBand(hWndToolBar);
+	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, ListViewDefaultStyle);
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
+	m_List.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 
 	struct {
 		PCWSTR Header;
@@ -108,9 +111,9 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	int i = 0;
 	for (auto& c : columns)
-		InsertColumn(i++, c.Header, c.Format, c.Width);
+		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -200,7 +203,7 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
-	auto index = GetSelectedIndex();
+	auto index = m_List.GetSelectedIndex();
 	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, index >= 0);
 	m_pUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, index >= 0);
 
@@ -216,7 +219,7 @@ LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
 }
 
 LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
-	auto selected = GetSelectedIndex();
+	auto selected = m_List.GetSelectedIndex();
 	ATLASSERT(selected >= 0);
 
 	auto& item = m_Handles[selected];
@@ -232,13 +235,14 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 	}
 	::CloseHandle(hDup);
 	m_Handles.erase(m_Handles.begin() + selected);
-	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-	RedrawItems(selected, selected + GetCountPerPage());
+	m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	m_List.RedrawItems(selected, selected + m_List.GetCountPerPage());
 
 	return 0;
 }
 
 LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
+	CWaitCursor wait;
 	Refresh();
 	return 0;
 }
@@ -258,18 +262,23 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		}
 
 		for (auto& h : m_HandleTracker->GetNewHandles()) {
+			auto hDup = ObjectManager::DupHandle(h.HandleValue, m_Pid, h.ObjectTypeIndex);
+			auto name = hDup ? m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex) : L"";
+			if (m_NamedObjectsOnly && name.IsEmpty()) {
+				::CloseHandle(hDup);
+				continue;
+			}
 			auto hi = std::make_shared<HandleInfo>();
 			hi->HandleValue = HandleToULong(h.HandleValue);
 			hi->ProcessId = m_Pid;
 			hi->ObjectTypeIndex = h.ObjectTypeIndex;
-			auto hDup = ObjectManager::DupHandle(h.HandleValue, m_Pid, h.ObjectTypeIndex);
 			if (hDup) {
 				NT::OBJECT_BASIC_INFORMATION info;
 				if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectBasicInformation, &info, sizeof(info), nullptr))) {
 					hi->GrantedAccess = info.GrantedAccess;
 					hi->HandleAttributes = info.Attributes;
 				}
-				hi->Name = m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex);
+				hi->Name = name;
 				hi->Object = DriverHelper::GetObjectAddress(hDup);
 				::CloseHandle(hDup);
 			}
@@ -302,8 +311,8 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		auto si = GetSortInfo(*this);
 		if (si)
 			DoSort(si);
-		SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-		RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+		m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
 	return 0;
 }
@@ -337,8 +346,8 @@ LRESULT CHandlesView::OnPauseResume(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	ATLASSERT(GetSelectedIndex() >= 0);
-	auto& item = m_Handles[GetSelectedIndex()];
+	ATLASSERT(m_List.GetSelectedIndex() >= 0);
+	auto& item = m_Handles[m_List.GetSelectedIndex()];
 	ATLASSERT(item->ObjectInfo);
 	CObjectHandlesDlg dlg(item->ObjectInfo, m_ProcMgr);
 	CImageList il = m_pFrame->GetImageList();
@@ -347,13 +356,22 @@ LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
+	m_NamedObjectsOnly = !m_NamedObjectsOnly;
+	m_pUI->UISetCheck(ID_HANDLES_NAMEDOBJECTSONLY, m_NamedObjectsOnly);
+	CWaitCursor wait;
+	Refresh();
+
+	return 0;
+}
+
 void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
 		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
-		SetItemCount(0);
+		m_List.SetItemCount(0);
 		return;
 	}
-	m_ObjMgr.EnumHandles(m_HandleType, m_Pid);
+	m_ObjMgr.EnumHandles(m_HandleType, m_Pid, m_NamedObjectsOnly);
 	if (m_HandleTracker) {
 		m_DetailsCache.clear();
 		m_DetailsCache.reserve(1024);
@@ -366,7 +384,8 @@ void CHandlesView::Refresh() {
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo(*this));
-	SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 void CHandlesView::UpdateUI() {
@@ -416,4 +435,34 @@ DWORD CHandlesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 
 DWORD CHandlesView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
 	return CDRF_NOTIFYITEMDRAW;
+}
+
+HWND CHandlesView::CreateToolBar() {
+	CToolBarCtrl tb;
+	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+	tb.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
+
+	CImageList tbImages;
+	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
+	tb.SetImageList(tbImages);
+
+	struct {
+		UINT id;
+		int image;
+		int style = BTNS_BUTTON;
+		int state = TBSTATE_ENABLED;
+		PCWSTR text = nullptr;
+	} buttons[] = {
+		{ ID_HANDLES_NAMEDOBJECTSONLY, IDI_FONT, BTNS_CHECK | BTNS_SHOWTEXT, TBSTATE_ENABLED, L"Named Objects Only" },
+	};
+	for (auto& b : buttons) {
+		if (b.id == 0)
+			tb.AddSeparator(0);
+		else {
+			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
+		}
+	}
+
+	return hWndToolBar;
 }

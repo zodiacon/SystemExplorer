@@ -6,11 +6,13 @@
 #include "resource.h"
 
 class CHandlesView :
-	public CWindowImpl<CHandlesView, CListViewCtrl>,
+	public CFrameWindowImpl<CHandlesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CHandlesView>,
 	public CCustomDraw<CHandlesView> {
 public:
-	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
+	using BaseClass = CFrameWindowImpl<CHandlesView, CWindow, CControlWinTraits>;
+
+	DECLARE_WND_CLASS(nullptr)
 
 	CHandlesView(IMainFrame* pFrame, PCWSTR type = nullptr, DWORD pid = 0);
 	void DoSort(const SortInfo* si);
@@ -23,9 +25,9 @@ public:
 
 	BEGIN_MSG_MAP(CHandlesView)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
+		NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
+		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
@@ -33,8 +35,10 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_CLOSEHANDLE, OnCloseHandle)
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
-		CHAIN_MSG_MAP_ALT(CVirtualListView<CHandlesView>, 1)
-		CHAIN_MSG_MAP_ALT(CCustomDraw<CHandlesView>, 1)
+		COMMAND_ID_HANDLER(ID_HANDLES_NAMEDOBJECTSONLY, OnShowNamedObjectsOnly)
+		CHAIN_MSG_MAP(BaseClass)
+		CHAIN_MSG_MAP(CVirtualListView<CHandlesView>)
+		CHAIN_MSG_MAP(CCustomDraw<CHandlesView>)
 	END_MSG_MAP()
 
 private:
@@ -49,12 +53,14 @@ private:
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnPauseResume(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowNamedObjectsOnly(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
 	void UpdateUI();
 	static CString AccessMaskToString(PCWSTR type, ACCESS_MASK access);
+	HWND CreateToolBar();
 
 private:
 	struct Change {
@@ -65,6 +71,7 @@ private:
 	};
 
 	ObjectManager m_ObjMgr;
+	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;
 	std::unique_ptr<WinSys::ProcessHandlesTracker> m_HandleTracker;
 	CString m_HandleType;
@@ -78,5 +85,6 @@ private:
 	std::vector<Change> m_Changes;
 	wil::unique_handle m_hProcess;
 	bool m_Paused = false;
+	bool m_NamedObjectsOnly = false;
 };
 

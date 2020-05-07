@@ -7,16 +7,19 @@
 #include "ObjectManager.h"
 #include "VirtualListView.h"
 #include "Interfaces.h"
+#include "ToolBarHelper.h"
 
 struct IMainFrame;
 
 class CObjectsView : 
-	public CWindowImpl<CObjectsView, CListViewCtrl>,
+	public CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>,
 	public CMessageFilter,
 	public CCustomDraw<CObjectsView>,
 	public CVirtualListView<CObjectsView> {
 public:
-	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
+	using BaseClass = CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>;
+
+	DECLARE_WND_CLASS_EX(nullptr, CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, NULL);
 
 	CObjectsView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr);
 
@@ -33,13 +36,15 @@ public:
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
+		NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
+		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
+		COMMAND_ID_HANDLER(ID_HANDLES_NAMEDOBJECTSONLY, OnShowNamedObjectsOnly)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
-		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectsView>, 1)
+		CHAIN_MSG_MAP(BaseClass)
+		CHAIN_MSG_MAP(CVirtualListView<CObjectsView>)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -52,6 +57,7 @@ private:
 	bool CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si);
 	CString GetObjectDetails(ObjectInfo* info) const;
 	CString GetProcessHandleInfo(const HandleInfo& hi) const;
+	HWND CreateToolBar();
 
 private:
 	LRESULT OnActivatePage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -64,8 +70,10 @@ private:
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowNamedObjectsOnly(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
+	CListViewCtrl m_List;
 	IMainFrame* m_pFrame;
 	static int ColumnCount;
 	CImageListManaged m_Images;
@@ -74,4 +82,5 @@ private:
 	ObjectManager m_ObjMgr;
 	WinSys::ProcessManager m_ProcMgr;
 	CString m_Typename;
+	bool m_NamedObjectsOnly = false;
 };

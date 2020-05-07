@@ -83,7 +83,7 @@ int ObjectManager::EnumTypes() {
 	return static_cast<int>(_types.size());
 }
 
-bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix) {
+bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix, bool namedOnly) {
 	EnumTypes();
 
 	ULONG len = 1 << 25;
@@ -125,6 +125,8 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix)
 			if (name.IsEmpty() || name.Left(sprefix.GetLength()).CompareNoCase(sprefix) != 0)
 				continue;
 		}
+		if (namedOnly && name.IsEmpty())
+			continue;
 
 		auto hi = std::make_shared<HandleInfo>();
 		hi->HandleValue = (ULONG)handle.HandleValue;
@@ -158,7 +160,7 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix)
 	return true;
 }
 
-bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
+bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid, bool namedObjectsOnly) {
 	EnumTypes();
 
 	ULONG len = 1 << 25;
@@ -191,6 +193,9 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid) {
 
 		// skip Object Explorer process?
 		if (_skipThisProcess && handle.UniqueProcessId == ::GetCurrentProcessId())
+			continue;
+
+		if (namedObjectsOnly && GetObjectName((HANDLE)handle.HandleValue, (DWORD)handle.UniqueProcessId, handle.ObjectTypeIndex).IsEmpty())
 			continue;
 
 		auto hi = std::make_shared<HandleInfo>();

@@ -343,6 +343,7 @@
     <Image Include="res\find_next.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />
+    <Image Include="res\font.ico" />
     <Image Include="res\free.ico" />
     <Image Include="res\funnel.ico" />
     <Image Include="res\funnel_up.ico" />

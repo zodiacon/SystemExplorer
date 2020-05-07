@@ -31,7 +31,7 @@ void CObjectsView::DoSort(const SortInfo* si) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
 
-	RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 bool CObjectsView::IsSortable(int col) const {
@@ -84,6 +84,36 @@ CString CObjectsView::GetProcessHandleInfo(const HandleInfo& hi) const {
 	return info;
 }
 
+HWND CObjectsView::CreateToolBar() {
+	CToolBarCtrl tb;
+	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+	tb.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
+
+	CImageList tbImages;
+	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
+	tb.SetImageList(tbImages);
+
+	struct {
+		UINT id;
+		int image;
+		int style = BTNS_BUTTON;
+		int state = TBSTATE_ENABLED;
+		PCWSTR text = nullptr;
+	} buttons[] = {
+		{ ID_HANDLES_NAMEDOBJECTSONLY, IDI_FONT, BTNS_CHECK | BTNS_SHOWTEXT, TBSTATE_ENABLED, L"Named Objects Only" },
+	};
+	for (auto& b : buttons) {
+		if (b.id == 0)
+			tb.AddSeparator(0);
+		else {
+			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
+		}
+	}
+
+	return hWndToolBar;
+}
+
 LRESULT CObjectsView::OnActivatePage(UINT, WPARAM, LPARAM, BOOL&) {
 	return LRESULT();
 }
@@ -94,20 +124,20 @@ LRESULT CObjectsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		auto si = GetSortInfo();
 		if (si && si->SortColumn >= 0)
 			DoSort(si);
-		RedrawItems(GetTopIndex(), GetTopIndex() + GetCountPerPage());
+		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
 	return 0;
 }
 
 LRESULT CObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
-	auto selected = GetSelectedIndex();
+	auto selected = m_List.GetSelectedIndex();
 	if (selected < 0)
 		return 0;
 
 	CString text;
 	for (int i = 0; i < ColumnCount; i++) {
 		CString temp;
-		GetItemText(selected, i, temp);
+		m_List.GetItemText(selected, i, temp);
 		text += temp + ", ";
 	}
 
@@ -117,9 +147,13 @@ LRESULT CObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	DefWindowProc();
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+	auto hWndToolBar = CreateToolBar();
+	AddSimpleReBarBand(hWndToolBar);
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
+	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, ListViewDefaultStyle);
+
+	m_List.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
 
 	struct {
 		PCWSTR Header;
@@ -138,9 +172,9 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	int i = 0;
 	for (auto& c : columns)
-		InsertColumn(i++, c.Header, c.Format, c.Width);
+		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -202,15 +236,15 @@ LRESULT CObjectsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
-	m_pUpdateUI->UIEnable(ID_EDIT_COPY, GetSelectedIndex() >= 0);
-	m_pUpdateUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, GetSelectedIndex() >= 0);
+	m_pUpdateUI->UIEnable(ID_EDIT_COPY, m_List.GetSelectedIndex() >= 0);
+	m_pUpdateUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, m_List.GetSelectedIndex() >= 0);
 
 	return 0;
 }
 
 LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	ATLASSERT(GetSelectedIndex() >= 0);
-	auto& item = GetItem(GetSelectedIndex());
+	ATLASSERT(m_List.GetSelectedIndex() >= 0);
+	auto& item = GetItem(m_List.GetSelectedIndex());
 	CObjectHandlesDlg dlg(item.get(), m_ProcMgr);
 	CImageList il = m_pFrame->GetImageList();
 	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->TypeName)));
@@ -218,13 +252,21 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CObjectsView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
+	m_NamedObjectsOnly = !m_NamedObjectsOnly;
+	m_pUpdateUI->UISetCheck(ID_HANDLES_NAMEDOBJECTSONLY, m_NamedObjectsOnly);
+	Refresh();
+
+	return 0;
+}
+
 void CObjectsView::Refresh() {
 	CWaitCursor wait;
-	m_ObjMgr.EnumHandlesAndObjects(m_Typename);
+	m_ObjMgr.EnumHandlesAndObjects(m_Typename, 0, nullptr, m_NamedObjectsOnly);
 	m_ProcMgr.EnumProcesses();
 	m_Objects = m_ObjMgr.GetObjects();
 	if (GetSortColumn() >= 0)
 		DoSort(GetSortInfo());
 
-	SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
+	m_List.SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
 }

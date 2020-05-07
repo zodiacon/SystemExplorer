@@ -400,6 +400,8 @@ IDI_FREE                ICON                    "res\\free.ico"
 
 IDI_RESERVED            ICON                    "res\\reserved.ico"
 
+IDI_FONT                ICON                    "res\\font.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

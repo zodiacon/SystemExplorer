@@ -245,7 +245,7 @@ void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 		{ IdRefreshTree, IDI_REFRESH },
 		{ 0 },
 		{ IdOnlyVisible, IDI_WINDOW, BTNS_CHECK, TBSTATE_CHECKED | TBSTATE_ENABLED },
-		{ IdOnlyWithTitle, IDI_WINDOW_TITLE, BTNS_CHECK },
+		{ IdOnlyWithTitle, IDI_WINDOW_TITLE, BTNS_CHECK, TBSTATE_ENABLED, L"With Title" },
 		{ 0 },
 		{ ID_VIEW_SEARCH, IDI_FIND, BTNS_SHOWTEXT, TBSTATE_ENABLED, L"Find: " },
 	};

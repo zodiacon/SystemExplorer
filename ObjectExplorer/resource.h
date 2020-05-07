@@ -84,6 +84,8 @@
 #define IDI_COMMIT                      281
 #define IDI_FREE                        282
 #define IDI_RESERVED                    283
+#define IDI_ICON9                       284
+#define IDI_FONT                        284
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -180,13 +182,14 @@
 #define ID_TAB_NEWWINDOW                32860
 #define ID_HEADER_HIDECOLUMN            32861
 #define ID_HEADER_COLUMNS               32862
+#define ID_HANDLES_NAMEDOBJECTSONLY     32863
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        284
-#define _APS_NEXT_COMMAND_VALUE         32863
+#define _APS_NEXT_RESOURCE_VALUE        285
+#define _APS_NEXT_COMMAND_VALUE         32864
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
