@@ -34,6 +34,8 @@ extern CAppModule _Module;
 #include <atlsplit.h>
 #include <atltypes.h>
 #include <SetupAPI.h>
+#include <AclUI.h>
+#include <aclapi.h>
 #include "ObjExpCore.h"
 
 #if defined _M_IX86

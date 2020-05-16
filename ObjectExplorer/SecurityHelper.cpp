@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "SecurityHelper.h"
 
-
 bool SecurityHelper::IsRunningElevated() {
 	wil::unique_handle hToken;
 	if (!::OpenProcessToken(::GetCurrentProcess(), TOKEN_QUERY, hToken.addressof()))
@@ -42,3 +41,4 @@ bool SecurityHelper::RunElevated(PCWSTR param, bool ui) {
 	::CloseHandle(shi.hProcess);
 	return rc == WAIT_OBJECT_0;
 }
+

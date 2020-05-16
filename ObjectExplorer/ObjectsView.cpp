@@ -14,6 +14,8 @@
 #include "ObjectHandlesDlg.h"
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
+#include "SecurityInfo.h"
+#include "DriverHelper.h"
 
 int CObjectsView::ColumnCount;
 
@@ -236,8 +238,10 @@ LRESULT CObjectsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
-	m_pUpdateUI->UIEnable(ID_EDIT_COPY, m_List.GetSelectedIndex() >= 0);
-	m_pUpdateUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, m_List.GetSelectedIndex() >= 0);
+	auto selected = m_List.GetSelectedIndex();
+	m_pUpdateUI->UIEnable(ID_EDIT_COPY, selected >= 0);
+	m_pUpdateUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, selected >= 0);
+	m_pUpdateUI->UIEnable(ID_EDIT_SECURITY, selected >= 0);
 
 	return 0;
 }
@@ -256,6 +260,29 @@ LRESULT CObjectsView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
 	m_NamedObjectsOnly = !m_NamedObjectsOnly;
 	m_pUpdateUI->UISetCheck(ID_HANDLES_NAMEDOBJECTSONLY, m_NamedObjectsOnly);
 	Refresh();
+
+	return 0;
+}
+
+LRESULT CObjectsView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& item = m_Objects[selected];
+	auto& handle = item->Handles[0];
+
+	auto hDup = DriverHelper::DupHandle(UlongToHandle(handle->HandleValue), handle->ProcessId, 0);
+	if (!hDup) {
+		AtlMessageBox(*this, L"Error in handle duplication", IDR_MAINFRAME, MB_ICONERROR);
+		return 0;
+	}
+	auto info = new SecurityInfo(hDup, item->Name);
+	if (!::EditSecurity(*this, info)) {
+		AtlMessageBox(*this, L"Error launching security dialog box", IDR_MAINFRAME, MB_ICONERROR);
+	}
+	else {
+		::CloseHandle(hDup);
+	}
+	delete info;
 
 	return 0;
 }

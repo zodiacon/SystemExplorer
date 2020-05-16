@@ -67,6 +67,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Find...\tCtrl+F",            ID_EDIT_FIND
         MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
+        MENUITEM SEPARATOR
+        MENUITEM "&Security...",                ID_EDIT_SECURITY, INACTIVE
     END
     POPUP "&View"
     BEGIN
@@ -190,7 +192,11 @@ IDR_CONTEXT MENU
 BEGIN
     POPUP "handle"
     BEGIN
+        MENUITEM "Copy",                        ID_EDIT_COPY
+        MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE
+        MENUITEM SEPARATOR
+        MENUITEM "&Security...",                ID_EDIT_SECURITY
     END
     POPUP "tab"
     BEGIN
@@ -200,6 +206,8 @@ BEGIN
     POPUP "object"
     BEGIN
         MENUITEM "&All Handles...",             ID_OBJECTS_ALLHANDLESFOROBJECT
+        MENUITEM SEPARATOR
+        MENUITEM "&Security...",                ID_EDIT_SECURITY
     END
     POPUP "type"
     BEGIN
@@ -401,6 +409,8 @@ IDI_FREE                ICON                    "res\\free.ico"
 IDI_RESERVED            ICON                    "res\\reserved.ico"
 
 IDI_FONT                ICON                    "res\\font.ico"
+
+IDI_SHIELD2            ICON                    "res\\shield_blue.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -766,6 +776,11 @@ BEGIN
     ID_SERVICE_STOP         "Stop the service\nStop Service"
     ID_SERVICE_PAUSE        "Pause the service\nPause Service"
     ID_SERVICE_CONTINUE     "Resume the service\nResume Service"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_SECURITY        "Show security properties\nSecurity Properties"
 END
 
 #endif    // English (United States) resources

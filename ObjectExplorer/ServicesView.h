@@ -40,6 +40,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SERVICE_STOP, OnServiceStop)
 		COMMAND_ID_HANDLER(ID_SERVICE_PAUSE, OnServicePause)
 		COMMAND_ID_HANDLER(ID_SERVICE_CONTINUE, OnServiceContinue)
+		COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CAutoUpdateUI<CServicesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
@@ -56,6 +57,7 @@ private:
 	LRESULT OnServiceStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnServicePause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceContinue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnHideColumn(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(const WinSys::ServiceInfo& s1, const WinSys::ServiceInfo& s2, int col, bool asc);
@@ -77,6 +79,7 @@ private:
 	CToolBarCtrl m_ToolBar;
 	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;
+	int m_SelectedHeader;
 	bool m_RunningElevated;
 };
 

@@ -10,6 +10,7 @@
 #include "NtDll.h"
 #include "ObjectHandlesDlg.h"
 #include "AccessMaskDecoder.h"
+#include "SecurityInfo.h"
 
 using namespace WinSys;
 
@@ -122,6 +123,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CHandlesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, FALSE);
+	m_pUI->UIEnable(ID_EDIT_SECURITY, FALSE);
 
 	return DefWindowProc();
 }
@@ -206,6 +208,7 @@ LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
 	auto index = m_List.GetSelectedIndex();
 	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, index >= 0);
 	m_pUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, index >= 0);
+	m_pUI->UIEnable(ID_EDIT_SECURITY, index >= 0);
 
 	return 0;
 }
@@ -223,14 +226,14 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(selected >= 0);
 
 	auto& item = m_Handles[selected];
-	if (MessageBox(L"Closing a handle can potentially make the process unstable. Continue?", L"Object Explorer",
-		MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
+	if (AtlMessageBox(*this, L"Closing a handle can potentially make the process unstable. Continue?", 
+		IDR_MAINFRAME, MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 
 	auto hDup = m_ObjMgr.DupHandle(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex,
 		0, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 	if (!hDup) {
-		AtlMessageBox(*this, L"Failed to close handle", L"Object Explorer", MB_ICONERROR);
+		AtlMessageBox(*this, L"Failed to close handle", IDR_MAINFRAME, MB_ICONERROR);
 		return 0;
 	}
 	::CloseHandle(hDup);
@@ -361,6 +364,28 @@ LRESULT CHandlesView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
 	m_pUI->UISetCheck(ID_HANDLES_NAMEDOBJECTSONLY, m_NamedObjectsOnly);
 	CWaitCursor wait;
 	Refresh();
+
+	return 0;
+}
+
+LRESULT CHandlesView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& item = m_Handles[selected];
+
+	auto hDup = DriverHelper::DupHandle(UlongToHandle(item->HandleValue), item->ProcessId, 0);
+	if (!hDup) {
+		AtlMessageBox(*this, L"Error in handle duplication", IDR_MAINFRAME, MB_ICONERROR);
+		return 0;
+	}
+	auto info = new SecurityInfo(hDup, item->Name);
+	if (!::EditSecurity(*this, info)) {
+		AtlMessageBox(*this, L"Error launching security dialog box", IDR_MAINFRAME, MB_ICONERROR);
+	}
+	else {
+		::CloseHandle(hDup);
+	}
+	delete info;
 
 	return 0;
 }

@@ -251,6 +251,7 @@
     <ClCompile Include="ProcessSelectDlg.cpp" />
     <ClCompile Include="ProgressDlg.cpp" />
     <ClCompile Include="SectionObjectType.cpp" />
+    <ClCompile Include="SecurityInfo.cpp" />
     <ClCompile Include="SecurityHelper.cpp" />
     <ClCompile Include="SemaphoreObjectType.cpp" />
     <ClCompile Include="ServicesView.cpp" />
@@ -304,6 +305,7 @@
     <ClInclude Include="ProgressDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SectionObjectType.h" />
+    <ClInclude Include="SecurityInfo.h" />
     <ClInclude Include="SecurityHelper.h" />
     <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="ServicesView.h" />
@@ -375,6 +377,7 @@
     <Image Include="res\reserved.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
+    <Image Include="res\shield_blue.ico" />
     <Image Include="res\sign_forbidden.ico" />
     <Image Include="res\stop.ico" />
     <Image Include="res\symboliclink.ico" />

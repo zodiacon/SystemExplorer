@@ -138,9 +138,12 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	CMenuHandle hSubMenu;
 	CMenu menu;
 	menu.LoadMenu(IDR_CONTEXT);
+	//if (hti.flags & HHT_ONHEADER)
+	//	hSubMenu = menu.GetSubMenu(8);
 	if (index >= 0) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
+		m_SelectedHeader = index;
 		pt = pt2;
 	}
 	else {
@@ -288,6 +291,14 @@ LRESULT CServicesView::OnServiceContinue(WORD, WORD, HWND, BOOL&) {
 	m_List.RedrawItems(index, index);
 
 	return 0;
+}
+
+LRESULT CServicesView::OnHideColumn(WORD, WORD, HWND, BOOL&) {
+	auto cm = GetColumnManager(m_List);
+	cm->SetVisible(m_SelectedHeader, false);
+	cm->UpdateColumns();
+
+	return LRESULT();
 }
 
 bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, int col, bool asc) {

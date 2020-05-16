@@ -168,6 +168,9 @@
     <ClCompile Include="AccessMaskDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SecurityInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -309,6 +312,9 @@
       <Filter>Views</Filter>
     </ClInclude>
     <ClInclude Include="AccessMaskDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SecurityInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -512,6 +518,9 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\font.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\shield_blue.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
