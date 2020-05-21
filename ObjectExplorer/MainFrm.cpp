@@ -20,6 +20,7 @@
 #include "PipesMailslotsDlg.h"
 #include "DetachHostWindow.h"
 #include "MemoryMapView.h"
+#include "LogonSessionsView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -223,6 +224,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		m_ServicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_SERVICES, 64, 16, 16));
 		m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
 		m_MemoryIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DRAM, 64, 16, 16));
+		m_LoginIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_LOGIN, 64, 16, 16));
 	}
 
 	int index = 0;
@@ -539,6 +541,14 @@ LRESULT CMainFrame::OnDetachTab(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnViewLogonSessions(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CLogonSessionsView;
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Logon Sessions", m_LoginIcon, pView);
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -598,6 +608,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_PROCESS_MEMORYMAP, IDI_DRAM },
 		{ ID_SYSTEM_PROCESSES, IDI_PROCESS },
 		{ ID_SYSTEM_THREADS, IDI_THREAD },
+		{ ID_SYSTEM_LOGONSESSIONS, IDI_LOGIN },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);

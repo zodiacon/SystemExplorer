@@ -9,3 +9,4 @@
 #include "ThreadInfo.h"
 #include "ProcessHandlesTracker.h"
 #include "ProcessVMTracker.h"
+#include "LsaSecurity.h"

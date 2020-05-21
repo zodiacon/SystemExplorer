@@ -92,7 +92,7 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 	if (_handles.empty()) {
 		_handles.reserve(info->NumberOfHandles);
 		for (ULONG i = 0; i < info->NumberOfHandles; i++) {
-			auto& entry = info->Handles[i];
+			const auto& entry = info->Handles[i];
 			HandleEntryInfo key = { entry.HandleValue, entry.ObjectTypeIndex };
 			_handles.insert(key);
 		}

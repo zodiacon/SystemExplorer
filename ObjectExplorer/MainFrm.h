@@ -50,6 +50,7 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnShowHandlesInProcess)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SERVICES, OnViewSystemServices)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DEVICES, OnViewSystemDevices)
+		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
 		COMMAND_ID_HANDLER(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
@@ -119,6 +120,7 @@ private:
 	LRESULT OnShowAllPipes(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllMailslots(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnDetachTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewLogonSessions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
@@ -135,6 +137,6 @@ private:
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
 	inline static int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
-	inline static int m_DevicesIcon, m_MemoryIcon;
+	inline static int m_DevicesIcon, m_MemoryIcon, m_LoginIcon;
 	inline static int s_Frames;
 };

@@ -235,6 +235,7 @@
     <ClCompile Include="ImageHelper.cpp" />
     <ClCompile Include="JobObjectType.cpp" />
     <ClCompile Include="KeyObjectType.cpp" />
+    <ClCompile Include="LogonSessionsView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MemoryMapView.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="Interfaces.h" />
     <ClInclude Include="JobObjectType.h" />
     <ClInclude Include="KeyObjectType.h" />
+    <ClInclude Include="LogonSessionsView.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MemoryMapView.h" />
     <ClInclude Include="MutexObjectType.h" />
@@ -358,6 +360,7 @@
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\key.ico" />
+    <Image Include="res\login.ico" />
     <Image Include="res\mailbox.ico" />
     <Image Include="res\media_step_forward.ico" />
     <Image Include="res\mutex.ico" />

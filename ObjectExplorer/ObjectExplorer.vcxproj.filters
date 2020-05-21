@@ -171,6 +171,9 @@
     <ClCompile Include="SecurityInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LogonSessionsView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="SecurityInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogonSessionsView.h">
+      <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -521,6 +527,9 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\shield_blue.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\login.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

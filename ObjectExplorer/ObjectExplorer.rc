@@ -151,6 +151,7 @@ BEGIN
         MENUITEM "&Devices",                    ID_SYSTEM_DEVICES
         MENUITEM "&Drivers",                    ID_SYSTEM_DRIVERS
         MENUITEM "&COM",                        ID_SYSTEM_COM
+        MENUITEM "&Logon Sessions",             ID_SYSTEM_LOGONSESSIONS
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE
     END
@@ -410,7 +411,9 @@ IDI_RESERVED            ICON                    "res\\reserved.ico"
 
 IDI_FONT                ICON                    "res\\font.ico"
 
-IDI_SHIELD2            ICON                    "res\\shield_blue.ico"
+IDI_SHIELD2             ICON                    "res\\shield_blue.ico"
+
+IDI_LOGIN               ICON                    "res\\login.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
