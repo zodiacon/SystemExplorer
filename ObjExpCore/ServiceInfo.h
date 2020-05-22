@@ -20,6 +20,7 @@ namespace WinSys {
 		UserServiceInstance = SERVICE_USERSERVICE_INSTANCE,
 		PackageService = SERVICE_PKG_SERVICE,
 	};
+	DEFINE_ENUM_FLAG_OPERATORS(ServiceType);
 
 	enum class ServiceState {
 		Unknown = 0,

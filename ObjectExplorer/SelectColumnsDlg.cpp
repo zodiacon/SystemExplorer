@@ -2,6 +2,7 @@
 #include "SelectColumnsDlg.h"
 #include "SortHelper.h"
 #include <algorithm>
+#include "DialogHelper.h"
 
 CSelectColumnsDlg::CSelectColumnsDlg(ColumnManager* cm) : m_ColMgr(cm) {
 	ATLASSERT(cm);
@@ -37,6 +38,8 @@ void CSelectColumnsDlg::DoSort(const SortInfo* si) {
 }
 
 LRESULT CSelectColumnsDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
+	DialogHelper::AdjustOKCancelButtons(this);
+
 	m_List.Attach(GetDlgItem(IDC_COLUMNS));
 	m_List.SetExtendedListViewStyle(LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 

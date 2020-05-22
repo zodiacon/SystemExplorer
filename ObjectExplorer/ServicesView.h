@@ -7,10 +7,18 @@
 struct ServiceInfoEx {
 	ServiceInfoEx(PCWSTR name);
 	const WinSys::ServiceConfiguration* GetConfiguration() const;
+	const CString& GetDescription() const;
+	const CString& GetPrivileges() const;
+	const CString& GetTriggers() const;
+	const CString& GetDependencies() const;
 
 private:
 	mutable std::unique_ptr<WinSys::ServiceConfiguration> _config;
 	std::wstring _name;
+	mutable CString _desc, _privileges, _triggers, _dependencies;
+	mutable bool _flagPriveleges : 1 { false};
+	mutable bool _flagTriggers : 1 { false};
+	mutable bool _flagDependencies: 1 { false};
 };
 
 class CServicesView :
@@ -30,6 +38,9 @@ public:
 	bool IsSortable(int col) const;
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(int row) const;
+
+	static PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger);
+	static CString DependenciesToString(const std::vector<std::wstring>& deps);
 
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -68,6 +79,7 @@ private:
 	static PCWSTR ServiceStateToString(WinSys::ServiceState state);
 	static CString ServiceStartTypeToString(const WinSys::ServiceConfiguration&);
 	static PCWSTR ErrorControlToString(WinSys::ServiceErrorControl ec);
+	static CString ServiceTypeToString(WinSys::ServiceType type);
 
 	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name) const;
 
