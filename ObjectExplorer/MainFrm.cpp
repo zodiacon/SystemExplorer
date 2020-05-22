@@ -609,6 +609,8 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SYSTEM_PROCESSES, IDI_PROCESS },
 		{ ID_SYSTEM_THREADS, IDI_THREAD },
 		{ ID_SYSTEM_LOGONSESSIONS, IDI_LOGIN },
+		{ ID_HEADER_HIDECOLUMN, IDI_HIDECOLUMN },
+		{ ID_HEADER_COLUMNS, IDI_EDITCOLUMNS },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);

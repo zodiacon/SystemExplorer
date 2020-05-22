@@ -53,6 +53,7 @@ std::unique_ptr<ServiceConfiguration> ServiceManager::GetServiceConfiguration(co
 	result->DisplayName = config->lpDisplayName;
 	result->Tag = config->dwTagId;
 	result->StartType = static_cast<ServiceStartType>(config->dwStartType);
+	result->ErrorControl = static_cast<ServiceErrorControl>(config->dwErrorControl);
 	if (result->StartType == ServiceStartType::Auto) {
 		// check if delayed auto start
 		SERVICE_DELAYED_AUTO_START_INFO info;

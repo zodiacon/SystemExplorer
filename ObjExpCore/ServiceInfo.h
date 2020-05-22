@@ -15,7 +15,10 @@ namespace WinSys {
 		KernelDriver = SERVICE_KERNEL_DRIVER,
 		Win32OwnProcess = SERVICE_WIN32_OWN_PROCESS,
 		Win32SharedProcess = SERVICE_WIN32_SHARE_PROCESS,
-		InteractiveProcess = SERVICE_INTERACTIVE_PROCESS
+		InteractiveProcess = SERVICE_INTERACTIVE_PROCESS,
+		UserService = SERVICE_USER_SERVICE,
+		UserServiceInstance = SERVICE_USERSERVICE_INSTANCE,
+		PackageService = SERVICE_PKG_SERVICE,
 	};
 
 	enum class ServiceState {

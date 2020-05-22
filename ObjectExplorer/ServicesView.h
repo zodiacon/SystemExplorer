@@ -28,9 +28,10 @@ public:
 	BOOL OnIdle() override;
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
+	CString GetColumnText(HWND, int row, int col) const;
+	int GetRowImage(int row) const;
 
 	BEGIN_MSG_MAP(CServicesView)
-		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
@@ -41,6 +42,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SERVICE_PAUSE, OnServicePause)
 		COMMAND_ID_HANDLER(ID_SERVICE_CONTINUE, OnServiceContinue)
 		COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
+		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CAutoUpdateUI<CServicesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
@@ -50,7 +52,6 @@ private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnListRightClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnItemStateChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceStart(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -58,14 +59,17 @@ private:
 	LRESULT OnServicePause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceContinue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnHideColumn(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSelectColumns(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(const WinSys::ServiceInfo& s1, const WinSys::ServiceInfo& s2, int col, bool asc);
 
-	int ServiceStatusToImage(WinSys::ServiceState state);
+	static int ServiceStatusToImage(WinSys::ServiceState state);
 	static PCWSTR ServiceStateToString(WinSys::ServiceState state);
 	static CString ServiceStartTypeToString(const WinSys::ServiceConfiguration&);
-	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name);
+	static PCWSTR ErrorControlToString(WinSys::ServiceErrorControl ec);
+
+	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name) const;
 
 	void InitToolBar(CToolBarCtrl& tb);
 	void Refresh();
@@ -73,7 +77,7 @@ private:
 
 private:
 	std::vector<WinSys::ServiceInfo> m_Services;
-	std::unordered_map<std::wstring, ServiceInfoEx> m_ServicesEx;
+	mutable std::unordered_map<std::wstring, ServiceInfoEx> m_ServicesEx;
 
 	IMainFrame* m_pFrame;
 	CToolBarCtrl m_ToolBar;

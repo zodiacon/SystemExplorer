@@ -254,6 +254,7 @@
     <ClCompile Include="SectionObjectType.cpp" />
     <ClCompile Include="SecurityInfo.cpp" />
     <ClCompile Include="SecurityHelper.cpp" />
+    <ClCompile Include="SelectColumnsDlg.cpp" />
     <ClCompile Include="SemaphoreObjectType.cpp" />
     <ClCompile Include="ServicesView.cpp" />
     <ClCompile Include="SortHelper.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="SectionObjectType.h" />
     <ClInclude Include="SecurityInfo.h" />
     <ClInclude Include="SecurityHelper.h" />
+    <ClInclude Include="SelectColumnsDlg.h" />
     <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="ServicesView.h" />
     <ClInclude Include="SortHelper.h" />
@@ -384,6 +386,8 @@
     <Image Include="res\sign_forbidden.ico" />
     <Image Include="res\stop.ico" />
     <Image Include="res\symboliclink.ico" />
+    <Image Include="res\table_column-edit.ico" />
+    <Image Include="res\table_column_delete.ico" />
     <Image Include="res\thread.ico" />
     <Image Include="res\timer.ico" />
     <Image Include="res\token.ico" />

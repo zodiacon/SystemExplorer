@@ -29,7 +29,7 @@ public:
 
 	ColumnManager(HWND hListView) : m_ListView(hListView) {}
 	~ColumnManager();
-	ColumnManager(const ColumnManager&) = delete;
+	ColumnManager(const ColumnManager&) = default;
 	ColumnManager& operator=(const ColumnManager&) = delete;
 
 	HWND GetListView() const {
@@ -49,6 +49,7 @@ public:
 	const std::vector<CString>& GetCategories() const;
 
 	void UpdateColumns();
+	int GetRealColumn(int index) const;
 
 	int GetCount() const {
 		return static_cast<int>(m_Columns.size());
@@ -73,6 +74,10 @@ inline bool ColumnManager::ColumnInfo::IsMandatory() const {
 }
 
 inline void ColumnManager::ColumnInfo::SetVisible(bool visible) {
+	bool old = (Flags & ColumnFlags::Visible) == ColumnFlags::Visible;
+	if (old == visible)
+		return;
+
 	if (visible)
 		Flags |= ColumnFlags::Visible;
 	else

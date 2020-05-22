@@ -39,7 +39,7 @@ std::vector<ServiceTrigger> Service::GetTriggers() const {
 	auto info = reinterpret_cast<SERVICE_TRIGGER_INFO*>(buffer.get());
 	triggers.reserve(info->cTriggers);
 	for (DWORD i = 0; i < info->cTriggers; i++) {
-		auto& tinfo = info->pTriggers[i];
+		const auto& tinfo = info->pTriggers[i];
 		ServiceTrigger trigger;
 		trigger.Type = static_cast<ServiceTriggerType>(tinfo.dwTriggerType);
 		trigger.TriggerSubtype = tinfo.pTriggerSubtype;

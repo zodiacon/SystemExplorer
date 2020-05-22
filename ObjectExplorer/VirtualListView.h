@@ -2,6 +2,12 @@
 
 #include "ColumnManager.h"
 
+enum class ListViewRowCheck {
+	None,
+	Unchecked,
+	Checked
+};
+
 template<typename T>
 struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
@@ -19,6 +25,9 @@ struct CVirtualListView {
 		UINT_PTR Id;
 		HWND hWnd;
 		bool SortAscending;
+	private:
+		friend struct CVirtualListView;
+		int RealSortColumn = -1;
 	};
 
 	bool ClearSort(UINT_PTR id = 0) {
@@ -36,30 +45,61 @@ struct CVirtualListView {
 		return true;
 	}
 
+	bool ClearSort(HWND hWnd) {
+		auto si = FindByHwnd(hWnd);
+		if (si == nullptr)
+			return false;
+
+		auto header = CListViewCtrl(si->hWnd).GetHeader();
+		HDITEM h;
+		h.mask = HDI_FORMAT;
+		header.GetItem(si->RealSortColumn, &h);
+		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
+		header.SetItem(si->RealSortColumn, &h);
+		si->SortColumn = -1;
+		return true;
+	}
+
 protected:
-	ColumnManager* GetColumnManager(HWND hListView) {
+	ColumnManager* GetExistingColumnManager(HWND hListView) const {
 		auto it = std::find_if(m_Columns.begin(), m_Columns.end(), [=](auto& cm) {
 			return cm->GetListView() == hListView;
 			});
 		if (it != m_Columns.end())
 			return (*it).get();
+		return nullptr;
+	}
+
+	ColumnManager* GetColumnManager(HWND hListView) const {
+		auto mgr = GetExistingColumnManager(hListView);
+		if (mgr)
+			return mgr;
 		auto cm = std::make_unique<ColumnManager>(hListView);
 		auto pcm = cm.get();
 		m_Columns.push_back(std::move(cm));
 		return pcm;
 	}
 
+	int GetRealColumn(HWND hListView, int column) const {
+		auto cm = GetExistingColumnManager(hListView);
+		return cm ? cm->GetRealColumn(column) : column;
+	}
+
 	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto lv = (NMLVDISPINFO*)hdr;
 		auto& item = lv->item;
+		auto col = GetRealColumn(hdr->hwndFrom, item.iSubItem);
 		auto p = static_cast<T*>(this);
 		if (item.mask & LVIF_TEXT)
-			::StringCchCopy(item.pszText, item.cchTextMax, p->GetColumnText(hdr->hwndFrom, item.iItem, item.iSubItem));
+			::StringCchCopy(item.pszText, item.cchTextMax, p->GetColumnText(hdr->hwndFrom, item.iItem, col));
 		if (item.mask & LVIF_IMAGE)
 			item.iImage = p->GetRowImage(item.iItem);
 		if (item.mask & LVIF_INDENT)
 			item.iIndent = p->GetRowIndent(item.iItem);
-
+		if (item.mask & LVIF_STATE) {
+			item.state = INDEXTOSTATEIMAGEMASK((int)p->IsRowChecked(item.iItem));
+			item.stateMask = LVIS_STATEIMAGEMASK;
+		}
 		return 0;
 	}
 
@@ -86,7 +126,7 @@ protected:
 
 	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
 		auto lv = (NMLISTVIEW*)hdr;
-		auto col = lv->iSubItem;
+		auto col = GetRealColumn(hdr->hwndFrom, lv->iSubItem);
 
 		auto p = static_cast<T*>(this);
 		if (!p->IsSortable(col))
@@ -109,20 +149,29 @@ protected:
 			si->SortAscending = true;
 		}
 
-		HDITEM h;
-		h.mask = HDI_FORMAT;
 		CListViewCtrl list(hdr->hwndFrom);
 		auto header = list.GetHeader();
-		header.GetItem(si->SortColumn, &h);
-		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING | (si->SortAscending ? HDF_SORTUP : HDF_SORTDOWN);
-		header.SetItem(si->SortColumn, &h);
 
-		if (oldSortColumn >= 0 && oldSortColumn != si->SortColumn) {
+		HDITEM h;
+		if (si->RealSortColumn >= 0) {
 			h.mask = HDI_FORMAT;
-			header.GetItem(oldSortColumn, &h);
+			header.GetItem(si->RealSortColumn, &h);
 			h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
-			header.SetItem(oldSortColumn, &h);
+			header.SetItem(si->RealSortColumn, &h);
 		}
+		si->RealSortColumn = lv->iSubItem;
+
+		h.mask = HDI_FORMAT;
+		header.GetItem(lv->iSubItem, &h);
+		h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING | (si->SortAscending ? HDF_SORTUP : HDF_SORTDOWN);
+		header.SetItem(lv->iSubItem, &h);
+
+		//if (si->RealSortColumn >= 0) {
+		//	h.mask = HDI_FORMAT;
+		//	header.GetItem(oldSortColumn, &h);
+		//	h.fmt = (h.fmt & HDF_JUSTIFYMASK) | HDF_STRING;
+		//	header.SetItem(oldSortColumn, &h);
+		//}
 
 		static_cast<T*>(this)->DoSort(si);
 		list.RedrawItems(list.GetTopIndex(), list.GetTopIndex() + list.GetCountPerPage());
@@ -134,9 +183,9 @@ protected:
 		return true;
 	}
 
-	int GetSortColumn(UINT_PTR id = 0) const {
+	int GetSortColumn(HWND hWnd, UINT_PTR id = 0) const {
 		auto si = FindById(id);
-		return si ? si->SortColumn : -1;
+		return si ? GetRealColumn(hWnd, si->SortColumn) : -1;
 	}
 	int IsSortAscending(UINT_PTR id) const {
 		auto si = FindById(id);
@@ -167,6 +216,10 @@ protected:
 		return 0;
 	}
 
+	ListViewRowCheck IsRowChecked(int row) const {
+		return ListViewRowCheck::None;
+	}
+
 private:
 	SortInfo* FindById(UINT_PTR id) const {
 		if (id == 0)
@@ -187,5 +240,5 @@ private:
 	}
 
 	mutable std::vector<SortInfo> m_Controls;
-	std::vector<std::unique_ptr<ColumnManager>> m_Columns;
+	mutable std::vector<std::unique_ptr<ColumnManager>> m_Columns;
 };

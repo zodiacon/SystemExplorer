@@ -168,3 +168,10 @@ void ColumnManager::SetColumn(int i, const ColumnInfo & info) {
 		SetVisible(i, (info.Flags & ColumnFlags::Visible) == ColumnFlags::Visible);
 	}
 }
+
+int ColumnManager::GetRealColumn(int index) const {
+	HDITEM hdi;
+	hdi.mask = HDI_LPARAM;
+	m_ListView.GetHeader().GetItem(index, &hdi);
+	return static_cast<int>(hdi.lParam);
+}

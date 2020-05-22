@@ -4,8 +4,11 @@
 #include "ProgressDlg.h"
 #include <algorithm>
 #include "SortHelper.h"
+#include "SelectColumnsDlg.h"
 
 using namespace WinSys;
+
+PCWSTR AccessDenied = L"<access denied>";
 
 CServicesView::CServicesView(IMainFrame* pFrame) : m_pFrame(pFrame) {
 }
@@ -25,14 +28,21 @@ bool CServicesView::IsSortable(int col) const {
 	if (SecurityHelper::IsRunningElevated())
 		return true;
 
-	return col != 5;
+	static auto dummyConfig = GetServiceInfoEx(m_Services[0].GetName()).GetConfiguration();
+	return dummyConfig != nullptr;
+}
+
+int CServicesView::GetRowImage(int row) const {
+	return ServiceStatusToImage(m_Services[row].GetStatusProcess().CurrentState);
 }
 
 LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	DefWindowProc();
 
 	m_RunningElevated = SecurityHelper::IsRunningElevated();
-	auto hWndToolBar = m_ToolBar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE, 0, ATL_IDW_TOOLBAR);
+	auto hWndToolBar = m_ToolBar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+	m_ToolBar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
+
 	InitToolBar(m_ToolBar);
 	UIAddToolBar(hWndToolBar);
 
@@ -49,6 +59,9 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, ColumnFlags::Visible);
 	cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, ColumnFlags::Visible);
 	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible);
+	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 250, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
 
 	cm->UpdateColumns();
 
@@ -80,50 +93,33 @@ LRESULT CServicesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
 	return 0;
 }
 
-LRESULT CServicesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
-	auto lv = (NMLVDISPINFO*)hdr;
-	auto& item = lv->item;
-	auto& data = m_Services[item.iItem];
+CString CServicesView::GetColumnText(HWND, int row, int col) const {
+	auto& data = m_Services[row];
 	auto& pdata = data.GetStatusProcess();
+	auto config = GetServiceInfoEx(data.GetName()).GetConfiguration();
 
-	if (item.mask & LVIF_TEXT) {
-		switch (item.iSubItem) {
-			case 0:		// name
-				item.pszText = (PWSTR)data.GetName().c_str();
-				break;
+	CString text;
+	switch (col) {
+		case 0: return data.GetName().c_str();
+		case 1:	return data.GetDisplayName().c_str();
+		case 2: return ServiceStateToString(pdata.CurrentState);
+		case 3:		// PID
+			if (pdata.ProcessId > 0) {
+				text.Format(L"%u (0x%X)", pdata.ProcessId, pdata.ProcessId);
+			}
+			break;
 
-			case 1:		// display name
-				item.pszText = (PWSTR)data.GetDisplayName().c_str();
-				break;
+		case 4:		// process name
+			if (pdata.ProcessId > 0)
+				return m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str();
 
-			case 2:		// state
-				item.pszText = (PWSTR)ServiceStateToString(pdata.CurrentState);
-				break;
-
-			case 3:		// PID
-				if (pdata.ProcessId > 0) {
-					::StringCchPrintf(item.pszText, item.cchTextMax, L"%u (0x%X)", pdata.ProcessId, pdata.ProcessId);
-				}
-				break;
-
-			case 4:		// process name
-				if (pdata.ProcessId > 0) {
-					::StringCchCopy(item.pszText, item.cchTextMax, m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str());
-				}
-				break;
-
-			case 5:		// start type
-				auto config = GetServiceInfoEx(data.GetName()).GetConfiguration();
-				::StringCchCopy(item.pszText, item.cchTextMax, config ? ServiceStartTypeToString(*config) : L"<access denied>");
-				break;
-
-		}
-	}
-	if (item.mask & LVIF_IMAGE) {
-		item.iImage = ServiceStatusToImage(data.GetStatusProcess().CurrentState);
+		case 5:	return config ? ServiceStartTypeToString(*config) : AccessDenied;
+		case 6:	return config ? config->BinaryPathName.c_str() : AccessDenied;
+		case 7: return config ? config->AccountName.c_str() : AccessDenied;
+		case 8: return config ? ErrorControlToString(config->ErrorControl) : AccessDenied;
 	}
 
-	return 0;
+	return text;
 }
 
 LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
@@ -138,12 +134,12 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	CMenuHandle hSubMenu;
 	CMenu menu;
 	menu.LoadMenu(IDR_CONTEXT);
-	//if (hti.flags & HHT_ONHEADER)
-	//	hSubMenu = menu.GetSubMenu(8);
 	if (index >= 0) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
 		m_SelectedHeader = index;
+		m_pFrame->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
+			(GetColumnManager(m_List)->GetColumn(index).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 	}
 	else {
@@ -193,6 +189,7 @@ LRESULT CServicesView::OnServiceStart(WORD, WORD, HWND, BOOL&) {
 		}, 500);
 	dlg.DoModal();
 	m_List.RedrawItems(index, index);
+	UpdateUI(this);
 
 	return 0;
 }
@@ -225,6 +222,7 @@ LRESULT CServicesView::OnServiceStop(WORD, WORD, HWND, BOOL&) {
 		}, 500);
 	dlg.DoModal();
 	m_List.RedrawItems(index, index);
+	UpdateUI(this);
 
 	return 0;
 }
@@ -257,7 +255,8 @@ LRESULT CServicesView::OnServicePause(WORD, WORD, HWND, BOOL&) {
 		}, 500);
 	dlg.DoModal();
 	m_List.RedrawItems(index, index);
-	
+	UpdateUI(this);
+
 	return 0;
 }
 
@@ -289,6 +288,7 @@ LRESULT CServicesView::OnServiceContinue(WORD, WORD, HWND, BOOL&) {
 		}, 500);
 	dlg.DoModal();
 	m_List.RedrawItems(index, index);
+	UpdateUI(this);
 
 	return 0;
 }
@@ -297,8 +297,18 @@ LRESULT CServicesView::OnHideColumn(WORD, WORD, HWND, BOOL&) {
 	auto cm = GetColumnManager(m_List);
 	cm->SetVisible(m_SelectedHeader, false);
 	cm->UpdateColumns();
+	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 
-	return LRESULT();
+	return 0;
+}
+
+LRESULT CServicesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
+	CSelectColumnsDlg dlg(GetColumnManager(m_List));
+	if (IDOK == dlg.DoModal()) {
+		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
+	}
+
+	return 0;
 }
 
 bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, int col, bool asc) {
@@ -311,6 +321,16 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 		case 4: return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
 		case 5:	return SortHelper::SortStrings(ServiceStartTypeToString(*GetServiceInfoEx(s1.GetName()).GetConfiguration()),
 					ServiceStartTypeToString(*GetServiceInfoEx(s2.GetName()).GetConfiguration()), asc);
+		case 6: return SortHelper::SortStrings(
+			GetServiceInfoEx(s1.GetName()).GetConfiguration()->BinaryPathName,
+			GetServiceInfoEx(s2.GetName()).GetConfiguration()->BinaryPathName, asc);
+		case 7: return SortHelper::SortStrings(
+			GetServiceInfoEx(s1.GetName()).GetConfiguration()->AccountName,
+			GetServiceInfoEx(s2.GetName()).GetConfiguration()->AccountName, asc);
+		case 8: return SortHelper::SortNumbers(
+			GetServiceInfoEx(s1.GetName()).GetConfiguration()->ErrorControl,
+			GetServiceInfoEx(s2.GetName()).GetConfiguration()->ErrorControl, asc);
+
 	}
 	return false;
 }
@@ -355,7 +375,20 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 	return type;
 }
 
-ServiceInfoEx& CServicesView::GetServiceInfoEx(const std::wstring& name) {
+PCWSTR CServicesView::ErrorControlToString(WinSys::ServiceErrorControl ec) {
+	using namespace WinSys;
+
+	switch (ec) {
+		case ServiceErrorControl::Normal: return L"Normal (1)";
+		case ServiceErrorControl::Ignore: return L"Ignore (0)";
+		case ServiceErrorControl::Critical: return L"Critical (3)";
+		case ServiceErrorControl::Severe: return L"Severe (2)";
+	}
+	ATLASSERT(false);
+	return L"";
+}
+
+ServiceInfoEx& CServicesView::GetServiceInfoEx(const std::wstring& name) const {
 	auto it = m_ServicesEx.find(name);
 	if (it != m_ServicesEx.end())
 		return it->second;
@@ -374,11 +407,10 @@ void CServicesView::InitToolBar(CToolBarCtrl& tb) {
 		UINT id;
 		int image;
 		int style = BTNS_BUTTON;
-		int state = TBSTATE_ENABLED;
 		PCWSTR text = nullptr;
 	} buttons[] = {
-		{ ID_SERVICE_START, IDI_PLAY },
-		{ ID_SERVICE_STOP, IDI_STOP },
+		{ ID_SERVICE_START, IDI_PLAY, BTNS_SHOWTEXT, L"Start" },
+		{ ID_SERVICE_STOP, IDI_STOP, BTNS_SHOWTEXT, L"Stop" },
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
 		{ ID_SERVICE_CONTINUE, IDI_RESUME },
 	};
@@ -387,7 +419,7 @@ void CServicesView::InitToolBar(CToolBarCtrl& tb) {
 			tb.AddSeparator(0);
 		else {
 			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
-			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
+			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, b.text, 0);
 		}
 	}
 }

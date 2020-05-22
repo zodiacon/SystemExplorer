@@ -85,8 +85,11 @@
 #define IDI_RESERVED                    283
 #define IDI_FONT                        284
 #define IDI_SHIELD2                     285
-#define IDI_ICON2                       286
 #define IDI_LOGIN                       286
+#define IDD_COLUMNS                     287
+#define IDI_HIDECOLUMN                  289
+#define IDI_ICON9                       290
+#define IDI_EDITCOLUMNS                 290
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -100,6 +103,7 @@
 #define IDC_SERVICETYPE                 1010
 #define IDC_STARTTYPE                   1011
 #define IDC_LIST                        1011
+#define IDC_COLUMNS                     1012
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -191,9 +195,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        287
+#define _APS_NEXT_RESOURCE_VALUE        291
 #define _APS_NEXT_COMMAND_VALUE         32866
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
