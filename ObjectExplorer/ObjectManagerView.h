@@ -2,6 +2,7 @@
 
 #include "VirtualListView.h"
 #include "Interfaces.h"
+#include "resource.h"
 
 class CObjectManagerView : 
 	public CWindowImpl<CObjectManagerView>,
@@ -22,6 +23,7 @@ public:
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnListGetDispInfo)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
+		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectManagerView>)
 	END_MSG_MAP()
 
@@ -31,6 +33,7 @@ private:
 	LRESULT OnTreeSelectionChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnListGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnEditSecurity(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void InitTree();
 	void UpdateList(bool newNode);

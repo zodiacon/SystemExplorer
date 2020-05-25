@@ -11,6 +11,7 @@
 #include "ObjectHandlesDlg.h"
 #include "AccessMaskDecoder.h"
 #include "SecurityInfo.h"
+#include "SecurityHelper.h"
 
 using namespace WinSys;
 
@@ -226,7 +227,7 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(selected >= 0);
 
 	auto& item = m_Handles[selected];
-	if (AtlMessageBox(*this, L"Closing a handle can potentially make the process unstable. Continue?", 
+	if (AtlMessageBox(*this, L"Closing a handle can potentially make the process unstable. Continue?",
 		IDR_MAINFRAME, MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 
@@ -373,19 +374,19 @@ LRESULT CHandlesView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(selected >= 0);
 	auto& item = m_Handles[selected];
 
-	auto hDup = DriverHelper::DupHandle(UlongToHandle(item->HandleValue), item->ProcessId, 0);
+	auto hDup = DriverHelper::DupHandle(UlongToHandle(item->HandleValue), item->ProcessId, READ_CONTROL | WRITE_DAC);
+	if (!hDup)
+		hDup = DriverHelper::DupHandle(UlongToHandle(item->HandleValue), item->ProcessId, READ_CONTROL);
 	if (!hDup) {
 		AtlMessageBox(*this, L"Error in handle duplication", IDR_MAINFRAME, MB_ICONERROR);
 		return 0;
 	}
-	auto info = new SecurityInfo(hDup, item->Name);
-	if (!::EditSecurity(*this, info)) {
+
+	SecurityInfo info(hDup, item->Name);
+	if (!::EditSecurity(*this, &info)) {
 		AtlMessageBox(*this, L"Error launching security dialog box", IDR_MAINFRAME, MB_ICONERROR);
 	}
-	else {
-		::CloseHandle(hDup);
-	}
-	delete info;
+	::CloseHandle(hDup);
 
 	return 0;
 }

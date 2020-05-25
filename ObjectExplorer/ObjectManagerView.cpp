@@ -7,6 +7,7 @@
 #include "NtDll.h"
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
+#include "SecurityInfo.h"
 
 CObjectManagerView::CObjectManagerView(IMainFrame* frame) : m_pFrame(frame) {
 }
@@ -129,6 +130,14 @@ LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 LRESULT CObjectManagerView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	InitTree();
 	return 0;
+}
+
+LRESULT CObjectManagerView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
+	auto index = m_List.GetSelectedIndex();
+	ATLASSERT(index >= 0);
+	auto& item = m_Objects[index];
+
+	return LRESULT();
 }
 
 void CObjectManagerView::InitTree() {

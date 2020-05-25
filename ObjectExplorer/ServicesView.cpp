@@ -62,7 +62,7 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible);
 	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 250, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
 	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, ColumnFlags::None);
 	cm->AddColumn(L"Description", LVCFMT_LEFT, 250, ColumnFlags::None);
 	cm->AddColumn(L"Privileges", LVCFMT_LEFT, 180, ColumnFlags::None);
 	cm->AddColumn(L"Triggers", LVCFMT_LEFT, 200, ColumnFlags::None);
@@ -95,6 +95,8 @@ LRESULT CServicesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled) {
 }
 
 LRESULT CServicesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+	if (activate)
+		Refresh();
 	return 0;
 }
 
@@ -110,16 +112,13 @@ CString CServicesView::GetColumnText(HWND, int row, int col) const {
 		case 1:	return data.GetDisplayName().c_str();
 		case 2: return ServiceStateToString(pdata.CurrentState);
 		case 3: return ServiceTypeToString(pdata.Type);
-		case 4:		// PID
+		case 4:
 			if (pdata.ProcessId > 0) {
 				text.Format(L"%u (0x%X)", pdata.ProcessId, pdata.ProcessId);
 			}
 			break;
 
-		case 5:		// process name
-			if (pdata.ProcessId > 0)
-				return m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str();
-
+		case 5:	return pdata.ProcessId > 0 ? m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str() : L"";
 		case 6:	return config ? ServiceStartTypeToString(*config) : AccessDenied;
 		case 7:	return config ? config->BinaryPathName.c_str() : AccessDenied;
 		case 8: return config ? config->AccountName.c_str() : AccessDenied;

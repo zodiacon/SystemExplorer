@@ -18,8 +18,8 @@ private:
 	HRESULT __stdcall PropertySheetPageCallback(HWND hwnd, UINT uMsg, SI_PAGE_TYPE uPage) override;
 
 private:
-	unsigned _refCount = 1;
 	CString _name;
 	HANDLE _hObject;
+	BYTE _buffer[1 << 10];
 };
 

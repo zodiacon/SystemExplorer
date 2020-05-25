@@ -270,19 +270,19 @@ LRESULT CObjectsView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	auto& item = m_Objects[selected];
 	auto& handle = item->Handles[0];
 
-	auto hDup = DriverHelper::DupHandle(UlongToHandle(handle->HandleValue), handle->ProcessId, 0);
+	auto hDup = DriverHelper::DupHandle(UlongToHandle(handle->HandleValue), handle->ProcessId, READ_CONTROL | WRITE_DAC);
+	if (!hDup)
+		hDup = DriverHelper::DupHandle(UlongToHandle(handle->HandleValue), handle->ProcessId, READ_CONTROL);
+
 	if (!hDup) {
 		AtlMessageBox(*this, L"Error in handle duplication", IDR_MAINFRAME, MB_ICONERROR);
 		return 0;
 	}
-	auto info = new SecurityInfo(hDup, item->Name);
-	if (!::EditSecurity(*this, info)) {
+	SecurityInfo info(hDup, item->Name);
+	if (!::EditSecurity(*this, &info)) {
 		AtlMessageBox(*this, L"Error launching security dialog box", IDR_MAINFRAME, MB_ICONERROR);
 	}
-	else {
-		::CloseHandle(hDup);
-	}
-	delete info;
+	::CloseHandle(hDup);
 
 	return 0;
 }
