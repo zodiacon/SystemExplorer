@@ -329,7 +329,9 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 			ServiceStateToString(s1.GetStatusProcess().CurrentState), ServiceStateToString(s2.GetStatusProcess().CurrentState), asc);
 		case 3: return SortHelper::SortNumbers(s1.GetStatusProcess().Type, s2.GetStatusProcess().Type, asc);
 		case 4: return SortHelper::SortNumbers(s1.GetStatusProcess().ProcessId, s2.GetStatusProcess().ProcessId, asc);
-		case 5: return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
+		case 5: return SortHelper::SortStrings(
+			m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), 
+			m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
 		case 6:	return SortHelper::SortStrings(ServiceStartTypeToString(*GetServiceInfoEx(s1.GetName()).GetConfiguration()),
 					ServiceStartTypeToString(*GetServiceInfoEx(s2.GetName()).GetConfiguration()), asc);
 		case 7: return SortHelper::SortStrings(

@@ -16,7 +16,7 @@ namespace WinSys {
 		ProcessManager& operator=(const ProcessManager&) = delete;
 
 		size_t EnumProcesses();
-		size_t EnumProcessesAndThreads(uint32_t pid = 0, size_t extraBytesProcess = 0, size_t extraBytesThread = 0);
+		size_t EnumProcessesAndThreads(uint32_t pid = 0);
 
 		[[nodiscard]] std::vector<std::shared_ptr<ProcessInfo>>& GetProcesses();
 		[[nodiscard]] const std::vector<std::shared_ptr<ProcessInfo>>& GetProcesses() const;
