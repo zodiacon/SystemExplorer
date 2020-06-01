@@ -141,8 +141,6 @@ BEGIN
             MENUITEM "&WindowStation",              ID_SHOWHANDLESOFTYPE_WINDOWSTATION
         END
         MENUITEM SEPARATOR
-        MENUITEM "Handles in &Process...",      ID_HANDLES_SHOWHANDLEINPROCESS
-        MENUITEM SEPARATOR
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE, INACTIVE
     END
     POPUP "&System"
@@ -272,6 +270,14 @@ BEGIN
     BEGIN
         MENUITEM "Hide Column",                 ID_HEADER_HIDECOLUMN
         MENUITEM "Columns...",                  ID_HEADER_COLUMNS
+    END
+    POPUP "process"
+    BEGIN
+        MENUITEM "&Threads...",                 ID_PROCESS_THREADS
+        MENUITEM "Mo&dules...",                 ID_PROCESS_MODULES
+        MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
+        MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
+        MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
     END
 END
 
@@ -420,6 +426,12 @@ IDI_LOGIN               ICON                    "res\\login.ico"
 IDI_HIDECOLUMN          ICON                    "res\\table_column_delete.ico"
 
 IDI_EDITCOLUMNS         ICON                    "res\\table_column-edit.ico"
+
+IDI_DLL                 ICON                    "res\\dll.ico"
+
+IDI_DLL_DB              ICON                    "res\\dll-database.ico"
+
+IDI_DLL_RELOC           ICON                    "res\\dll-import.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

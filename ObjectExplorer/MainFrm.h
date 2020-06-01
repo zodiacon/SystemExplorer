@@ -137,6 +137,6 @@ private:
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
 	inline static int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
-	inline static int m_DevicesIcon, m_MemoryIcon, m_LoginIcon;
+	inline static int m_DevicesIcon, m_MemoryIcon, m_LoginIcon, m_ModulesIcon;
 	inline static int s_Frames;
 };

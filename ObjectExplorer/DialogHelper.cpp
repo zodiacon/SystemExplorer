@@ -5,7 +5,6 @@
 void DialogHelper::AdjustOKCancelButtons(CWindow* dlg) {
 	CButton ok(dlg->GetDlgItem(IDOK));
 	if (ok) {
-//		ok.SetWindowPos(nullptr, 0, 0, 80, 30, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOREPOSITION);
 		ok.SetWindowText(L"  OK");
 		ok.SetIcon(AtlLoadIconImage(IDI_OK, 0, 16, 16));
 	}

@@ -177,6 +177,12 @@
     <ClCompile Include="SelectColumnsDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="ModulesView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="FileHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -328,6 +334,12 @@
     </ClInclude>
     <ClInclude Include="SelectColumnsDlg.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ModulesView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHelper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -542,6 +554,15 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\table_column-edit.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\dll.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\dll-database.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\dll-import.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

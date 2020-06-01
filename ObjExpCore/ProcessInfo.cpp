@@ -18,7 +18,7 @@ const std::wstring& WinSys::ProcessInfo::GetUserName() const {
 		WCHAR name[64], domain[64];
 		DWORD lname = _countof(name), ldomain = _countof(domain);
 		SID_NAME_USE use;
-		if (::LookupAccountSid(nullptr, (PSID)UserSid.get(), name, &lname, domain, &ldomain, &use))
+		if (::LookupAccountSid(nullptr, (PSID)UserSid, name, &lname, domain, &ldomain, &use))
 			_userName = domain + std::wstring(L"\\") + name;
 	}
 	return _userName;

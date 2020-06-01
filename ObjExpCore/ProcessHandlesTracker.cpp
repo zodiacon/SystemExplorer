@@ -100,7 +100,7 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 	else {
 		auto oldHandles = _handles;
 		for (ULONG i = 0; i < info->NumberOfHandles; i++) {
-			auto& entry = info->Handles[i];
+			const auto& entry = info->Handles[i];
 			HandleEntryInfo key = { entry.HandleValue, entry.ObjectTypeIndex };
 			if (_handles.find(key) == _handles.end()) {
 				// new handle

@@ -52,7 +52,7 @@ namespace WinSys {
 		int64_t WorkingSetPrivateSize; // since VISTA
 		int32_t CPU;
 		uint32_t JobObjectId;
-		std::unique_ptr<BYTE[]> UserSid;
+		BYTE UserSid[SECURITY_MAX_SID_SIZE];
 
 		ProcessOrThreadKey Key;
 

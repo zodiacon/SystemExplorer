@@ -230,6 +230,7 @@
     <ClCompile Include="DialogHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
+    <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="FileObjectType.cpp" />
     <ClCompile Include="HandlesView.cpp" />
     <ClCompile Include="ImageHelper.cpp" />
@@ -238,6 +239,7 @@
     <ClCompile Include="LogonSessionsView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MemoryMapView.cpp" />
+    <ClCompile Include="ModulesView.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
     <ClCompile Include="ObjectExplorer.cpp" />
     <ClCompile Include="ObjectHandlesDlg.cpp" />
@@ -284,6 +286,7 @@
     <ClInclude Include="DialogHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
+    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="FileObjectType.h" />
     <ClInclude Include="HandlesView.h" />
     <ClInclude Include="ImageHelper.h" />
@@ -293,6 +296,7 @@
     <ClInclude Include="LogonSessionsView.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MemoryMapView.h" />
+    <ClInclude Include="ModulesView.h" />
     <ClInclude Include="MutexObjectType.h" />
     <ClInclude Include="NtDll.h" />
     <ClInclude Include="ObjectHandlesDlg.h" />
@@ -341,6 +345,9 @@
     <Image Include="res\desktop.ico" />
     <Image Include="res\device.ico" />
     <Image Include="res\directory.ico" />
+    <Image Include="res\dll-database.ico" />
+    <Image Include="res\dll-import.ico" />
+    <Image Include="res\dll.ico" />
     <Image Include="res\dram.ico" />
     <Image Include="res\event.ico" />
     <Image Include="res\factory.ico" />

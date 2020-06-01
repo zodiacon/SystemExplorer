@@ -308,7 +308,7 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 		if (mi.Type == MEM_IMAGE || mi.Type == MEM_MAPPED) {
 			WCHAR filename[MAX_PATH];
 			if (::GetMappedFileName(m_hProcess, mi.BaseAddress, filename, MAX_PATH) > 0) {
-				details.Details = filename;
+				details.Details = WinSys::Helpers::GetDosNameFromNtName(filename).c_str();
 				details.Usage = mi.Type == MEM_IMAGE ? MemoryUsage::Image : MemoryUsage::Mapped;
 			}
 		}

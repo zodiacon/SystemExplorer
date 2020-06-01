@@ -298,8 +298,7 @@ std::shared_ptr<ProcessInfo> ProcessManager::Impl::BuildProcessInfo(
 				FIELD_OFFSET(SYSTEM_PROCESS_INFORMATION, Threads) + sizeof(SYSTEM_EXTENDED_THREAD_INFORMATION) * info->NumberOfThreads);
 			pi->JobObjectId = ext->JobObjectId;
 			auto index = name.rfind(L'\\');
-			pi->UserSid = std::make_unique<BYTE[]>(SECURITY_MAX_SID_SIZE);
-			::memcpy(pi->UserSid.get(), (BYTE*)info + ext->UserSidOffset, sizeof(pi->UserSid));
+			::memcpy(pi->UserSid, (BYTE*)info + ext->UserSidOffset, sizeof(pi->UserSid));
 			pi->_processName = index == std::wstring::npos ? name : name.substr(index + 1);
 			pi->_nativeImagePath = name;
 			if (ext->PackageFullNameOffset > 0) {

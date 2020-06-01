@@ -34,16 +34,7 @@ namespace WinSys {
 		Realtime = REALTIME_PRIORITY_CLASS
 	};
 
-	enum class IntegrityLevel : uint32_t {
-		Untrusted = 0,
-		Unknown = 0xffffffff,
-		Low = SECURITY_MANDATORY_LOW_RID,
-		Medium = SECURITY_MANDATORY_MEDIUM_RID,
-		MediumPlus = SECURITY_MANDATORY_MEDIUM_PLUS_RID,
-		High = SECURITY_MANDATORY_HIGH_RID,
-		System = SECURITY_MANDATORY_SYSTEM_RID,
-		Protected = SECURITY_MANDATORY_PROTECTED_PROCESS_RID
-	};
+	enum class IntegrityLevel : uint32_t;
 
 	enum class ProtectedProcessSigner : uint8_t;
 	struct ProcessHandleInfo;
@@ -86,15 +77,10 @@ namespace WinSys {
 	public:
 		static std::unique_ptr<Process> OpenById(uint32_t pid, ProcessAccessMask access = ProcessAccessMask::QueryLimitedInformation);
 		static std::unique_ptr<Process> GetCurrent();
-
-		// do not use directly
-		Process(HANDLE handle, ProcessAccessMask accessMask);
-		Process(const Process&) = delete;
-		Process& operator=(const Process&) = delete;
-		Process(Process&& other) noexcept;
-		Process& operator=(Process&& other) noexcept;
-
+		Process(HANDLE handle);
 		~Process();
+
+		bool IsValid() const;
 
 		std::wstring GetFullImageName() const;
 		std::wstring GetCommandLine() const;
@@ -124,9 +110,7 @@ namespace WinSys {
 		std::vector<std::shared_ptr<ProcessHandleInfo>> EnumHandles();
 
 	private:
-
-		struct Impl;
-		std::unique_ptr<Impl> _impl;
+		wil::unique_handle _handle;
 	};
 
 }

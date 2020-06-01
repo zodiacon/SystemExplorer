@@ -54,6 +54,8 @@ namespace WinSys {
 			return _handle.get();
 		}
 
+		bool IsValid() const;
+
 		ThreadPriority GetPriority() const;
 		bool SetPriority(ThreadPriority priority);
 		CpuNumber GetIdealProcessor() const;

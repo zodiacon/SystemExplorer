@@ -90,6 +90,10 @@
 #define IDI_HIDECOLUMN                  289
 #define IDI_ICON9                       290
 #define IDI_EDITCOLUMNS                 290
+#define IDI_ICON2                       291
+#define IDI_DLL                         291
+#define IDI_DLL_DB                      292
+#define IDI_DLL_RELOC                   293
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -195,7 +199,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        291
+#define _APS_NEXT_RESOURCE_VALUE        294
 #define _APS_NEXT_COMMAND_VALUE         32866
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101

@@ -21,7 +21,7 @@ CString ThreadObjectType::GetDetails(HANDLE hThread) {
 	details.Format(L"TID: %d, PID: %d (%s) Created: %s, Exited: %s, CPU Time: %s",
 		tid, pid, name,	CTime(created).Format(L"%D %X"),
 		exited.dwHighDateTime + exited.dwLowDateTime == 0 ? L"(running)" : CTime(exited).Format(L"%D %X"),
-		CTimeSpan((*(int64_t*)& kernel + *(int64_t*)& user) / 10000000).Format(L"%D:%H:%M:%S"));
+		CTimeSpan((*(int64_t*)& kernel + *(int64_t*)& user) / 10000000).Format(L"%D.%H:%M:%S"));
 
 	return details;
 }

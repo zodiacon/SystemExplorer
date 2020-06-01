@@ -37,8 +37,6 @@ int CServicesView::GetRowImage(int row) const {
 }
 
 LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	DefWindowProc();
-
 	m_RunningElevated = SecurityHelper::IsRunningElevated();
 	auto hWndToolBar = m_ToolBar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
 	m_ToolBar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
@@ -317,6 +315,12 @@ LRESULT CServicesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
 	if (IDOK == dlg.DoModal()) {
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
+
+	return 0;
+}
+
+LRESULT CServicesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
+	Refresh();
 
 	return 0;
 }

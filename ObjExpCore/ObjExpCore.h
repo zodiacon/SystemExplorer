@@ -10,3 +10,5 @@
 #include "ProcessHandlesTracker.h"
 #include "ProcessVMTracker.h"
 #include "LsaSecurity.h"
+#include "ProcessModuleTracker.h"
+#include "Helpers.h"

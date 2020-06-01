@@ -1,6 +1,5 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Thread.h"
-#include "Handles.h"
 #include "SystemInformation.h"
 #include "Processes.h"
 #include "subprocesstag.h"
@@ -12,20 +11,20 @@ Thread::Thread(HANDLE handle, ThreadAccessMask access) : _handle(handle), _acces
 int Thread::GetMemoryPriority() const {
 	int priority = -1;
 	ULONG len;
-	::NtQueryInformationThread(_handle, ThreadPagePriority, &priority, sizeof(priority), &len);
+	::NtQueryInformationThread(_handle.get(), ThreadPagePriority, &priority, sizeof(priority), &len);
 	return priority;
 }
 
 IoPriority Thread::GetIoPriority() const {
 	IoPriority priority = IoPriority::Unknown;
 	ULONG len;
-	::NtQueryInformationThread(_handle, ThreadIoPriority, &priority, sizeof(priority), &len);
+	::NtQueryInformationThread(_handle.get(), ThreadIoPriority, &priority, sizeof(priority), &len);
 	return priority;
 }
 
 size_t WinSys::Thread::GetSubProcessTag() const {
 	THREAD_BASIC_INFORMATION tbi;
-	auto status = ::NtQueryInformationThread(_handle, ThreadBasicInformation, &tbi, sizeof(tbi), nullptr);
+	auto status = ::NtQueryInformationThread(_handle.get(), ThreadBasicInformation, &tbi, sizeof(tbi), nullptr);
 	if (!NT_SUCCESS(status))
 		return 0;
 
@@ -33,7 +32,7 @@ size_t WinSys::Thread::GetSubProcessTag() const {
 		return 0;
 
 	bool is64bit = SystemInformation::GetBasicSystemInfo().MaximumAppAddress > (void*)(1LL << 32);
-	auto pid = ::GetProcessIdOfThread(_handle);
+	auto pid = ::GetProcessIdOfThread(_handle.get());
 	auto process = Process::OpenById(pid, ProcessAccessMask::QueryLimitedInformation | ProcessAccessMask::VmRead);
 	if (!process)
 		return 0;
@@ -66,11 +65,15 @@ std::wstring Thread::GetServiceNameByTag(uint32_t pid) {
 	return info.OutParams.pszName;
 }
 
+bool WinSys::Thread::IsValid() const {
+	return _handle != nullptr;
+}
+
 CpuNumber Thread::GetIdealProcessor() const {
 	PROCESSOR_NUMBER cpu;
 	ULONG len;
 	CpuNumber number;
-	if (NT_SUCCESS(::NtQueryInformationThread(_handle, ThreadIdealProcessorEx, &cpu, sizeof(cpu), &len))) {
+	if (NT_SUCCESS(::NtQueryInformationThread(_handle.get(), ThreadIdealProcessorEx, &cpu, sizeof(cpu), &len))) {
 		number.Group = cpu.Group;
 		number.Number = cpu.Number;
 	}

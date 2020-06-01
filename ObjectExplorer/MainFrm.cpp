@@ -21,8 +21,11 @@
 #include "DetachHostWindow.h"
 #include "MemoryMapView.h"
 #include "LogonSessionsView.h"
+#include "ModulesView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
+
+#define EXTRA_SPACE L"   "
 
 CMainFrame::CMainFrame() {
 	s_Frames++;
@@ -72,7 +75,22 @@ LRESULT CMainFrame::OnProcessThreads(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnProcessModules(WORD, WORD, HWND, BOOL&) {
-	return ShowNotImplemented();
+	CProcessSelectDlg dlg;
+	if (dlg.DoModal() == IDOK) {
+		CString name;
+		auto pid = dlg.GetSelectedProcess(name);
+		auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ);
+		auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
+		if (!view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)) {
+			AtlMessageBox(*this, L"Process not accessible", IDS_TITLE, MB_ICONERROR);
+			delete view;
+		}
+		else {
+			name.Format(L"Modules (%s: %u)" EXTRA_SPACE, name, pid);
+			m_view.AddPage(*view, name, m_ModulesIcon, view);
+		}
+	}
+	return 0;
 }
 
 LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
@@ -225,6 +243,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		m_DevicesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DEVICE, 64, 16, 16));
 		m_MemoryIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DRAM, 64, 16, 16));
 		m_LoginIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_LOGIN, 64, 16, 16));
+		m_ModulesIcon = m_TabImages.AddIcon(AtlLoadIconImage(IDI_DLL, 64, 16, 16));
 	}
 
 	int index = 0;
@@ -324,7 +343,7 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 LRESULT CMainFrame::OnViewSystemServices(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CServicesView(this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Services", m_ServicesIcon, pView);
+	m_view.AddPage(pView->m_hWnd, L"Services" EXTRA_SPACE, m_ServicesIcon, pView);
 
 	return 0;
 }
@@ -336,7 +355,7 @@ LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
 		delete pView;
 		return 0;
 	}
-	m_view.AddPage(hWnd, L"Devices", m_DevicesIcon, pView);
+	m_view.AddPage(hWnd, L"Devices" EXTRA_SPACE, m_DevicesIcon, pView);
 
 	return 0;
 }
@@ -344,7 +363,7 @@ LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
 LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	auto pView = new CObjectsView(this, this);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Objects", m_ObjectsIcon, pView);
+	m_view.AddPage(pView->m_hWnd, L"All Objects" EXTRA_SPACE, m_ObjectsIcon, pView);
 
 	return 0;
 }
@@ -352,7 +371,7 @@ LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CHandlesView(this);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Handles", m_HandlesIcon, pView);
+	m_view.AddPage(pView->m_hWnd, L"All Handles" EXTRA_SPACE, m_HandlesIcon, pView);
 
 	return 0;
 }
@@ -444,7 +463,7 @@ LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL&) {
 	auto tab = new CObjectSummaryView(this, *this);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
-	m_view.AddPage(tab->m_hWnd, L"Object Types", m_TypesIcon, tab);
+	m_view.AddPage(tab->m_hWnd, L"Object Types" EXTRA_SPACE, m_TypesIcon, tab);
 	return 0;
 }
 
@@ -456,7 +475,7 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 		auto pView = new CHandlesView(this, nullptr, pid);
 		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 		CString title;
-		title.Format(L"Handles (%s: %d)", name, pid);
+		title.Format(L"Handles (%s: %d)" EXTRA_SPACE, name, pid);
 		m_view.AddPage(pView->m_hWnd, title, 1, pView);
 	}
 
@@ -482,7 +501,7 @@ LRESULT CMainFrame::OnAlwaysOnTop(WORD, WORD id, HWND, BOOL&) {
 LRESULT CMainFrame::OnShowObjectManager(WORD, WORD, HWND, BOOL&) {
 	auto view = new CObjectManagerView(this);
 	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"Object Manager", m_ObjectManagerIcon, view);
+	m_view.AddPage(view->m_hWnd, L"Object Manager" EXTRA_SPACE, m_ObjectManagerIcon, view);
 	return 0;
 }
 
@@ -490,14 +509,14 @@ LRESULT CMainFrame::OnShowAllWindows(WORD, WORD, HWND, BOOL&) {
 	auto view = new CWindowsView(this);
 	view->SetDesktopOptions(false);
 	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"All Windows", m_WindowsIcon, view);
+	m_view.AddPage(view->m_hWnd, L"All Windows" EXTRA_SPACE, m_WindowsIcon, view);
 	return 0;
 }
 
 LRESULT CMainFrame::OnShowAllWindowsDefaultDesktop(WORD, WORD, HWND, BOOL&) {
 	auto view = new CWindowsView(this);
 	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"Windows (Default Desktop)", m_WindowsIcon, view);
+	m_view.AddPage(view->m_hWnd, L"Windows (Default Desktop)" EXTRA_SPACE, m_WindowsIcon, view);
 	return 0;
 }
 
@@ -544,7 +563,7 @@ LRESULT CMainFrame::OnDetachTab(WORD, WORD, HWND, BOOL&) {
 LRESULT CMainFrame::OnViewLogonSessions(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CLogonSessionsView;
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Logon Sessions", m_LoginIcon, pView);
+	m_view.AddPage(pView->m_hWnd, L"Logon Sessions" EXTRA_SPACE, m_LoginIcon, pView);
 
 	return 0;
 }
@@ -585,7 +604,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
 		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
-		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
+		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_HANDLES },
 		{ ID_HANDLES_CLOSEHANDLE, IDI_DELETE },
 		{ ID_APP_ABOUT, IDI_ABOUT },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
@@ -611,6 +630,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SYSTEM_LOGONSESSIONS, IDI_LOGIN },
 		{ ID_HEADER_HIDECOLUMN, IDI_HIDECOLUMN },
 		{ ID_HEADER_COLUMNS, IDI_EDITCOLUMNS },
+		{ ID_PROCESS_MODULES, IDI_DLL },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
@@ -643,13 +663,13 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ 0 },
-		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_PROCESS_VIEW },
-		{ 0 },
-		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
-		{ 0 },
 		{ ID_OBJECTS_OFTYPE, IDI_OBJECTS, BTNS_SHOWTEXT, L"Objects" },
 		{ 0 },
 		{ ID_HANDLES_OFTYPE, IDI_HANDLES, BTNS_SHOWTEXT, L"Handles" },
+		{ 0 },
+		{ 100, IDI_PROCESS, BTNS_SHOWTEXT, L"Process" },
+		{ 0 },
+		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
 	};
 	for (auto& b : buttons) {
 		if (b.id == 0)
@@ -661,6 +681,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 	}
 	AddToolBarDropDownMenu(tb, ID_HANDLES_OFTYPE, IDR_CONTEXT, 4);
 	AddToolBarDropDownMenu(tb, ID_OBJECTS_OFTYPE, IDR_CONTEXT, 5);
+	AddToolBarDropDownMenu(tb, 100, IDR_CONTEXT, 8);
 }
 
 bool CMainFrame::DetachTab(int page) {
@@ -692,14 +713,14 @@ LRESULT CMainFrame::ShowNotImplemented() {
 void CMainFrame::ShowAllHandles(PCWSTR type) {
 	auto pView = new CHandlesView(this, type);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles", GetIconIndexByType(type), pView);
+	m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles" EXTRA_SPACE, GetIconIndexByType(type), pView);
 
 }
 
 void CMainFrame::ShowAllObjects(PCWSTR type) {
 	auto tab = new CObjectsView(this, this, type);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), tab);
+	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects" EXTRA_SPACE, GetIconIndexByType(type), tab);
 }
 
 CUpdateUIBase* CMainFrame::GetUpdateUI() {

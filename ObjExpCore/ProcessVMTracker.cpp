@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ProcessVMTracker.h"
 #include <unordered_map>
+#include "Helpers.h"
 
 using namespace WinSys;
 
@@ -82,7 +83,7 @@ size_t ProcessVMTracker::Impl::EnumRegions() {
 	_deletedItems.clear();
 	_deletedItems.reserve(16);
 
-	BYTE* address = nullptr;
+	const BYTE* address = nullptr;
 	auto oldItems = _set;
 	for (;;) {
 		auto mi = std::make_shared<MemoryRegionItem>();
