@@ -18,7 +18,7 @@ struct ProcessModuleTracker::Impl {
 
 	explicit Impl(DWORD pid) : _pid(pid) {
 		_handle.reset(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid));
-		if(_handle)
+		if (_handle)
 			::IsWow64Process(_handle.get(), &_isWow64);
 	}
 
@@ -60,33 +60,15 @@ struct ProcessModuleTracker::Impl {
 				auto nt = ::ImageNtHeader(buffer);
 				if (nt) {
 					auto machine = nt->FileHeader.Machine;
-					if(machine == IMAGE_FILE_MACHINE_ARM || machine == IMAGE_FILE_MACHINE_I386)
+					if (machine == IMAGE_FILE_MACHINE_ARM || machine == IMAGE_FILE_MACHINE_I386)
 						mi->ImageBase = ULongToPtr(((IMAGE_OPTIONAL_HEADER32*)&nt->OptionalHeader)->ImageBase);
 					else
 						mi->ImageBase = (PVOID)nt->OptionalHeader.ImageBase;
 				}
 			}
 		}
-		else {
-			mi->Name = mi->Path = L"<pagefile backed>";
-		}
 		mi->Base = mbi.AllocationBase;
 		mi->Type = mbi.Type == MEM_MAPPED ? MapType::Data : MapType::Image;
-		return mi;
-	}
-
-	std::shared_ptr<ModuleInfo> FillModule(HMODULE h) {
-		MODULEINFO m;
-		::GetModuleInformation(_handle.get(), h, &m, sizeof(m));
-		WCHAR name[MAX_PATH];
-		::GetModuleBaseName(_handle.get(), h, name, _countof(name));
-		auto mi = std::make_shared<ModuleInfo>();
-		mi->Name = name;
-		::GetModuleFileNameEx(_handle.get(), h, name, _countof(name));
-		mi->Path = name;
-		mi->Base = m.lpBaseOfDll;
-		mi->ImageBase = 0;
-		mi->ModuleSize = m.SizeOfImage;
 		return mi;
 	}
 
@@ -94,54 +76,11 @@ struct ProcessModuleTracker::Impl {
 		return _handle ? EnumModulesWithVirtualQuery() : EnumModulesWithToolHelp();
 	}
 
-	uint32_t EnumModulesWithPsapi() {
-		HMODULE hModule[4096];
-		DWORD needed;
-		if (!::EnumProcessModulesEx(_handle.get(), hModule, sizeof(hModule), &needed, LIST_MODULES_ALL))
-			return 0;
-
-		WCHAR name[MAX_PATH];
-		bool first = _modules.empty();
-		if (first) {
-			_modules.reserve(128);
-			_newModules.reserve(8);
-			_unloadedModules.reserve(8);
-		}
-		else {
-			_newModules.clear();
-			_unloadedModules.clear();
-		}
-
-		auto existing = _moduleMap;
-
-		for (int i = 0; i < needed / sizeof(HMODULE); i++) {
-			auto& h = hModule[i];
-			if (first) {
-				auto mi = FillModule(h);
-				_moduleMap.insert({ mi->Path, mi });
-				_modules.push_back(std::move(mi));
-			}
-			else {
-				::GetModuleFileNameEx(_handle.get(), h, name, _countof(name));
-				auto it = _moduleMap.find(name);
-				if (it == _moduleMap.end()) {
-					// new module
-					auto mi = FillModule(h);
-					_modules.push_back(mi);
-					_newModules.push_back(mi);
-				}
-				else {
-					existing.erase(name);
-				}
-			}
-		}
-		return static_cast<uint32_t>(_modules.size());
-	}
-
 	uint32_t EnumModulesWithVirtualQuery() {
 		bool first = _modules.empty();
 		if (first) {
 			_modules.reserve(128);
+			_moduleMap.reserve(128);
 			_newModules.reserve(8);
 			_unloadedModules.reserve(8);
 		}
@@ -153,7 +92,7 @@ struct ProcessModuleTracker::Impl {
 		auto existing = _moduleMap;
 
 		MEMORY_BASIC_INFORMATION mbi;
-		BYTE* address = nullptr;
+		const BYTE* address = nullptr;
 		ModuleInfo* pmi = nullptr;
 		while (::VirtualQueryEx(_handle.get(), address, &mbi, sizeof(mbi)) > 0) {
 			if (mbi.State == MEM_COMMIT && mbi.Type != MEM_PRIVATE) {
@@ -171,6 +110,7 @@ struct ProcessModuleTracker::Impl {
 							// new module
 							_modules.push_back(mi);
 							_newModules.push_back(mi);
+							_moduleMap.insert({ key, mi });
 						}
 						else {
 							existing.erase(key);
@@ -181,6 +121,12 @@ struct ProcessModuleTracker::Impl {
 			}
 			address += mbi.RegionSize;
 		}
+
+		for (auto& [key, mi] : existing) {
+			_moduleMap.erase(key);
+			_unloadedModules.push_back(mi);
+		}
+
 		return static_cast<uint32_t>(_modules.size());
 	}
 

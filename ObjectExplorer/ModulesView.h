@@ -17,8 +17,10 @@ public:
 
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(int row) const;
-
 	void DoSort(const SortInfo* si);
+
+	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
+	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -45,17 +47,19 @@ private:
 	void Refresh();
 
 	struct ModuleInfoEx {
-		ModuleInfoEx(std::shared_ptr<WinSys::ModuleInfo> mi);
-		DWORD64 TargetTime;
-		bool IsNew : 1 { false};
-		bool IsUnloaded : 1 {false};
+		DWORD64 TargetTime = 0;
+		bool IsNew : 1 { false };
+		bool IsUnloaded : 1 { false };
 	};
+
+	ModuleInfoEx& GetModuleEx(WinSys::ModuleInfo* mi);
 
 private:
 	CListViewCtrl m_List;
 	IMainFrame* m_pFrame;
+	int m_UpdateInterval = 1200;
 	std::vector<std::shared_ptr<WinSys::ModuleInfo>> m_Modules;
-	std::unordered_map<std::wstring, ModuleInfoEx> m_ModulesEx;
+	std::unordered_map<WinSys::ModuleInfo*, ModuleInfoEx> m_ModulesEx;
 	WinSys::ProcessModuleTracker m_Tracker;
 };
 

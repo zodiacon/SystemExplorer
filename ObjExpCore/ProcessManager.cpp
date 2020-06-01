@@ -226,7 +226,7 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 					pi->CPU = 0;
 				}
 				else {
-					auto& pi2 = it->second;
+					const auto& pi2 = it->second;
 					auto cpu = delta == 0 ? 0 : (int32_t)((p->KernelTime.QuadPart + p->UserTime.QuadPart - pi2->UserTime - pi2->KernelTime) * 1000000 / delta / _totalProcessors);
 					pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi2, extended);
 					pi->CPU = cpu;
@@ -238,8 +238,8 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 				//
 				// add process to maps
 				//
-				processesByKey.insert(std::make_pair(key, pi));
-				_processesById.insert(std::make_pair(pi->Id, pi));
+				processesByKey.insert({ key, pi });
+				_processesById.insert({ pi->Id, pi });
 			}
 			if (p->NextEntryOffset == 0)
 				break;

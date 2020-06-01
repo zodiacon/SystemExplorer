@@ -15,11 +15,11 @@ CString CModulesView::GetColumnText(HWND, int row, int col) const {
 	CString text;
 
 	switch (col) {
-		case 0: return mi->Name.c_str();
+		case 0: return mi->Name.empty() ? L"<Pagefile Backed>" : mi->Name.c_str();
 		case 1: return mi->Type == WinSys::MapType::Image ? L"Image" : L"Data";
 		case 2: text.Format(L"0x%08X", mi->ModuleSize); break;
 		case 3: text.Format(L"0x%p", mi->Base); break;
-		case 4: 
+		case 4:
 			if (mi->Type == WinSys::MapType::Image)
 				text.Format(L"0x%p", mi->ImageBase);
 			else
@@ -70,7 +70,7 @@ LRESULT CModulesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.SetImageList(images, LVSIL_SMALL);
 
 	auto cm = GetColumnManager(m_List);
-	cm->AddColumn(L"Name", LVCFMT_LEFT, 170, ColumnFlags::Visible | ColumnFlags::Mandatory);
+	cm->AddColumn(L"Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Mandatory);
 	cm->AddColumn(L"Type", LVCFMT_LEFT, 60, ColumnFlags::Visible);
 	cm->AddColumn(L"Size", LVCFMT_RIGHT, 100, ColumnFlags::Visible);
 	cm->AddColumn(L"Base Address", LVCFMT_RIGHT, 130, ColumnFlags::Visible);
@@ -80,21 +80,34 @@ LRESULT CModulesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->UpdateColumns();
 
 	Refresh();
+	SetTimer(1, m_UpdateInterval, nullptr);
 
 	return 0;
 }
 
-LRESULT CModulesView::OnTimer(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CModulesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+	if (id != 1)
+		return 0;
+
+	Refresh();
+
 	return 0;
 }
 
 LRESULT CModulesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
+	KillTimer(1);
+
 	return 0;
 }
 
 LRESULT CModulesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
-	if (activate)
+	if (activate) {
 		Refresh();
+		SetTimer(1, m_UpdateInterval, nullptr);
+	}
+	else
+		KillTimer(1);
+
 	return 0;
 }
 
@@ -106,11 +119,83 @@ LRESULT CModulesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 
 void CModulesView::Refresh() {
 	auto first = m_Modules.empty();
-	auto count = m_Tracker.EnumModules();
-	m_Modules = m_Tracker.GetModules();
-	DoSort(nullptr);
+	m_Tracker.EnumModules();
+	if (first) {
+		m_Modules = m_Tracker.GetModules();
+	}
+	else {
+		auto count = static_cast<int>(m_Modules.size());
+		for (int i = 0; i < count; i++) {
+			auto& mi = m_Modules[i];
+			auto& mx = GetModuleEx(mi.get());
+			if (mx.IsUnloaded && ::GetTickCount64() > mx.TargetTime) {
+				ATLTRACE(L"Module unload end: %u %s (0x%p)\n", ::GetTickCount(), mi->Name.c_str(), mi->Base);
+				m_ModulesEx.erase(mi.get());
+				m_Modules.erase(m_Modules.begin() + i);
+				i--;
+				count--;
+			}
+			else if (mx.IsNew && !mx.IsUnloaded && ::GetTickCount64() > mx.TargetTime) {
+				mx.IsNew = false;
+			}
+		}
+
+		for (auto& mi : m_Tracker.GetNewModules()) {
+			m_Modules.push_back(mi);
+			auto& mx = GetModuleEx(mi.get());
+			mx.IsNew = true;
+			mx.TargetTime = ::GetTickCount64() + 2000;
+		}
+		for (auto& mi : m_Tracker.GetUnloadedModules()) {
+			ATLTRACE(L"Module unload start: %u %s (0x%p)\n", ::GetTickCount(), mi->Name.c_str(), mi->Base);
+			auto& mx = GetModuleEx(mi.get());
+			ATLASSERT(!mx.IsUnloaded);
+			mx.IsNew = false;
+			mx.IsUnloaded = true;
+			mx.TargetTime = ::GetTickCount64() + 2000;
+		}
+	}
+
+	auto count = static_cast<int>(m_Modules.size());
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
+	DoSort(nullptr);
+
 	if (!first) {
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
 }
+
+CModulesView::ModuleInfoEx& CModulesView::GetModuleEx(WinSys::ModuleInfo* mi) {
+	auto it = m_ModulesEx.find(mi);
+	if (it != m_ModulesEx.end())
+		return it->second;
+
+	ModuleInfoEx mx;
+	m_ModulesEx.insert({ mi, mx });
+	return GetModuleEx(mi);
+}
+
+//CModulesView::ModuleInfoEx::ModuleInfoEx(WinSys::ModuleInfo* mi) : _mi(mi) {
+//}
+
+DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	auto lcd = (LPNMLVCUSTOMDRAW)cd;
+	auto sub = lcd->iSubItem;
+	lcd->clrTextBk = CLR_INVALID;
+	int index = (int)cd->dwItemSpec;
+	auto& mi = m_Modules[index];
+	auto& mx = GetModuleEx(mi.get());
+	if (mx.IsUnloaded)
+		lcd->clrTextBk = RGB(255, 0, 0);
+	else if (mx.IsNew)
+		lcd->clrTextBk = RGB(0, 255, 0);
+	else if (mi->Type == WinSys::MapType::Image && mi->Base != mi->ImageBase)
+		lcd->clrTextBk = RGB(255, 255, 128);
+
+	return CDRF_DODEFAULT;
+}
+
+DWORD CModulesView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
+	return CDRF_NOTIFYITEMDRAW;
+}
+
