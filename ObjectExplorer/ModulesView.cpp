@@ -158,7 +158,7 @@ void CModulesView::Refresh() {
 
 	auto count = static_cast<int>(m_Modules.size());
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
-	DoSort(nullptr);
+	DoSort(GetSortInfo(m_List));
 
 	if (!first) {
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
@@ -174,9 +174,6 @@ CModulesView::ModuleInfoEx& CModulesView::GetModuleEx(WinSys::ModuleInfo* mi) {
 	m_ModulesEx.insert({ mi, mx });
 	return GetModuleEx(mi);
 }
-
-//CModulesView::ModuleInfoEx::ModuleInfoEx(WinSys::ModuleInfo* mi) : _mi(mi) {
-//}
 
 DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto lcd = (LPNMLVCUSTOMDRAW)cd;

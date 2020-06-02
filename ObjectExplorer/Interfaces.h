@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Settings.h"
+
 #define OM_ACTIVATE_PAGE (WM_APP+1)
 
 const DWORD ListViewDefaultStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
@@ -12,4 +14,7 @@ struct IMainFrame {
 	virtual void ShowAllHandles(PCWSTR typename) = 0;
 	virtual void ShowAllObjects(PCWSTR typename) = 0;
 	virtual CUpdateUIBase* GetUpdateUI() = 0;
+	virtual CFont& GetMonoFont() = 0;
+	virtual Settings& GetSettings() = 0;
+	virtual LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) = 0;
 };

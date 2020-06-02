@@ -9,6 +9,7 @@ enum class ColumnFlags {
 	Fixed = 2,
 	Const = 4,
 	Mandatory = 8,
+	Numeric = 0x10,
 	Modified = 0x80
 };
 DEFINE_ENUM_FLAG_OPERATORS(ColumnFlags);

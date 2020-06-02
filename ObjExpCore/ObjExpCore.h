@@ -6,6 +6,7 @@
 #include "DeviceManager.h"
 #include "ProcessManager.h"
 #include "ProcessInfo.h"
+#include "Processes.h"
 #include "ThreadInfo.h"
 #include "ProcessHandlesTracker.h"
 #include "ProcessVMTracker.h"

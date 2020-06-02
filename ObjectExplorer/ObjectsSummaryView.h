@@ -24,7 +24,6 @@ public:
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
-	void OnViewActivated();
 	void UpdateUI();
 	void DoSort(const SortInfo* si);
 
@@ -75,7 +74,7 @@ private:
 	CUpdateUIBase& m_UIUpdate;
 	IMainFrame* m_pFrame;
 	int m_Interval = 1000;
-	CFont m_BoldFont, m_NormalFont;
+	HFONT m_hFont;
 	bool m_Paused = false;
 };
 

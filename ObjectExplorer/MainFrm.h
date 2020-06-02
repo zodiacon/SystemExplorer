@@ -7,6 +7,7 @@
 #include "ObjectManager.h"
 #include "INterfaces.h"
 #include "ToolBarHelper.h"
+#include "Settings.h"
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
@@ -32,6 +33,9 @@ public:
 	void ShowAllHandles(PCWSTR type) override;
 	void ShowAllObjects(PCWSTR type) override;
 	CUpdateUIBase* GetUpdateUI() override;
+	CFont& GetMonoFont() override;
+	Settings& GetSettings() override;
+	LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) override;
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
@@ -50,6 +54,7 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnShowHandlesInProcess)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SERVICES, OnViewSystemServices)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DEVICES, OnViewSystemDevices)
+		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSES, OnViewSystemProcesses)
 		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
@@ -121,6 +126,7 @@ private:
 	LRESULT OnShowAllMailslots(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnDetachTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewLogonSessions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewSystemProcesses(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
@@ -136,7 +142,15 @@ private:
 	inline static CImageListManaged m_TabImages;
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
 	int m_CurrentPage = -1;
-	inline static int m_ObjectsIcon, m_TypesIcon, m_HandlesIcon, m_ObjectManagerIcon, m_WindowsIcon, m_ServicesIcon;
-	inline static int m_DevicesIcon, m_MemoryIcon, m_LoginIcon, m_ModulesIcon;
+	inline static CFont m_MonoFont;
+	inline static Settings m_Settings;
+
+	enum class IconType {
+		Objects, Types, Handles, ObjectManager, Windows, Services,
+		Devices, Memory, Login, Modules, Processes,
+		COUNT
+	};
+	inline static int m_Icons[(int)IconType::COUNT];
+
 	inline static int s_Frames;
 };

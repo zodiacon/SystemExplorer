@@ -38,6 +38,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto lcd = (LPNMLVCUSTOMDRAW)cd;
 	auto sub = lcd->iSubItem;
 	lcd->clrTextBk = CLR_INVALID;
+	::SelectObject(cd->hdc, m_hFont);
 
 	if (sub == 0) {
 		return CDRF_DODEFAULT;
@@ -51,6 +52,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto& item = GetItem(index);
 	auto& changes = m_ObjectManager.GetChanges();
 	lcd->clrText = RGB(0, 0, 0);
+	::SelectObject(cd->hdc, (HFONT)m_pFrame->GetMonoFont());
 
 	for (auto& change : changes) {
 		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == sub) {
@@ -58,15 +60,16 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			lcd->clrText = std::get<2>(change) >= 0 ? RGB(0, 0, 0) : RGB(255, 255, 255);
 		}
 	}
-	return CDRF_DODEFAULT;
+	return CDRF_DODEFAULT | CDRF_NEWFONT;
 }
 
-DWORD CObjectSummaryView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
+DWORD CObjectSummaryView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	m_hFont = (HFONT)::GetCurrentObject(cd->hdc, OBJ_FONT);
 	return CDRF_NOTIFYSUBITEMDRAW;
 }
 
-LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM wParam, LPARAM, BOOL&) {
-	if(wParam == 0)
+LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM activate, LPARAM, BOOL&) {
+	if(activate == 0)
 		KillTimer(1);
 	else {
 		if (!m_Paused)
@@ -92,7 +95,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
 	InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP, 0);
+	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
 	SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
 
@@ -103,9 +106,6 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	SetTimer(1, m_Interval, nullptr);
 
 	m_UIUpdate.UIEnable(ID_EDIT_COPY, FALSE);
-
-	m_NormalFont.CreatePointFont(90, L"Arial");
-	m_BoldFont.CreatePointFont(90, L"Arial", nullptr, true);
 
 	return 0;
 }
@@ -215,9 +215,6 @@ LRESULT CObjectSummaryView::OnSelectionChanged(int, LPNMHDR, BOOL &) {
 	UpdateUI();
 
 	return 0;
-}
-
-void CObjectSummaryView::OnViewActivated() {
 }
 
 void CObjectSummaryView::UpdateUI() {
