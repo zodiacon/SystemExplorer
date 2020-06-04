@@ -13,14 +13,11 @@
 struct IMainFrame;
 
 class CObjectsView : 
-	public CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>,
 	public CMessageFilter,
 	public CCustomDraw<CObjectsView>,
 	public CVirtualListView<CObjectsView>,
 	public CViewBase<CObjectsView> {
 public:
-	using BaseClass = CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>;
-
 	DECLARE_WND_CLASS_EX(nullptr, CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, NULL);
 
 	CObjectsView(IMainFrame* pFrame, PCWSTR type = nullptr);
@@ -46,7 +43,6 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
-		CHAIN_MSG_MAP(BaseClass)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectsView>)
 		CHAIN_MSG_MAP(CViewBase<CObjectsView>)
 	END_MSG_MAP()

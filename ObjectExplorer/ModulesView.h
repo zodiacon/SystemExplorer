@@ -5,7 +5,6 @@
 #include "ViewBase.h"
 
 class CModulesView : 
-	public CFrameWindowImpl<CModulesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CModulesView>,
 	public CCustomDraw<CModulesView>,
 	public CViewBase<CModulesView> {
@@ -14,8 +13,6 @@ public:
 	CModulesView(HANDLE hProcess, IMainFrame* frame);
 
 	DECLARE_WND_CLASS(nullptr)
-
-	using BaseFrame = CFrameWindowImpl<CModulesView, CWindow, CControlWinTraits>;
 
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(int row) const;
@@ -30,7 +27,6 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
-		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CModulesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CModulesView>)
 		CHAIN_MSG_MAP(CViewBase<CModulesView>)

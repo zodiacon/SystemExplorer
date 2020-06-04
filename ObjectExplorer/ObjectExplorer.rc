@@ -60,6 +60,7 @@ BEGIN
         MENUITEM "&New Window",                 ID_TAB_NEWWINDOW
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
+        MENUITEM "Exit &All",                   ID_FILE_EXITALL
     END
     POPUP "&Edit"
     BEGIN
@@ -839,6 +840,12 @@ END
 STRINGTABLE
 BEGIN
     ID_EDIT_SECURITY        "Show security properties\nSecurity Properties"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SYSTEM_PROCESSES     "View all processes\nProcesses"
+    ID_SYSTEM_THREADS       "View all threads\nThreads"
 END
 
 #endif    // English (United States) resources

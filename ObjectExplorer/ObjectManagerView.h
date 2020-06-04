@@ -6,7 +6,6 @@
 #include "ViewBase.h"
 
 class CObjectManagerView : 
-	public CWindowImpl<CObjectManagerView>,
 	public CVirtualListView<CObjectManagerView>,
 	public CViewBase<CObjectManagerView> {
 public:

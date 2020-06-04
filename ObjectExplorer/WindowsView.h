@@ -7,13 +7,10 @@
 #include "ViewBase.h"
 
 class CWindowsView : 
-	public CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CWindowsView>,
 	public CToolBarHelper<CWindowsView>,
 	public CViewBase<CWindowsView> {
 public:
-	using BaseFrame = CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>;
-
 	DECLARE_WND_CLASS(nullptr)
 
 	CWindowsView(IMainFrame* frame);
@@ -31,7 +28,6 @@ public:
 		COMMAND_ID_HANDLER(IdOnlyWithTitle, OnRefreshTreeWithTitle)
 		COMMAND_ID_HANDLER(ID_EDIT_FIND, OnFind)
 		COMMAND_ID_HANDLER(ID_EDIT_FIND_NEXT, OnFindNext)
-		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CWindowsView>)
 		CHAIN_MSG_MAP(CToolBarHelper<CWindowsView>)
 		CHAIN_MSG_MAP(CViewBase<CWindowsView>)

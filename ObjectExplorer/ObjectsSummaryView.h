@@ -6,13 +6,10 @@
 #include "ViewBase.h"
 
 class CObjectSummaryView :
-	public CWindowImpl<CObjectSummaryView, CListViewCtrl>,
 	public CVirtualListView<CObjectSummaryView>,
 	public CCustomDraw<CObjectSummaryView>,
 	public CViewBase<CObjectSummaryView> {
 public:
-	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
-
 	CObjectSummaryView(IMainFrame* pFrame) : CViewBase(pFrame) {}
 
 	BOOL PreTranslateMessage(MSG* pMsg);
@@ -76,6 +73,7 @@ private:
 	std::vector<std::shared_ptr<ObjectTypeInfo>> m_Items;
 	int m_Interval = 1000;
 	HFONT m_hFont;
+	CListViewCtrl m_List;
 	bool m_Paused = false;
 };
 

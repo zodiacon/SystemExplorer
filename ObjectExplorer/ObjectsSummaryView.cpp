@@ -81,26 +81,26 @@ LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM activate, LPARAM, BOOL&)
 }
 
 LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
-	DefWindowProc();
+	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, ListViewDefaultStyle);
 
-	InsertColumn(0, L"Name", LVCFMT_LEFT, 180);
-	InsertColumn(1, L"Index", LVCFMT_RIGHT, 50);
-	InsertColumn(2, L"Objects", LVCFMT_RIGHT, 100);
-	InsertColumn(3, L"Handles", LVCFMT_RIGHT, 100);
-	InsertColumn(4, L"Peak Objects", LVCFMT_RIGHT, 100);
-	InsertColumn(5, L"Peak Handles", LVCFMT_RIGHT, 100);
-	InsertColumn(6, L"Pool Type", LVCFMT_LEFT, 110);
-	InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
-	InsertColumn(8, L"Default NP Charge", LVCFMT_RIGHT, 130);
-	InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
-	InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
+	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 180);
+	m_List.InsertColumn(1, L"Index", LVCFMT_RIGHT, 50);
+	m_List.InsertColumn(2, L"Objects", LVCFMT_RIGHT, 100);
+	m_List.InsertColumn(3, L"Handles", LVCFMT_RIGHT, 100);
+	m_List.InsertColumn(4, L"Peak Objects", LVCFMT_RIGHT, 100);
+	m_List.InsertColumn(5, L"Peak Handles", LVCFMT_RIGHT, 100);
+	m_List.InsertColumn(6, L"Pool Type", LVCFMT_LEFT, 110);
+	m_List.InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
+	m_List.InsertColumn(8, L"Default NP Charge", LVCFMT_RIGHT, 130);
+	m_List.InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
+	m_List.InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
 
-	SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
+	m_List.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
-	SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 
 	auto count = m_ObjectManager.EnumTypes();
-	SetItemCount(count);
+	m_List.SetItemCount(count);
 	m_Items = m_ObjectManager.GetObjectTypes();
 
 	SetTimer(1, m_Interval, nullptr);
@@ -118,8 +118,9 @@ LRESULT CObjectSummaryView::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL &) {
 		if (si)
 			DoSort(si);
 		LockWindowUpdate();
-		RedrawItems(GetTopIndex(), GetCountPerPage() + GetTopIndex());
-		LockWindowUpdate(FALSE);
+		auto top = m_List.GetTopIndex();
+		m_List.RedrawItems(top, m_List.GetCountPerPage() + top);
+		m_List.LockWindowUpdate(FALSE);
 
 		if (!m_Paused)
 			SetTimer(1, m_Interval, nullptr);
@@ -190,15 +191,15 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 }
 
 LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
-	ATLASSERT(GetSelectedCount() > 0);
+	ATLASSERT(m_List.GetSelectedCount() > 0);
 
 	auto first = -1;
 	CString text, temp;
-	for (UINT i = 0; i < GetSelectedCount(); i++) {
-		first = GetNextItem(first, LVNI_SELECTED);
+	for (UINT i = 0; i < m_List.GetSelectedCount(); i++) {
+		first = m_List.GetNextItem(first, LVNI_SELECTED);
 		ATLASSERT(first >= 0);
 		for (int col = 0; col < ColumnCount; col++) {
-			GetItemText(first, col, temp);
+			m_List.GetItemText(first, col, temp);
 			text += temp;
 			if (col < ColumnCount - 1)
 				text += L",";
@@ -219,9 +220,10 @@ LRESULT CObjectSummaryView::OnSelectionChanged(int, LPNMHDR, BOOL &) {
 
 void CObjectSummaryView::UpdateUI() {
 	auto ui = GetFrame()->GetUpdateUI();
-	ui->UIEnable(ID_EDIT_COPY, GetSelectedCount() > 0);
-	ui->UIEnable(ID_TYPE_ALLHANDLES, GetSelectedCount() == 1);
-	ui->UIEnable(ID_TYPE_ALLOBJECTS, GetSelectedCount() == 1);
+	auto count = m_List.GetSelectedCount();
+	ui->UIEnable(ID_EDIT_COPY, count > 0);
+	ui->UIEnable(ID_TYPE_ALLHANDLES, count == 1);
+	ui->UIEnable(ID_TYPE_ALLOBJECTS, count == 1);
 	ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
 }
 
@@ -233,9 +235,9 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 		wil::unique_hfile hFile(::CreateFile(dlg.m_szFileName, GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, 0, nullptr));
 		if (hFile) {
 			CString text, temp;
-			for (int i = 0; i < GetItemCount(); i++) {
+			for (int i = 0; i < m_List.GetItemCount(); i++) {
 				for (int col = 0; col < ColumnCount; col++) {
-					GetItemText(i, col, temp);
+					m_List.GetItemText(i, col, temp);
 					text += temp;
 					if (col < ColumnCount - 1)
 						text += L",";
@@ -271,14 +273,14 @@ LRESULT CObjectSummaryView::OnContextMenu(UINT, WPARAM, LPARAM lParam, BOOL&) {
 }
 
 LRESULT CObjectSummaryView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	auto& item = GetItem(GetSelectedIndex());
+	auto& item = GetItem(m_List.GetSelectedIndex());
 	GetFrame()->ShowAllHandles(item->TypeName);
 
 	return 0;
 }
 
 LRESULT CObjectSummaryView::OnShowAllObjects(WORD, WORD, HWND, BOOL&) {
-	auto& item = GetItem(GetSelectedIndex());
+	auto& item = GetItem(m_List.GetSelectedIndex());
 	GetFrame()->ShowAllObjects(item->TypeName);
 	
 	return 0;

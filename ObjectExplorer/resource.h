@@ -95,7 +95,6 @@
 #define IDI_DLL_RELOC                   293
 #define IDI_ICON2                       294
 #define IDI_HEAP                        294
-#define IDI_ICON10                      296
 #define IDI_PROCESSES                   296
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -164,7 +163,6 @@
 #define ID_WINDOW_CLOSEALLBUTTHIS       32827
 #define ID_OBJECTS_ALLHANDLESFOROBJECT  32828
 #define ID_OPTIONS_ALWAYSONTOP          32829
-#define ID_OPTIONS_ALWAYSONTOP32830     32830
 #define ID_OBJECT                       32831
 #define ID_TYPE_ALLOBJECTS              32832
 #define ID_TYPE_ALLHANDLES              32833
@@ -207,13 +205,14 @@
 #define ID_PRIORITYCLASS_REALTIME       32873
 #define ID_PROCESS_GOTOFILELOCATION     32874
 #define ID_TAB_DETACH32875              32875
+#define ID_FILE_EXITALL                 32876
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        297
-#define _APS_NEXT_COMMAND_VALUE         32876
+#define _APS_NEXT_COMMAND_VALUE         32877
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

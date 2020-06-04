@@ -5,13 +5,10 @@
 #include "ViewBase.h"
 
 class CDeviceManagerView :
-	public CFrameWindowImpl<CDeviceManagerView, CWindow, CControlWinTraits>,
 	public CCustomDraw<CDeviceManagerView>,
 	public CVirtualListView<CDeviceManagerView>,
 	public CViewBase<CDeviceManagerView> {
 public:
-	using BaseFrame = CFrameWindowImpl<CDeviceManagerView, CWindow, CControlWinTraits>;
-
 	DECLARE_WND_CLASS(nullptr)
 
 	CDeviceManagerView(IMainFrame* frame);
@@ -27,7 +24,6 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_EDIT_FIND, OnFind)
 		COMMAND_ID_HANDLER(ID_EDIT_FIND_NEXT, OnFindNext)
-		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CDeviceManagerView>)
 		CHAIN_MSG_MAP(CViewBase<CDeviceManagerView>)
 	END_MSG_MAP()

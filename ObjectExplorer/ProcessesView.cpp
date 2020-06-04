@@ -157,7 +157,18 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	return CDRF_SKIPPOSTPAINT | CDRF_NEWFONT;
 }
 
-LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
+	ToolBarButtonInfo buttons[] = {
+		{ ID_PROCESS_THREADS, IDI_THREAD, 0, L"Threads" },
+		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_HANDLES, 0, L"Handles" },
+		{ ID_PROCESS_MODULES, IDI_DLL, 0, L"Modules" },
+		{ ID_PROCESS_MEMORYMAP, IDI_DRAM, 0, L"Memory" },
+		{ ID_PROCESS_HEAPS, IDI_HEAP, 0, L"Heaps" },
+		{ 0 },
+		{ ID_PROCESS_KILL, IDI_DELETE },
+	};
+	CreateAndInitToolBar(buttons, _countof(buttons));
+
 	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle & ~LVS_SHAREIMAGELISTS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
@@ -198,6 +209,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->UpdateColumns();
 
 	Refresh();
+	UpdateUI();
 	SetTimer(1, m_UpdateInterval, nullptr);
 	
 	return 0;
@@ -207,10 +219,6 @@ LRESULT CProcessesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 	if (id == 1)
 		Refresh();
 	return 0;
-}
-
-LRESULT CProcessesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
-	return LRESULT();
 }
 
 LRESULT CProcessesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
@@ -275,6 +283,14 @@ void CProcessesView::Refresh() {
 
 void CProcessesView::UpdateUI() {
 	int selected = m_List.GetSelectedIndex();
+
+	UIEnable(ID_PROCESS_THREADS, selected >= 0);
+	UIEnable(ID_PROCESS_MODULES, selected >= 0);
+	UIEnable(ID_PROCESS_HEAPS, selected >= 0);
+	UIEnable(ID_PROCESS_MEMORYMAP, selected >= 0);
+	UIEnable(ID_PROCESS_KILL, selected >= 0);
+	UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
+
 	if (selected < 0)
 		return;
 
@@ -469,6 +485,8 @@ LRESULT CProcessesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL&) {
+	UpdateUI();
+
 	return 0;
 }
 
@@ -581,6 +599,11 @@ LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
 	if (!ok) {
 		AtlMessageBox(*this, L"Failed to change priority class", IDS_TITLE, MB_ICONERROR);
 	}
+	return 0;
+}
+
+LRESULT CProcessesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
+	GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[m_List.GetSelectedIndex()].get()));
 	return 0;
 }
 

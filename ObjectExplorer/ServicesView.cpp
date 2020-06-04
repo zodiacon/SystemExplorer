@@ -13,11 +13,6 @@ PCWSTR AccessDenied = L"<access denied>";
 CServicesView::CServicesView(IMainFrame* pFrame) : CViewBase(pFrame) {
 }
 
-BOOL CServicesView::OnIdle() {
-	UIUpdateToolBar();
-	return FALSE;
-}
-
 void CServicesView::DoSort(const SortInfo* si) {
 	std::sort(m_Services.begin(), m_Services.end(), [&](const auto& s1, const auto& s2) {
 		return CompareItems(s1, s2, si->SortColumn, si->SortAscending);
@@ -36,19 +31,13 @@ int CServicesView::GetRowImage(int row) const {
 	return ServiceStatusToImage(m_Services[row].GetStatusProcess().CurrentState);
 }
 
-LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	m_RunningElevated = SecurityHelper::IsRunningElevated();
-	auto hWndToolBar = m_ToolBar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
-	m_ToolBar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
 
-	InitToolBar(m_ToolBar);
-	UIAddToolBar(hWndToolBar);
-
-	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-	AddSimpleReBarBand(m_ToolBar);
+	InitToolBar();
 
 	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);
-	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
+	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
 	auto cm = GetColumnManager(m_List);
 	cm->AddColumn(L"Name", LVCFMT_LEFT, 170, ColumnFlags::Visible | ColumnFlags::Mandatory);
@@ -78,17 +67,9 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	m_List.SetImageList(images, LVSIL_SMALL);
 
-	auto pLoop = _Module.GetMessageLoop();
-	pLoop->AddIdleHandler(this);
-
 	Refresh();
+	bHandled = FALSE;
 
-	return 0;
-}
-
-LRESULT CServicesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled) {
-	handled = FALSE;
-	_Module.GetMessageLoop()->RemoveIdleHandler(this);
 	return 0;
 }
 
@@ -457,30 +438,14 @@ ServiceInfoEx& CServicesView::GetServiceInfoEx(const std::wstring& name) const {
 	return pos.first->second;
 }
 
-void CServicesView::InitToolBar(CToolBarCtrl& tb) {
-	CImageList tbImages;
-	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
-	tb.SetImageList(tbImages);
-
-	struct {
-		UINT id;
-		int image;
-		int style = BTNS_BUTTON;
-		PCWSTR text = nullptr;
-	} buttons[] = {
-		{ ID_SERVICE_START, IDI_PLAY, BTNS_SHOWTEXT, L"Start" },
-		{ ID_SERVICE_STOP, IDI_STOP, BTNS_SHOWTEXT, L"Stop" },
+HWND CServicesView::InitToolBar() {
+	const ToolBarButtonInfo buttons[] = {
+		{ ID_SERVICE_START, IDI_PLAY, 0, L"Start" },
+		{ ID_SERVICE_STOP, IDI_STOP, 0, L"Stop" },
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
 		{ ID_SERVICE_CONTINUE, IDI_RESUME },
 	};
-	for (auto& b : buttons) {
-		if (b.id == 0)
-			tb.AddSeparator(0);
-		else {
-			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
-			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, b.text, 0);
-		}
-	}
+	return CreateAndInitToolBar(buttons, _countof(buttons));
 }
 
 void CServicesView::Refresh() {

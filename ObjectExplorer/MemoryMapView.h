@@ -6,13 +6,10 @@
 struct IMainFrame;
 
 class CMemoryMapView :
-	public CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CMemoryMapView>,
 	public CCustomDraw<CMemoryMapView>,
 	public CViewBase<CMemoryMapView> {
 public:
-	using BaseFrame = CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>;
-
 	DECLARE_WND_CLASS(nullptr)
 
 	CMemoryMapView(IMainFrame* frame, DWORD pid);
@@ -30,7 +27,6 @@ public:
 	BEGIN_MSG_MAP(CMemoryMapView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
-		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CMemoryMapView>)
 		CHAIN_MSG_MAP(CCustomDraw<CMemoryMapView>)
 		CHAIN_MSG_MAP(CViewBase<CMemoryMapView>)

@@ -27,7 +27,7 @@
 const UINT WINDOW_MENU_POSITION = 9;
 
 CMainFrame::CMainFrame() {
-	s_Frames++;
+	s_FrameCount++;
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
@@ -169,6 +169,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		SetWindowText(text + L" (Administrator)");
 	}
 
+	s_Frames.insert(this);
+
 	UIAddMenu(hMenu);
 	UIAddMenu(IDR_CONTEXT);
 	m_CmdBar.AttachMenu(hMenu);
@@ -276,7 +278,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	}
 	m_view.SetImageList(m_TabImages);
 
-	if (s_Frames == 1) {
+	if (s_FrameCount == 1) {
 		if (!DriverHelper::IsDriverLoaded()) {
 			if (!SecurityHelper::IsRunningElevated()) {
 				if (AtlMessageBox(nullptr, L"Kernel Driver not loaded. Some functionality will not be available. Install?",
@@ -353,13 +355,21 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
 
-	bHandled = --s_Frames > 0;
+	bHandled = --s_FrameCount > 0;
+	s_Frames.erase(this);
+
 	return 1;
 }
 
 LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	PostMessage(WM_CLOSE);
 
+	return 0;
+}
+
+LRESULT CMainFrame::OnFileExitAll(WORD, WORD, HWND, BOOL&) {
+	for (auto frame : s_Frames)
+		frame->PostMessage(WM_CLOSE);
 	return 0;
 }
 
@@ -704,7 +714,8 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ 0 },
-		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
+		{ ID_SYSTEM_PROCESSES, IDI_PROCESSES },
+		{ 0 },
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ 0 },
 		{ ID_OBJECTS_OFTYPE, IDI_OBJECTS, BTNS_SHOWTEXT, L"Objects" },

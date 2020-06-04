@@ -7,16 +7,11 @@
 #include "ViewBase.h"
 
 class CProcessesView :
-	public CFrameWindowImpl<CProcessesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CProcessesView>,
 	public CCustomDraw<CProcessesView>,
 	public CViewBase<CProcessesView> {
 public:
-	DECLARE_WND_CLASS(nullptr)
-
 	CProcessesView(IMainFrame* frame);
-
-	using BaseFrame = CFrameWindowImpl<CProcessesView, CWindow, CControlWinTraits>;
 
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(int row) const;
@@ -29,7 +24,6 @@ public:
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
-		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemStateChanged)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnListRightClick)
@@ -37,19 +31,19 @@ public:
 		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPause)
+		COMMAND_RANGE_HANDLER(ID_PROCESS_MEMORYMAP, ID_PROCESS_HEAPS, OnProcessItem)
+		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnProcessItem)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILL, OnProcessKill)
 		COMMAND_ID_HANDLER(ID_PROCESS_GOTOFILELOCATION, OnProcessGoToFileLocation)
 		COMMAND_RANGE_HANDLER(ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME, OnPriorityClass)
-		CHAIN_MSG_MAP(BaseFrame)
+		CHAIN_MSG_MAP(CViewBase<CProcessesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CProcessesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CProcessesView>)
-		CHAIN_MSG_MAP(CViewBase<CProcessesView>)
 	END_MSG_MAP()
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnHideColumn(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -60,6 +54,7 @@ private:
 	LRESULT OnProcessKill(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessGoToFileLocation(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPriorityClass(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void Refresh();
 	void UpdateUI();

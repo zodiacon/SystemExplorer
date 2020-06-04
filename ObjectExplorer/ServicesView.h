@@ -23,19 +23,12 @@ private:
 };
 
 class CServicesView :
-	public CFrameWindowImpl<CServicesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CServicesView>,
-	public CAutoUpdateUI<CServicesView>,
-	public CIdleHandler,
 	public CViewBase<CServicesView> {
 public:
-	DECLARE_WND_CLASS(nullptr)
-
-	using BaseFrame = CFrameWindowImpl<CServicesView, CWindow, CControlWinTraits>;
 
 	CServicesView(IMainFrame* pFrame);
 
-	BOOL OnIdle() override;
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	CString GetColumnText(HWND, int row, int col) const;
@@ -46,7 +39,6 @@ public:
 
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemStateChanged)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnListRightClick)
@@ -57,15 +49,12 @@ public:
 		COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
 		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
-		CHAIN_MSG_MAP(BaseFrame)
-		CHAIN_MSG_MAP(CAutoUpdateUI<CServicesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
 		CHAIN_MSG_MAP(CViewBase<CServicesView>)
 	END_MSG_MAP()
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnListRightClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnItemStateChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
@@ -88,15 +77,13 @@ private:
 
 	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name) const;
 
-	void InitToolBar(CToolBarCtrl& tb);
+	HWND InitToolBar();
 	void Refresh();
 	void UpdateUI(CUpdateUIBase*);
 
 private:
 	std::vector<WinSys::ServiceInfo> m_Services;
 	mutable std::unordered_map<std::wstring, ServiceInfoEx> m_ServicesEx;
-
-	CToolBarCtrl m_ToolBar;
 	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;
 	int m_SelectedHeader;
