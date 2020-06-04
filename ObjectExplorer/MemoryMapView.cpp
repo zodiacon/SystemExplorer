@@ -7,7 +7,7 @@
 #include <Psapi.h>
 #include "ntdll.h"
 
-CMemoryMapView::CMemoryMapView(DWORD pid) : m_Pid(pid) {
+CMemoryMapView::CMemoryMapView(IMainFrame* frame, DWORD pid) : CViewBase(frame), m_Pid(pid) {
 }
 
 CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {

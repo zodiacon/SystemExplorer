@@ -10,7 +10,7 @@ using namespace WinSys;
 
 PCWSTR AccessDenied = L"<access denied>";
 
-CServicesView::CServicesView(IMainFrame* pFrame) : m_pFrame(pFrame) {
+CServicesView::CServicesView(IMainFrame* pFrame) : CViewBase(pFrame) {
 }
 
 BOOL CServicesView::OnIdle() {
@@ -146,7 +146,7 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
 		m_SelectedHeader = index;
-		m_pFrame->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
+		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
 			(GetColumnManager(m_List)->GetColumn(index).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 	}
@@ -157,11 +157,11 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 			hSubMenu = menu.GetSubMenu(6);
 			pt = item->ptAction;
 			m_List.ClientToScreen(&pt);
-			UpdateUI(m_pFrame->GetUpdateUI());
+			UpdateUI(GetFrame()->GetUpdateUI());
 		}
 	}
 	if(hSubMenu)
-		m_pFrame->TrackPopupMenu(hSubMenu, nullptr, &pt);
+		GetFrame()->TrackPopupMenu(hSubMenu, nullptr, &pt);
 	return 0;
 }
 

@@ -66,7 +66,7 @@ LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
 		name = process->GetImageName().c_str();
 	}
 	if (pid) {
-		auto view = new CMemoryMapView(pid);
+		auto view = new CMemoryMapView(this, pid);
 		if (!view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)) {
 			AtlMessageBox(*this, L"Process not accessible", IDS_TITLE, MB_ICONERROR);
 			delete view;
@@ -259,7 +259,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		UINT ids[] = {
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
-			IDI_LOGIN, IDI_DLL, IDI_PROCESS
+			IDI_LOGIN, IDI_DLL, IDI_PROCESSES
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -384,7 +384,7 @@ LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	auto pView = new CObjectsView(this, this);
+	auto pView = new CObjectsView(this);
 	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(pView->m_hWnd, L"All Objects", m_Icons[(int)IconType::Objects], pView);
 
@@ -483,7 +483,7 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL&) {
-	auto tab = new CObjectSummaryView(this, *this);
+	auto tab = new CObjectSummaryView(this);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 
 	m_view.AddPage(tab->m_hWnd, L"Object Types", m_Icons[(int)IconType::Types], tab);
@@ -509,7 +509,7 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 		CString title;
 		title.Format(L"Handles (%s: %d)", name, pid);
-		m_view.AddPage(pView->m_hWnd, title, 1, pView);
+		m_view.AddPage(pView->m_hWnd, title, m_Icons[(int)IconType::Handles], pView);
 	}
 
 	return 0;
@@ -666,12 +666,15 @@ void CMainFrame::InitCommandBar() {
 		{ ID_OBJECTS_MAILSLOTS, IDI_MAILBOX },
 		{ ID_TAB_NEWWINDOW, IDI_WINDOW_NEW },
 		{ ID_PROCESS_MEMORYMAP, IDI_DRAM },
-		{ ID_SYSTEM_PROCESSES, IDI_PROCESS },
+		{ ID_SYSTEM_PROCESSES, IDI_PROCESSES },
 		{ ID_SYSTEM_THREADS, IDI_THREAD },
 		{ ID_SYSTEM_LOGONSESSIONS, IDI_LOGIN },
 		{ ID_HEADER_HIDECOLUMN, IDI_HIDECOLUMN },
 		{ ID_HEADER_COLUMNS, IDI_EDITCOLUMNS },
 		{ ID_PROCESS_MODULES, IDI_DLL },
+		{ ID_PROCESS_THREADS, IDI_THREAD },
+		{ ID_PROCESS_KILL, IDI_DELETE },
+		{ ID_PROCESS_HEAPS, IDI_HEAP },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
@@ -726,20 +729,27 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 }
 
 bool CMainFrame::DetachTab(int page) {
+	auto frame = new CMainFrame;
+	auto hFrame = frame->CreateEx();
+	if (!hFrame) {
+		AtlMessageBox(*this, L"Failed to create new frame", IDS_TITLE, MB_ICONERROR);
+		return false;
+	}
+
 	auto hWnd = m_view.GetPageHWND(page);
 	ATLASSERT(hWnd);
 	CString title(m_view.GetPageTitle(page));
+	int icon = m_view.GetPageImage(page);
+	auto param = m_view.GetPageData(page);
 	HICON hIcon = m_TabImages.GetIcon(m_view.GetPageImage(page));
 
 	m_view.m_bDestroyPageOnRemove = false;
 	m_view.RemovePage(page);
 	m_view.m_bDestroyPageOnRemove = true;
 
-	auto frame = new CDetachHostWindow;
-	frame->CreateEx();
-	frame->SetClient(hWnd);
-	frame->SetWindowText(title);
-	frame->SetIcon(hIcon, FALSE);
+	::SendMessage(hWnd, OM_NEW_FRAME, 0, reinterpret_cast<LPARAM>(static_cast<IMainFrame*>(frame)));
+	frame->m_view.AddPage(hWnd, title, icon, param);
+	::SetParent(hWnd, frame->m_view);
 	frame->ShowWindow(SW_SHOW);
 	ATLASSERT(::IsWindow(hWnd));
 
@@ -759,7 +769,7 @@ void CMainFrame::ShowAllHandles(PCWSTR type) {
 }
 
 void CMainFrame::ShowAllObjects(PCWSTR type) {
-	auto tab = new CObjectsView(this, this, type);
+	auto tab = new CObjectsView(this, type);
 	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), tab);
 }

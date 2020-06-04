@@ -19,6 +19,9 @@ public:
 	const std::wstring& GetExecutablePath() const;
 	const std::wstring& UserName() const;
 	int GetImageIndex(CImageList images) const;
+	WinSys::IoPriority GetIoPriority() const;
+	int GetMemoryPriority() const;
+	WinSys::ProcessPriorityClass GetPriorityClass();
 
 	DWORD64 TargetTime;
 	bool IsNew{ false };

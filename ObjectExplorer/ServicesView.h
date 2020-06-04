@@ -3,6 +3,7 @@
 #include "Interfaces.h"
 #include "resource.h"
 #include "VirtualListView.h"
+#include "ViewBase.h"
 
 struct ServiceInfoEx {
 	ServiceInfoEx(PCWSTR name);
@@ -25,7 +26,8 @@ class CServicesView :
 	public CFrameWindowImpl<CServicesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CServicesView>,
 	public CAutoUpdateUI<CServicesView>,
-	public CIdleHandler {
+	public CIdleHandler,
+	public CViewBase<CServicesView> {
 public:
 	DECLARE_WND_CLASS(nullptr)
 
@@ -58,6 +60,7 @@ public:
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CAutoUpdateUI<CServicesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
+		CHAIN_MSG_MAP(CViewBase<CServicesView>)
 	END_MSG_MAP()
 
 private:
@@ -93,7 +96,6 @@ private:
 	std::vector<WinSys::ServiceInfo> m_Services;
 	mutable std::unordered_map<std::wstring, ServiceInfoEx> m_ServicesEx;
 
-	IMainFrame* m_pFrame;
 	CToolBarCtrl m_ToolBar;
 	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;

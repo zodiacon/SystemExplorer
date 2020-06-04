@@ -377,6 +377,9 @@
     <ClInclude Include="FormatHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ViewBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\briefcase.ico">
@@ -600,6 +603,12 @@
     </Image>
     <Image Include="res\dll-import.ico">
       <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\heap.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\processes.ico">
+      <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

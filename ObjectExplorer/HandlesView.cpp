@@ -15,8 +15,8 @@
 
 using namespace WinSys;
 
-CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) :
-	m_pFrame(pFrame), m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
+CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) : CViewBase(pFrame),
+	m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(DriverHelper::OpenProcess(pid, SYNCHRONIZE));
 	if (pid) {
 		auto hProcess = DriverHelper::OpenProcess(pid, SYNCHRONIZE | PROCESS_QUERY_INFORMATION);
@@ -115,7 +115,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto& c : columns)
 		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	m_List.SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -200,7 +200,7 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 		}
 	}
 	if (item.mask & LVIF_IMAGE) {
-		item.iImage = m_pFrame->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName);
+		item.iImage = GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName);
 	}
 	return 0;
 }
@@ -217,7 +217,7 @@ LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
 LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
 	CMenu menu;
 	menu.LoadMenuW(IDR_CONTEXT);
-	m_pFrame->TrackPopupMenu(menu.GetSubMenu(0), *this);
+	GetFrame()->TrackPopupMenu(menu.GetSubMenu(0), *this);
 
 	return 0;
 }
@@ -354,8 +354,8 @@ LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto& item = m_Handles[m_List.GetSelectedIndex()];
 	ATLASSERT(item->ObjectInfo);
 	CObjectHandlesDlg dlg(item->ObjectInfo, m_ProcMgr);
-	CImageList il = m_pFrame->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->ObjectInfo->TypeName)));
+	CImageList il = GetFrame()->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(GetFrame()->GetIconIndexByType(item->ObjectInfo->TypeName)));
 
 	return 0;
 }

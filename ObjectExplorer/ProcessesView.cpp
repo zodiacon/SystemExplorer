@@ -6,8 +6,11 @@
 #include "StandardColors.h"
 #include "FormatHelper.h"
 #include "SelectColumnsDlg.h"
+#include "DriverHelper.h"
 
-CProcessesView::CProcessesView(IMainFrame* frame) : m_pFrame(frame) {
+using namespace WinSys;
+
+CProcessesView::CProcessesView(IMainFrame* frame) : CViewBase(frame) {
 }
 
 CString CProcessesView::GetColumnText(HWND, int row, int col) const {
@@ -28,6 +31,8 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 				text.Format(L"%7.2f ", value);
 			}
 			break;
+		case ProcessColumn::PriorityClass: return PriorityClassToString(px.GetPriorityClass());
+		case ProcessColumn::ExePath: return px.GetExecutablePath().c_str();
 		case ProcessColumn::CreateTime: return CTime(*(FILETIME*)&p->CreateTime).Format(L"%x %X");
 		case ProcessColumn::Session: text.Format(L"%2d  ", p->SessionId); break;
 		case ProcessColumn::Attributes: return ProcessAttributesToString(px.GetAttributes(m_ProcMgr));
@@ -53,6 +58,14 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 				}
 			}
 			break;
+		case ProcessColumn::MemoryPriority:
+		{
+			auto mp = px.GetMemoryPriority();
+			if (mp >= 0)
+				text.Format(L"%d  ", mp);
+			break;
+		}
+		case ProcessColumn::IoPriority: return IoPriorityToString(px.GetIoPriority());
 	}
 
 	return text;
@@ -75,6 +88,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::Id: return SortHelper::SortNumbers(p1->Id, p2->Id, asc);
 			case ProcessColumn::UserName: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).UserName(), GetProcessInfoEx(p2.get()).UserName(), asc);
 			case ProcessColumn::Session: return SortHelper::SortNumbers(p1->SessionId, p2->SessionId, asc);
+			case ProcessColumn::PriorityClass: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetPriorityClass(), GetProcessInfoEx(p2.get()).GetPriorityClass(), asc);
 			case ProcessColumn::CPU: return SortHelper::SortNumbers(p1->CPU, p2->CPU, asc);
 			case ProcessColumn::Parent: return SortHelper::SortNumbers(p1->ParentId, p2->ParentId, asc);
 			case ProcessColumn::CreateTime: return SortHelper::SortNumbers(p1->CreateTime, p2->CreateTime, asc);
@@ -94,7 +108,8 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::PeakPagedPool: return SortHelper::SortNumbers(p1->PeakPagedPoolUsage, p2->PeakPagedPoolUsage, asc);
 			case ProcessColumn::NonPagedPool: return SortHelper::SortNumbers(p1->NonPagedPoolUsage, p2->NonPagedPoolUsage, asc);
 			case ProcessColumn::PeakNonPagedPool: return SortHelper::SortNumbers(p1->PeakNonPagedPoolUsage, p2->PeakNonPagedPoolUsage, asc);
-
+			case ProcessColumn::MemoryPriority: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetMemoryPriority(), GetProcessInfoEx(p2.get()).GetMemoryPriority(), asc);
+			case ProcessColumn::IoPriority: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetIoPriority(), GetProcessInfoEx(p2.get()).GetIoPriority(), asc);
 		}
 		return false;
 		});
@@ -119,25 +134,31 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	int index = (int)cd->dwItemSpec;
 
 	auto cm = GetColumnManager(m_List);
-	auto real = cm->GetRealColumn(sub);
-	if ((cm->GetColumn(real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
-		::SelectObject(cd->hdc, m_pFrame->GetMonoFont());
+	auto real = static_cast<ProcessColumn>(cm->GetRealColumn(sub));
+	if ((cm->GetColumn((int)real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
+		::SelectObject(cd->hdc, GetFrame()->GetMonoFont());
 	else
 		::SelectObject(cd->hdc, m_hFont);
 
 	auto& p = m_Processes[index];
 	auto& px = GetProcessInfoEx(p.get());
-	if (real < 2) {
-		GetProcessColors(px, lcd->clrTextBk, lcd->clrText);
-	}
-	else if(p->Id > 0 && (ProcessColumn)real == ProcessColumn::CPU)
-		GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
 
+	switch (real) {
+		case ProcessColumn::Name:
+		case ProcessColumn::Id:
+			GetProcessColors(px, lcd->clrTextBk, lcd->clrText);
+			break;
+		case ProcessColumn::CPU:
+			if (p->Id > 0)
+				GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
+			break;
+	}
+	
 	return CDRF_SKIPPOSTPAINT | CDRF_NEWFONT;
 }
 
 LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
-	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);
+	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle & ~LVS_SHAREIMAGELISTS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
 	m_Images.Create(16, 16, ILC_COLOR32, 64, 32);
@@ -150,27 +171,29 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"Id", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Numeric);
 	cm->AddColumn(L"User Name", LVCFMT_LEFT, 200, ColumnFlags::Visible);
 	cm->AddColumn(L"Session", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"CPU (%)", LVCFMT_RIGHT, 90, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"CPU Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\CPU (%)", LVCFMT_RIGHT, 90, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\CPU Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Parent", LVCFMT_LEFT, 180, ColumnFlags::None);
 	cm->AddColumn(L"Base Priority", LVCFMT_LEFT, 80, ColumnFlags::Numeric);
-	cm->AddColumn(L"Priority Class", LVCFMT_LEFT, 80, ColumnFlags::Visible);
-	cm->AddColumn(L"Threads", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak Threads", LVCFMT_RIGHT, 60, ColumnFlags::Numeric);
-	cm->AddColumn(L"Handles", LVCFMT_RIGHT, 70, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Priority Class", LVCFMT_LEFT, 120, ColumnFlags::Visible);
+	cm->AddColumn(L"Performance\\Threads", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\Peak Threads", LVCFMT_RIGHT, 60, ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\Handles", LVCFMT_RIGHT, 70, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Attributes", LVCFMT_LEFT, 100, ColumnFlags::Visible);
-	cm->AddColumn(L"Path", LVCFMT_LEFT, 200, ColumnFlags::None);
+	cm->AddColumn(L"Path", LVCFMT_LEFT, 300, ColumnFlags::None);
 	cm->AddColumn(L"Create Time", LVCFMT_LEFT, 130, ColumnFlags::Visible);
-	cm->AddColumn(L"Commit (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak Commit (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
-	cm->AddColumn(L"Working Set (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak WS (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
-	cm->AddColumn(L"Virtual Size (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak Virtual Size (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
-	cm->AddColumn(L"Paged Pool (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak Paged (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
-	cm->AddColumn(L"Non Paged (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
-	cm->AddColumn(L"Peak NPaged (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Commit (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Peak Commit (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Working Set (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Peak WS (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Virtual Size (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Peak Virtual Size (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Paged Pool (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Peak Paged (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Non Paged (K)", LVCFMT_RIGHT, 110, ColumnFlags::Numeric);
+	cm->AddColumn(L"Memory\\Peak NPaged (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
+	cm->AddColumn(L"I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
+	cm->AddColumn(L"Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
 
 	cm->UpdateColumns();
 
@@ -250,6 +273,28 @@ void CProcessesView::Refresh() {
 	m_List.RedrawItems(top , top + m_List.GetCountPerPage());
 }
 
+void CProcessesView::UpdateUI() {
+	int selected = m_List.GetSelectedIndex();
+	if (selected < 0)
+		return;
+
+	auto& p = m_Processes[selected];
+	auto& px = GetProcessInfoEx(p.get());
+	UINT id = 0;
+	switch (px.GetPriorityClass()) {
+		case ProcessPriorityClass::Idle: id = ID_PRIORITYCLASS_IDLE; break;
+		case ProcessPriorityClass::BelowNormal: id = ID_PRIORITYCLASS_BELOWNORMAL; break;
+		case ProcessPriorityClass::Normal: id = ID_PRIORITYCLASS_NORMAL; break;
+		case ProcessPriorityClass::AboveNormal: id = ID_PRIORITYCLASS_ABOVENORMAL; break;
+		case ProcessPriorityClass::High: id = ID_PRIORITYCLASS_HIGH; break;
+		case ProcessPriorityClass::Realtime: id = ID_PRIORITYCLASS_REALTIME; break;
+	}
+	auto ui = GetFrame()->GetUpdateUI();
+
+	if(id)
+		ui->UISetRadioMenuItem(id, ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME);
+}
+
 CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) {
 	CString text;
 
@@ -320,8 +365,31 @@ void CProcessesView::GetCPUColors(int cpu, COLORREF& bk, COLORREF& text) {
 	}
 }
 
+CString CProcessesView::IoPriorityToString(IoPriority io) {
+	switch (io) {
+		case IoPriority::Critical: return L"Critical";
+		case IoPriority::High: return L"High";
+		case IoPriority::Low: return L"Low";
+		case IoPriority::Normal: return L"Normal";
+		case IoPriority::VeryLow: return L"Very Low";
+	}
+	return "(Unknown)";
+}
 
-ProcessInfoEx& CProcessesView::GetProcessInfoEx(WinSys::ProcessInfo* pi) const {
+PCWSTR CProcessesView::PriorityClassToString(ProcessPriorityClass pc) {
+	switch (pc) {
+		case ProcessPriorityClass::Normal: return L"Normal (8)";
+		case ProcessPriorityClass::AboveNormal: return L"Above Normal (10)";
+		case ProcessPriorityClass::BelowNormal: return L"Below Normal (6)";
+		case ProcessPriorityClass::High: return L"High (13)";
+		case ProcessPriorityClass::Idle: return L"Idle (4)";
+		case ProcessPriorityClass::Realtime: return L"Realtime (24)";
+	}
+	return L"";
+}
+
+
+ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {
 	auto it = m_ProcessesEx.find(pi);
 	if (it != m_ProcessesEx.end())
 		return it->second;
@@ -332,7 +400,7 @@ ProcessInfoEx& CProcessesView::GetProcessInfoEx(WinSys::ProcessInfo* pi) const {
 }
 
 void CProcessesView::GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const {
-	auto& colors = m_pFrame->GetSettings().Processes.Colors;
+	auto& colors = GetFrame()->GetSettings().Processes.Colors;
 	int i;
 
 	if (colors[i = (int)ProcessColorIndex::DeletedObjects].Enabled && px.IsTerminated) {
@@ -400,6 +468,10 @@ LRESULT CProcessesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL&) {
+	return 0;
+}
+
 LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	POINT pt;
 	::GetCursorPos(&pt);
@@ -416,7 +488,7 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
 		m_SelectedHeader = index;
-		m_pFrame->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
+		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
 			(GetColumnManager(m_List)->GetColumn(index).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 	}
@@ -430,9 +502,10 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		}
 	}
 	if (hSubMenu) {
-		auto id = (UINT)m_pFrame->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
+		UpdateUI();
+		auto id = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
 		if (id) {
-			m_pFrame->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[index].get()));
+			GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[index].get()));
 		}
 	}
 	return 0;
@@ -449,6 +522,65 @@ LRESULT CProcessesView::OnPause(WORD, WORD, HWND, BOOL&) {
 		SetTimer(1, m_UpdateInterval, nullptr);
 	}
 
-	m_pFrame->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, m_UpdateInterval == 0);
+	GetFrame()->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, m_UpdateInterval == 0);
 	return 0;
 }
+
+LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
+	int selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& p = m_Processes[selected];
+
+	CString text;
+	text.Format(L"Kill process %u (%ws)?", p->Id, p->GetImageName().c_str());
+	if(AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
+		return 0;
+
+	auto hProcess = DriverHelper::OpenProcess(p->Id, PROCESS_TERMINATE);
+	BOOL ok = false;
+	if (hProcess) {
+		ok = ::TerminateProcess(hProcess, 0);
+	}
+	if (!ok)
+		AtlMessageBox(*this, L"Failed to kill process", IDS_TITLE, MB_ICONERROR);
+
+	return 0;
+}
+
+LRESULT CProcessesView::OnProcessGoToFileLocation(WORD, WORD, HWND, BOOL&) {
+	int selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& px = GetProcessInfoEx(m_Processes[selected].get());
+
+	if ((INT_PTR)::ShellExecute(nullptr, L"open", L"explorer",
+		(L"/select,\"" + px.GetExecutablePath() + L"\"").c_str(),
+		nullptr, SW_SHOWDEFAULT) < 32)
+		AtlMessageBox(*this, L"Failed to locate executable", IDS_TITLE, MB_ICONERROR);
+
+	return 0;
+}
+
+LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
+	int selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+
+	Process process(DriverHelper::OpenProcess(m_Processes[selected]->Id, PROCESS_SET_INFORMATION));
+	bool ok = FALSE;
+	if (process.IsValid()) {
+		auto pc = ProcessPriorityClass::Unknown;
+		switch (id) {
+			case ID_PRIORITYCLASS_ABOVENORMAL: pc = ProcessPriorityClass::AboveNormal; break;
+			case ID_PRIORITYCLASS_BELOWNORMAL: pc = ProcessPriorityClass::BelowNormal; break;
+			case ID_PRIORITYCLASS_NORMAL: pc = ProcessPriorityClass::Normal; break;
+			case ID_PRIORITYCLASS_IDLE: pc = ProcessPriorityClass::Idle; break;
+			case ID_PRIORITYCLASS_HIGH: pc = ProcessPriorityClass::High; break;
+			case ID_PRIORITYCLASS_REALTIME: pc = ProcessPriorityClass::Realtime; break;
+		}
+		ok = process.SetPriorityClass(pc);
+	}
+	if (!ok) {
+		AtlMessageBox(*this, L"Failed to change priority class", IDS_TITLE, MB_ICONERROR);
+	}
+	return 0;
+}
+

@@ -4,11 +4,13 @@
 #include "Interfaces.h"
 #include "ObjectManager.h"
 #include "ToolBarHelper.h"
+#include "ViewBase.h"
 
 class CWindowsView : 
 	public CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CWindowsView>,
-	public CToolBarHelper<CWindowsView> {
+	public CToolBarHelper<CWindowsView>,
+	public CViewBase<CWindowsView> {
 public:
 	using BaseFrame = CFrameWindowImpl<CWindowsView, CWindow, CControlWinTraits>;
 
@@ -32,6 +34,7 @@ public:
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CWindowsView>)
 		CHAIN_MSG_MAP(CToolBarHelper<CWindowsView>)
+		CHAIN_MSG_MAP(CViewBase<CWindowsView>)
 	ALT_MSG_MAP(1)
 	ALT_MSG_MAP(2)
 		MESSAGE_HANDLER(WM_CHAR, OnComboKeyDown)
@@ -73,7 +76,6 @@ private:
 	CSplitterWindow m_Splitter;
 	CToolBarCtrl m_Toolbar;
 	HWND m_SelectedHwnd;
-	IMainFrame* m_pFrame;
 	WinSys::ProcessManager m_ProcMgr;
 	CContainedWindowT<CComboBox> m_SearchCombo;
 	CContainedWindowT<CEdit> m_SearchEdit;

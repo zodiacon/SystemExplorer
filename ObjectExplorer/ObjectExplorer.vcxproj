@@ -335,6 +335,7 @@
     <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="TimerObjectType.h" />
     <ClInclude Include="TokenObjectType.h" />
+    <ClInclude Include="ViewBase.h" />
     <ClInclude Include="VirtualListView.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="WindowsView.h" />
@@ -379,6 +380,7 @@
     <Image Include="res\gear_stop.ico" />
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
+    <Image Include="res\heap.ico" />
     <Image Include="res\key.ico" />
     <Image Include="res\login.ico" />
     <Image Include="res\mailbox.ico" />
@@ -395,6 +397,7 @@
     <Image Include="res\play.ico" />
     <Image Include="res\port.ico" />
     <Image Include="res\process.ico" />
+    <Image Include="res\processes.ico" />
     <Image Include="res\process_view.ico" />
     <Image Include="res\refresh.ico" />
     <Image Include="res\reserved.ico" />

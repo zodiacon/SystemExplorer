@@ -31,7 +31,8 @@ namespace WinSys {
 		AboveNormal = ABOVE_NORMAL_PRIORITY_CLASS,
 		Idle = IDLE_PRIORITY_CLASS,
 		High = HIGH_PRIORITY_CLASS,
-		Realtime = REALTIME_PRIORITY_CLASS
+		Realtime = REALTIME_PRIORITY_CLASS,
+		Unknown = 0,
 	};
 
 	enum class IntegrityLevel : uint32_t;
@@ -102,6 +103,9 @@ namespace WinSys {
 		IntegrityLevel GetIntegrityLevel() const;
 		int GetMemoryPriority() const;
 		IoPriority GetIoPriority() const;
+		ProcessPriorityClass GetPriorityClass() const;
+		bool SetPriorityClass(ProcessPriorityClass pc);
+
 		uint32_t GetId() const;
 
 		HANDLE GetHandle() const;

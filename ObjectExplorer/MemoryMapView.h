@@ -1,17 +1,21 @@
 #pragma once
 
 #include "VirtualListView.h"
+#include "ViewBase.h"
+
+struct IMainFrame;
 
 class CMemoryMapView :
 	public CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CMemoryMapView>,
-	public CCustomDraw<CMemoryMapView> {
+	public CCustomDraw<CMemoryMapView>,
+	public CViewBase<CMemoryMapView> {
 public:
 	using BaseFrame = CFrameWindowImpl<CMemoryMapView, CWindow, CControlWinTraits>;
 
 	DECLARE_WND_CLASS(nullptr)
 
-	CMemoryMapView(DWORD pid);
+	CMemoryMapView(IMainFrame* frame, DWORD pid);
 
 	CString GetColumnText(HWND h, int row, int column) const;
 	int GetRowImage(int row) const;
@@ -29,6 +33,7 @@ public:
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CMemoryMapView>)
 		CHAIN_MSG_MAP(CCustomDraw<CMemoryMapView>)
+		CHAIN_MSG_MAP(CViewBase<CMemoryMapView>)
 	END_MSG_MAP()
 
 private:

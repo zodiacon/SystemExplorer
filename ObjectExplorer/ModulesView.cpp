@@ -4,10 +4,10 @@
 #include "SortHelper.h"
 #include "resource.h"
 
-CModulesView::CModulesView(DWORD pid, IMainFrame* frame) : m_Tracker(pid), m_pFrame(frame) {
+CModulesView::CModulesView(DWORD pid, IMainFrame* frame) : CViewBase(frame), m_Tracker(pid) {
 }
 
-CModulesView::CModulesView(HANDLE hProcess, IMainFrame* frame) : m_Tracker(hProcess), m_pFrame(frame) {
+CModulesView::CModulesView(HANDLE hProcess, IMainFrame* frame) : CViewBase(frame), m_Tracker(hProcess) {
 }
 
 CString CModulesView::GetColumnText(HWND, int row, int col) const {

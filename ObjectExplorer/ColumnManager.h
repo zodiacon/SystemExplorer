@@ -7,7 +7,7 @@ enum class ColumnFlags {
 	None = 0,
 	Visible = 1,
 	Fixed = 2,
-	Const = 4,
+	Const = 4,		// currently unused
 	Mandatory = 8,
 	Numeric = 0x10,
 	Modified = 0x80

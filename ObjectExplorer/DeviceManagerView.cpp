@@ -7,7 +7,7 @@
 
 using namespace WinSys;
 
-CDeviceManagerView::CDeviceManagerView(IMainFrame* frame) : m_pFrame(frame) {
+CDeviceManagerView::CDeviceManagerView(IMainFrame* frame) : CViewBase(frame) {
 }
 
 bool CDeviceManagerView::IsSortable(int col) const {

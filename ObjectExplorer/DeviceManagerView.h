@@ -2,11 +2,13 @@
 
 #include "Interfaces.h"
 #include "VirtualListView.h"
+#include "ViewBase.h"
 
 class CDeviceManagerView :
 	public CFrameWindowImpl<CDeviceManagerView, CWindow, CControlWinTraits>,
 	public CCustomDraw<CDeviceManagerView>,
-	public CVirtualListView<CDeviceManagerView> {
+	public CVirtualListView<CDeviceManagerView>,
+	public CViewBase<CDeviceManagerView> {
 public:
 	using BaseFrame = CFrameWindowImpl<CDeviceManagerView, CWindow, CControlWinTraits>;
 
@@ -27,6 +29,7 @@ public:
 		COMMAND_ID_HANDLER(ID_EDIT_FIND_NEXT, OnFindNext)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CDeviceManagerView>)
+		CHAIN_MSG_MAP(CViewBase<CDeviceManagerView>)
 	END_MSG_MAP()
 
 private:
@@ -76,6 +79,5 @@ private:
 	CSplitterWindow m_Splitter;
 	CToolBarCtrl m_Toolbar;
 	int m_ComputerIcon;
-	IMainFrame* m_pFrame;
 };
 

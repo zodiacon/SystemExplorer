@@ -262,3 +262,10 @@ bool Process::IsManaged() const {
 	return false;
 }
 
+WinSys::ProcessPriorityClass Process::GetPriorityClass() const {
+	return static_cast<ProcessPriorityClass>(::GetPriorityClass(_handle.get()));
+}
+
+bool WinSys::Process::SetPriorityClass(ProcessPriorityClass pc) {
+	return ::SetPriorityClass(_handle.get(), static_cast<DWORD>(pc));
+}

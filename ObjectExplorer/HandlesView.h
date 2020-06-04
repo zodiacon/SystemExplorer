@@ -3,12 +3,14 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ObjectManager.h"
+#include "ViewBase.h"
 #include "resource.h"
 
 class CHandlesView :
 	public CFrameWindowImpl<CHandlesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CHandlesView>,
-	public CCustomDraw<CHandlesView> {
+	public CCustomDraw<CHandlesView>,
+	public CViewBase<CHandlesView> {
 public:
 	using BaseClass = CFrameWindowImpl<CHandlesView, CWindow, CControlWinTraits>;
 
@@ -40,6 +42,7 @@ public:
 		CHAIN_MSG_MAP(BaseClass)
 		CHAIN_MSG_MAP(CVirtualListView<CHandlesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CHandlesView>)
+		CHAIN_MSG_MAP(CViewBase<CHandlesView>)
 	END_MSG_MAP()
 
 private:
@@ -77,7 +80,6 @@ private:
 	WinSys::ProcessManager m_ProcMgr;
 	std::unique_ptr<WinSys::ProcessHandlesTracker> m_HandleTracker;
 	CString m_HandleType;
-	IMainFrame* m_pFrame;
 	CUpdateUIBase* m_pUI;
 	int m_ColumnCount;
 	int m_Pid;

@@ -3,10 +3,12 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "resource.h"
+#include "ViewBase.h"
 
 class CObjectManagerView : 
 	public CWindowImpl<CObjectManagerView>,
-	public CVirtualListView<CObjectManagerView> {
+	public CVirtualListView<CObjectManagerView>,
+	public CViewBase<CObjectManagerView> {
 public:
 	DECLARE_WND_CLASS(nullptr)
 
@@ -25,6 +27,7 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectManagerView>)
+		CHAIN_MSG_MAP(CViewBase<CObjectManagerView>)
 	END_MSG_MAP()
 
 private:
@@ -49,6 +52,5 @@ private:
 	CListViewCtrl m_List;
 	std::vector<ObjectData> m_Objects;
 	CSplitterWindow m_Splitter;
-	IMainFrame* m_pFrame;
 };
 

@@ -9,7 +9,7 @@
 #include "ObjectTypeFactory.h"
 #include "SecurityInfo.h"
 
-CObjectManagerView::CObjectManagerView(IMainFrame* frame) : m_pFrame(frame) {
+CObjectManagerView::CObjectManagerView(IMainFrame* frame) : CViewBase(frame) {
 }
 
 CString CObjectManagerView::GetDirectoryPath() const {
@@ -48,7 +48,7 @@ LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS);
 	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | 
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
-	m_List.SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR | ILC_COLOR32, 2, 0);
 	images.AddIcon(AtlLoadIcon(IDI_FOLDER));
@@ -122,7 +122,7 @@ LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 		}
 	}
 	if (item.mask & LVIF_IMAGE) {
-		item.iImage = m_pFrame->GetIconIndexByType(data.Type);
+		item.iImage = GetFrame()->GetIconIndexByType(data.Type);
 	}
 	return 0;
 }

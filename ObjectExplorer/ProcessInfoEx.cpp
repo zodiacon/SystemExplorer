@@ -67,3 +67,15 @@ int ProcessInfoEx::GetImageIndex(CImageList images) const {
 	}
 	return _image;
 }
+
+WinSys::IoPriority ProcessInfoEx::GetIoPriority() const {
+	return _process ? _process->GetIoPriority() : WinSys::IoPriority::Unknown;
+}
+
+int ProcessInfoEx::GetMemoryPriority() const {
+	return _process ? _process->GetMemoryPriority() : -1;
+}
+
+WinSys::ProcessPriorityClass ProcessInfoEx::GetPriorityClass() {
+	return _process ? _process->GetPriorityClass() : WinSys::ProcessPriorityClass::Unknown;
+}

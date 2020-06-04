@@ -3,15 +3,17 @@
 #include "ObjectManager.h"
 #include "Interfaces.h"
 #include "VirtualListView.h"
+#include "ViewBase.h"
 
 class CObjectSummaryView :
 	public CWindowImpl<CObjectSummaryView, CListViewCtrl>,
 	public CVirtualListView<CObjectSummaryView>,
-	public CCustomDraw<CObjectSummaryView> {
+	public CCustomDraw<CObjectSummaryView>,
+	public CViewBase<CObjectSummaryView> {
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	CObjectSummaryView(IMainFrame* pFrame, CUpdateUIBase& updateUI) : m_pFrame(pFrame), m_UIUpdate(updateUI) {}
+	CObjectSummaryView(IMainFrame* pFrame) : CViewBase(pFrame) {}
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -41,6 +43,7 @@ public:
 		COMMAND_ID_HANDLER(ID_TYPE_ALLOBJECTS, OnShowAllObjects)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CObjectSummaryView>, 1)
 		CHAIN_MSG_MAP_ALT(CVirtualListView<CObjectSummaryView>, 1)
+		CHAIN_MSG_MAP(CViewBase<CObjectSummaryView>)
 		DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
 
@@ -71,8 +74,6 @@ private:
 private:
 	ObjectManager m_ObjectManager;
 	std::vector<std::shared_ptr<ObjectTypeInfo>> m_Items;
-	CUpdateUIBase& m_UIUpdate;
-	IMainFrame* m_pFrame;
 	int m_Interval = 1000;
 	HFONT m_hFont;
 	bool m_Paused = false;

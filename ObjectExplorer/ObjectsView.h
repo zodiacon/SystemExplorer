@@ -8,6 +8,7 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ToolBarHelper.h"
+#include "ViewBase.h"
 
 struct IMainFrame;
 
@@ -15,13 +16,14 @@ class CObjectsView :
 	public CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>,
 	public CMessageFilter,
 	public CCustomDraw<CObjectsView>,
-	public CVirtualListView<CObjectsView> {
+	public CVirtualListView<CObjectsView>,
+	public CViewBase<CObjectsView> {
 public:
 	using BaseClass = CFrameWindowImpl<CObjectsView, CWindow, CControlWinTraits>;
 
 	DECLARE_WND_CLASS_EX(nullptr, CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, NULL);
 
-	CObjectsView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type = nullptr);
+	CObjectsView(IMainFrame* pFrame, PCWSTR type = nullptr);
 
 	void Refresh();
 
@@ -46,6 +48,7 @@ public:
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		CHAIN_MSG_MAP(BaseClass)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectsView>)
+		CHAIN_MSG_MAP(CViewBase<CObjectsView>)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -76,7 +79,6 @@ private:
 
 private:
 	CListViewCtrl m_List;
-	IMainFrame* m_pFrame;
 	static int ColumnCount;
 	CImageListManaged m_Images;
 	std::vector<std::shared_ptr<ObjectInfo>> m_Objects;

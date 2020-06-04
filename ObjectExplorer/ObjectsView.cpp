@@ -19,9 +19,8 @@
 
 int CObjectsView::ColumnCount;
 
-CObjectsView::CObjectsView(CUpdateUIBase* pUpdateUI, IMainFrame* pFrame, PCWSTR type)
-	: m_pUpdateUI(pUpdateUI), m_pFrame(pFrame), m_Typename(type) {
-	ATLASSERT(pFrame);
+CObjectsView::CObjectsView(IMainFrame* pFrame, PCWSTR type) : CViewBase(pFrame),
+	m_pUpdateUI(pFrame->GetUpdateUI()), m_Typename(type) {
 }
 
 BOOL CObjectsView::PreTranslateMessage(MSG* pMsg) {
@@ -176,7 +175,7 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto& c : columns)
 		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	m_List.SetImageList(m_pFrame->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -220,7 +219,7 @@ LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 		}
 	}
 	if (item.mask & LVIF_IMAGE) {
-		item.iImage = m_pFrame->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName);
+		item.iImage = GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName);
 	}
 	return 0;
 }
@@ -228,7 +227,7 @@ LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMITEMACTIVATE*)hdr;
 	CMenu menu = AtlLoadMenu(IDR_CONTEXT);
-	m_pFrame->TrackPopupMenu(menu.GetSubMenu(2), *this);
+	GetFrame()->TrackPopupMenu(menu.GetSubMenu(2), *this);
 	return FALSE;
 }
 
@@ -250,8 +249,8 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(m_List.GetSelectedIndex() >= 0);
 	auto& item = GetItem(m_List.GetSelectedIndex());
 	CObjectHandlesDlg dlg(item.get(), m_ProcMgr);
-	CImageList il = m_pFrame->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(m_pFrame->GetIconIndexByType(item->TypeName)));
+	CImageList il = GetFrame()->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(GetFrame()->GetIconIndexByType(item->TypeName)));
 
 	return 0;
 }

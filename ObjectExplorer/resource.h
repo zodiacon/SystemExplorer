@@ -90,10 +90,13 @@
 #define IDI_HIDECOLUMN                  289
 #define IDI_ICON9                       290
 #define IDI_EDITCOLUMNS                 290
-#define IDI_ICON2                       291
 #define IDI_DLL                         291
 #define IDI_DLL_DB                      292
 #define IDI_DLL_RELOC                   293
+#define IDI_ICON2                       294
+#define IDI_HEAP                        294
+#define IDI_ICON10                      296
+#define IDI_PROCESSES                   296
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -194,13 +197,23 @@
 #define ID_HANDLES_NAMEDOBJECTSONLY     32863
 #define ID_EDIT_SECURITY                32864
 #define ID_SYSTEM_LOGONSESSIONS         32865
+#define ID_PROCESS_KILL                 32866
+#define ID_PROCESS_PRIORITYCLASS        32867
+#define ID_PRIORITYCLASS_IDLE           32868
+#define ID_PRIORITYCLASS_BELOWNORMAL    32869
+#define ID_PRIORITYCLASS_NORMAL         32870
+#define ID_PRIORITYCLASS_ABOVENORMAL    32871
+#define ID_PRIORITYCLASS_HIGH           32872
+#define ID_PRIORITYCLASS_REALTIME       32873
+#define ID_PROCESS_GOTOFILELOCATION     32874
+#define ID_TAB_DETACH32875              32875
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        294
-#define _APS_NEXT_COMMAND_VALUE         32866
+#define _APS_NEXT_RESOURCE_VALUE        297
+#define _APS_NEXT_COMMAND_VALUE         32876
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -2,11 +2,13 @@
 
 #include "VirtualListView.h"
 #include "Interfaces.h"
+#include "ViewBase.h"
 
 class CModulesView : 
 	public CFrameWindowImpl<CModulesView, CWindow, CControlWinTraits>,
 	public CVirtualListView<CModulesView>,
-	public CCustomDraw<CModulesView> {
+	public CCustomDraw<CModulesView>,
+	public CViewBase<CModulesView> {
 public:
 	CModulesView(DWORD pid, IMainFrame* frame);
 	CModulesView(HANDLE hProcess, IMainFrame* frame);
@@ -27,14 +29,11 @@ public:
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
-		//NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemStateChanged)
-		//NOTIFY_CODE_HANDLER(NM_RCLICK, OnListRightClick)
-		//COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
-		//COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CModulesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CModulesView>)
+		CHAIN_MSG_MAP(CViewBase<CModulesView>)
 	END_MSG_MAP()
 
 private:
@@ -56,7 +55,6 @@ private:
 
 private:
 	CListViewCtrl m_List;
-	IMainFrame* m_pFrame;
 	int m_UpdateInterval = 1200;
 	std::vector<std::shared_ptr<WinSys::ModuleInfo>> m_Modules;
 	std::unordered_map<WinSys::ModuleInfo*, ModuleInfoEx> m_ModulesEx;

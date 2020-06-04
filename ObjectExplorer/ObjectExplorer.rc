@@ -203,6 +203,8 @@ BEGIN
     BEGIN
         MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
         MENUITEM "Close All but &This",         ID_WINDOW_CLOSEALLBUTTHIS
+        MENUITEM SEPARATOR
+        MENUITEM "&Detach",                     ID_TAB_DETACH
     END
     POPUP "object"
     BEGIN
@@ -278,6 +280,20 @@ BEGIN
         MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
         MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
         MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
+        MENUITEM SEPARATOR
+        MENUITEM "&Kill",                       ID_PROCESS_KILL
+        MENUITEM SEPARATOR
+        POPUP "Priority &Class"
+        BEGIN
+            MENUITEM "&Idle",                       ID_PRIORITYCLASS_IDLE
+            MENUITEM "&Below Normal",               ID_PRIORITYCLASS_BELOWNORMAL
+            MENUITEM "&Normal",                     ID_PRIORITYCLASS_NORMAL
+            MENUITEM "&Above Normal",               ID_PRIORITYCLASS_ABOVENORMAL
+            MENUITEM "&High",                       ID_PRIORITYCLASS_HIGH
+            MENUITEM "&Realtime",                   ID_PRIORITYCLASS_REALTIME
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Go to File Location...",     ID_PROCESS_GOTOFILELOCATION
     END
 END
 
@@ -311,7 +327,7 @@ IDI_MUTEX               ICON                    "res\\mutex.ico"
 
 IDI_PORT                ICON                    "res\\port.ico"
 
-IDI_PROCESS             ICON                    "res\\process.ico"
+IDI_PROCESS             ICON                    "C:\\Dev\\ObjectExplorer\\ObjectExplorer\\res\\process.ico"
 
 IDI_SECTION             ICON                    "res\\section.ico"
 
@@ -433,6 +449,10 @@ IDI_DLL_DB              ICON                    "res\\dll-database.ico"
 
 IDI_DLL_RELOC           ICON                    "res\\dll-import.ico"
 
+IDI_HEAP                ICON                    "res\\heap.ico"
+
+IDI_PROCESSES           ICON                    "res\\processes.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -445,7 +465,7 @@ CAPTION "About Object Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.70\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "Object Explorer v0.75\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -639,10 +659,10 @@ BEGIN
             VALUE "FileDescription", "ObjectExplorer Application"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "ObjectExplorer"
-            VALUE "LegalCopyright", "Copyright 2019"
+            VALUE "LegalCopyright", "Copyright 2019-2020 Pavel Yosifovich"
             VALUE "OriginalFilename", "ObjectExplorer.exe"
             VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 7, 0, 0"
+            VALUE "ProductVersion", "0, 7, 5, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -703,7 +723,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.70 (C)2019-2020 Pavel Yosifovich"
+    IDR_MAINFRAME           "Object Explorer v0.75"
     IDS_TITLE               "Object Explorer"
 END
 
@@ -718,12 +738,6 @@ BEGIN
     ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
     ID_FILE_PRINT           "Print the active document\nPrint"
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
-END
-
-STRINGTABLE
-BEGIN
-    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
-    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
 STRINGTABLE

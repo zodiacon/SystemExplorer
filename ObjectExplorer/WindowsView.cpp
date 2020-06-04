@@ -7,7 +7,7 @@ static PCWSTR properties[] = {
 	L"Handle", L"Owner Thread", L"Owner Process", L"Style", L"Extended Style", L"Class Name", L"Rectangle"
 };
 
-CWindowsView::CWindowsView(IMainFrame* frame) : m_pFrame(frame), m_SearchCombo(this, 1), m_SearchEdit(this, 2) {
+CWindowsView::CWindowsView(IMainFrame* frame) : CViewBase(frame), m_SearchCombo(this, 1), m_SearchEdit(this, 2) {
 }
 
 void CWindowsView::SetDesktopOptions(bool defaultDesktopOnly) {
@@ -165,7 +165,7 @@ LRESULT CWindowsView::OnComboKeyDown(UINT, WPARAM wParam, LPARAM, BOOL& handled)
 
 LRESULT CWindowsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
 	if (activate) {
-		auto ui = m_pFrame->GetUpdateUI();
+		auto ui = GetFrame()->GetUpdateUI();
 		ui->UIEnable(ID_EDIT_FIND, TRUE);
 		ui->UIEnable(ID_EDIT_FIND_NEXT, TRUE);
 	}
