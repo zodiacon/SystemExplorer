@@ -6,5 +6,4 @@ Settings::Settings() {
 
 void Settings::SetDefaults() {
 	AlwaysOnTop = false;
-
 }

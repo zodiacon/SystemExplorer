@@ -22,6 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{A5D618EB-BD6E-4769-8EF9-92ACE34C5DA4}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>SystemExplorer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -242,7 +243,7 @@
     <ClCompile Include="MemoryMapView.cpp" />
     <ClCompile Include="ModulesView.cpp" />
     <ClCompile Include="MutexObjectType.cpp" />
-    <ClCompile Include="ObjectExplorer.cpp" />
+    <ClCompile Include="SystemExplorer.cpp" />
     <ClCompile Include="ObjectHandlesDlg.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="ObjectManagerView.cpp" />

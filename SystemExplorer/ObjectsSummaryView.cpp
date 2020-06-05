@@ -38,6 +38,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto lcd = (LPNMLVCUSTOMDRAW)cd;
 	auto sub = lcd->iSubItem;
 	lcd->clrTextBk = CLR_INVALID;
+//	lcd->clrText = RGB(0, 0, 0);
 	::SelectObject(cd->hdc, m_hFont);
 
 	if (sub == 0) {

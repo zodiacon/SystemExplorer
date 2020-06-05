@@ -1,6 +1,3 @@
-// ObjectExplorer.cpp : main source file for ObjectExplorer.exe
-//
-
 #include "stdafx.h"
 
 #include "resource.h"
@@ -9,8 +6,6 @@
 #include "DriverHelper.h"
 
 CAppModule _Module;
-
-bool ParseCommandLine(PCWSTR cmdLine);
 
 int Run(LPTSTR /*lpstrCmdLine*/ = nullptr, int nCmdShow = SW_SHOWDEFAULT) {
 	CMessageLoop theLoop;

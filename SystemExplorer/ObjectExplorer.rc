@@ -186,7 +186,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About Object Explorer...",   ID_APP_ABOUT
+        MENUITEM "&About System Explorer...",   ID_APP_ABOUT
     END
 END
 
@@ -328,7 +328,7 @@ IDI_MUTEX               ICON                    "res\\mutex.ico"
 
 IDI_PORT                ICON                    "res\\port.ico"
 
-IDI_PROCESS             ICON                    "C:\\Dev\\ObjectExplorer\\ObjectExplorer\\res\\process.ico"
+IDI_PROCESS             ICON                    "res\\process.ico"
 
 IDI_SECTION             ICON                    "res\\section.ico"
 
@@ -464,11 +464,11 @@ IDI_COMPONENT           ICON                    "res\\component_blue.ico"
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 187, 102
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About Object Explorer"
+CAPTION "About System Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "Object Explorer v0.75\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "System Explorer v0.75\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -498,7 +498,7 @@ END
 
 IDD_PROGRESS DIALOGEX 0, 0, 309, 92
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Object Explorer"
+CAPTION "System Explorer"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,129,71,50,14
@@ -726,8 +726,8 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Object Explorer v0.75"
-    IDS_TITLE               "Object Explorer"
+    IDR_MAINFRAME           "System Explorer v0.75"
+    IDS_TITLE               "System Explorer"
 END
 
 STRINGTABLE
