@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by ObjectExplorer.rc
+// Used by SystemExplorer.rc
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
@@ -26,7 +26,6 @@
 #define IDI_PAUSE                       220
 #define IDI_WINSTATION                  221
 #define IDI_OBJECTS                     222
-#define IDI_ICON1                       223
 #define IDI_TYPES                       223
 #define IDD_PROCSELECT                  224
 #define IDR_CONTEXT                     227
@@ -37,11 +36,9 @@
 #define IDI_PROCESS_VIEW                233
 #define IDI_DELETE                      234
 #define IDI_ABOUT                       236
-#define IDI_ICON3                       237
 #define IDI_PACKAGE                     237
 #define IDI_PIN                         238
 #define IDI_FOLDER                      239
-#define IDI_ICON5                       240
 #define IDI_FOLDER_CLOSED               240
 #define IDI_ATOM                        243
 #define IDI_BATTERY                     244
@@ -54,12 +51,10 @@
 #define IDI_NOACCESS                    251
 #define IDI_WINDOW_BLACK                252
 #define IDI_WINDOW_TITLE                253
-#define IDI_ICON4                       254
 #define IDI_FACTORY                     254
 #define IDI_FIND                        255
 #define IDI_BRUSH                       256
 #define IDI_FIND_NEXT                   257
-#define IDI_ICON8                       258
 #define IDI_WINDOW_CLOSE                258
 #define IDI_SERVICE                     259
 #define IDI_SERVICE_DELETE              260
@@ -70,15 +65,12 @@
 #define IDI_PLAY                        265
 #define IDI_STOP                        266
 #define IDD_PROGRESS                    267
-#define IDI_ICON6                       270
 #define IDI_RESUME                      270
 #define IDD_SERVICE_INSTALLER           271
-#define IDR_BIN1                        273
 #define IDI_OK                          275
 #define IDD_PIPES_MAILSLOTS             276
 #define IDI_MAILBOX                     278
 #define IDI_PIPE                        279
-#define IDI_ICON7                       280
 #define IDI_WINDOW_NEW                  280
 #define IDI_COMMIT                      281
 #define IDI_FREE                        282
@@ -88,15 +80,12 @@
 #define IDI_LOGIN                       286
 #define IDD_COLUMNS                     287
 #define IDI_HIDECOLUMN                  289
-#define IDI_ICON9                       290
 #define IDI_EDITCOLUMNS                 290
 #define IDI_DLL                         291
 #define IDI_DLL_DB                      292
 #define IDI_DLL_RELOC                   293
-#define IDI_ICON2                       294
 #define IDI_HEAP                        294
 #define IDI_PROCESSES                   296
-#define IDI_ICON10                      297
 #define IDI_COMPONENT                   297
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -112,6 +101,9 @@
 #define IDC_STARTTYPE                   1011
 #define IDC_LIST                        1011
 #define IDC_COLUMNS                     1012
+#define IDC_TREE                        1013
+#define IDC_TYPE                        1014
+#define IDC_TYPE2                       1015
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -215,7 +207,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        298
 #define _APS_NEXT_COMMAND_VALUE         32877
-#define _APS_NEXT_CONTROL_VALUE         1013
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

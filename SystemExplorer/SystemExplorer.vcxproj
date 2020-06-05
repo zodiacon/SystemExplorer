@@ -344,7 +344,7 @@
     <ClInclude Include="WorkerFactoryObjectType.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ObjectExplorer.rc" />
+    <ResourceCompile Include="SystemExplorer.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\about.ico" />

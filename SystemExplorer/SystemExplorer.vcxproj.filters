@@ -625,7 +625,7 @@
     <Xml Include="manifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ObjectExplorer.rc">
+    <ResourceCompile Include="SystemExplorer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
