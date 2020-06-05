@@ -15,7 +15,7 @@ public:
 			ProcessColor(L"Managed (.NET)", StandardColors::Yellow, StandardColors::Black, true),
 			ProcessColor(L"Immersive", StandardColors::Cyan, StandardColors::Black, true),
 			ProcessColor(L"Services", StandardColors::Pink, StandardColors::Black, true),
-			ProcessColor(L"Protected", StandardColors::Fuchsia, StandardColors::White, true),
+			ProcessColor(L"Protected", StandardColors::Fuchsia, StandardColors::Black, true),
 			ProcessColor(L"Secure", StandardColors::Purple, StandardColors::White, true),
 			ProcessColor(L"In Job", StandardColors::Brown, StandardColors::White, false),
 		};

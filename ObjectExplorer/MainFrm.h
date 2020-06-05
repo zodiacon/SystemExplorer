@@ -68,6 +68,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_MEMORYMAP, OnProcessMemoryMap)
 		COMMAND_ID_HANDLER(ID_PROCESS_MODULES, OnProcessModules)
 		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
+		COMMAND_ID_HANDLER(ID_PROCESS_HEAPS, OnProcessHeaps)
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
@@ -95,6 +96,7 @@ private:
 	LRESULT OnProcessMemoryMap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessHeaps(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	LRESULT OnTabActivated(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
@@ -152,11 +154,10 @@ private:
 
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
-		Devices, Memory, Login, Modules, Processes,
+		Devices, Memory, Login, Modules, Processes, COM,
 		COUNT
 	};
 	inline static int m_Icons[(int)IconType::COUNT];
-
 	inline static int s_FrameCount;
 	inline static std::set<CMainFrame*> s_Frames;
 };

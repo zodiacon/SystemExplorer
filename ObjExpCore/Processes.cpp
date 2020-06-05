@@ -8,17 +8,6 @@
 using namespace WinSys;
 
 namespace WinSys {
-	enum class IntegrityLevel : uint32_t {
-		Untrusted = 0,
-		Low = SECURITY_MANDATORY_LOW_RID,
-		Medium = SECURITY_MANDATORY_MEDIUM_RID,
-		MediumPlus = SECURITY_MANDATORY_MEDIUM_PLUS_RID,
-		High = SECURITY_MANDATORY_HIGH_RID,
-		System = SECURITY_MANDATORY_SYSTEM_RID,
-		Protected = SECURITY_MANDATORY_PROTECTED_PROCESS_RID,
-		Error = 0xffffffff,
-	};
-
 	enum class ProcessProtectionSigner : uint8_t {
 		None = PsProtectedSignerNone,
 		Authenticode = PsProtectedSignerAuthenticode,
@@ -268,4 +257,20 @@ WinSys::ProcessPriorityClass Process::GetPriorityClass() const {
 
 bool WinSys::Process::SetPriorityClass(ProcessPriorityClass pc) {
 	return ::SetPriorityClass(_handle.get(), static_cast<DWORD>(pc));
+}
+
+uint32_t WinSys::Process::GetGdiObjectCount() const {
+	return ::GetGuiResources(_handle.get(), GR_GDIOBJECTS);
+}
+
+uint32_t WinSys::Process::GetPeakGdiObjectCount() const {
+	return ::GetGuiResources(_handle.get(), GR_GDIOBJECTS_PEAK);
+}
+
+uint32_t WinSys::Process::GetUserObjectCount() const {
+	return ::GetGuiResources(_handle.get(), GR_USEROBJECTS);
+}
+
+uint32_t WinSys::Process::GetPeakUserObjectCount() const {
+	return ::GetGuiResources(_handle.get(), GR_USEROBJECTS_PEAK);
 }

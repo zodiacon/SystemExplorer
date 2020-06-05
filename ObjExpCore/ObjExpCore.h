@@ -12,4 +12,5 @@
 #include "ProcessVMTracker.h"
 #include "LsaSecurity.h"
 #include "ProcessModuleTracker.h"
+#include "Token.h"
 #include "Helpers.h"

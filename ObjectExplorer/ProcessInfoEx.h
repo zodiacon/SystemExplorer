@@ -22,6 +22,14 @@ public:
 	WinSys::IoPriority GetIoPriority() const;
 	int GetMemoryPriority() const;
 	WinSys::ProcessPriorityClass GetPriorityClass();
+	const std::wstring& GetCommandLine() const;
+	bool IsElevated() const;
+	uint32_t GetGdiObjects() const;
+	uint32_t GetUserObjects() const;
+	uint32_t GetPeakGdiObjects() const;
+	uint32_t GetPeakUserObjects() const;
+	WinSys::IntegrityLevel GetIntegrityLevel() const;
+	WinSys::VirtualizationState GetVirtualizationState() const;
 
 	DWORD64 TargetTime;
 	bool IsNew{ false };
@@ -34,5 +42,7 @@ private:
 	mutable ProcessAttributes _attributes = ProcessAttributes::NotComputed;
 	mutable std::wstring _executablePath;
 	mutable std::wstring _username;
+	mutable std::wstring _commandLine;
+	mutable bool _elevated : 1, _elevatedChecked : 1 {false};
 };
 

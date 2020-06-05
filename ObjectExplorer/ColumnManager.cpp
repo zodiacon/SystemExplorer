@@ -101,6 +101,9 @@ int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags fla
 		categoryName = CString(name, static_cast<int>(category - name));
 		name = category + 1;
 	}
+	else {
+		categoryName = L"General";
+	}
 	ColumnInfo info;
 	info.Format = format;
 	info.DefaultWidth = width;

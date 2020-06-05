@@ -113,6 +113,10 @@ LRESULT CMainFrame::OnProcessModules(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnProcessHeaps(WORD, WORD, HWND, BOOL&) {
+	return ShowNotImplemented();
+}
+
 LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
 	auto frame = new CMainFrame;
 	frame->CreateEx();

@@ -96,6 +96,8 @@
 #define IDI_ICON2                       294
 #define IDI_HEAP                        294
 #define IDI_PROCESSES                   296
+#define IDI_ICON10                      297
+#define IDI_COMPONENT                   297
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -211,7 +213,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        297
+#define _APS_NEXT_RESOURCE_VALUE        298
 #define _APS_NEXT_COMMAND_VALUE         32877
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101

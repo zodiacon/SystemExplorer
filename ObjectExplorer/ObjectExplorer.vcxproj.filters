@@ -610,6 +610,9 @@
     <Image Include="res\processes.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\component_blue.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

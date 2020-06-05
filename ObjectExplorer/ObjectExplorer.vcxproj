@@ -352,6 +352,7 @@
     <Image Include="res\briefcase.ico" />
     <Image Include="res\car_compact_green.ico" />
     <Image Include="res\commit.ico" />
+    <Image Include="res\component_blue.ico" />
     <Image Include="res\copy.ico" />
     <Image Include="res\delete.ico" />
     <Image Include="res\desktop.ico" />

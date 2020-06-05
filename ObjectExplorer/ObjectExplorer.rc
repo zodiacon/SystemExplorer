@@ -454,6 +454,8 @@ IDI_HEAP                ICON                    "res\\heap.ico"
 
 IDI_PROCESSES           ICON                    "res\\processes.ico"
 
+IDI_COMPONENT           ICON                    "res\\component_blue.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

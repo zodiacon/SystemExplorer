@@ -3,7 +3,9 @@
 #include "DriverHelper.h"
 
 ProcessInfoEx::ProcessInfoEx(WinSys::ProcessInfo* pi) : _pi(pi) {
-	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_LIMITED_INFORMATION);
+	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_INFORMATION);
+	if(!hProcess)
+		hProcess  = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_LIMITED_INFORMATION);
 	if (hProcess)
 		_process.reset(new WinSys::Process(hProcess));
 }
@@ -78,4 +80,58 @@ int ProcessInfoEx::GetMemoryPriority() const {
 
 WinSys::ProcessPriorityClass ProcessInfoEx::GetPriorityClass() {
 	return _process ? _process->GetPriorityClass() : WinSys::ProcessPriorityClass::Unknown;
+}
+
+const std::wstring& ProcessInfoEx::GetCommandLine() const {
+	if (_commandLine.empty() && _pi->Id > 4) {
+		if (_process)
+			_commandLine = _process->GetCommandLine();
+	}
+	return _commandLine;
+}
+
+bool ProcessInfoEx::IsElevated() const {
+	if (!_elevatedChecked) {
+		_elevatedChecked = true;
+		if (_pi->Id > 4 && _process != nullptr) {
+			WinSys::Token token(_process->GetHandle(), WinSys::TokenAccessMask::Query);
+			if (token.IsValid())
+				_elevated = token.IsElevated();
+		}
+	}
+	return _elevated;
+}
+
+uint32_t ProcessInfoEx::GetGdiObjects() const {
+	return _process ? _process->GetGdiObjectCount() : 0;
+}
+
+uint32_t ProcessInfoEx::GetUserObjects() const {
+	return _process ? _process->GetUserObjectCount() : 0;
+}
+
+uint32_t ProcessInfoEx::GetPeakGdiObjects() const {
+	return _process ? _process->GetPeakGdiObjectCount() : 0;
+}
+
+uint32_t ProcessInfoEx::GetPeakUserObjects() const {
+	return _process ? _process->GetPeakUserObjectCount() : 0;
+}
+
+WinSys::IntegrityLevel ProcessInfoEx::GetIntegrityLevel() const {
+	if (_process) {
+		WinSys::Token token(_process->GetHandle(), WinSys::TokenAccessMask::Query);
+		if (token.IsValid())
+			return token.GetIntegrityLevel();
+	}
+	return WinSys::IntegrityLevel::Error;
+}
+
+WinSys::VirtualizationState ProcessInfoEx::GetVirtualizationState() const {
+	if (_process) {
+		WinSys::Token token(_process->GetHandle(), WinSys::TokenAccessMask::Query);
+		if (token.IsValid())
+			return token.GetVirtualizationState();
+	}
+	return WinSys::VirtualizationState::Unknown;
 }

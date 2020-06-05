@@ -13,6 +13,10 @@ Token::Token(DWORD pid, TokenAccessMask access) {
 	}
 }
 
+Token::Token(HANDLE hProcess, TokenAccessMask access) {
+	::OpenProcessToken(hProcess, static_cast<DWORD>(access), _handle.addressof());
+}
+
 std::unique_ptr<Token> Token::Open(DWORD pid, TokenAccessMask access) {
 	HANDLE hToken;
 	wil::unique_handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid));
@@ -23,6 +27,38 @@ std::unique_ptr<Token> Token::Open(DWORD pid, TokenAccessMask access) {
 	return nullptr;
 }
 
-bool WinSys::Token::IsValid() const {
+bool Token::IsValid() const {
 	return _handle != nullptr;
+}
+
+bool Token::IsElevated() const {
+	ULONG elevated = 0;
+	DWORD len;
+	::GetTokenInformation(_handle.get(), TokenElevation, &elevated, sizeof(elevated), &len);
+	return elevated ? true : false;
+}
+
+VirtualizationState Token::GetVirtualizationState() const {
+	ULONG virt = 0;
+	DWORD len;
+	if (!::GetTokenInformation(_handle.get(), TokenVirtualizationAllowed, &virt, sizeof(virt), &len))
+		return VirtualizationState::Unknown;
+
+	if (!virt)
+		return VirtualizationState::NotAllowed;
+
+	if (::GetTokenInformation(_handle.get(), TokenVirtualizationEnabled, &virt, sizeof(virt), &len))
+		return virt ? VirtualizationState::Enabled : VirtualizationState::Disabled;
+
+	return VirtualizationState::Unknown;
+}
+
+IntegrityLevel Token::GetIntegrityLevel() const {
+	BYTE buffer[TOKEN_INTEGRITY_LEVEL_MAX_SIZE];
+	DWORD len;
+	if (!::GetTokenInformation(_handle.get(), TokenIntegrityLevel, buffer, sizeof(buffer), &len))
+		return IntegrityLevel::Error;
+
+	auto p = (TOKEN_MANDATORY_LABEL*)buffer;
+	return (IntegrityLevel)*GetSidSubAuthority(p->Label.Sid, *GetSidSubAuthorityCount(p->Label.Sid) - 1);
 }

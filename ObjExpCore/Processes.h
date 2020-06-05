@@ -35,7 +35,16 @@ namespace WinSys {
 		Unknown = 0,
 	};
 
-	enum class IntegrityLevel : uint32_t;
+	enum class IntegrityLevel : uint32_t {
+		Untrusted = 0,
+		Low = SECURITY_MANDATORY_LOW_RID,
+		Medium = SECURITY_MANDATORY_MEDIUM_RID,
+		MediumPlus = SECURITY_MANDATORY_MEDIUM_PLUS_RID,
+		High = SECURITY_MANDATORY_HIGH_RID,
+		System = SECURITY_MANDATORY_SYSTEM_RID,
+		Protected = SECURITY_MANDATORY_PROTECTED_PROCESS_RID,
+		Error = 0xffffffff,
+	};
 
 	enum class ProtectedProcessSigner : uint8_t;
 	struct ProcessHandleInfo;
@@ -105,6 +114,10 @@ namespace WinSys {
 		IoPriority GetIoPriority() const;
 		ProcessPriorityClass GetPriorityClass() const;
 		bool SetPriorityClass(ProcessPriorityClass pc);
+		uint32_t GetGdiObjectCount() const;
+		uint32_t GetPeakGdiObjectCount() const;
+		uint32_t GetUserObjectCount() const;
+		uint32_t GetPeakUserObjectCount() const;
 
 		uint32_t GetId() const;
 

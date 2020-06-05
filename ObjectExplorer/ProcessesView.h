@@ -64,6 +64,8 @@ private:
 	static void GetCPUColors(int cpu, COLORREF& bk, COLORREF& text);
 	static CString IoPriorityToString(WinSys::IoPriority io);
 	static PCWSTR PriorityClassToString(WinSys::ProcessPriorityClass  pc);
+	static PCWSTR IntegrityLevelToString(WinSys::IntegrityLevel level);
+	static PCWSTR VirtualizationStateToString(WinSys::VirtualizationState state);
 
 private:
 	enum class ProcessColumn {
@@ -71,7 +73,10 @@ private:
 		Handles, Attributes, ExePath, CreateTime, CommitSize, PeakCommitSize,
 		WorkingSet, PeakWorkingSet, VirtualSize, PeakVirtualSize,
 		PagedPool, PeakPagedPool, NonPagedPool, PeakNonPagedPool,
-		IoPriority, MemoryPriority,
+		KernelTime, UserTime,
+		IoPriority, MemoryPriority, CommandLine, PackageFullName,
+		IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
+		GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized, 
 		COUNT
 	};
 
