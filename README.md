@@ -1,5 +1,5 @@
-# Object Explorer
-Windows Kernel Object Explorer
+# System Explorer
+System, processes, threads, objects, and more, all in one tool
 
 ![](https://github.com/zodiacon/ObjectExplorer/blob/master/objexp1.png)
 
