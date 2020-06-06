@@ -18,3 +18,11 @@ CString FormatHelper::FormatWithCommas(long long size) {
 	}
 	return result;
 }
+
+CString FormatHelper::TimeToString(int64_t time, bool includeMS) {
+	auto str = CTime(*(FILETIME*)&time).Format(L"%x %X");
+	if (includeMS) {
+		str.Format(L"%s.%03d", str, (time / 10000) % 1000);
+	}
+	return str;
+}

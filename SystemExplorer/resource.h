@@ -87,6 +87,11 @@
 #define IDI_HEAP                        294
 #define IDI_PROCESSES                   296
 #define IDI_COMPONENT                   297
+#define IDI_INIT                        298
+#define IDI_READY                       299
+#define IDI_RUNNING                     300
+#define IDI_STANDBY                     301
+#define IDI_TRANSITION                  302
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -200,13 +205,14 @@
 #define ID_PROCESS_GOTOFILELOCATION     32874
 #define ID_TAB_DETACH32875              32875
 #define ID_FILE_EXITALL                 32876
+#define ID_PROCESS_ALLOFTHEABOVE        32877
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        298
-#define _APS_NEXT_COMMAND_VALUE         32877
+#define _APS_NEXT_RESOURCE_VALUE        303
+#define _APS_NEXT_COMMAND_VALUE         32878
 #define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

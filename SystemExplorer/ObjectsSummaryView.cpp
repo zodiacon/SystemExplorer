@@ -38,22 +38,22 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto lcd = (LPNMLVCUSTOMDRAW)cd;
 	auto sub = lcd->iSubItem;
 	lcd->clrTextBk = CLR_INVALID;
-//	lcd->clrText = RGB(0, 0, 0);
-	::SelectObject(cd->hdc, m_hFont);
-
 	if (sub == 0) {
 		return CDRF_DODEFAULT;
 	}
-	else {
-	}
+
+	if((GetColumnManager(m_List)->GetColumn(GetRealColumn(m_List, sub)).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
+		::SelectObject(cd->hdc, (HFONT)GetFrame()->GetMonoFont());
+	else
+		::SelectObject(cd->hdc, m_hFont);
+
 	if (sub < 2 || sub > 5)
-		return CDRF_DODEFAULT;
+		return CDRF_DODEFAULT | CDRF_NEWFONT;
 
 	auto index = (int)cd->dwItemSpec;
 	auto& item = GetItem(index);
 	auto& changes = m_ObjectManager.GetChanges();
 	lcd->clrText = RGB(0, 0, 0);
-	::SelectObject(cd->hdc, (HFONT)GetFrame()->GetMonoFont());
 
 	for (auto& change : changes) {
 		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == sub) {
@@ -83,18 +83,21 @@ LRESULT CObjectSummaryView::OnActivatePage(UINT, WPARAM activate, LPARAM, BOOL&)
 
 LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	m_hWndClient = m_List.Create(*this, rcDefault, nullptr, ListViewDefaultStyle);
+	auto cm = GetColumnManager(m_List);
 
-	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 180);
-	m_List.InsertColumn(1, L"Index", LVCFMT_RIGHT, 50);
-	m_List.InsertColumn(2, L"Objects", LVCFMT_RIGHT, 100);
-	m_List.InsertColumn(3, L"Handles", LVCFMT_RIGHT, 100);
-	m_List.InsertColumn(4, L"Peak Objects", LVCFMT_RIGHT, 100);
-	m_List.InsertColumn(5, L"Peak Handles", LVCFMT_RIGHT, 100);
-	m_List.InsertColumn(6, L"Pool Type", LVCFMT_LEFT, 110);
-	m_List.InsertColumn(7, L"Default Paged Charge", LVCFMT_RIGHT, 130);
-	m_List.InsertColumn(8, L"Default NP Charge", LVCFMT_RIGHT, 130);
-	m_List.InsertColumn(9, L"Valid Access Mask", LVCFMT_RIGHT, 120);
-	m_List.InsertColumn(10, L"Generic Mapping", LVCFMT_LEFT, 450);
+	cm->AddColumn(L"Name", LVCFMT_LEFT, 180, ColumnFlags::Visible);
+	cm->AddColumn(L"Index", LVCFMT_RIGHT, 50, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Objects", LVCFMT_RIGHT, 100, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Handles", LVCFMT_RIGHT, 100, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Peak Objects", LVCFMT_RIGHT, 100, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Peak Handles", LVCFMT_RIGHT, 100, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Pool Type", LVCFMT_LEFT, 110);
+	cm->AddColumn(L"Default Paged Charge", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Default NP Charge", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Valid Access Mask", LVCFMT_RIGHT, 120, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Generic Mapping", LVCFMT_LEFT, 450);
+
+	cm->UpdateColumns();
 
 	m_List.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 

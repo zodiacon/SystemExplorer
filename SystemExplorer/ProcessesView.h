@@ -21,7 +21,7 @@ public:
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 
-	BEGIN_MSG_MAP(CServicesView)
+	BEGIN_MSG_MAP(CProcessesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
@@ -61,7 +61,6 @@ private:
 	ProcessInfoEx& GetProcessInfoEx(WinSys::ProcessInfo* pi) const;
 	void GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const;
 	static CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes);
-	static void GetCPUColors(int cpu, COLORREF& bk, COLORREF& text);
 	static CString IoPriorityToString(WinSys::IoPriority io);
 	static PCWSTR PriorityClassToString(WinSys::ProcessPriorityClass  pc);
 	static PCWSTR IntegrityLevelToString(WinSys::IntegrityLevel level);
@@ -74,7 +73,7 @@ private:
 		WorkingSet, PeakWorkingSet, VirtualSize, PeakVirtualSize,
 		PagedPool, PeakPagedPool, NonPagedPool, PeakNonPagedPool,
 		KernelTime, UserTime,
-		IoPriority, MemoryPriority, CommandLine, PackageFullName,
+		IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
 		IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
 		GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized, 
 		COUNT

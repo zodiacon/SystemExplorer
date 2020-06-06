@@ -14,3 +14,4 @@
 #include "ProcessModuleTracker.h"
 #include "Token.h"
 #include "Helpers.h"
+#include "COMExplorer.h"

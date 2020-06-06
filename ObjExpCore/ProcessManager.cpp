@@ -373,6 +373,7 @@ std::shared_ptr<ProcessInfo> ProcessManager::Impl::BuildProcessInfo(
 			thread->ThreadState = (ThreadState)baseInfo.ThreadState;
 			thread->WaitReason = (WaitReason)baseInfo.WaitReason;
 			thread->WaitTime = baseInfo.WaitTime;
+			thread->ContextSwitches = baseInfo.ContextSwitches;
 
 			pi->AddThread(thread);
 
@@ -383,7 +384,7 @@ std::shared_ptr<ProcessInfo> ProcessManager::Impl::BuildProcessInfo(
 				_newThreads.push_back(thread);
 			}
 			else {
-				thread->CPU = delta == 0 ? 0 : (int32_t)((thread->KernelTime + thread->UserTime - cpuTime) * 1000000LL / delta / _totalProcessors);
+				thread->CPU = delta == 0 ? 0 : (int32_t)((thread->KernelTime + thread->UserTime - cpuTime) * 1000000LL / delta / 1/*_totalProcessors*/);
 				_threadsByKey.erase(thread->Key);
 			}
 			threadsByKey.insert(std::make_pair(thread->Key, thread));

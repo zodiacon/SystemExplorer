@@ -23,6 +23,7 @@
 #include "LogonSessionsView.h"
 #include "ModulesView.h"
 #include "ProcessesView.h"
+#include "ThreadsView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -66,21 +67,32 @@ LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
 		name = process->GetImageName().c_str();
 	}
 	if (pid) {
-		auto view = new CMemoryMapView(this, pid);
-		if (!view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)) {
+		if (!CreateAndAddMemoryMapView(name, pid)) {
 			AtlMessageBox(*this, L"Process not accessible", IDS_TITLE, MB_ICONERROR);
-			delete view;
-		}
-		else {
-			name.Format(L"Memory (%s: %u)", name, pid);
-			m_view.AddPage(*view, name, m_Icons[(int)IconType::Memory], view);
 		}
 	}
 	return 0;
 }
 
 LRESULT CMainFrame::OnProcessThreads(WORD, WORD, HWND, BOOL&) {
-	return ShowNotImplemented();
+	auto process = (WinSys::ProcessInfo*)GetCurrentMessage()->lParam;
+	DWORD pid = 0;
+	CString name;
+	if (process == nullptr) {
+		CProcessSelectDlg dlg;
+		if (dlg.DoModal() == IDOK) {
+			pid = dlg.GetSelectedProcess(name);
+		}
+	}
+	else {
+		pid = process->Id;
+		name = process->GetImageName().c_str();
+	}
+
+	if (pid) {
+		CreateAndAddModulesView(name, pid);
+	}
+	return 0;
 }
 
 LRESULT CMainFrame::OnProcessModules(WORD, WORD, HWND, BOOL&) {
@@ -99,15 +111,8 @@ LRESULT CMainFrame::OnProcessModules(WORD, WORD, HWND, BOOL&) {
 	}
 
 	if (pid) {
-		auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ);
-		auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
-		if (!view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)) {
+		if (!CreateAndAddModulesView(name, pid)) {
 			AtlMessageBox(*this, L"Process not accessible", IDS_TITLE, MB_ICONERROR);
-			delete view;
-		}
-		else {
-			name.Format(L"Modules (%s: %u)", name, pid);
-			m_view.AddPage(*view, name, m_Icons[(int)IconType::Modules], view);
 		}
 	}
 	return 0;
@@ -265,7 +270,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		UINT ids[] = {
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
-			IDI_LOGIN, IDI_DLL, IDI_PROCESSES
+			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -314,6 +319,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 				}
 			}
 		}
+
+		::SetPriorityClass(::GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
 		PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 		PostMessage(WM_COMMAND, ID_SYSTEM_PROCESSES);
@@ -519,11 +526,7 @@ LRESULT CMainFrame::OnShowHandlesInProcess(WORD, WORD, HWND, BOOL&) {
 		name = process->GetImageName().c_str();
 	}
 	if (pid) {
-		auto pView = new CHandlesView(this, nullptr, pid);
-		pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-		CString title;
-		title.Format(L"Handles (%s: %d)", name, pid);
-		m_view.AddPage(pView->m_hWnd, title, m_Icons[(int)IconType::Handles], pView);
+		CreateAndAddHandlesView(name, pid);
 	}
 
 	return 0;
@@ -623,6 +626,41 @@ LRESULT CMainFrame::OnViewSystemProcesses(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnViewSystemThreads(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CThreadsView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Threads", m_Icons[(int)IconType::Threads], pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnProcessAll(WORD, WORD, HWND, BOOL&) {
+	auto process = (WinSys::ProcessInfo*)GetCurrentMessage()->lParam;
+	DWORD pid = 0;
+	CString name;
+	if (process == nullptr) {
+		CProcessSelectDlg dlg;
+		if (dlg.DoModal() == IDOK) {
+			pid = dlg.GetSelectedProcess(name);
+		}
+	}
+	else {
+		pid = process->Id;
+		name = process->GetImageName().c_str();
+	}
+	if (pid) {
+		// create a new frame
+		auto frame = new CMainFrame;
+		frame->CreateEx();
+		frame->CreateAndAddThreadsView(name, pid);
+		frame->CreateAndAddModulesView(name, pid);
+		frame->CreateAndAddHandlesView(name, pid);
+		frame->CreateAndAddMemoryMapView(name, pid);
+		frame->ShowWindow(SW_SHOWDEFAULT);
+	}
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -689,6 +727,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_PROCESS_THREADS, IDI_THREAD },
 		{ ID_PROCESS_KILL, IDI_DELETE },
 		{ ID_PROCESS_HEAPS, IDI_HEAP },
+		{ ID_SYSTEM_COM, IDI_COMPONENT },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
@@ -719,6 +758,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ 0 },
 		{ ID_SYSTEM_PROCESSES, IDI_PROCESSES },
+		{ ID_SYSTEM_THREADS, IDI_THREAD },
 		{ 0 },
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ 0 },
@@ -803,5 +843,51 @@ Settings& CMainFrame::GetSettings() {
 
 LRESULT CMainFrame::SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 	return SendMessage(msg, wParam, lParam);
+}
+
+HWND CMainFrame::CreateAndAddThreadsView(CString& name, DWORD pid) {
+	auto view = new CThreadsView(this, pid);
+	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	ATLASSERT(hWnd);
+	name.Format(L"Threads (%s: %u)", name, pid);
+	m_view.AddPage(*view, name, m_Icons[(int)IconType::Threads], view);
+
+	return hWnd;
+}
+
+HWND CMainFrame::CreateAndAddModulesView(CString& name, DWORD pid) {
+	auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ);
+	auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
+	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	if (!hWnd) {
+		delete view;
+	}
+	else {
+		name.Format(L"Modules (%s: %u)", name, pid);
+		m_view.AddPage(*view, name, m_Icons[(int)IconType::Modules], view);
+	}
+	return hWnd;
+}
+
+HWND CMainFrame::CreateAndAddMemoryMapView(CString& name, DWORD pid) {
+	auto view = new CMemoryMapView(this, pid);
+	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	if (!hWnd) {
+		delete view;
+	}
+	else {
+		name.Format(L"Memory (%s: %u)", name, pid);
+		m_view.AddPage(*view, name, m_Icons[(int)IconType::Memory], view);
+	}
+	return hWnd;
+}
+
+HWND CMainFrame::CreateAndAddHandlesView(CString& name, DWORD pid) {
+	auto pView = new CHandlesView(this, nullptr, pid);
+	auto hWnd = pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
+	CString title;
+	title.Format(L"Handles (%s: %d)", name, pid);
+	m_view.AddPage(pView->m_hWnd, title, m_Icons[(int)IconType::Handles], pView);
+	return hWnd;
 }
 

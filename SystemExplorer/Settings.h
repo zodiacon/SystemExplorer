@@ -41,5 +41,7 @@ public:
 	} ObjectTypes;
 
 	void SetDefaults();
+
+	void GetCPUColors(int cpu, COLORREF& bk, COLORREF& text);
 };
 

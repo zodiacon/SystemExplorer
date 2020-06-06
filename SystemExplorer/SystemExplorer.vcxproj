@@ -226,6 +226,8 @@
     <ClCompile Include="AccessMaskDecoder.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="ColumnManager.cpp" />
+    <ClCompile Include="COMView.cpp" />
+    <ClCompile Include="ThreadsView.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
     <ClCompile Include="DialogHelper.cpp" />
@@ -287,6 +289,8 @@
     <ClInclude Include="AccessMaskDecoder.h" />
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="ColumnManager.h" />
+    <ClInclude Include="COMView.h" />
+    <ClInclude Include="ThreadsView.h" />
     <ClInclude Include="DetachHostWindow.h" />
     <ClInclude Include="DeviceManagerView.h" />
     <ClInclude Include="DialogHelper.h" />
@@ -383,6 +387,7 @@
     <Image Include="res\generic.ico" />
     <Image Include="res\handles.ico" />
     <Image Include="res\heap.ico" />
+    <Image Include="res\Initialized.ico" />
     <Image Include="res\key.ico" />
     <Image Include="res\login.ico" />
     <Image Include="res\mailbox.ico" />
@@ -401,12 +406,15 @@
     <Image Include="res\process.ico" />
     <Image Include="res\processes.ico" />
     <Image Include="res\process_view.ico" />
+    <Image Include="res\Ready.ico" />
     <Image Include="res\refresh.ico" />
     <Image Include="res\reserved.ico" />
+    <Image Include="res\Running.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
     <Image Include="res\shield_blue.ico" />
     <Image Include="res\sign_forbidden.ico" />
+    <Image Include="res\Standby.ico" />
     <Image Include="res\stop.ico" />
     <Image Include="res\symboliclink.ico" />
     <Image Include="res\table_column-edit.ico" />
@@ -415,6 +423,7 @@
     <Image Include="res\timer.ico" />
     <Image Include="res\token.ico" />
     <Image Include="res\toolbar.bmp" />
+    <Image Include="res\transition.ico" />
     <Image Include="res\types.ico" />
     <Image Include="res\Waiting.ico" />
     <Image Include="res\window.ico" />

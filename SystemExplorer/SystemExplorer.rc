@@ -163,6 +163,8 @@ BEGIN
         MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
         MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
         MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
+        MENUITEM SEPARATOR
+        MENUITEM "&All of the Above...",        ID_PROCESS_ALLOFTHEABOVE
     END
     POPUP "&GUI"
     BEGIN
@@ -276,11 +278,13 @@ BEGIN
     END
     POPUP "process"
     BEGIN
-        MENUITEM "&Threads...",                 ID_PROCESS_THREADS
-        MENUITEM "Mo&dules...",                 ID_PROCESS_MODULES
-        MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
-        MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
-        MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
+        MENUITEM "&Threads",                    ID_PROCESS_THREADS
+        MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
+        MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
+        MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
+        MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
+        MENUITEM SEPARATOR
+        MENUITEM "&All of the Above",           ID_PROCESS_ALLOFTHEABOVE
         MENUITEM SEPARATOR
         MENUITEM "&Kill",                       ID_PROCESS_KILL
         MENUITEM SEPARATOR
@@ -456,6 +460,16 @@ IDI_PROCESSES           ICON                    "res\\processes.ico"
 
 IDI_COMPONENT           ICON                    "res\\component_blue.ico"
 
+IDI_INIT                ICON                    "res\\Initialized.ico"
+
+IDI_READY               ICON                    "res\\Ready.ico"
+
+IDI_RUNNING             ICON                    "res\\Running.ico"
+
+IDI_STANDBY             ICON                    "res\\Standby.ico"
+
+IDI_TRANSITION          ICON                    "res\\transition.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -468,7 +482,7 @@ CAPTION "About System Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "System Explorer v0.75\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "System Explorer v0.80\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -662,13 +676,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "ObjectExplorer Application"
+            VALUE "FileDescription", "System Explorer v0.80"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "ObjectExplorer"
             VALUE "LegalCopyright", "Copyright 2019-2020 Pavel Yosifovich"
-            VALUE "OriginalFilename", "ObjectExplorer.exe"
-            VALUE "ProductName", "ObjectExplorer"
-            VALUE "ProductVersion", "0, 7, 5, 0"
+            VALUE "OriginalFilename", "SystemExplorer.exe"
+            VALUE "ProductName", "System Explorer"
+            VALUE "ProductVersion", "0, 8, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -729,7 +743,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "System Explorer v0.75"
+    IDR_MAINFRAME           "System Explorer v0.80"
     IDS_TITLE               "System Explorer"
 END
 

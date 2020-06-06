@@ -29,12 +29,12 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::CPU:
 			if (p->CPU > 0 && !px.IsTerminated) {
 				auto value = p->CPU / 10000.0f;
-				text.Format(L"%7.2f ", value);
+				text.Format(L"%.2f ", value);
 			}
 			break;
 		case ProcessColumn::PriorityClass: return PriorityClassToString(px.GetPriorityClass());
 		case ProcessColumn::ExePath: return px.GetExecutablePath().c_str();
-		case ProcessColumn::CreateTime: return CTime(*(FILETIME*)&p->CreateTime).Format(L"%x %X");
+		case ProcessColumn::CreateTime: return FormatHelper::TimeToString(p->CreateTime);
 		case ProcessColumn::Session: text.Format(L"%2d  ", p->SessionId); break;
 		case ProcessColumn::Attributes: return ProcessAttributesToString(px.GetAttributes(m_ProcMgr));
 		case ProcessColumn::CPUTime: return FormatHelper::TimeSpanToString(p->UserTime + p->KernelTime);
@@ -83,6 +83,10 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::Elevated: return px.IsElevated() ? L"Yes" : L"No";
 		case ProcessColumn::Integrity: return p->Id > 4 ? IntegrityLevelToString(px.GetIntegrityLevel()) : L"";
 		case ProcessColumn::Virtualized: return p->Id > 4 ? VirtualizationStateToString(px.GetVirtualizationState()) : L"";
+		case ProcessColumn::JobId: 
+			if(p->JobObjectId)
+				text.Format(L"%u ", p->JobObjectId); 
+			break;
 	}
 
 	return text;
@@ -144,6 +148,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::Elevated: return SortHelper::SortBoolean(GetProcessInfoEx(p1.get()).IsElevated(), GetProcessInfoEx(p2.get()).IsElevated(), asc);
 			case ProcessColumn::Integrity: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetIntegrityLevel(), GetProcessInfoEx(p2.get()).GetIntegrityLevel(), asc);
 			case ProcessColumn::Virtualized: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetVirtualizationState(), GetProcessInfoEx(p2.get()).GetVirtualizationState(), asc);
+			case ProcessColumn::JobId: return SortHelper::SortNumbers(p1->JobObjectId, p2->JobObjectId, asc);
 		}
 		return false;
 		});
@@ -184,7 +189,7 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			break;
 		case ProcessColumn::CPU:
 			if (p->Id > 0)
-				GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
+				GetFrame()->GetSettings().GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
 			break;
 	}
 	
@@ -218,7 +223,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Id", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Numeric);
 	cm->AddColumn(L"User Name", LVCFMT_LEFT, 200, ColumnFlags::Visible);
 	cm->AddColumn(L"Session", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Performance\\CPU (%)", LVCFMT_RIGHT, 90, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\CPU (%)", LVCFMT_RIGHT, 80, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\CPU Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Parent", LVCFMT_LEFT, 180, ColumnFlags::None);
 	cm->AddColumn(L"Base Priority", LVCFMT_LEFT, 80, ColumnFlags::Numeric);
@@ -228,7 +233,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Performance\\Handles", LVCFMT_RIGHT, 70, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Attributes", LVCFMT_LEFT, 100, ColumnFlags::Visible);
 	cm->AddColumn(L"Image Path", LVCFMT_LEFT, 300, ColumnFlags::None);
-	cm->AddColumn(L"Create Time", LVCFMT_LEFT, 120, ColumnFlags::Visible);
+	cm->AddColumn(L"Create Time", LVCFMT_LEFT, 160, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Memory\\Commit (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Memory\\Peak Commit (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Memory\\Working Set (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
@@ -245,6 +250,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
 	cm->AddColumn(L"Command Line", LVCFMT_LEFT, 250, ColumnFlags::None);
 	cm->AddColumn(L"Package Name", LVCFMT_LEFT, 200, ColumnFlags::None);
+	cm->AddColumn(L"Job Object Id", LVCFMT_RIGHT, 100, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Read Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Write Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Other Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
@@ -299,18 +305,19 @@ void CProcessesView::Refresh() {
 		return;
 	}
 
+	auto tick = ::GetTickCount64();
 	count = (int)m_Processes.size();
 	for(int i = 0; i < count; i++) {
 		auto& p = m_Processes[i];
 		auto& px = GetProcessInfoEx(p.get());
-		if (px.IsTerminated && ::GetTickCount64() > px.TargetTime) {
+		if (px.IsTerminated && tick > px.TargetTime) {
 			m_ProcessesEx.erase(p.get());
 			m_Processes.erase(m_Processes.begin() + i);
 			i--;
 			count--;
 			continue;
 		}
-		if (px.IsNew && ::GetTickCount64() > px.TargetTime) {
+		if (px.IsNew && tick > px.TargetTime) {
 			px.IsNew = false;
 		}
 	}
@@ -320,13 +327,13 @@ void CProcessesView::Refresh() {
 		count++;
 		auto& px = GetProcessInfoEx(p.get());
 		px.IsNew = true;
-		px.TargetTime = ::GetTickCount64() + 2000;
+		px.TargetTime = tick + 2000;
 	}
 
 	for (auto& p : m_ProcMgr.GetTerminatedProcesses()) {
 		auto& px = GetProcessInfoEx(p.get());
 		px.IsTerminated = true;
-		px.TargetTime = ::GetTickCount64() + 2000;
+		px.TargetTime = tick + 2000;
 	}
 
 	DoSort(GetSortInfo(m_List));
@@ -386,53 +393,6 @@ CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) 
 	if (!text.IsEmpty())
 		text = text.Mid(0, text.GetLength() - 2);
 	return text;
-}
-
-void CProcessesView::GetCPUColors(int cpu, COLORREF& bk, COLORREF& text) {
-	if (cpu > 90) {
-		bk = StandardColors::Black;
-		text = StandardColors::White;
-	}
-	else if (cpu > 80) {
-		bk = StandardColors::DarkRed;
-		text = StandardColors::White;
-	}
-	else if (cpu > 70) {
-		bk = StandardColors::DarkOrange;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 60) {
-		bk = StandardColors::Orange;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 50) {
-		bk = StandardColors::Yellow;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 40) {
-		bk = StandardColors::DarkBlue;
-		text = StandardColors::White;
-	}
-	else if (cpu > 30) {
-		bk = StandardColors::Blue;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 20) {
-		bk = StandardColors::LightBlue;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 15) {
-		bk = StandardColors::Cyan;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 10) {
-		bk = StandardColors::LightCyan;
-		text = StandardColors::Black;
-	}
-	else if (cpu > 5) {
-		bk = StandardColors::LimeGreen;
-		text = StandardColors::Black;
-	}
 }
 
 CString CProcessesView::IoPriorityToString(IoPriority io) {

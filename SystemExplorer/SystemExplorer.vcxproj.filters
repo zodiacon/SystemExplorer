@@ -37,6 +37,9 @@
     <Filter Include="Views\Models">
       <UniqueIdentifier>{e2f00380-7cb1-4b57-8fb5-941bd3128df7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Icons\ThreadStates">
+      <UniqueIdentifier>{e2febe33-19ca-43ee-a14b-d114e4ac027a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -200,6 +203,12 @@
     </ClCompile>
     <ClCompile Include="SystemExplorer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="COMView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadsView.cpp">
+      <Filter>Views</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +388,12 @@
     </ClInclude>
     <ClInclude Include="ViewBase.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="COMView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadsView.h">
+      <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -612,6 +627,21 @@
     </Image>
     <Image Include="res\component_blue.ico">
       <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\Initialized.ico">
+      <Filter>Resource Files\Icons\ThreadStates</Filter>
+    </Image>
+    <Image Include="res\Ready.ico">
+      <Filter>Resource Files\Icons\ThreadStates</Filter>
+    </Image>
+    <Image Include="res\Running.ico">
+      <Filter>Resource Files\Icons\ThreadStates</Filter>
+    </Image>
+    <Image Include="res\Standby.ico">
+      <Filter>Resource Files\Icons\ThreadStates</Filter>
+    </Image>
+    <Image Include="res\transition.ico">
+      <Filter>Resource Files\Icons\ThreadStates</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

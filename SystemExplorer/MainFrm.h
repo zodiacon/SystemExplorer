@@ -37,6 +37,10 @@ public:
 	CFont& GetMonoFont() override;
 	Settings& GetSettings() override;
 	LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) override;
+	HWND CreateAndAddThreadsView(CString& name, DWORD pid);
+	HWND CreateAndAddModulesView(CString& name, DWORD pid);
+	HWND CreateAndAddMemoryMapView(CString& name, DWORD pid);
+	HWND CreateAndAddHandlesView(CString& name, DWORD pid);
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
@@ -55,6 +59,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SYSTEM_SERVICES, OnViewSystemServices)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DEVICES, OnViewSystemDevices)
 		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSES, OnViewSystemProcesses)
+		COMMAND_ID_HANDLER(ID_SYSTEM_THREADS, OnViewSystemThreads)
 		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
@@ -69,6 +74,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_MODULES, OnProcessModules)
 		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
 		COMMAND_ID_HANDLER(ID_PROCESS_HEAPS, OnProcessHeaps)
+		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessAll)
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
@@ -134,6 +140,8 @@ private:
 	LRESULT OnDetachTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewLogonSessions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemProcesses(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewSystemThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
@@ -154,7 +162,7 @@ private:
 
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
-		Devices, Memory, Login, Modules, Processes, COM,
+		Devices, Memory, Login, Modules, Processes, COM, Threads,
 		COUNT
 	};
 	inline static int m_Icons[(int)IconType::COUNT];
