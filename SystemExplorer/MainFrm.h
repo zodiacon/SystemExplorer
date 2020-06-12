@@ -37,10 +37,10 @@ public:
 	CFont& GetMonoFont() override;
 	Settings& GetSettings() override;
 	LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) override;
-	HWND CreateAndAddThreadsView(CString& name, DWORD pid);
-	HWND CreateAndAddModulesView(CString& name, DWORD pid);
-	HWND CreateAndAddMemoryMapView(CString& name, DWORD pid);
-	HWND CreateAndAddHandlesView(CString& name, DWORD pid);
+	HWND CreateAndAddThreadsView(const CString& name, DWORD pid);
+	HWND CreateAndAddModulesView(const CString& name, DWORD pid);
+	HWND CreateAndAddMemoryMapView(const CString& name, DWORD pid);
+	HWND CreateAndAddHandlesView(const CString& name, DWORD pid);
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
@@ -61,6 +61,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSES, OnViewSystemProcesses)
 		COMMAND_ID_HANDLER(ID_SYSTEM_THREADS, OnViewSystemThreads)
 		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
+		COMMAND_ID_HANDLER(ID_SYSTEM_COM, OnViewCom)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
 		COMMAND_ID_HANDLER(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
@@ -142,6 +143,7 @@ private:
 	LRESULT OnViewSystemProcesses(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewCom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);

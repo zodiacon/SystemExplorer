@@ -48,6 +48,7 @@ private:
 	};
 
 	ModuleInfoEx& GetModuleEx(WinSys::ModuleInfo* mi);
+	static CString CharacteristicsToString(WinSys::DllCharacteristics c);
 
 private:
 	CListViewCtrl m_List;

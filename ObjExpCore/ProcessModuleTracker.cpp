@@ -60,10 +60,15 @@ struct ProcessModuleTracker::Impl {
 				auto nt = ::ImageNtHeader(buffer);
 				if (nt) {
 					auto machine = nt->FileHeader.Machine;
-					if (machine == IMAGE_FILE_MACHINE_ARM || machine == IMAGE_FILE_MACHINE_I386)
-						mi->ImageBase = ULongToPtr(((IMAGE_OPTIONAL_HEADER32*)&nt->OptionalHeader)->ImageBase);
-					else
+					if (machine == IMAGE_FILE_MACHINE_ARM || machine == IMAGE_FILE_MACHINE_I386) {
+						auto oh = (IMAGE_OPTIONAL_HEADER32*)&nt->OptionalHeader;
+						mi->ImageBase = UlongToPtr(oh->ImageBase);
+						mi->Characteristics = (DllCharacteristics)oh->DllCharacteristics;
+					}
+					else {
 						mi->ImageBase = (PVOID)nt->OptionalHeader.ImageBase;
+						mi->Characteristics = (DllCharacteristics)nt->OptionalHeader.DllCharacteristics;
+					}
 				}
 			}
 		}

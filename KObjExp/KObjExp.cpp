@@ -8,6 +8,13 @@ DRIVER_UNLOAD ObjExpUnload;
 
 DRIVER_DISPATCH ObjExpCreateClose, ObjExpDeviceControl;
 
+extern "C" NTSTATUS ZwOpenThread(
+	_Out_ PHANDLE ThreadHandle,
+	_In_ ACCESS_MASK DesiredAccess,
+	_In_ POBJECT_ATTRIBUTES ObjectAttributes,
+	_In_opt_ PCLIENT_ID ClientId
+);
+
 extern "C" NTSTATUS ObOpenObjectByName(
 	_In_ POBJECT_ATTRIBUTES ObjectAttributes,
 	_In_ POBJECT_TYPE ObjectType,
@@ -168,19 +175,27 @@ NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 		}
 
 		case IOCTL_KOBJEXP_OPEN_PROCESS:
+		case IOCTL_KOBJEXP_OPEN_THREAD:
 		{
 			if (Irp->AssociatedIrp.SystemBuffer == nullptr) {
 				status = STATUS_INVALID_PARAMETER;
 				break;
 			}
-			if (dic.InputBufferLength < sizeof(OpenProcessData) || dic.OutputBufferLength < sizeof(HANDLE)) {
+			if (dic.InputBufferLength < sizeof(OpenProcessThreadData) || dic.OutputBufferLength < sizeof(HANDLE)) {
 				status = STATUS_BUFFER_TOO_SMALL;
 				break;
 			}
-			auto data = (OpenProcessData*)Irp->AssociatedIrp.SystemBuffer;
+			auto data = (OpenProcessThreadData*)Irp->AssociatedIrp.SystemBuffer;
 			OBJECT_ATTRIBUTES attr = RTL_CONSTANT_OBJECT_ATTRIBUTES(nullptr, 0);
-			CLIENT_ID id = { UlongToHandle(data->ProcessId) };
-			status = ZwOpenProcess((HANDLE*)data, data->AccessMask, &attr, &id);
+			CLIENT_ID id{};
+			if (dic.IoControlCode == IOCTL_KOBJEXP_OPEN_PROCESS) {
+				id.UniqueProcess = UlongToHandle(data->Id);
+				status = ZwOpenProcess((HANDLE*)data, data->AccessMask, &attr, &id);
+			}
+			else {
+				id.UniqueThread = UlongToHandle(data->Id);
+				status = ZwOpenThread((HANDLE*)data, data->AccessMask, &attr, &id);
+			}
 			len = NT_SUCCESS(status) ? sizeof(HANDLE) : 0;
 			break;
 		}

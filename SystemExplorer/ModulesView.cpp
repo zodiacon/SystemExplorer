@@ -26,6 +26,7 @@ CString CModulesView::GetColumnText(HWND, int row, int col) const {
 				text = L"N/A";
 			break;
 		case 5: return mi->Path.c_str();
+		case 6: return mi->Type == WinSys::MapType::Image ? CharacteristicsToString(mi->Characteristics) : L"";
 	}
 
 	return text;
@@ -52,6 +53,7 @@ void CModulesView::DoSort(const SortInfo* si) {
 			case 3: return SortHelper::SortNumbers(m1->Base, m2->Base, si->SortAscending);
 			case 4: return SortHelper::SortNumbers(m1->ImageBase, m2->ImageBase, si->SortAscending);
 			case 5: return SortHelper::SortStrings(m1->Path, m2->Path, si->SortAscending);
+			case 6: return SortHelper::SortNumbers(m1->Characteristics, m2->Characteristics, si->SortAscending);
 		}
 		return false;
 		});
@@ -76,6 +78,7 @@ LRESULT CModulesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"Base Address", LVCFMT_RIGHT, 130, ColumnFlags::Visible);
 	cm->AddColumn(L"Image Base", LVCFMT_RIGHT, 130, ColumnFlags::Visible);
 	cm->AddColumn(L"Path", LVCFMT_LEFT, 450, ColumnFlags::Visible);
+	cm->AddColumn(L"Characteristics", LVCFMT_LEFT, 250, ColumnFlags::Visible);
 
 	cm->UpdateColumns();
 
@@ -173,6 +176,38 @@ CModulesView::ModuleInfoEx& CModulesView::GetModuleEx(WinSys::ModuleInfo* mi) {
 	ModuleInfoEx mx;
 	m_ModulesEx.insert({ mi, mx });
 	return GetModuleEx(mi);
+}
+
+CString CModulesView::CharacteristicsToString(WinSys::DllCharacteristics ch) {
+	using namespace WinSys;
+
+	CString result;
+	if ((ch & DllCharacteristics::HighEntropyVA) != DllCharacteristics::None)
+		result += L"High Entropy VA, ";
+	if ((ch & DllCharacteristics::DynamicBase) != DllCharacteristics::None)
+		result += L"Dynamic Base, ";
+	if ((ch & DllCharacteristics::ForceIntegrity) != DllCharacteristics::None)
+		result += L"Force Integrity, ";
+	if ((ch & DllCharacteristics::NxCompat) != DllCharacteristics::None)
+		result += L"NX Compat, ";
+	if ((ch & DllCharacteristics::NoIsolation) != DllCharacteristics::None)
+		result += L"No Isolation, ";
+	if ((ch & DllCharacteristics::NoSEH) != DllCharacteristics::None)
+		result += L"No SEH, ";
+	if ((ch & DllCharacteristics::NoBind) != DllCharacteristics::None)
+		result += L"No Bind, ";
+	if ((ch & DllCharacteristics::AppContainer) != DllCharacteristics::None)
+		result += L"App Container, ";
+	if ((ch & DllCharacteristics::WDMDriver) != DllCharacteristics::None)
+		result += L"WDM Driver, ";
+	if ((ch & DllCharacteristics::ControlFlowGuard) != DllCharacteristics::None)
+		result += L"CFG, ";
+	if ((ch & DllCharacteristics::TerminalServerAware) != DllCharacteristics::None)
+		result += L"TS Aware, ";
+
+	if (!result.IsEmpty())
+		result = result.Left(result.GetLength() - 2);
+	return result;
 }
 
 DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {

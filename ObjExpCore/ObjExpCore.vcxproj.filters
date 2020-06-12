@@ -75,6 +75,12 @@
     <ClInclude Include="COMExplorer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProcessHeaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PerfCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjExpCore.cpp">
@@ -129,6 +135,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="COMExplorer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessHeaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PerfCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -15,12 +15,26 @@ namespace WinSys {
 		Machine32,
 	};
 
+	enum class ComServerType {
+		InProc,
+		OutOfProc,
+		Service
+	};
+
 	struct ComClassInfo {
 		std::wstring FriendlyName;
 		CLSID Clsid;
 		std::wstring ModulePath;
 		std::wstring ThreadingModel;
-		bool InProcess;
+		ComServerType ServerType;
+	};
+
+	struct ComInterfaceInfo {
+		std::wstring FriendlyName;
+		IID Iid;
+		CLSID ProxyStub;
+		GUID TypeLib;
+		int NumMethods;
 	};
 
 	class ComExplorer final {
@@ -28,6 +42,8 @@ namespace WinSys {
 		ComExplorer();
 		~ComExplorer();
 		bool Open(ComStore store, bool readOnly = true);
+		std::vector<ComClassInfo> EnumClasses(uint32_t start = 0, uint32_t maxCount = 0);
+		std::vector<ComInterfaceInfo> EnumInterfaces(uint32_t start = 0, uint32_t maxCount = 0);
 
 	private:
 		struct Impl;

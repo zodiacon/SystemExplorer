@@ -24,6 +24,7 @@
 #include "ModulesView.h"
 #include "ProcessesView.h"
 #include "ThreadsView.h"
+#include "COMView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -90,7 +91,7 @@ LRESULT CMainFrame::OnProcessThreads(WORD, WORD, HWND, BOOL&) {
 	}
 
 	if (pid) {
-		CreateAndAddModulesView(name, pid);
+		CreateAndAddThreadsView(name, pid);
 	}
 	return 0;
 }
@@ -661,6 +662,14 @@ LRESULT CMainFrame::OnProcessAll(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnViewCom(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CComView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"COM", m_Icons[(int)IconType::COM], pView);
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -845,17 +854,18 @@ LRESULT CMainFrame::SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 	return SendMessage(msg, wParam, lParam);
 }
 
-HWND CMainFrame::CreateAndAddThreadsView(CString& name, DWORD pid) {
+HWND CMainFrame::CreateAndAddThreadsView(const CString& name, DWORD pid) {
 	auto view = new CThreadsView(this, pid);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	ATLASSERT(hWnd);
-	name.Format(L"Threads (%s: %u)", name, pid);
-	m_view.AddPage(*view, name, m_Icons[(int)IconType::Threads], view);
+	CString title;
+	title.Format(L"Threads (%s: %u)", name, pid);
+	m_view.AddPage(*view, title, m_Icons[(int)IconType::Threads], view);
 
 	return hWnd;
 }
 
-HWND CMainFrame::CreateAndAddModulesView(CString& name, DWORD pid) {
+HWND CMainFrame::CreateAndAddModulesView(const CString& name, DWORD pid) {
 	auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ);
 	auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
@@ -863,26 +873,28 @@ HWND CMainFrame::CreateAndAddModulesView(CString& name, DWORD pid) {
 		delete view;
 	}
 	else {
-		name.Format(L"Modules (%s: %u)", name, pid);
-		m_view.AddPage(*view, name, m_Icons[(int)IconType::Modules], view);
+		CString title;
+		title.Format(L"Modules (%s: %u)", name, pid);
+		m_view.AddPage(*view, title, m_Icons[(int)IconType::Modules], view);
 	}
 	return hWnd;
 }
 
-HWND CMainFrame::CreateAndAddMemoryMapView(CString& name, DWORD pid) {
+HWND CMainFrame::CreateAndAddMemoryMapView(const CString& name, DWORD pid) {
 	auto view = new CMemoryMapView(this, pid);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	if (!hWnd) {
 		delete view;
 	}
 	else {
-		name.Format(L"Memory (%s: %u)", name, pid);
-		m_view.AddPage(*view, name, m_Icons[(int)IconType::Memory], view);
+		CString title;
+		title.Format(L"Memory (%s: %u)", name, pid);
+		m_view.AddPage(*view, title, m_Icons[(int)IconType::Memory], view);
 	}
 	return hWnd;
 }
 
-HWND CMainFrame::CreateAndAddHandlesView(CString& name, DWORD pid) {
+HWND CMainFrame::CreateAndAddHandlesView(const CString& name, DWORD pid) {
 	auto pView = new CHandlesView(this, nullptr, pid);
 	auto hWnd = pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	CString title;

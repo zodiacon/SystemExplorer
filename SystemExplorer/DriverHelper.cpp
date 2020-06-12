@@ -7,6 +7,10 @@
 HANDLE DriverHelper::_hDevice;
 
 bool DriverHelper::LoadDriver(bool load) {
+	if (_hDevice) {
+		::CloseHandle(_hDevice);
+		_hDevice = INVALID_HANDLE_VALUE;
+	}
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
 	if (!hScm)
 		return false;
@@ -124,9 +128,9 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DW
 
 HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
 	if (OpenDevice()) {
-		OpenProcessData data;
+		OpenProcessThreadData data;
 		data.AccessMask = access;
-		data.ProcessId = pid;
+		data.Id = pid;
 		HANDLE hProcess;
 		DWORD bytes;
 
@@ -134,6 +138,20 @@ HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
 			&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
 	}
 	return ::OpenProcess(access, FALSE, pid);
+}
+
+HANDLE DriverHelper::OpenThread(DWORD tid, ACCESS_MASK access) {
+	if (OpenDevice()) {
+		OpenProcessThreadData data;
+		data.AccessMask = access;
+		data.Id = tid;
+		HANDLE hThread;
+		DWORD bytes;
+
+		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
+			&hThread, sizeof(hThread), &bytes, nullptr) ? hThread : nullptr;
+	}
+	return ::OpenThread(access, FALSE, tid);
 }
 
 PVOID DriverHelper::GetObjectAddress(HANDLE hObject) {

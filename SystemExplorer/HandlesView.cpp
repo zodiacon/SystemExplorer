@@ -12,6 +12,7 @@
 #include "AccessMaskDecoder.h"
 #include "SecurityInfo.h"
 #include "SecurityHelper.h"
+#include "UndocListView.h"
 
 using namespace WinSys;
 
@@ -118,6 +119,13 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
+
+	//CComPtr<IListViewFooter> spFooter;
+	//m_List.SendMessage(LVM_QUERYINTERFACE, reinterpret_cast<WPARAM>(&__uuidof(IListViewFooter)), reinterpret_cast<WPARAM>(&spFooter));
+	//if (spFooter) {
+	//	spFooter->SetIntroText(L"Footer is working!!!");
+	//	spFooter->Show(nullptr);
+	//}
 
 	return 0;
 }

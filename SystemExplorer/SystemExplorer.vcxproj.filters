@@ -183,9 +183,6 @@
     <ClCompile Include="ModulesView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
-    <ClCompile Include="FileHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessesView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
@@ -209,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="ThreadsView.cpp">
       <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="FileHelper.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,9 +365,6 @@
     <ClInclude Include="ModulesView.h">
       <Filter>Views</Filter>
     </ClInclude>
-    <ClInclude Include="FileHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProcessesView.h">
       <Filter>Views</Filter>
     </ClInclude>
@@ -394,6 +391,12 @@
     </ClInclude>
     <ClInclude Include="ThreadsView.h">
       <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="UndocListView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

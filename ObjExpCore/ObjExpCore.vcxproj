@@ -95,6 +95,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\phnt</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,8 +164,10 @@
     <ClInclude Include="Keys.h" />
     <ClInclude Include="ObjExpCore.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PerfCounter.h" />
     <ClInclude Include="Processes.h" />
     <ClInclude Include="ProcessHandlesTracker.h" />
+    <ClInclude Include="ProcessHeaps.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="ProcessManager.h" />
     <ClInclude Include="ProcessModuleTracker.h" />
@@ -194,8 +197,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PerfCounter.cpp" />
     <ClCompile Include="Processes.cpp" />
     <ClCompile Include="ProcessHandlesTracker.cpp" />
+    <ClCompile Include="ProcessHeaps.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessManager.cpp" />
     <ClCompile Include="ProcessModuleTracker.cpp" />

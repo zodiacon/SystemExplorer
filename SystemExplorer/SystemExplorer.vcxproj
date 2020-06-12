@@ -340,6 +340,7 @@
     <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="TimerObjectType.h" />
     <ClInclude Include="TokenObjectType.h" />
+    <ClInclude Include="UndocListView.h" />
     <ClInclude Include="ViewBase.h" />
     <ClInclude Include="VirtualListView.h" />
     <ClInclude Include="WindowHelper.h" />

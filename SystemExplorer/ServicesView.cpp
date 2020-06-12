@@ -444,6 +444,8 @@ HWND CServicesView::InitToolBar() {
 		{ ID_SERVICE_STOP, IDI_STOP, 0, L"Stop" },
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
 		{ ID_SERVICE_CONTINUE, IDI_RESUME },
+		{ 0 },
+		{ ID_HEADER_COLUMNS, IDI_EDITCOLUMNS, 0, L"Columns" },
 	};
 	return CreateAndInitToolBar(buttons, _countof(buttons));
 }
@@ -468,7 +470,8 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 	else {
 		auto& svc = m_Services[selected];
 		auto& state = svc.GetStatusProcess().CurrentState;
-		ui->UIEnable(ID_SERVICE_START, state == ServiceState::Stopped && GetServiceInfoEx(svc.GetName()).GetConfiguration()->StartType != ServiceStartType::Disabled);
+		ui->UIEnable(ID_SERVICE_START, state == ServiceState::Stopped && 
+			GetServiceInfoEx(svc.GetName()).GetConfiguration()->StartType != ServiceStartType::Disabled);
 		ui->UIEnable(ID_SERVICE_STOP, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_PAUSE, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_CONTINUE, state == ServiceState::Paused);

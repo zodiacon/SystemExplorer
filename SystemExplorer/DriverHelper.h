@@ -12,6 +12,7 @@ struct DriverHelper final {
 	static USHORT GetVersion();
 	static USHORT GetCurrentVersion();
 	static bool CloseDevice();
+	static HANDLE OpenThread(DWORD tid, ACCESS_MASK access = THREAD_QUERY_INFORMATION);
 
 private:
 	static bool OpenDevice();
