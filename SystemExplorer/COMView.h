@@ -18,6 +18,8 @@ public:
 	END_MSG_MAP()
 
 	CString GetColumnText(HWND, int row, int col) const;
+	int GetRowImage(int row) const;
+
 	void DoSort(const SortInfo*);
 
 private:

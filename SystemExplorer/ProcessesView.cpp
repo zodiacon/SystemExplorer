@@ -36,6 +36,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::ExePath: return px.GetExecutablePath().c_str();
 		case ProcessColumn::CreateTime: return FormatHelper::TimeToString(p->CreateTime);
 		case ProcessColumn::Session: text.Format(L"%2d  ", p->SessionId); break;
+		case ProcessColumn::Priority: text.Format(L"%2d  ", p->BasePriority); break;
 		case ProcessColumn::Attributes: return ProcessAttributesToString(px.GetAttributes(m_ProcMgr));
 		case ProcessColumn::CPUTime: return FormatHelper::TimeSpanToString(p->UserTime + p->KernelTime);
 		case ProcessColumn::KernelTime: return FormatHelper::TimeSpanToString(p->KernelTime);

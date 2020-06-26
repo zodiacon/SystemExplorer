@@ -2,6 +2,7 @@
 #include "COMView.h"
 #include "SortHelper.h"
 #include <algorithm>
+#include "resource.h"
 
 using namespace WinSys;
 
@@ -14,6 +15,13 @@ CString CComView::GetColumnText(HWND, int row, int col) const {
 		return f(row, col);
 
 	return L"";
+}
+
+int CComView::GetRowImage(int row) const {
+	if (m_SelectedNode.GetData() == (DWORD_PTR)NodeType::Classes)
+		return (int)m_Classes[row].ServerType;
+
+	return 0;
 }
 
 void CComView::DoSort(const SortInfo* si) {
@@ -31,19 +39,29 @@ LRESULT CComView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	m_List.Create(m_Splitter, rcDefault, nullptr, ListViewDefaultStyle & ~LVS_SHAREIMAGELISTS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
+	CImageList images;
+	images.Create(16, 16, ILC_COLOR32, 4, 4);
+	m_List.SetImageList(images, LVSIL_SMALL);
 
-	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | TVS_LINESATROOT | TVS_HASLINES | TVS_HASBUTTONS);
+	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | TVS_LINESATROOT | TVS_HASLINES | TVS_HASBUTTONS | TVS_SHOWSELALWAYS);
 
 	m_Splitter.SetSplitterExtendedStyle(SPLIT_FLATBAR | SPLIT_PROPORTIONAL);
 
 	m_Splitter.SetSplitterPanes(m_Tree, m_List);
+
+	images.Detach();
+	images.Create(16, 16, ILC_COLOR32, 4, 4);
+	UINT ids[] = { IDI_COMPONENT, IDI_CLASS, IDI_INTERFACE, IDI_APPID, IDI_LIBRARY };
+	for (auto id : ids)
+		images.AddIcon(AtlLoadIconImage(id));
+	m_Tree.SetImageList(images, TVSIL_NORMAL);
 
 	InitTree();
 
 	m_GetColumnTextFunctions[(int)NodeType::Classes] = [this](auto row, auto col) { return GetColumnTextClass(row, col); };
 	m_GetColumnTextFunctions[(int)NodeType::Interfaces] = [this](auto row, auto col) { return GetColumnTextInterface(row, col); };
 
-	m_InitListView [(int)NodeType::Classes]= [this]() { InitListViewClasses(); };
+	m_InitListView[(int)NodeType::Classes] = [this]() { InitListViewClasses(); };
 	m_InitListView[(int)NodeType::Interfaces] = [this]() { InitListViewInterfaces(); };
 
 	m_Sorter[(int)NodeType::Classes] = [this](auto si) { DoSortClasses(si); };
@@ -65,16 +83,19 @@ LRESULT CComView::OnSelectedTreeItemChanged(int, LPNMHDR hdr, BOOL&) {
 }
 
 void CComView::InitTree() {
-	CreateRootItem(L"Default", ComStore::Default);
+	auto item = CreateRootItem(L"Default", ComStore::Default);
 	CreateRootItem(L"Machine", ComStore::User);
 	CreateRootItem(L"User", ComStore::Machine);
 	CreateRootItem(L"Default (32 bit)", ComStore::Default32);
 	CreateRootItem(L"Machine (32 bit)", ComStore::User32);
 	CreateRootItem(L"User (32 bit)", ComStore::Machine32);
+	item.Expand(TVE_EXPAND);
+	item.Select();
+	UpdateList(item);
 }
 
 CTreeItem CComView::CreateRootItem(PCWSTR name, ComStore store) {
-	auto root = m_Tree.InsertItem(name, TVI_ROOT, TVI_LAST);
+	auto root = m_Tree.InsertItem(name, 0, 0, TVI_ROOT, TVI_LAST);
 	root.SetData((DWORD_PTR)store);
 	CreateStoreItems(root);
 
@@ -82,10 +103,10 @@ CTreeItem CComView::CreateRootItem(PCWSTR name, ComStore store) {
 }
 
 void CComView::CreateStoreItems(CTreeItem root) {
-	root.InsertAfter(L"Classes", root, 0).SetData((DWORD_PTR)NodeType::Classes);
-	root.InsertAfter(L"Interfaces", root, 0).SetData((DWORD_PTR)NodeType::Interfaces);
-	root.InsertAfter(L"Type Libraries", root, 0).SetData((DWORD_PTR)NodeType::Typelibs);
-	root.InsertAfter(L"App IDs", root, 0).SetData((DWORD_PTR)NodeType::AppIds);
+	root.InsertAfter(L"Classes", root, 1).SetData((DWORD_PTR)NodeType::Classes);
+	root.InsertAfter(L"Interfaces", root, 2).SetData((DWORD_PTR)NodeType::Interfaces);
+	root.InsertAfter(L"Type Libraries", root, 4).SetData((DWORD_PTR)NodeType::Typelibs);
+	root.InsertAfter(L"App IDs", root, 3).SetData((DWORD_PTR)NodeType::AppIds);
 }
 
 void CComView::UpdateList(CTreeItem item) {
@@ -107,6 +128,9 @@ void CComView::UpdateList(CTreeItem item) {
 	int count = 0;
 	m_SelectedNode = item;
 	auto init = m_InitListView[item.GetData()];
+	while (m_List.DeleteColumn(0))
+		;
+	m_List.GetImageList(LVSIL_SMALL).RemoveAll();
 	if (init)
 		init();
 
@@ -155,24 +179,27 @@ CString CComView::GetColumnTextInterface(int row, int col) const {
 }
 
 void CComView::InitListViewClasses() {
-	while (m_List.DeleteColumn(0))
-		;
-
 	m_List.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 250);
 	m_List.InsertColumn(1, L"CLSID", LVCFMT_RIGHT, 250);
 	m_List.InsertColumn(2, L"Server Type", LVCFMT_LEFT, 80);
 	m_List.InsertColumn(3, L"Path / Service", LVCFMT_LEFT, 250);
 	m_List.InsertColumn(4, L"Threading Model", LVCFMT_LEFT, 80);
+
+	auto images = m_List.GetImageList(LVSIL_SMALL);
+	UINT ids[] = { IDI_DLL_SERVER, IDI_APP_SERVER, IDI_SERVICE };
+	for(auto id : ids)
+		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
+
 }
 
 void CComView::InitListViewInterfaces() {
-	while (m_List.DeleteColumn(0))
-		;
-
 	m_List.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 250);
 	m_List.InsertColumn(1, L"IID", LVCFMT_RIGHT, 250);
 	m_List.InsertColumn(2, L"Proxy/Stub", LVCFMT_LEFT, 250);
 	m_List.InsertColumn(3, L"Type Library", LVCFMT_LEFT, 250);
+
+	auto images = m_List.GetImageList(LVSIL_SMALL);
+	images.AddIcon(AtlLoadIconImage(IDI_INTERFACE, 0, 16, 16));
 }
 
 void CComView::DoSortClasses(const SortInfo* si) {
@@ -208,7 +235,7 @@ void CComView::DoSortInterfaces(const SortInfo* si) {
 
 CString CComView::ClsidToString(const GUID& guid) {
 	WCHAR text[64];
-	if(::StringFromGUID2(guid, text, _countof(text)))
+	if (::StringFromGUID2(guid, text, _countof(text)))
 		return text;
 	return L"";
 }

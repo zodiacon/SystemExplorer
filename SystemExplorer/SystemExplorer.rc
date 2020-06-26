@@ -471,6 +471,18 @@ IDI_STANDBY             ICON                    "res\\Standby.ico"
 
 IDI_TRANSITION          ICON                    "res\\transition.ico"
 
+IDI_APPID               ICON                    "res\\application-friend.ico"
+
+IDI_CLASS               ICON                    "res\\class.ico"
+
+IDI_INTERFACE           ICON                    "res\\interface.ico"
+
+IDI_LIBRARY             ICON                    "res\\library.ico"
+
+IDI_APP_SERVER          ICON                    "res\\application-server.ico"
+
+IDI_DLL_SERVER          ICON                    "res\\dll-server.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

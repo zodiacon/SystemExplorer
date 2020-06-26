@@ -92,6 +92,13 @@
 #define IDI_RUNNING                     300
 #define IDI_STANDBY                     301
 #define IDI_TRANSITION                  302
+#define IDI_APPID                       304
+#define IDI_CLASS                       305
+#define IDI_INTERFACE                   306
+#define IDI_LIBRARY                     307
+#define IDI_APP_SERVER                  308
+#define IDI_ICON2                       309
+#define IDI_DLL_SERVER                  309
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -211,7 +218,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        303
+#define _APS_NEXT_RESOURCE_VALUE        310
 #define _APS_NEXT_COMMAND_VALUE         32878
 #define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101

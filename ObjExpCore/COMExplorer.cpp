@@ -8,10 +8,12 @@ struct ComExplorer::Impl {
 	CRegKey _root;
 
 	bool Open(ComStore store, bool readOnly) {
+		_root.Close();
 		auto success = false;
 		switch (store) {
 			case ComStore::Default:
 				_root.Attach(HKEY_CLASSES_ROOT);
+				success = true;
 				break;
 
 			case ComStore::User:

@@ -353,10 +353,13 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\about.ico" />
+    <Image Include="res\application-friend.ico" />
+    <Image Include="res\application-server.ico" />
     <Image Include="res\atom.ico" />
     <Image Include="res\battery.ico" />
     <Image Include="res\briefcase.ico" />
     <Image Include="res\car_compact_green.ico" />
+    <Image Include="res\class.ico" />
     <Image Include="res\commit.ico" />
     <Image Include="res\component_blue.ico" />
     <Image Include="res\copy.ico" />
@@ -366,6 +369,7 @@
     <Image Include="res\directory.ico" />
     <Image Include="res\dll-database.ico" />
     <Image Include="res\dll-import.ico" />
+    <Image Include="res\dll-server.ico" />
     <Image Include="res\dll.ico" />
     <Image Include="res\dram.ico" />
     <Image Include="res\event.ico" />
@@ -389,7 +393,9 @@
     <Image Include="res\handles.ico" />
     <Image Include="res\heap.ico" />
     <Image Include="res\Initialized.ico" />
+    <Image Include="res\interface.ico" />
     <Image Include="res\key.ico" />
+    <Image Include="res\library.ico" />
     <Image Include="res\login.ico" />
     <Image Include="res\mailbox.ico" />
     <Image Include="res\media_step_forward.ico" />

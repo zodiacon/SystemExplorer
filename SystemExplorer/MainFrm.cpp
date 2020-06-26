@@ -322,6 +322,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		}
 
 		::SetPriorityClass(::GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
 		PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 		PostMessage(WM_COMMAND, ID_SYSTEM_PROCESSES);

@@ -417,7 +417,7 @@ void CHandlesView::Refresh() {
 	}
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
-	DoSort(GetSortInfo(*this));
+	DoSort(GetSortInfo(m_List));
 	m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
