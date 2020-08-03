@@ -141,7 +141,7 @@ DWORD CThreadsView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			GetFrame()->GetSettings().GetCPUColors(t->CPU / 10000, lcd->clrTextBk, lcd->clrText);
 			break;
 	}
-	return CDRF_SKIPPOSTPAINT | CDRF_NEWFONT;
+	return CDRF_NEWFONT;
 }
 
 void CThreadsView::Refresh() {
@@ -267,6 +267,9 @@ LRESULT CThreadsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 }
 
 LRESULT CThreadsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+	if (m_UpdateInterval == 0)
+		return 0;
+
 	if (activate) {
 		if (m_UpdateInterval)
 			SetTimer(1, m_UpdateInterval, nullptr);
@@ -280,7 +283,7 @@ LRESULT CThreadsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
 LRESULT CThreadsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	Refresh();
 
-	return LRESULT();
+	return 0;
 }
 
 LRESULT CThreadsView::OnHideColumn(WORD, WORD, HWND, BOOL&) {

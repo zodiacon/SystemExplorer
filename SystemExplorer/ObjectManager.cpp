@@ -389,8 +389,10 @@ std::vector<GdiObject> ObjectManager::EnumGdiObjects(DWORD pid) {
 	objects.reserve(128);
 	for (unsigned i = 0; i < tableSize; i++) {
 		auto obj = table.get() + i;
-		if ((obj->ProcessId >> 2) != ((pid & 0xffff)) >> 2)
+		if (obj->ProcessId == 0)
 			continue;
+		//if ((obj->ProcessId >> 2) != ((pid & 0xffff)) >> 2)
+		//	continue;
 
 		GdiObject object;
 		object.Index = (USHORT)i;
