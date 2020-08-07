@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "PipesMailslotsDlg.h"
 #include "SortHelper.h"
 

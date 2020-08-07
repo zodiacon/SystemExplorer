@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "WinStationObjectType.h"
 
 WinStationObjectType::WinStationObjectType(int index, PCWSTR name) : ObjectType(index, name) {

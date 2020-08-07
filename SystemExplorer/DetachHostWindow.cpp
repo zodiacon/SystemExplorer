@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "DetachHostWindow.h"
 
 void CDetachHostWindow::SetClient(HWND hWnd) {

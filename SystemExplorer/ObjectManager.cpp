@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ObjectManager.h"
 #include "DriverHelper.h"
 #include "NtDll.h"

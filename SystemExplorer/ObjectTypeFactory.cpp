@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ObjectTypeFactory.h"
 #include "MutexObjectType.h"
 #include "ProcessObjectType.h"

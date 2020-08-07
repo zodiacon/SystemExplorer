@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ThreadObjectType.h"
 
 ThreadObjectType::ThreadObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name) :

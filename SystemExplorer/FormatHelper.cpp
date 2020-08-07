@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "FormatHelper.h"
 
 CString FormatHelper::TimeSpanToString(int64_t ts) {

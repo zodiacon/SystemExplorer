@@ -90,6 +90,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,6 +128,7 @@
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,6 +164,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -197,6 +200,7 @@
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -227,6 +231,8 @@
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="ColumnManager.cpp" />
     <ClCompile Include="COMView.cpp" />
+    <ClCompile Include="ObjectSearcher.cpp" />
+    <ClCompile Include="SearchView.cpp" />
     <ClCompile Include="ThreadsView.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
@@ -268,7 +274,7 @@
     <ClCompile Include="ServicesView.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SortHelper.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -290,6 +296,8 @@
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="COMView.h" />
+    <ClInclude Include="ObjectSearcher.h" />
+    <ClInclude Include="SearchView.h" />
     <ClInclude Include="ThreadsView.h" />
     <ClInclude Include="DetachHostWindow.h" />
     <ClInclude Include="DeviceManagerView.h" />
@@ -334,7 +342,7 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SortHelper.h" />
     <ClInclude Include="StandardColors.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="ObjectsView.h" />
     <ClInclude Include="SymbolicLinkObjectType.h" />
     <ClInclude Include="ThreadObjectType.h" />

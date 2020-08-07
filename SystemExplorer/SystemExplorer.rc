@@ -156,6 +156,8 @@ BEGIN
         MENUITEM "&Logon Sessions",             ID_SYSTEM_LOGONSESSIONS
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE
+        MENUITEM SEPARATOR
+        MENUITEM "&Search...",                  ID_SYSTEM_SEARCH
     END
     POPUP "&Process"
     BEGIN
@@ -800,7 +802,7 @@ BEGIN
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
     ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
     ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
-    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_FIND            "Find the specified object\nFind"
     ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
     ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
 END

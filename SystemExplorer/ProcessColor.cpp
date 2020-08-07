@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ProcessColor.h"
 
 HighlightColor::HighlightColor(PCWSTR name, COLORREF defaultColor, COLORREF defaultTextColor, bool enabled) 

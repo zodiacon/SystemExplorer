@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "AccessMaskDecoder.h"
 #include "NtDll.h"
 

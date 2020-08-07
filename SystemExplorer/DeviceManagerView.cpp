@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "DeviceManagerView.h"
 #include "resource.h"
 #include "ImageHelper.h"

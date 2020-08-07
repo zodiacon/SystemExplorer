@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SecurityHelper.h"
 
 bool SecurityHelper::IsRunningElevated() {

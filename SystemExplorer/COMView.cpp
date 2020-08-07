@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "COMView.h"
 #include "SortHelper.h"
 #include <algorithm>

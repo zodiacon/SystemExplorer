@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "FileObjectType.h"
 
 FileObjectType::FileObjectType(int index, PCWSTR name) : ObjectType(index, name) {

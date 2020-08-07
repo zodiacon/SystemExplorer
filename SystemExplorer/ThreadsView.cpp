@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ThreadsView.h"
 #include "SortHelper.h"
 #include <algorithm>

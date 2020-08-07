@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "KeyObjectType.h"
 #include "NtDll.h"
 

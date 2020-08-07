@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SectionObjectType.h"
 #include "NtDll.h"
 

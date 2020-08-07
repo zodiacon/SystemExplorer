@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SortHelper.h"
 
 bool SortHelper::SortStrings(const CString& s1, const CString& s2, bool ascending) {

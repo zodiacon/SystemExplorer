@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "WindowsView.h"
 #include "WindowHelper.h"
 #include "resource.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "DialogHelper.h"
 #include "resource.h"
 

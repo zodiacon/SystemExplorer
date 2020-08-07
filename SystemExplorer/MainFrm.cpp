@@ -2,7 +2,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "pch.h"
 #include "resource.h"
 #include <Psapi.h>
 #include "aboutdlg.h"
@@ -25,6 +25,7 @@
 #include "ProcessesView.h"
 #include "ThreadsView.h"
 #include "COMView.h"
+#include "SearchView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -271,7 +272,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		UINT ids[] = {
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
-			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD
+			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD,
+			IDI_FIND
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -671,6 +673,14 @@ LRESULT CMainFrame::OnViewCom(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CMainFrame::OnSystemSearch(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CSearchView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Search", m_Icons[(int)IconType::Search], pView);
+
+	return 0;
+}
+
 void CMainFrame::CloseAllBut(int tab) {
 	while (m_view.GetPageCount() > tab + 1)
 		m_view.RemovePage(m_view.GetPageCount() - 1);
@@ -714,6 +724,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
 		{ ID_GUI_GDIOBJECTSINPROCESS, IDI_BRUSH },
 		{ ID_EDIT_FIND, IDI_FIND },
+		{ ID_SYSTEM_SEARCH, IDI_FIND },
 		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
 		{ ID_WINDOW_CLOSE, IDI_WINDOW_CLOSE },
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
@@ -740,7 +751,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_SYSTEM_COM, IDI_COMPONENT },
 	};
 	for (auto& cmd : cmds) {
-		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIcon(cmd.icon) : cmd.hIcon, cmd.id);
+		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIconImage(cmd.icon, 0, 16, 16) : cmd.hIcon, cmd.id);
 	}
 }
 

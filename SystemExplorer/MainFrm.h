@@ -76,6 +76,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
 		COMMAND_ID_HANDLER(ID_PROCESS_HEAPS, OnProcessHeaps)
 		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessAll)
+		COMMAND_ID_HANDLER(ID_SYSTEM_SEARCH, OnSystemSearch)
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
@@ -144,6 +145,7 @@ private:
 	LRESULT OnViewSystemThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewCom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSystemSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	void CloseAllBut(int page);
@@ -165,6 +167,7 @@ private:
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
 		Devices, Memory, Login, Modules, Processes, COM, Threads,
+		Search,
 		COUNT
 	};
 	inline static int m_Icons[(int)IconType::COUNT];

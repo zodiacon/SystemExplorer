@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ProcessHelper.h"
 
 CString ProcessHelper::GetFullProcessName(DWORD pid) {

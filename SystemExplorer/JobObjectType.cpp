@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "JobObjectType.h"
 
 JobObjectType::JobObjectType(int index, PCWSTR name) : ObjectType(index, name) {

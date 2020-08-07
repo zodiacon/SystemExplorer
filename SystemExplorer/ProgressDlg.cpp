@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ProgressDlg.h"
 #include "DialogHelper.h"
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "MemoryMapView.h"
 #include "DriverHelper.h"
 #include "resource.h"

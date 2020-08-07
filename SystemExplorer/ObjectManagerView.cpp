@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ObjectManagerView.h"
 #include "ObjectManager.h"
 #include "resource.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ProcessesView.h"
 #include "SortHelper.h"
 #include <algorithm>

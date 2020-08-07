@@ -97,7 +97,6 @@
 #define IDI_INTERFACE                   306
 #define IDI_LIBRARY                     307
 #define IDI_APP_SERVER                  308
-#define IDI_ICON2                       309
 #define IDI_DLL_SERVER                  309
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
@@ -213,13 +212,14 @@
 #define ID_TAB_DETACH32875              32875
 #define ID_FILE_EXITALL                 32876
 #define ID_PROCESS_ALLOFTHEABOVE        32877
+#define ID_SYSTEM_SEARCH                32878
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32878
+#define _APS_NEXT_COMMAND_VALUE         32879
 #define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

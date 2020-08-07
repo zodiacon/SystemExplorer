@@ -2,7 +2,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "pch.h"
 #include "resource.h"
 #include <algorithm>
 #include "ClipboardHelper.h"

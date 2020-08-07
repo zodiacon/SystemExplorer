@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ImageHelper.h"
 
 HICON ImageHelper::GetSystemIcon(SHSTOCKICONID icon, bool big) {

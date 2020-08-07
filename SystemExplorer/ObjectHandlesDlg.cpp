@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ObjectHandlesDlg.h"
 #include "HandlesView.h"
 #include "SortHelper.h"

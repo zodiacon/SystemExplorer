@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "TimerObjectType.h"
 #include "NtDll.h"
 

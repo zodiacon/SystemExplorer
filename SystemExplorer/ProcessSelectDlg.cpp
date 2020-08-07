@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ProcessSelectDlg.h"
 #include <string>
 #include "DialogHelper.h"

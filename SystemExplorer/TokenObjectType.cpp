@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "TokenObjectType.h"
 
 TokenObjectType::TokenObjectType(int index, PCWSTR name) : ObjectType(index, name) {

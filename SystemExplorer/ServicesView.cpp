@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ServicesView.h"
 #include "SecurityHelper.h"
 #include "ProgressDlg.h"

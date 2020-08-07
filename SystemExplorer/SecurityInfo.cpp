@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SecurityInfo.h"
 
 #pragma comment(lib, "Aclui")
