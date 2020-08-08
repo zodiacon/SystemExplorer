@@ -3,6 +3,7 @@
 // Used by SystemExplorer.rc
 //
 #define IDD_ABOUTBOX                    100
+#define IDD_SEARCHBAR                   103
 #define IDR_MAINFRAME                   128
 #define IDS_TITLE                       129
 #define IDR_DRIVER                      202
@@ -115,6 +116,10 @@
 #define IDC_TREE                        1013
 #define IDC_TYPE                        1014
 #define IDC_TYPE2                       1015
+#define IDC_TEXT                        1016
+#define IDC_SEARCH                      1017
+#define IDC_BUTTON2                     1018
+#define IDC_CANCEL                      1018
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -218,9 +223,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        310
+#define _APS_NEXT_RESOURCE_VALUE        311
 #define _APS_NEXT_COMMAND_VALUE         32879
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

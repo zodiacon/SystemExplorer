@@ -195,7 +195,8 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid, bool namedObjectsOnly) {
 		if (_skipThisProcess && handle.UniqueProcessId == ::GetCurrentProcessId())
 			continue;
 
-		if (namedObjectsOnly && GetObjectName((HANDLE)handle.HandleValue, (DWORD)handle.UniqueProcessId, handle.ObjectTypeIndex).IsEmpty())
+		CString name;
+		if (namedObjectsOnly && (name = GetObjectName((HANDLE)handle.HandleValue, (DWORD)handle.UniqueProcessId, handle.ObjectTypeIndex)).IsEmpty())
 			continue;
 
 		auto hi = std::make_shared<HandleInfo>();
@@ -205,6 +206,8 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid, bool namedObjectsOnly) {
 		hi->HandleAttributes = handle.HandleAttributes;
 		hi->ProcessId = (ULONG)handle.UniqueProcessId;
 		hi->ObjectTypeIndex = handle.ObjectTypeIndex;
+		hi->Name = name;
+
 		_handles.emplace_back(hi);
 	}
 

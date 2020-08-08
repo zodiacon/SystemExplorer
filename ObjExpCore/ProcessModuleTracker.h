@@ -35,7 +35,7 @@ namespace WinSys {
 		MapType Type;
 	};
 
-	class ProcessModuleTracker {
+	class ProcessModuleTracker final {
 	public:
 		explicit ProcessModuleTracker(DWORD pid);
 		explicit ProcessModuleTracker(HANDLE hProcess);

@@ -441,7 +441,6 @@ PCWSTR CProcessesView::VirtualizationStateToString(WinSys::VirtualizationState s
 	return L"(Unknown)";
 }
 
-
 ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {
 	auto it = m_ProcessesEx.find(pi);
 	if (it != m_ProcessesEx.end())
@@ -521,8 +520,9 @@ LRESULT CProcessesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
-LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL&) {
+LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL& handled) {
 	UpdateUI();
+	handled = FALSE;
 
 	return 0;
 }

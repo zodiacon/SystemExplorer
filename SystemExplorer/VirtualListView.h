@@ -14,10 +14,12 @@ struct CVirtualListView {
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
-	ALT_MSG_MAP(1)
+		//NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
+		ALT_MSG_MAP(1)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
+		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 	END_MSG_MAP()
 
 	struct SortInfo {
@@ -96,9 +98,25 @@ protected:
 			item.iImage = p->GetRowImage(item.iItem);
 		if (item.mask & LVIF_INDENT)
 			item.iIndent = p->GetRowIndent(item.iItem);
-		if (item.mask & LVIF_STATE) {
+		if (item.iSubItem == 0 && (item.mask & LVIF_STATE)) {
 			item.state = INDEXTOSTATEIMAGEMASK((int)p->IsRowChecked(item.iItem));
 			item.stateMask = LVIS_STATEIMAGEMASK;
+
+			if (item.iItem == m_Selected) {
+				item.state |= LVIS_SELECTED;
+				item.stateMask |= LVIS_SELECTED;
+			}
+		}
+		return 0;
+	}
+
+	int m_Selected = -1;
+
+	LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR hdr, BOOL& bHandled) {
+		auto lv = (NMLISTVIEW*)hdr;
+		if (lv->uChanged & LVIF_STATE) {
+			if (lv->uNewState & LVIS_SELECTED)
+				m_Selected = lv->iItem;
 		}
 		return 0;
 	}
@@ -177,6 +195,16 @@ protected:
 		list.RedrawItems(list.GetTopIndex(), list.GetTopIndex() + list.GetCountPerPage());
 
 		return 0;
+	}
+
+	void Sort(CListViewCtrl list, bool redraw = false) {
+		auto si = GetSortInfo(list);
+		if (si) {
+			static_cast<T*>(this)->DoSort(si);
+			redraw = true;
+		}
+		if (redraw)
+			list.RedrawItems(list.GetTopIndex(), list.GetTopIndex() + list.GetCountPerPage());
 	}
 
 	bool IsSortable(int) const {

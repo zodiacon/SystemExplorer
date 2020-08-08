@@ -232,6 +232,7 @@
     <ClCompile Include="ColumnManager.cpp" />
     <ClCompile Include="COMView.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
+    <ClCompile Include="SearchBar.cpp" />
     <ClCompile Include="SearchView.cpp" />
     <ClCompile Include="ThreadsView.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
@@ -297,6 +298,7 @@
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="COMView.h" />
     <ClInclude Include="ObjectSearcher.h" />
+    <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
     <ClInclude Include="ThreadsView.h" />
     <ClInclude Include="DetachHostWindow.h" />

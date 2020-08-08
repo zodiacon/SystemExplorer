@@ -216,6 +216,9 @@
     <ClCompile Include="SearchView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
+    <ClCompile Include="SearchBar.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -409,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="SearchView.h">
       <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="SearchBar.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
