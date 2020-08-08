@@ -291,7 +291,7 @@ void CObjectsView::Refresh() {
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename, 0, nullptr, m_NamedObjectsOnly);
 	m_ProcMgr.EnumProcesses();
 	m_Objects = m_ObjMgr.GetObjects();
-	DoSort(GetSortInfo());
+	Sort(m_List);
 
 	m_List.SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
 }
