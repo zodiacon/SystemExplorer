@@ -503,7 +503,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
     CTEXT           "System Explorer v0.85\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
-    CONTROL         "<a>https://github.com/zodiacon/objectexplorer</a>",IDC_GITHUB,
+    CONTROL         "<a>https://github.com/zodiacon/SystemExplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
 END
 

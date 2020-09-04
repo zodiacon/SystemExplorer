@@ -142,6 +142,48 @@ struct ComExplorer::Impl {
 		return interfaces;
 	}
 
+	std::vector<ComTypeLibInfo> EnumTypeLibraries() {
+		std::vector<ComTypeLibInfo> libs;
+		CRegKey hTypeLibs;
+		if (ERROR_SUCCESS != hTypeLibs.Open(_root, L"Typelib", KEY_READ))
+			return libs;
+
+		DWORD subkeys = 0;
+		::RegQueryInfoKey(hTypeLibs.m_hKey, nullptr, nullptr, nullptr, &subkeys, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+
+		libs.reserve(subkeys);
+		WCHAR name[MAX_PATH * 2];
+
+		for (DWORD i = 0; i < subkeys; i++) {
+			DWORD len = _countof(name);
+			if (ERROR_SUCCESS != hTypeLibs.EnumKey(i, name, &len))
+				break;
+
+			ComTypeLibInfo info{};
+			::CLSIDFromString(name, &info.TypeLibId);
+			CRegKey hLib;
+			if (ERROR_SUCCESS == hLib.Open(hTypeLibs, name, KEY_READ)) {
+				// assume just one version
+				len = _countof(name);
+				if (hLib.EnumKey(0, name, &len) == ERROR_SUCCESS) {
+					CRegKey key;
+					if (key.Open(hLib, (std::wstring(name) + L"\\0\\win32").c_str(), KEY_READ) == ERROR_SUCCESS) {
+						len = _countof(name);
+						if (ERROR_SUCCESS == key.QueryStringValue(nullptr, name, &len))
+							info.Win32Path = name;
+						key.Close();
+					}
+					if (key.Open(hLib, (std::wstring(name) + L"\\0\\win64").c_str(), KEY_READ) == ERROR_SUCCESS) {
+						len = _countof(name);
+						if (ERROR_SUCCESS == key.QueryStringValue(nullptr, name, &len))
+							info.Win64Path = name;
+					}
+				}
+			}
+			libs.push_back(info);
+		}
+		return libs;
+	}
 };
 
 ComExplorer::ComExplorer() : _impl(new Impl) {
@@ -159,5 +201,9 @@ std::vector<ComClassInfo> ComExplorer::EnumClasses(uint32_t start, uint32_t maxC
 
 std::vector<ComInterfaceInfo> ComExplorer::EnumInterfaces(uint32_t start, uint32_t maxCount) {
 	return _impl->EnumInterfaces(start, maxCount);
+}
+
+std::vector<ComTypeLibInfo> ComExplorer::EnumTypeLibraries() {
+	return _impl->EnumTypeLibraries();
 }
 

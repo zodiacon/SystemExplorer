@@ -9,6 +9,31 @@ using namespace WinSys;
 CComView::CComView(IMainFrame* frame) : CViewBase(frame) {
 }
 
+DWORD CComView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
+	m_hFont = (HFONT)::GetCurrentObject(cd->hdc, OBJ_FONT);
+
+	return CDRF_NOTIFYITEMDRAW;
+}
+
+DWORD CComView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
+	return CDRF_NOTIFYSUBITEMDRAW;
+}
+
+DWORD CComView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	auto lcd = (LPNMLVCUSTOMDRAW)cd;
+	auto sub = lcd->iSubItem;
+	int index = (int)cd->dwItemSpec;
+
+	auto cm = GetColumnManager(m_List);
+	auto real = cm->GetRealColumn(sub);
+	if ((cm->GetColumn((int)real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
+		::SelectObject(cd->hdc, GetFrame()->GetMonoFont());
+	else
+		::SelectObject(cd->hdc, m_hFont);
+
+	return CDRF_DODEFAULT | CDRF_NEWFONT;
+}
+
 CString CComView::GetColumnText(HWND, int row, int col) const {
 	auto f = m_GetColumnTextFunctions[m_SelectedNode.GetData()];
 	if (f)
@@ -60,9 +85,11 @@ LRESULT CComView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	m_GetColumnTextFunctions[(int)NodeType::Classes] = [this](auto row, auto col) { return GetColumnTextClass(row, col); };
 	m_GetColumnTextFunctions[(int)NodeType::Interfaces] = [this](auto row, auto col) { return GetColumnTextInterface(row, col); };
+	m_GetColumnTextFunctions[(int)NodeType::Typelibs] = [this](auto row, auto col) { return GetColumnTextTypeLibrary(row, col); };
 
 	m_InitListView[(int)NodeType::Classes] = [this]() { InitListViewClasses(); };
 	m_InitListView[(int)NodeType::Interfaces] = [this]() { InitListViewInterfaces(); };
+	m_InitListView[(int)NodeType::Typelibs] = [this]() { InitListViewTypeLibraries(); };
 
 	m_Sorter[(int)NodeType::Classes] = [this](auto si) { DoSortClasses(si); };
 	m_Sorter[(int)NodeType::Interfaces] = [this](auto si) { DoSortInterfaces(si); };
@@ -122,6 +149,8 @@ void CComView::UpdateList(CTreeItem item) {
 
 		}
 		m_List.SetItemCount(0);
+		GetColumnManager(m_List)->Clear();
+
 		return;
 	}
 
@@ -130,6 +159,7 @@ void CComView::UpdateList(CTreeItem item) {
 	auto init = m_InitListView[item.GetData()];
 	while (m_List.DeleteColumn(0))
 		;
+	GetColumnManager(m_List)->Clear();
 	m_List.GetImageList(LVSIL_SMALL).RemoveAll();
 	if (init)
 		init();
@@ -143,6 +173,11 @@ void CComView::UpdateList(CTreeItem item) {
 		case NodeType::Interfaces:
 			m_Interfaces = m_ComExplorer.EnumInterfaces();
 			count = static_cast<int>(m_Interfaces.size());
+			break;
+
+		case NodeType::Typelibs:
+			m_TypeLibs = m_ComExplorer.EnumTypeLibraries();
+			count = static_cast<int>(m_TypeLibs.size());
 			break;
 	}
 
@@ -178,12 +213,29 @@ CString CComView::GetColumnTextInterface(int row, int col) const {
 	return text;
 }
 
+CString CComView::GetColumnTextTypeLibrary(int row, int col) const {
+	auto& item = m_TypeLibs[row];
+	CString text;
+
+	switch (col) {
+		case 0: 
+			::StringFromGUID2(item.TypeLibId, text.GetBufferSetLength(64), 64); 
+			break;
+		case 1: return item.Win32Path.c_str();
+		case 2: return item.Win64Path.c_str();
+	}
+	return text;
+}
+
 void CComView::InitListViewClasses() {
-	m_List.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 250);
-	m_List.InsertColumn(1, L"CLSID", LVCFMT_RIGHT, 250);
-	m_List.InsertColumn(2, L"Server Type", LVCFMT_LEFT, 80);
-	m_List.InsertColumn(3, L"Path / Service", LVCFMT_LEFT, 250);
-	m_List.InsertColumn(4, L"Threading Model", LVCFMT_LEFT, 80);
+	auto cm = GetColumnManager(m_List);
+
+	cm->AddColumn(L"Friendly Name", LVCFMT_LEFT, 250);
+	cm->AddColumn(L"CLSID", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Server Type", LVCFMT_LEFT, 80);
+	cm->AddColumn(L"Path / Service", LVCFMT_LEFT, 250);
+	cm->AddColumn(L"Threading Model", LVCFMT_LEFT, 90);
+	cm->UpdateColumns();
 
 	auto images = m_List.GetImageList(LVSIL_SMALL);
 	UINT ids[] = { IDI_DLL_SERVER, IDI_APP_SERVER, IDI_SERVICE };
@@ -193,13 +245,29 @@ void CComView::InitListViewClasses() {
 }
 
 void CComView::InitListViewInterfaces() {
-	m_List.InsertColumn(0, L"Friendly Name", LVCFMT_LEFT, 250);
-	m_List.InsertColumn(1, L"IID", LVCFMT_RIGHT, 250);
-	m_List.InsertColumn(2, L"Proxy/Stub", LVCFMT_LEFT, 250);
-	m_List.InsertColumn(3, L"Type Library", LVCFMT_LEFT, 250);
+	auto cm = GetColumnManager(m_List);
+
+	cm->AddColumn(L"Friendly Name", LVCFMT_LEFT, 250);
+	cm->AddColumn(L"IID", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Proxy/Stub", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Type Library", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
 
 	auto images = m_List.GetImageList(LVSIL_SMALL);
 	images.AddIcon(AtlLoadIconImage(IDI_INTERFACE, 0, 16, 16));
+}
+
+void CComView::InitListViewTypeLibraries() {
+	auto cm = GetColumnManager(m_List);
+
+	cm->AddColumn(L"GUID", LVCFMT_LEFT, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Win32 Path", LVCFMT_LEFT, 300);
+	cm->AddColumn(L"Win64 Path", LVCFMT_LEFT, 300);
+	cm->UpdateColumns();
+
+	auto images = m_List.GetImageList(LVSIL_SMALL);
+	UINT ids[] = { IDI_GENERIC };
+	for (auto id : ids)
+		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
 }
 
 void CComView::DoSortClasses(const SortInfo* si) {

@@ -130,6 +130,10 @@ int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags fla
 	return static_cast<int>(m_Columns.size());
 }
 
+void ColumnManager::Clear() {
+	m_Columns.clear();
+}
+
 void ColumnManager::UpdateColumns() {
 	auto header = m_ListView.GetHeader();
 	HDITEM hdi;

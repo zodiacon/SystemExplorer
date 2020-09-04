@@ -37,10 +37,9 @@ namespace WinSys {
 		int NumMethods;
 	};
 
-	struct TypeLibInfo {
-		std::wstring FriendlyName;
-		GUID Guid;
-		std::wstring Path;
+	struct ComTypeLibInfo{
+		GUID TypeLibId;
+		std::wstring Win32Path, Win64Path;
 	};
 
 	class ComExplorer final {
@@ -50,7 +49,7 @@ namespace WinSys {
 		bool Open(ComStore store, bool readOnly = true);
 		std::vector<ComClassInfo> EnumClasses(uint32_t start = 0, uint32_t maxCount = 0);
 		std::vector<ComInterfaceInfo> EnumInterfaces(uint32_t start = 0, uint32_t maxCount = 0);
-		std::vector<TypeLibInfo> EnumTypeLibraries();
+		std::vector<ComTypeLibInfo> EnumTypeLibraries();
 
 	private:
 		struct Impl;

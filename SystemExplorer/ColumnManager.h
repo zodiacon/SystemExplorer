@@ -45,6 +45,7 @@ public:
 	void SetModified(int column, bool modified);
 	bool IsConst(int column) const;
 	int AddColumn(PCWSTR name, int format, int width, ColumnFlags flags = ColumnFlags::Visible);
+	void Clear();
 	const ColumnInfo& GetColumn(int index) const;
 	const std::vector<int>& GetColumnsByCategory(PCWSTR category) const;
 	const std::vector<CString>& GetCategories() const;
