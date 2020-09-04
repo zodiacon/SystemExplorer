@@ -56,7 +56,7 @@ struct ComExplorer::Impl {
 			if (ERROR_SUCCESS != hClasses.EnumKey(i, name, &len))
 				break;
 
-			ComClassInfo info;
+			ComClassInfo info{};
 			if (FAILED(::CLSIDFromString(name, &info.Clsid)))
 				continue;
 
@@ -65,6 +65,9 @@ struct ComExplorer::Impl {
 				len = _countof(name);
 				if (ERROR_SUCCESS == cls.QueryStringValue(L"", name, &len))
 					info.FriendlyName = name;
+				len = _countof(name);
+				if (ERROR_SUCCESS == cls.QueryStringValue(L"AppID", name, &len))
+					::CLSIDFromString(name, &info.AppId);
 			}
 			else
 				continue;

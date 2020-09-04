@@ -126,9 +126,10 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	if (index >= 0) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
-		m_SelectedHeader = index;
+		auto cm = GetColumnManager(m_List);
+		m_SelectedHeader = cm->GetRealColumn(index);
 		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
-			(GetColumnManager(m_List)->GetColumn(index).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
+			(cm->GetColumn(m_SelectedHeader).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 	}
 	else {

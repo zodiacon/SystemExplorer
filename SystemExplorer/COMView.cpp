@@ -93,6 +93,7 @@ LRESULT CComView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 
 	m_Sorter[(int)NodeType::Classes] = [this](auto si) { DoSortClasses(si); };
 	m_Sorter[(int)NodeType::Interfaces] = [this](auto si) { DoSortInterfaces(si); };
+	m_Sorter[(int)NodeType::Typelibs] = [this](auto si) { DoSortTypeLibraries(si); };
 
 	m_Splitter.SetSplitterPosPct(15);
 
@@ -195,6 +196,10 @@ CString CComView::GetColumnTextClass(int row, int col) const {
 		case 2: return ServerTypeToString(data.ServerType);
 		case 3: return data.ModulePath.c_str();
 		case 4: return data.ThreadingModel.c_str();
+		case 5: 
+			if (data.AppId != GUID_NULL)
+				return ClsidToString(data.AppId);
+			break;
 	}
 	return text;
 }
@@ -218,7 +223,7 @@ CString CComView::GetColumnTextTypeLibrary(int row, int col) const {
 	CString text;
 
 	switch (col) {
-		case 0: 
+		case 0:
 			::StringFromGUID2(item.TypeLibId, text.GetBufferSetLength(64), 64); 
 			break;
 		case 1: return item.Win32Path.c_str();
@@ -235,6 +240,7 @@ void CComView::InitListViewClasses() {
 	cm->AddColumn(L"Server Type", LVCFMT_LEFT, 80);
 	cm->AddColumn(L"Path / Service", LVCFMT_LEFT, 250);
 	cm->AddColumn(L"Threading Model", LVCFMT_LEFT, 90);
+	cm->AddColumn(L"App ID", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->UpdateColumns();
 
 	auto images = m_List.GetImageList(LVSIL_SMALL);
@@ -281,6 +287,7 @@ void CComView::DoSortClasses(const SortInfo* si) {
 			case 2: return SortHelper::SortNumbers(c1.ServerType, c2.ServerType, asc);
 			case 3: return SortHelper::SortStrings(c1.ModulePath, c2.ModulePath, asc);
 			case 4: return SortHelper::SortStrings(c1.ThreadingModel, c2.ThreadingModel, asc);
+			case 5: return SortHelper::SortStrings(ClsidToString(c1.AppId), ClsidToString(c2.AppId), asc);
 		}
 		return false;
 		});
@@ -296,6 +303,20 @@ void CComView::DoSortInterfaces(const SortInfo* si) {
 			case 1: return SortHelper::SortStrings(ClsidToString(c1.Iid), ClsidToString(c2.Iid), asc);
 			case 2: return SortHelper::SortStrings(ClsidToString(c1.ProxyStub), ClsidToString(c2.ProxyStub), asc);
 			case 3: return SortHelper::SortStrings(ClsidToString(c1.TypeLib), ClsidToString(c2.TypeLib), asc);
+		}
+		return false;
+		});
+}
+
+void CComView::DoSortTypeLibraries(const SortInfo* si) {
+	auto asc = si->SortAscending;
+	auto col = si->SortColumn;
+
+	std::sort(m_TypeLibs.begin(), m_TypeLibs.end(), [=](auto& t1, auto& t2) {
+		switch (col) {
+			case 0: return SortHelper::SortStrings(ClsidToString(t1.TypeLibId), ClsidToString(t2.TypeLibId), asc);
+			case 1: return SortHelper::SortStrings(t1.Win32Path, t2.Win32Path, asc);
+			case 2: return SortHelper::SortStrings(t1.Win64Path, t2.Win64Path, asc);
 		}
 		return false;
 		});

@@ -24,6 +24,7 @@ namespace WinSys {
 	struct ComClassInfo {
 		std::wstring FriendlyName;
 		CLSID Clsid;
+		GUID AppId;
 		std::wstring ModulePath;
 		std::wstring ThreadingModel;
 		ComServerType ServerType;
