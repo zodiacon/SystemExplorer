@@ -174,9 +174,9 @@ size_t ProcessManager::EnumProcessesAndThreads(uint32_t pid) {
 
 size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 	std::vector<std::shared_ptr<ProcessInfo>> processes;
-	processes.reserve(_processes.empty() ? 256 : _processes.size() + 10);
+	processes.reserve(_processes.empty() ? 512 : _processes.size() + 10);
 	ProcessMap processesByKey;
-	processesByKey.reserve(_processes.size() == 0 ? 256 : _processes.size() + 10);
+	processesByKey.reserve(_processes.size() == 0 ? 512 : _processes.size() + 10);
 	_processesById.clear();
 	_processesById.reserve(_processes.capacity());
 
@@ -184,10 +184,10 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 
 	ThreadMap threadsByKey;
 	if (includeThreads) {
-		threadsByKey.reserve(1024);
+		threadsByKey.reserve(4096);
 		_newThreads.clear();
 		if (_threads.empty())
-			_newThreads.reserve(1024);
+			_newThreads.reserve(4096);
 		_threads.clear();
 		_threadsById.clear();
 	}

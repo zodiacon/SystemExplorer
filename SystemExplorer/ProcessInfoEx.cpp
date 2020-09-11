@@ -27,6 +27,8 @@ ProcessAttributes ProcessInfoEx::GetAttributes(const WinSys::ProcessManager& pm)
 			auto parent = pm.GetProcessById(_pi->ParentId);
 			if (parent && ::_wcsicmp(parent->GetImageName().c_str(), L"services.exe") == 0)
 				_attributes |= ProcessAttributes::Service;
+			if (_process->IsWow64Process())
+				_attributes |= ProcessAttributes::Wow64;
 		}
 	}
 	return _attributes;
@@ -134,4 +136,44 @@ WinSys::VirtualizationState ProcessInfoEx::GetVirtualizationState() const {
 			return token.GetVirtualizationState();
 	}
 	return WinSys::VirtualizationState::Unknown;
+}
+
+CString ProcessInfoEx::GetWindowTitle() const {
+	if (_process == nullptr)
+		return L"";
+	CString text;
+	if (!_hWnd) {
+		if (_firstThreadId == 0) {
+			auto hThread = _process->GetNextThread();
+			if (hThread) {
+				::EnumThreadWindows(::GetThreadId(hThread), [](auto hWnd, auto param) {
+					*(HWND*)param = hWnd;
+					return FALSE;
+					}, (LPARAM)&_hWnd);
+				::CloseHandle(hThread);
+			}
+		}
+	}
+	if (_hWnd) {
+		::GetWindowText(_hWnd, text.GetBufferSetLength(128), 128);
+	}
+	return text;
+}
+
+int ProcessInfoEx::GetBitness() const {
+	if (_bitness == 0) {
+		static SYSTEM_INFO si = { 0 };
+		if(si.dwNumberOfProcessors == 0)
+			::GetNativeSystemInfo(&si);
+		if (_process == nullptr) {
+			_bitness = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM ? 32 : 64;
+		}
+		else {
+			if (_process->IsWow64Process())
+				_bitness = 32;
+			else 
+				_bitness = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM ? 32 : 64;
+		}
+	}
+	return _bitness;
 }

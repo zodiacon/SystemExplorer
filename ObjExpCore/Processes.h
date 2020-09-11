@@ -118,6 +118,7 @@ namespace WinSys {
 		uint32_t GetPeakGdiObjectCount() const;
 		uint32_t GetUserObjectCount() const;
 		uint32_t GetPeakUserObjectCount() const;
+		HANDLE GetNextThread(HANDLE hThread = nullptr, ThreadAccessMask access = ThreadAccessMask::QueryLimitedInformation);
 
 		uint32_t GetId() const;
 

@@ -9,6 +9,7 @@ enum class ProcessAttributes {
 	Managed = 8,
 	Secure = 0x10,
 	Immersive = 0x20,
+	Wow64 = 0x40,
 };
 DEFINE_ENUM_FLAG_OPERATORS(ProcessAttributes);
 
@@ -30,6 +31,8 @@ public:
 	uint32_t GetPeakUserObjects() const;
 	WinSys::IntegrityLevel GetIntegrityLevel() const;
 	WinSys::VirtualizationState GetVirtualizationState() const;
+	CString GetWindowTitle() const;
+	int GetBitness() const;
 
 	DWORD64 TargetTime;
 	bool IsNew{ false };
@@ -43,6 +46,9 @@ private:
 	mutable std::wstring _executablePath;
 	mutable std::wstring _username;
 	mutable std::wstring _commandLine;
+	mutable HWND _hWnd{ nullptr };
+	mutable DWORD _firstThreadId{ 0 };
+	mutable int _bitness{ 0 };
 	mutable bool _elevated : 1, _elevatedChecked : 1 {false};
 };
 

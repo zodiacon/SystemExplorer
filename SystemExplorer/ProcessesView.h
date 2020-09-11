@@ -76,6 +76,7 @@ private:
 		IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
 		IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
 		GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized, 
+		WindowTitle, Platform,
 		COUNT
 	};
 

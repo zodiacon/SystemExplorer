@@ -274,3 +274,9 @@ uint32_t WinSys::Process::GetUserObjectCount() const {
 uint32_t WinSys::Process::GetPeakUserObjectCount() const {
 	return ::GetGuiResources(_handle.get(), GR_USEROBJECTS_PEAK);
 }
+
+HANDLE WinSys::Process::GetNextThread(HANDLE hThread, ThreadAccessMask access) {
+	HANDLE hNewThread{ nullptr };
+	::NtGetNextThread(_handle.get(), hThread, static_cast<ACCESS_MASK>(access), 0, 0, &hNewThread);
+	return hNewThread;
+}

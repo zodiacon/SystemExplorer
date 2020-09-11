@@ -88,6 +88,10 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 			if(p->JobObjectId)
 				text.Format(L"%u ", p->JobObjectId); 
 			break;
+		case ProcessColumn::WindowTitle: return px.GetWindowTitle();
+		case ProcessColumn::Platform: 
+			text.Format(L"%d-bit", px.GetBitness());
+			break;
 	}
 
 	return text;
@@ -150,6 +154,9 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::Integrity: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetIntegrityLevel(), GetProcessInfoEx(p2.get()).GetIntegrityLevel(), asc);
 			case ProcessColumn::Virtualized: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetVirtualizationState(), GetProcessInfoEx(p2.get()).GetVirtualizationState(), asc);
 			case ProcessColumn::JobId: return SortHelper::SortNumbers(p1->JobObjectId, p2->JobObjectId, asc);
+			case ProcessColumn::WindowTitle: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetWindowTitle(), GetProcessInfoEx(p2.get()).GetWindowTitle(), asc);
+			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
+
 		}
 		return false;
 		});
@@ -265,6 +272,8 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Token\\Integrity", LVCFMT_LEFT, 70, ColumnFlags::None);
 	cm->AddColumn(L"Token\\Elevated", LVCFMT_LEFT, 60, ColumnFlags::None);
 	cm->AddColumn(L"Token\\Virtualized", LVCFMT_LEFT, 70, ColumnFlags::None);
+	cm->AddColumn(L"Window Title", LVCFMT_LEFT, 200, ColumnFlags::None);
+	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::None);
 
 	cm->UpdateColumns();
 
@@ -385,7 +394,8 @@ CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) 
 		{ ProcessAttributes::Protected, L"Protected" },
 		{ ProcessAttributes::Secure, L"Secure" },
 		{ ProcessAttributes::Service, L"Service" },
-		{ ProcessAttributes::InJob, L"In Job" },
+		{ ProcessAttributes::InJob, L"Job" },
+		{ ProcessAttributes::Wow64, L"Wow64" },
 	};
 
 	for (auto& item : attribs)
