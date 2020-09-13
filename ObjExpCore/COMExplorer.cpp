@@ -69,31 +69,28 @@ struct ComExplorer::Impl {
 				if (ERROR_SUCCESS == cls.QueryStringValue(L"AppID", name, &len))
 					::CLSIDFromString(name, &info.AppId);
 			}
-			else
-				continue;
 
-			CRegKey proc;
-			len = _countof(name);
-			if (ERROR_SUCCESS == proc.Open(cls, L"LocalServer32")) {
-				info.ServerType = ComServerType::OutOfProc;
-			}
-			else if (ERROR_SUCCESS == proc.Open(cls, L"InProcServer32")) {
-				info.ServerType = ComServerType::InProc;
+			if (cls) {
+				CRegKey proc;
 				len = _countof(name);
-				if (ERROR_SUCCESS == proc.QueryStringValue(L"ThreadingModel", name, &len))
-					info.ThreadingModel = name;
-			}
-			else if (ERROR_SUCCESS == cls.QueryStringValue(L"LocalService", name, &len)) {
-				info.ServerType = ComServerType::Service;
-				info.ModulePath = name;
-			}
-			else {
-				continue;
-			}
-			if (proc) {
-				len = _countof(name);
-				if (ERROR_SUCCESS == proc.QueryStringValue(L"", name, &len))
+				if (ERROR_SUCCESS == proc.Open(cls, L"LocalServer32")) {
+					info.ServerType = ComServerType::OutOfProc;
+				}
+				else if (ERROR_SUCCESS == proc.Open(cls, L"InProcServer32")) {
+					info.ServerType = ComServerType::InProc;
+					len = _countof(name);
+					if (ERROR_SUCCESS == proc.QueryStringValue(L"ThreadingModel", name, &len))
+						info.ThreadingModel = name;
+				}
+				else if (ERROR_SUCCESS == cls.QueryStringValue(L"LocalService", name, &len)) {
+					info.ServerType = ComServerType::Service;
 					info.ModulePath = name;
+				}
+				if (proc) {
+					len = _countof(name);
+					if (ERROR_SUCCESS == proc.QueryStringValue(L"", name, &len))
+						info.ModulePath = name;
+				}
 			}
 			classes.push_back(std::move(info));
 		}

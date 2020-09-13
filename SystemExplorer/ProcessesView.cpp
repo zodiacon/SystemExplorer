@@ -227,21 +227,21 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	m_List.SetImageList(m_Images, LVSIL_SMALL);
 
 	auto cm = GetColumnManager(m_List);
-	cm->AddColumn(L"Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Mandatory);
-	cm->AddColumn(L"Id", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Numeric);
-	cm->AddColumn(L"User Name", LVCFMT_LEFT, 200, ColumnFlags::Visible);
-	cm->AddColumn(L"Session", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Const);
+	cm->AddColumn(L"Id", LVCFMT_RIGHT, 130, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Numeric | ColumnFlags::Const);
+	cm->AddColumn(L"User Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Const);
+	cm->AddColumn(L"Session", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric | ColumnFlags::Const);
 	cm->AddColumn(L"Performance\\CPU (%)", LVCFMT_RIGHT, 80, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\CPU Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
-	cm->AddColumn(L"Parent", LVCFMT_LEFT, 180, ColumnFlags::None);
+	cm->AddColumn(L"Parent", LVCFMT_LEFT, 180, ColumnFlags::Const);
 	cm->AddColumn(L"Base Priority", LVCFMT_LEFT, 80, ColumnFlags::Numeric);
 	cm->AddColumn(L"Priority Class", LVCFMT_LEFT, 120, ColumnFlags::Visible);
 	cm->AddColumn(L"Performance\\Threads", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\Peak Threads", LVCFMT_RIGHT, 60, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\Handles", LVCFMT_RIGHT, 70, ColumnFlags::Visible | ColumnFlags::Numeric);
-	cm->AddColumn(L"Attributes", LVCFMT_LEFT, 100, ColumnFlags::Visible);
-	cm->AddColumn(L"Image Path", LVCFMT_LEFT, 300, ColumnFlags::None);
-	cm->AddColumn(L"Create Time", LVCFMT_LEFT, 160, ColumnFlags::Visible | ColumnFlags::Numeric);
+	cm->AddColumn(L"Attributes", LVCFMT_LEFT, 100, ColumnFlags::Visible | ColumnFlags::Const);
+	cm->AddColumn(L"Image Path", LVCFMT_LEFT, 300, ColumnFlags::Const);
+	cm->AddColumn(L"Create Time", LVCFMT_LEFT, 160, ColumnFlags::Visible | ColumnFlags::Numeric | ColumnFlags::Const);
 	cm->AddColumn(L"Memory\\Commit (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Memory\\Peak Commit (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Memory\\Working Set (K)", LVCFMT_RIGHT, 110, ColumnFlags::Visible | ColumnFlags::Numeric);
@@ -256,9 +256,9 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Performance\\User Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
 	cm->AddColumn(L"Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
-	cm->AddColumn(L"Command Line", LVCFMT_LEFT, 250, ColumnFlags::None);
-	cm->AddColumn(L"Package Name", LVCFMT_LEFT, 200, ColumnFlags::None);
-	cm->AddColumn(L"Job Object Id", LVCFMT_RIGHT, 100, ColumnFlags::Numeric);
+	cm->AddColumn(L"Command Line", LVCFMT_LEFT, 250, ColumnFlags::Const);
+	cm->AddColumn(L"Package Name", LVCFMT_LEFT, 200, ColumnFlags::Const);
+	cm->AddColumn(L"Job Object Id", LVCFMT_RIGHT, 100, ColumnFlags::Numeric | ColumnFlags::Const);
 	cm->AddColumn(L"I/O\\I/O Read Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Write Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Other Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
@@ -270,10 +270,10 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"GUI\\Peak GDI Objects", LVCFMT_RIGHT, 90, ColumnFlags::Numeric);
 	cm->AddColumn(L"GUI\\Peak User Objects", LVCFMT_RIGHT, 90, ColumnFlags::Numeric);
 	cm->AddColumn(L"Token\\Integrity", LVCFMT_LEFT, 70, ColumnFlags::None);
-	cm->AddColumn(L"Token\\Elevated", LVCFMT_LEFT, 60, ColumnFlags::None);
-	cm->AddColumn(L"Token\\Virtualized", LVCFMT_LEFT, 70, ColumnFlags::None);
+	cm->AddColumn(L"Token\\Elevated", LVCFMT_LEFT, 60, ColumnFlags::Const);
+	cm->AddColumn(L"Token\\Virtualization", LVCFMT_LEFT, 70, ColumnFlags::Const);
 	cm->AddColumn(L"Window Title", LVCFMT_LEFT, 200, ColumnFlags::None);
-	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::None);
+	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::Const);
 
 	cm->UpdateColumns();
 
@@ -346,7 +346,9 @@ void CProcessesView::Refresh() {
 		px.TargetTime = tick + 2000;
 	}
 
-	DoSort(GetSortInfo(m_List));
+	auto si = GetSortInfo(m_List);
+	if(!m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
+		DoSort(si);
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
 	auto top = m_List.GetTopIndex();
 	m_List.RedrawItems(top , top + m_List.GetCountPerPage());
