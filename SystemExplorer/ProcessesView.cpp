@@ -7,6 +7,7 @@
 #include "FormatHelper.h"
 #include "SelectColumnsDlg.h"
 #include "DriverHelper.h"
+#include "ProcessPropertiesDlg.h"
 
 using namespace WinSys;
 
@@ -55,10 +56,10 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 			if (p->ParentId > 0) {
 				auto parent = m_ProcMgr.GetProcessById(p->ParentId);
 				if (parent && parent->CreateTime < p->CreateTime) {
-					text.Format(L"%6d (%s)", parent->Id, parent->GetImageName().c_str());
+					text.Format(L"%s (%u)", parent->GetImageName().c_str(), parent->Id);
 				}
 				else {
-					text.Format(L"%6d (<non-existent>)", p->ParentId);
+					text.Format(L"<non-existent> (%u)", p->ParentId);
 				}
 			}
 			break;
@@ -161,6 +162,14 @@ void CProcessesView::DoSort(const SortInfo* si) {
 		return false;
 		});
 
+}
+
+bool CProcessesView::OnDoubleClickList(int row, int col, POINT& pt) {
+	if (row < 0)
+		return false;
+	ShowProperties(row);
+
+	return true;
 }
 
 DWORD CProcessesView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
@@ -363,6 +372,7 @@ void CProcessesView::UpdateUI() {
 	UIEnable(ID_PROCESS_MEMORYMAP, selected >= 0);
 	UIEnable(ID_PROCESS_KILL, selected >= 0);
 	UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
+	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_PROPERTIES, selected >= 0);
 
 	if (selected < 0)
 		return;
@@ -382,6 +392,17 @@ void CProcessesView::UpdateUI() {
 
 	if(id)
 		ui->UISetRadioMenuItem(id, ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME);
+}
+
+void CProcessesView::ShowProperties(int row) {
+	auto& process = m_Processes[row];
+	auto& px = GetProcessInfoEx(process.get());
+	auto dlg = new CProcessPropertiesDlg(m_ProcMgr, px);
+	dlg->Create(::GetAncestor(m_hWnd, GA_ROOT));
+	dlg->ShowWindow(SW_SHOW);
+}
+
+void CProcessesView::TogglePause() {
 }
 
 CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) {
@@ -540,6 +561,9 @@ LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL& handled) {
 }
 
 LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
+	if (m_UpdateInterval)
+		KillTimer(1);
+
 	POINT pt;
 	::GetCursorPos(&pt);
 	CPoint pt2(pt);
@@ -576,6 +600,8 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 			GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[index].get()));
 		}
 	}
+	if (m_UpdateInterval)
+		SetTimer(1, m_UpdateInterval);
 	return 0;
 }
 
@@ -654,6 +680,14 @@ LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
 
 LRESULT CProcessesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
 	GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[m_List.GetSelectedIndex()].get()));
+	return 0;
+}
+
+LRESULT CProcessesView::OnProperties(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	ShowProperties(selected);
+
 	return 0;
 }
 

@@ -62,9 +62,9 @@ private:
 
 	struct ThreadInfoEx {
 		DWORD64 TargetTime;
-		bool IsNew : 1 { false };
-		bool IsTerminating : 1 { false };
-		bool IsTerminated : 1 { false };
+		bool IsNew { false };
+		bool IsTerminating { false };
+		bool IsTerminated { false };
 	};
 
 	ThreadInfoEx& GetThreadInfoEx(WinSys::ThreadInfo* ti) const;

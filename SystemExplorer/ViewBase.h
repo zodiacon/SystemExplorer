@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Interfaces.h"
+#include <atlframe.h>
 
 template<typename T, typename TBase = CFrameWindowImpl<T, CWindow, CControlWinTraits>>
 class CViewBase abstract : 
@@ -8,7 +9,7 @@ class CViewBase abstract :
 	public CAutoUpdateUI<T>,
 	public CIdleHandler {
 public:
-	DECLARE_WND_CLASS(nullptr)
+	DECLARE_WND_CLASS(NULL)
 
 	CViewBase(IMainFrame* frame) : m_pFrame(frame) {
 		ATLASSERT(frame);
@@ -22,7 +23,7 @@ protected:
 	END_MSG_MAP()
 
 	BOOL OnIdle() override {
-		UIUpdateToolBar();
+		CAutoUpdateUI<T>::UIUpdateToolBar();
 		return FALSE;
 	}
 

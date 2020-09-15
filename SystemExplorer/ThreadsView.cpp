@@ -35,7 +35,7 @@ CString CThreadsView::GetColumnText(HWND, int row, int col) {
 
 		case ThreadColumn::ProcessName: return t->GetProcessImageName().c_str();
 		case ThreadColumn::CreateTime:
-			return t->CreateTime < (1LL << 32) ? L"" : FormatHelper::TimeToString(t->CreateTime);
+			return t->CreateTime < (1LL << 32) ? CString() : FormatHelper::TimeToString(t->CreateTime);
 		case ThreadColumn::WaitReason: return t->ThreadState == WinSys::ThreadState::Waiting ? WaitReasonToString(t->WaitReason) : L"";
 		case ThreadColumn::Priority: text.Format(L"%d ", t->Priority); break;
 		case ThreadColumn::BasePriority: text.Format(L"%d ", t->BasePriority); break;

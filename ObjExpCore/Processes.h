@@ -113,6 +113,7 @@ namespace WinSys {
 		int GetMemoryPriority() const;
 		IoPriority GetIoPriority() const;
 		ProcessPriorityClass GetPriorityClass() const;
+		std::wstring GetCurrentDirectory(HANDLE = nullptr);
 		bool SetPriorityClass(ProcessPriorityClass pc);
 		uint32_t GetGdiObjectCount() const;
 		uint32_t GetPeakGdiObjectCount() const;

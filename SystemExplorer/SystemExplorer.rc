@@ -71,6 +71,8 @@ BEGIN
         MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
         MENUITEM SEPARATOR
         MENUITEM "&Security...",                ID_EDIT_SECURITY, INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...\tAlt+Enter",   ID_EDIT_PROPERTIES
     END
     POPUP "&View"
     BEGIN
@@ -302,6 +304,8 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "&Open File Location...",      ID_PROCESS_GOTOFILELOCATION
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
     END
     POPUP "dll"
     BEGIN
@@ -587,6 +591,39 @@ BEGIN
     PUSHBUTTON      "Cancel",IDC_CANCEL,156,0,35,14,WS_DISABLED
 END
 
+IDD_PROCESS_PROPERTIES DIALOGEX 0, 0, 399, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_NAME,37,8,137,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Executable Path:",IDC_STATIC,6,53,56,8
+    EDITTEXT        IDC_PATH,81,52,267,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Explore",IDC_EXPLORE,354,52,42,14
+    LTEXT           "PID:",IDC_STATIC,184,10,15,8
+    EDITTEXT        IDC_PID,204,8,48,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER,WS_EX_RIGHT
+    LTEXT           "Command Line:",IDC_STATIC,6,76,65,8
+    EDITTEXT        IDC_COMMANDLINE,81,76,315,38,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_VSCROLL
+    PUSHBUTTON      "Environment",IDC_ENV,81,30,61,14
+    PUSHBUTTON      "&Token",IDC_TOKEN,148,30,61,14
+    PUSHBUTTON      "&Job",IDC_JOB,215,30,61,14
+    ICON            "",IDC_APPICON,6,3,20,20
+    DEFPUSHBUTTON   "OK",IDOK,140,179,51,14
+    PUSHBUTTON      "Cancel",IDCANCEL,207,179,51,14
+    PUSHBUTTON      "Button1",IDC_COPY,36,89,30,19,BS_ICON
+    LTEXT           "Parent:",IDC_STATIC,261,10,25,8
+    LTEXT           "Static",IDC_PARENT,288,8,108,12,SS_CENTERIMAGE,WS_EX_STATICEDGE
+    LTEXT           "User Name:",IDC_STATIC,6,144,38,8
+    EDITTEXT        IDC_USERNAME,48,142,126,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Platform:",IDC_STATIC,324,146,30,8
+    CTEXT           "",IDC_PLATFORM,360,144,33,12,0,WS_EX_STATICEDGE
+    LTEXT           "Created:",IDC_STATIC,182,145,30,8
+    CTEXT           "Static",IDC_CREATED,216,144,99,12,SS_CENTERIMAGE,WS_EX_STATICEDGE
+    LTEXT           "Current Directory:",IDC_STATIC,7,122,65,8
+    EDITTEXT        IDC_CURDIR,82,121,267,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Explore",IDC_EXPLORE_DIR,355,121,42,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -659,6 +696,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 9
     END
+
+    IDD_PROCESS_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 392
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -675,6 +720,7 @@ BEGIN
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
     "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
+    VK_F3,          ID_EDIT_FIND_NEXT,      VIRTKEY, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
@@ -687,7 +733,7 @@ BEGIN
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     VK_F5,          ID_VIEW_REFRESH,        VIRTKEY, NOINVERT
     VK_F4,          ID_WINDOW_CLOSE,        VIRTKEY, CONTROL, NOINVERT
-    VK_F3,          ID_EDIT_FIND_NEXT,      VIRTKEY, NOINVERT
+    VK_RETURN,      ID_EDIT_PROPERTIES,     VIRTKEY, ALT, NOINVERT
 END
 
 
@@ -772,6 +818,37 @@ END
 IDD_SEARCHBAR AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+IDD_PROCESS_PROPERTIES AFX_DIALOG_LAYOUT
+BEGIN
+    0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 100, 0,
+    100, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 100, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    50, 100, 0, 0,
+    50, 100, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 100, 0,
+    100, 0, 0, 0
 END
 
 

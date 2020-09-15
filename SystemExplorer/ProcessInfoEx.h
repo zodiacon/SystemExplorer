@@ -16,6 +16,7 @@ DEFINE_ENUM_FLAG_OPERATORS(ProcessAttributes);
 class ProcessInfoEx {
 public:
 	ProcessInfoEx(WinSys::ProcessInfo* pi);
+	WinSys::ProcessInfo* GetProcessInfo() const;
 	ProcessAttributes GetAttributes(const WinSys::ProcessManager& pm) const;
 	const std::wstring& GetExecutablePath() const;
 	const std::wstring& UserName() const;
@@ -32,6 +33,8 @@ public:
 	WinSys::IntegrityLevel GetIntegrityLevel() const;
 	WinSys::VirtualizationState GetVirtualizationState() const;
 	CString GetWindowTitle() const;
+	std::wstring GetCurrentDirectory() const;
+
 	int GetBitness() const;
 
 	DWORD64 TargetTime;
@@ -49,6 +52,6 @@ private:
 	mutable HWND _hWnd{ nullptr };
 	mutable DWORD _firstThreadId{ 0 };
 	mutable int _bitness{ 0 };
-	mutable bool _elevated : 1, _elevatedChecked : 1 {false};
+	mutable bool _elevated : 1, _elevatedChecked { false };
 };
 

@@ -376,7 +376,7 @@ std::vector<GdiObject> ObjectManager::EnumGdiObjects(DWORD pid) {
 	auto hProcess = ::GetCurrentProcess();
 
 	PROCESS_BASIC_INFORMATION pbi;
-	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), nullptr);
+	NT::NtQueryInformationProcess(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), nullptr);
 	auto const GdiSharedHandleTable = 0xf8;
 
 	GDICELL* GdiAddress;

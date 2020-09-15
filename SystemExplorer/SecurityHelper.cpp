@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SecurityHelper.h"
+#include <sddl.h>
 
 bool SecurityHelper::IsRunningElevated() {
 	wil::unique_handle hToken;
@@ -30,7 +31,7 @@ bool SecurityHelper::RunElevated(PCWSTR param, bool ui) {
 	shi.lpVerb = L"runas";
 	shi.lpParameters = param;
 	shi.fMask = (ui ? 0 : (SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE)) | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS;
-	auto ok =::ShellExecuteEx(&shi);
+	auto ok = ::ShellExecuteEx(&shi);
 	if (!ok)
 		return false;
 
@@ -59,4 +60,22 @@ bool SecurityHelper::EnablePrivilege(PCWSTR privName, bool enable) {
 	}
 	::CloseHandle(hToken);
 	return result;
+}
+
+CString SecurityHelper::GetSidFromUser(PCWSTR name) {
+	BYTE sid[SECURITY_MAX_SID_SIZE];
+	DWORD size = sizeof(sid);
+	SID_NAME_USE use;
+	WCHAR domain[64];
+	DWORD domainSize = _countof(domain);
+	if (!::LookupAccountName(nullptr, name, (PSID)sid, &size, domain, &domainSize, &use))
+		return L"";
+
+	PWSTR ssid;
+	if (::ConvertSidToStringSid((PSID)sid, &ssid)) {
+		CString result(ssid);
+		::LocalFree(ssid);
+		return result;
+	}
+	return L"";
 }

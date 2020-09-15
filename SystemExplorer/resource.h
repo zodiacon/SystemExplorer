@@ -4,6 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDD_SEARCHBAR                   103
+#define IDD_PROCESS_PROPERTIES          107
 #define IDR_MAINFRAME                   128
 #define IDS_TITLE                       129
 #define IDR_DRIVER                      202
@@ -104,10 +105,15 @@
 #define IDC_GITHUB                      1001
 #define IDC_NAME                        1002
 #define IDC_COUNT                       1003
+#define IDC_PATH                        1003
+#define IDC_PID                         1004
 #define IDC_PROGRESS                    1005
+#define IDC_COMMANDLINE                 1005
 #define IDC_MESSAGE                     1006
+#define IDC_CURDIR                      1007
 #define IDC_EDIT2                       1008
 #define IDC_DISPLAYNAME                 1008
+#define IDC_PRIORITY                    1008
 #define IDC_REFRESH                     1009
 #define IDC_SERVICETYPE                 1010
 #define IDC_STARTTYPE                   1011
@@ -120,6 +126,20 @@
 #define IDC_SEARCH                      1017
 #define IDC_BUTTON2                     1018
 #define IDC_CANCEL                      1018
+#define IDC_ENV                         1018
+#define IDC_EXPLORE                     1020
+#define IDC_TOKEN                       1021
+#define IDC_JOB                         1022
+#define IDC_APPICON                     1023
+#define IDC_COPY                        1024
+#define IDC_PARENT                      1025
+#define IDC_USERNAME                    1026
+#define IDC_USERSID                     1027
+#define IDC_PRICLASS                    1028
+#define IDC_PLATFORM                    1029
+#define IDC_CREATED                     1030
+#define IDC_EXPLORE2                    1031
+#define IDC_EXPLORE_DIR                 1031
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -218,14 +238,15 @@
 #define ID_FILE_EXITALL                 32876
 #define ID_PROCESS_ALLOFTHEABOVE        32877
 #define ID_SYSTEM_SEARCH                32878
+#define ID_EDIT_PROPERTIES              32879
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        311
-#define _APS_NEXT_COMMAND_VALUE         32879
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_RESOURCE_VALUE        312
+#define _APS_NEXT_COMMAND_VALUE         32882
+#define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -40,6 +40,9 @@
     <Filter Include="Resource Files\Icons\ThreadStates">
       <UniqueIdentifier>{e2febe33-19ca-43ee-a14b-d114e4ac027a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PropertyPages">
+      <UniqueIdentifier>{9e7050b2-a5e1-41fb-99e7-93dd96245c08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainFrm.cpp">
@@ -217,6 +220,9 @@
       <Filter>Views</Filter>
     </ClCompile>
     <ClCompile Include="SearchBar.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessPropertiesDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -414,6 +420,9 @@
       <Filter>Views</Filter>
     </ClInclude>
     <ClInclude Include="SearchBar.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessPropertiesDlg.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>

@@ -280,3 +280,30 @@ HANDLE WinSys::Process::GetNextThread(HANDLE hThread, ThreadAccessMask access) {
 	::NtGetNextThread(_handle.get(), hThread, static_cast<ACCESS_MASK>(access), 0, 0, &hNewThread);
 	return hNewThread;
 }
+
+std::wstring WinSys::Process::GetCurrentDirectory(HANDLE hProcess) {
+	PROCESS_BASIC_INFORMATION info;
+	std::wstring path;
+	if (!NT_SUCCESS(::NtQueryInformationProcess(_handle.get(), ProcessBasicInformation, &info, sizeof(info), nullptr)))
+		return path;
+	
+	wil::unique_handle h;
+	if (!hProcess) {
+		if (!::DuplicateHandle(::GetCurrentProcess(), _handle.get(), ::GetCurrentProcess(), h.addressof(), PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, 0))
+			return path;
+		hProcess = h.get();
+	}
+	PEB peb;
+	if (!::ReadProcessMemory(hProcess, info.PebBaseAddress, &peb, sizeof(peb), nullptr))
+		return path;
+
+	RTL_USER_PROCESS_PARAMETERS processParams;
+	if (!::ReadProcessMemory(hProcess, peb.ProcessParameters, &processParams, sizeof(processParams), nullptr))
+		return path;
+	
+	path.resize(processParams.CurrentDirectory.DosPath.Length / sizeof(WCHAR) + 1);
+	if (!::ReadProcessMemory(hProcess, processParams.CurrentDirectory.DosPath.Buffer, path.data(), processParams.CurrentDirectory.DosPath.Length, nullptr))
+		return L"";
+
+	return path;
+}

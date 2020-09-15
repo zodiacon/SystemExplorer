@@ -43,8 +43,8 @@ private:
 
 	struct ModuleInfoEx {
 		DWORD64 TargetTime = 0;
-		bool IsNew : 1 { false };
-		bool IsUnloaded : 1 { false };
+		bool IsNew { false };
+		bool IsUnloaded { false };
 	};
 
 	ModuleInfoEx& GetModuleEx(WinSys::ModuleInfo* mi);

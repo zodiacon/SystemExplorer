@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ColumnManager.h"
-
+#include <atlctrls.h>
 
 class ListCtrlHelper {
 public:
@@ -19,12 +19,12 @@ public:
 
 	template<typename T = int>
 	static T FindColumn(CListViewCtrl list, int id) {
-		return FindColumn(*list.GetHeaderCtrl(), id);
+		return FindColumn(list.GetHeader(), id);
 	}
 
 	template<typename T = int>
 	static T GetRealColumn(CListViewCtrl& list, int index) {
-		return static_cast<T>(GetRealColumn(list.GetHeaderCtrl(), index));
+		return static_cast<T>(GetRealColumn(list.GetHeader(), index));
 	}
 
 	template<typename T = int>

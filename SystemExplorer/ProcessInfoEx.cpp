@@ -10,6 +10,10 @@ ProcessInfoEx::ProcessInfoEx(WinSys::ProcessInfo* pi) : _pi(pi) {
 		_process.reset(new WinSys::Process(hProcess));
 }
 
+WinSys::ProcessInfo* ProcessInfoEx::GetProcessInfo() const {
+	return _pi;
+}
+
 ProcessAttributes ProcessInfoEx::GetAttributes(const WinSys::ProcessManager& pm) const {
 	if (_attributes == ProcessAttributes::NotComputed) {
 		_attributes = ProcessAttributes::None;
@@ -147,8 +151,11 @@ CString ProcessInfoEx::GetWindowTitle() const {
 			auto hThread = _process->GetNextThread();
 			if (hThread) {
 				::EnumThreadWindows(::GetThreadId(hThread), [](auto hWnd, auto param) {
-					*(HWND*)param = hWnd;
-					return FALSE;
+					if (::IsWindowVisible(hWnd)) {
+						*(HWND*)param = hWnd;
+						return FALSE;
+					}
+					return TRUE;
 					}, (LPARAM)&_hWnd);
 				::CloseHandle(hThread);
 			}
@@ -158,6 +165,14 @@ CString ProcessInfoEx::GetWindowTitle() const {
 		::GetWindowText(_hWnd, text.GetBufferSetLength(128), 128);
 	}
 	return text;
+}
+
+std::wstring ProcessInfoEx::GetCurrentDirectory() const {
+	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION);
+	auto dir = _process->GetCurrentDirectory(hProcess);
+	if (hProcess)
+		::CloseHandle(hProcess);
+	return dir;
 }
 
 int ProcessInfoEx::GetBitness() const {

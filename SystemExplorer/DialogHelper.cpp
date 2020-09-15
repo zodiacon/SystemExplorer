@@ -26,3 +26,13 @@ bool DialogHelper::AddIconToButton(CWindow* dlg, WORD id, WORD icon) {
 	}
 	return (bool)button;
 }
+
+void DialogHelper::SetDialogIcon(CWindow* dlg, UINT icon) {
+	dlg->SetIcon(AtlLoadIconImage(icon, 0, 16, 16), FALSE);
+	dlg->SetIcon(AtlLoadIconImage(icon, 0, 32, 32), TRUE);
+}
+
+void DialogHelper::SetDialogIcon(CWindow* dlg, HICON hIcon) {
+	dlg->SetIcon(hIcon, FALSE);
+	dlg->SetIcon(hIcon, TRUE);
+}

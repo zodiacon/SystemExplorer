@@ -17,9 +17,9 @@ private:
 	mutable std::unique_ptr<WinSys::ServiceConfiguration> _config;
 	std::wstring _name;
 	mutable CString _desc, _privileges, _triggers, _dependencies;
-	mutable bool _flagPriveleges : 1 { false};
-	mutable bool _flagTriggers : 1 { false};
-	mutable bool _flagDependencies: 1 { false};
+	mutable bool _flagPriveleges { false };
+	mutable bool _flagTriggers { false };
+	mutable bool _flagDependencies { false };
 };
 
 class CServicesView :

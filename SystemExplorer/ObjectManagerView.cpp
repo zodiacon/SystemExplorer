@@ -113,9 +113,9 @@ LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 						::CloseHandle(hObject);
 					}
 					else if (status == STATUS_ACCESS_DENIED)
-						item.pszText = L"<access denied>";
+						item.pszText = (PWSTR)L"<access denied>";
 					else if (status == STATUS_UNSUCCESSFUL)
-						item.pszText = L"<unavailable>";
+						item.pszText = (PWSTR)L"<unavailable>";
 				}
 			}
 			break;

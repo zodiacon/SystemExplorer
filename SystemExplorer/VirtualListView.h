@@ -13,12 +13,17 @@ struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
-		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)		
+		NOTIFY_CODE_HANDLER(NM_RCLICK, OnRightClick)
+		NOTIFY_CODE_HANDLER(NM_DBLCLK, OnDoubleClick)
+
 		//NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 		ALT_MSG_MAP(1)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnRightClick)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_DBLCLK, OnDoubleClick)
 		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 	END_MSG_MAP()
 
@@ -60,6 +65,55 @@ struct CVirtualListView {
 		header.SetItem(si->RealSortColumn, &h);
 		si->SortColumn = -1;
 		return true;
+	}
+
+	LRESULT OnDoubleClick(int, LPNMHDR hdr, BOOL& handled) {
+		CListViewCtrl lv(hdr->hwndFrom);
+		POINT pt;
+		::GetCursorPos(&pt);
+		POINT pt2(pt);
+		lv.ScreenToClient(&pt);
+		LVHITTESTINFO info{};
+		info.pt = pt;
+		lv.SubItemHitTest(&info);
+		auto pT = static_cast<T*>(this);
+		handled = pT->OnDoubleClickList(info.iItem, info.iSubItem, pt2);
+		return 0;
+	}
+
+	LRESULT OnRightClick(int, LPNMHDR hdr, BOOL& handled) {
+		CListViewCtrl lv(hdr->hwndFrom);
+		POINT pt;
+		::GetCursorPos(&pt);
+		POINT pt2(pt);
+		auto header = lv.GetHeader();
+		header.ScreenToClient(&pt);
+		HDHITTESTINFO hti;
+		hti.pt = pt;
+		auto pT = static_cast<T*>(this);
+		int index = header.HitTest(&hti);
+		if (index >= 0) {
+			handled = pT->OnRightClickHeader(index, pt2);
+		}
+		else {
+			LVHITTESTINFO info{};
+			info.pt = pt;
+			lv.SubItemHitTest(&info);
+			handled = pT->OnRightClickList(info.iItem, info.iSubItem, pt2);
+		}
+		return 0;
+	}
+
+	bool OnRightClickHeader(int index, POINT& pt) {
+		return false;
+	}
+
+	bool OnRightClickList(int row, int col, POINT& pt) {
+		return false;
+	}
+
+	bool OnDoubleClickList(int row, int col, POINT& pt) {
+		return false;
 	}
 
 protected:
