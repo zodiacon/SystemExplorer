@@ -34,6 +34,7 @@ public:
 	WinSys::VirtualizationState GetVirtualizationState() const;
 	CString GetWindowTitle() const;
 	std::wstring GetCurrentDirectory() const;
+	const std::wstring& GetDescription() const;
 
 	int GetBitness() const;
 
@@ -49,9 +50,10 @@ private:
 	mutable std::wstring _executablePath;
 	mutable std::wstring _username;
 	mutable std::wstring _commandLine;
+	mutable std::wstring _description;
 	mutable HWND _hWnd{ nullptr };
 	mutable DWORD _firstThreadId{ 0 };
 	mutable int _bitness{ 0 };
-	mutable bool _elevated : 1, _elevatedChecked { false };
+	mutable bool _elevated : 1, _elevatedChecked{ false }, _descChecked{ false };
 };
 

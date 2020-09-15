@@ -2,6 +2,8 @@
 #include "ProcessInfoEx.h"
 #include "DriverHelper.h"
 
+#pragma comment(lib, "Version.lib")
+
 ProcessInfoEx::ProcessInfoEx(WinSys::ProcessInfo* pi) : _pi(pi) {
 	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_INFORMATION);
 	if(!hProcess)
@@ -173,6 +175,25 @@ std::wstring ProcessInfoEx::GetCurrentDirectory() const {
 	if (hProcess)
 		::CloseHandle(hProcess);
 	return dir;
+}
+
+const std::wstring& ProcessInfoEx::GetDescription() const {
+	if (!_descChecked) {
+		BYTE buffer[1 << 12];
+		if (::GetFileVersionInfo(GetExecutablePath().c_str(), 0, sizeof(buffer), buffer)) {
+			WORD* langAndCodePage;
+			UINT len;
+			if (::VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void**)&langAndCodePage, &len)) {
+				CString text;
+				text.Format(L"\\StringFileInfo\\%04x%04x\\FileDescription", langAndCodePage[0], langAndCodePage[1]);
+				WCHAR* desc;
+				if (::VerQueryValue(buffer, text, (void**)&desc, &len))
+					_description = desc;
+			}
+		}
+		_descChecked = true;
+	}
+	return _description;
 }
 
 int ProcessInfoEx::GetBitness() const {

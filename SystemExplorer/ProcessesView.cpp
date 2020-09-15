@@ -55,7 +55,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::Parent:
 			if (p->ParentId > 0) {
 				auto parent = m_ProcMgr.GetProcessById(p->ParentId);
-				if (parent && parent->CreateTime < p->CreateTime) {
+				if (parent && (parent->CreateTime < p->CreateTime || parent->Id == 4)) {
 					text.Format(L"%s (%u)", parent->GetImageName().c_str(), parent->Id);
 				}
 				else {
@@ -93,6 +93,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::Platform: 
 			text.Format(L"%d-bit", px.GetBitness());
 			break;
+		case ProcessColumn::Description: return px.GetDescription().c_str();
 	}
 
 	return text;
@@ -157,7 +158,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::JobId: return SortHelper::SortNumbers(p1->JobObjectId, p2->JobObjectId, asc);
 			case ProcessColumn::WindowTitle: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetWindowTitle(), GetProcessInfoEx(p2.get()).GetWindowTitle(), asc);
 			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
-
+			case ProcessColumn::Description: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
 		}
 		return false;
 		});
@@ -165,7 +166,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 }
 
 bool CProcessesView::OnDoubleClickList(int row, int col, POINT& pt) {
-	if (row < 0)
+	if (row < 0 || m_Processes[row]->Id == 0)
 		return false;
 	ShowProperties(row);
 
@@ -283,6 +284,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Token\\Virtualization", LVCFMT_LEFT, 70, ColumnFlags::Const);
 	cm->AddColumn(L"Window Title", LVCFMT_LEFT, 200, ColumnFlags::None);
 	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::Const);
+	cm->AddColumn(L"Description", LVCFMT_LEFT, 250, ColumnFlags::Const | ColumnFlags::Visible);
 
 	cm->UpdateColumns();
 
@@ -372,7 +374,7 @@ void CProcessesView::UpdateUI() {
 	UIEnable(ID_PROCESS_MEMORYMAP, selected >= 0);
 	UIEnable(ID_PROCESS_KILL, selected >= 0);
 	UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
-	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_PROPERTIES, selected >= 0);
+	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
 
 	if (selected < 0)
 		return;

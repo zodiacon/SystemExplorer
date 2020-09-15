@@ -23,7 +23,7 @@ void CProcessPropertiesDlg::InitProcess() {
     DialogHelper::SetDialogIcon(this, hIcon);
     ((CStatic)GetDlgItem(IDC_APPICON)).SetIcon(hIconBig);
 
-    SetDlgItemText(IDC_NAME, pi->GetImageName().c_str());
+    SetDlgItemText(IDC_NAME, (L" " + pi->GetImageName()).c_str());
     SetDlgItemInt(IDC_PID, pi->Id);
     auto& path = m_px.GetExecutablePath();
     bool imagePath = false;
@@ -38,14 +38,17 @@ void CProcessPropertiesDlg::InitProcess() {
     SetDlgItemText(IDC_CREATED, FormatHelper::TimeToString(pi->CreateTime));
     if (pi->ParentId > 0) {
         auto parent = m_pm.GetProcessById(pi->ParentId);
-        if (parent && parent->CreateTime < pi->CreateTime) {
+        if (parent && (parent->CreateTime < pi->CreateTime || parent->Id == 4)) {
             text.Format(L" %s (%u)", parent->GetImageName().c_str(), parent->Id);
         }
         else {
             text.Format(L" <non-existent> (%u)", pi->ParentId);
         }
-        SetDlgItemText(IDC_PARENT, text);
     }
+    else {
+        text.Empty();
+    }
+    SetDlgItemText(IDC_PARENT, text);
 
     GetDlgItem(IDC_EXPLORE).EnableWindow(imagePath);
     auto dir = m_px.GetCurrentDirectory();
