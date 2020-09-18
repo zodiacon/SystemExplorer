@@ -152,7 +152,7 @@ protected:
 			item.iImage = p->GetRowImage(item.iItem);
 		if (item.mask & LVIF_INDENT)
 			item.iIndent = p->GetRowIndent(item.iItem);
-		if (item.iSubItem == 0 && (item.mask & LVIF_STATE)) {
+		if ((ListView_GetExtendedListViewStyle(hdr->hwndFrom) & LVS_EX_CHECKBOXES) && item.iSubItem == 0 && (item.mask & LVIF_STATE)) {
 			item.state = INDEXTOSTATEIMAGEMASK((int)p->IsRowChecked(item.iItem));
 			item.stateMask = LVIS_STATEIMAGEMASK;
 

@@ -155,6 +155,8 @@
 #define IDC_LOGONSESSION                1037
 #define IDC_ELEVATED                    1038
 #define IDC_GROUP_COUNT                 1039
+#define IDC_PRIV_COUNT                  1041
+#define IDC_BUTTON1                     1042
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -261,7 +263,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

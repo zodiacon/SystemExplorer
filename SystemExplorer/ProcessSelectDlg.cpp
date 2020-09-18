@@ -11,6 +11,27 @@ int CProcessSelectDlg::GetSelectedProcess(CString& name) const {
 	return m_SelectedPid;
 }
 
+CString CProcessSelectDlg::GetColumnText(HWND, int row, int col) const {
+	auto& data = m_Items[row];
+	CString text;
+
+	switch (col) {
+		case 0:	return data.Name;
+		case 1:		// ID
+			text.Format(L"%d (0x%X)", data.Id, data.Id);
+			break;
+
+		case 2:		// session
+			text.Format(L"%d", data.Session);
+			break;
+	}
+	return text;
+}
+
+int CProcessSelectDlg::GetRowImage(int row) const {
+	return m_Items[row].Image;
+}
+
 void CProcessSelectDlg::DoSort(const SortInfo* si) {
 	if (!si)
 		return;
@@ -57,34 +78,6 @@ LRESULT CProcessSelectDlg::OnItemChanged(int, LPNMHDR, BOOL&) {
 		m_SelectedPid = m_Items[selected].Id;
 		m_Name = m_Items[selected].Name;
 	}
-
-	return 0;
-}
-
-LRESULT CProcessSelectDlg::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
-	auto di = reinterpret_cast<NMLVDISPINFO*>(hdr);
-	auto& item = di->item;
-	auto row = item.iItem;
-	auto col = item.iSubItem;
-	auto& data = m_Items[row];
-
-	if (item.mask & LVIF_TEXT) {
-		switch (col) {
-			case 0:		// name
-				item.pszText = (PWSTR)(PCWSTR)data.Name;
-				break;
-
-			case 1:		// ID
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data.Id, data.Id);
-				break;
-
-			case 2:		// session
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data.Session);
-				break;
-		}
-	}
-	if (item.mask & LVIF_IMAGE)
-		item.iImage = data.Image;
 
 	return 0;
 }

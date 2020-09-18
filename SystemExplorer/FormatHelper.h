@@ -7,5 +7,7 @@ struct FormatHelper {
 	static CString PrivilegeAttributesToString(DWORD pattributes);
 	static PCWSTR VirtualizationStateToString(WinSys::VirtualizationState state);
 	static PCWSTR IntegrityToString(WinSys::IntegrityLevel level);
+	static PCWSTR SidNameUseToString(SID_NAME_USE use);
+	static CString SidAttributesToString(WinSys::SidGroupAttributes attributes);
 };
 

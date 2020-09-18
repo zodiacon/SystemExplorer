@@ -3,8 +3,55 @@
 #include "DialogHelper.h"
 #include "FormatHelper.h"
 #include "TokenObjectType.h"
+#include "SortHelper.h"
 
 void CTokenPropertiesDlg::OnFinalMessage(HWND) {
+}
+
+CString CTokenPropertiesDlg::GetColumnText(HWND h, int row, int col) const {
+	if (h == m_GroupList) {
+		auto& g = m_Groups[row];
+		switch (col) {
+			case 0: return g.Name.c_str();
+			case 1: return FormatHelper::SidNameUseToString(g.Use);
+			case 2: return FormatHelper::SidAttributesToString(g.Attributes);
+		}
+	}
+	else if(h == m_PrivList) {
+		auto& p = m_Privileges[row];
+		switch (col) {
+			case 0: return p.Name.c_str();
+			case 1: return FormatHelper::PrivilegeAttributesToString(p.Attributes);
+		}
+	}
+	return L"";
+}
+
+void CTokenPropertiesDlg::DoSort(const SortInfo* si) {
+	if (!si)
+		return;
+
+	if (si->hWnd == m_GroupList) {
+		auto comparer = [&](const auto& g1, const auto& g2) -> bool {
+			switch (si->SortColumn) {
+				case 0: return SortHelper::SortStrings(g1.Name, g2.Name, si->SortAscending);
+				case 1: return SortHelper::SortStrings(FormatHelper::SidNameUseToString(g1.Use), FormatHelper::SidNameUseToString(g2.Use), si->SortAscending);
+				case 2: return SortHelper::SortNumbers(g1.Attributes, g2.Attributes, si->SortAscending);
+			}
+			return false;
+		};
+		std::sort(m_Groups.begin(), m_Groups.end(), comparer);
+	}
+	else if (si->hWnd == m_PrivList) {
+		auto comparer = [&](const auto& p1, const auto& p2) -> bool {
+			switch (si->SortColumn) {
+				case 0: return SortHelper::SortStrings(p1.Name, p2.Name, si->SortAscending);
+				case 1: return SortHelper::SortNumbers(p1.Attributes, p2.Attributes, si->SortAscending);
+			}
+			return false;
+		};
+		std::sort(m_Privileges.begin(), m_Privileges.end(), comparer);
+	}
 }
 
 void CTokenPropertiesDlg::InitToken() {
@@ -24,9 +71,15 @@ void CTokenPropertiesDlg::InitToken() {
 	SetDlgItemText(IDC_LOGONSESSION, text);
 	SetDlgItemText(IDC_ELEVATED, token.IsElevated() ? L"Yes" : L"No");
 
-	auto groups = token.EnumGroups();
-	text.Format(L"Groups: %u\n", (ULONG)groups.size());
+	m_Groups = token.EnumGroups();
+	text.Format(L"Groups: %u\n", (ULONG)m_Groups.size());
 	SetDlgItemText(IDC_GROUP_COUNT, text);
+	m_GroupList.SetItemCount((int)m_Groups.size());
+
+	m_Privileges = token.EnumPrivileges();
+	text.Format(L"Privileges: %u\n", (ULONG)m_Privileges.size());
+	SetDlgItemText(IDC_PRIV_COUNT, text);
+	m_PrivList.SetItemCount((int)m_Privileges.size());
 }
 
 LRESULT CTokenPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
@@ -35,6 +88,17 @@ LRESULT CTokenPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CTokenPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	DialogHelper::SetDialogIcon(this, IDI_TOKEN);
+
+	m_GroupList.Attach(GetDlgItem(IDC_GROUPS));
+	m_GroupList.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_FULLROWSELECT);
+	m_GroupList.InsertColumn(0, L"Name", LVCFMT_LEFT, 260);
+	m_GroupList.InsertColumn(1, L"Type", LVCFMT_LEFT, 110);
+	m_GroupList.InsertColumn(2, L"Attributes", LVCFMT_LEFT, 170);
+
+	m_PrivList.Attach(GetDlgItem(IDC_PRIVILEGES));
+	m_PrivList.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_FULLROWSELECT);
+	m_PrivList.InsertColumn(0, L"Name", LVCFMT_LEFT, 230);
+	m_PrivList.InsertColumn(1, L"Attributes", LVCFMT_LEFT, 150);
 
 	InitToken();
 

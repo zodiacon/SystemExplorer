@@ -110,8 +110,56 @@ std::vector<TokenGroup> WinSys::Token::EnumGroups() const {
 		Sid sid(g.Sid);
 		group.Sid = sid.AsString();
 		group.Name = sid.UserName(&group.Use);
+		if (group.Name.empty()) {
+			group.Name = group.Sid;
+			group.Use = SidTypeUnknown;
+		}
 		group.Attributes = (SidGroupAttributes)g.Attributes;
 		groups.push_back(std::move(group));
 	}
 	return groups;
+}
+
+std::vector<TokenPrivilege> WinSys::Token::EnumPrivileges() const {
+	std::vector<TokenPrivilege> privs;
+	BYTE buffer[1 << 13];
+	DWORD len;
+	if (!::GetTokenInformation(_handle.get(), TokenPrivileges, buffer, sizeof(buffer), &len))
+		return privs;
+
+	auto data = (TOKEN_PRIVILEGES*)buffer;
+	auto count = data->PrivilegeCount;
+	privs.reserve(count);
+
+	WCHAR name[64];
+	for (ULONG i = 0; i < count; i++) {
+		TokenPrivilege priv;
+		auto& p = data->Privileges[i];
+		priv.Privilege = p.Luid;
+		len = _countof(name);
+		if (::LookupPrivilegeName(nullptr, &p.Luid, name, &len))
+			priv.Name = name;
+		priv.Attributes = p.Attributes;
+		privs.push_back(std::move(priv));
+	}
+	return privs;
+}
+
+bool Token::EnablePrivilege(PCWSTR privName, bool enable) {
+	wil::unique_handle hToken;
+	if (!::DuplicateHandle(::GetCurrentProcess(), _handle.get(), ::GetCurrentProcess(), hToken.addressof(), 
+		TOKEN_ADJUST_PRIVILEGES, FALSE, 0))
+		return false;
+
+	bool result = false;
+	TOKEN_PRIVILEGES tp;
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Attributes = enable ? SE_PRIVILEGE_ENABLED : 0;
+	if (::LookupPrivilegeValue(nullptr, privName,
+		&tp.Privileges[0].Luid)) {
+		if (::AdjustTokenPrivileges(hToken.get(), FALSE, &tp, sizeof(tp),
+			nullptr, nullptr))
+			result = ::GetLastError() == ERROR_SUCCESS;
+	}
+	return result;
 }
