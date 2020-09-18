@@ -22,9 +22,11 @@ public:
 		MESSAGE_HANDLER(WM_CTLCOLORSCROLLBAR, OnDialogColor)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+		COMMAND_ID_HANDLER(IDC_COPY, OnCopy)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDC_EXPLORE, OnExplore)
 		COMMAND_ID_HANDLER(IDC_EXPLORE_DIR, OnExploreDirectory)
+		COMMAND_ID_HANDLER(IDC_TOKEN, OnShowToken)
 		CHAIN_MSG_MAP(CDynamicDialogLayout<CProcessPropertiesDlg>)
 	END_MSG_MAP()
 
@@ -37,6 +39,8 @@ private:
 	LRESULT OnExplore(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnExploreDirectory(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnCopy(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowToken(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	ProcessInfoEx& m_px;

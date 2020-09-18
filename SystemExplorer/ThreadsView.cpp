@@ -322,6 +322,7 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	menu.LoadMenu(IDR_CONTEXT);
 	auto cm = GetColumnManager(m_List);
 	ATLASSERT(cm);
+	bool headerClick = false;
 	if (index >= 0) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
@@ -329,6 +330,7 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
 			(cm->GetColumn(m_SelectedHeader).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
+		headerClick = true;
 	}
 	else {
 		//index = m_List.GetSelectedIndex();
@@ -343,7 +345,7 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		UpdateUI();
 		auto id = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
 		if (id) {
-			GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Threads[index].get()));
+			GetFrame()->SendFrameMessage(WM_COMMAND, id, headerClick ? 0 : reinterpret_cast<LPARAM>(m_Threads[index].get()));
 		}
 	}
 	return 0;

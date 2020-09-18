@@ -100,6 +100,10 @@
 #define IDI_LIBRARY                     307
 #define IDI_APP_SERVER                  308
 #define IDI_DLL_SERVER                  309
+#define IDI_RUN                         313
+#define IDI_VARS                        314
+#define IDI_FOLDER_FIND                 315
+#define IDD_TOKEN                       316
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -115,10 +119,12 @@
 #define IDC_DISPLAYNAME                 1008
 #define IDC_PRIORITY                    1008
 #define IDC_REFRESH                     1009
+#define IDC_DESC                        1009
 #define IDC_SERVICETYPE                 1010
 #define IDC_STARTTYPE                   1011
 #define IDC_LIST                        1011
 #define IDC_COLUMNS                     1012
+#define IDC_ERROR_CONTROL               1012
 #define IDC_TREE                        1013
 #define IDC_TYPE                        1014
 #define IDC_TYPE2                       1015
@@ -135,11 +141,20 @@
 #define IDC_PARENT                      1025
 #define IDC_USERNAME                    1026
 #define IDC_USERSID                     1027
+#define IDC_DOTNET                      1027
 #define IDC_PRICLASS                    1028
+#define IDC_STATS                       1028
 #define IDC_PLATFORM                    1029
 #define IDC_CREATED                     1030
-#define IDC_EXPLORE2                    1031
 #define IDC_EXPLORE_DIR                 1031
+#define IDC_GROUPS                      1032
+#define IDC_PRIVILEGES                  1033
+#define IDC_SESSION                     1034
+#define IDC_INTEGRITY                   1035
+#define IDC_VIRT                        1036
+#define IDC_LOGONSESSION                1037
+#define IDC_ELEVATED                    1038
+#define IDC_GROUP_COUNT                 1039
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -244,9 +259,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        312
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

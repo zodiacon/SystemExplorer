@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "ProcessPropertiesDlg.h"
 #include "DialogHelper.h"
-#include "SecurityHelper.h"
 #include "FormatHelper.h"
+#include "ClipboardHelper.h"
+#include "TokenPropertiesDlg.h"
+#include "DriverHelper.h"
 
 void CProcessPropertiesDlg::OnFinalMessage(HWND) {
     delete this;
@@ -49,6 +51,7 @@ void CProcessPropertiesDlg::InitProcess() {
         text.Empty();
     }
     SetDlgItemText(IDC_PARENT, text);
+    SetDlgItemText(IDC_DESC, m_px.GetDescription().c_str());
 
     GetDlgItem(IDC_EXPLORE).EnableWindow(imagePath);
     auto dir = m_px.GetCurrentDirectory();
@@ -56,6 +59,9 @@ void CProcessPropertiesDlg::InitProcess() {
         GetDlgItem(IDC_EXPLORE_DIR).EnableWindow(FALSE);
     else
         SetDlgItemText(IDC_CURDIR, dir.c_str());
+    
+    // enable / disable job button
+    GetDlgItem(IDC_JOB).EnableWindow((m_px.GetAttributes(m_pm) & ProcessAttributes::InJob) == ProcessAttributes::InJob);
 }
 
 LRESULT CProcessPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
@@ -65,10 +71,13 @@ LRESULT CProcessPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
 LRESULT CProcessPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
     InitDynamicLayout();
 
+    DialogHelper::AdjustOKCancelButtons(this);
     DialogHelper::AddIconToButton(this, IDC_TOKEN, IDI_TOKEN);
     DialogHelper::AddIconToButton(this, IDC_JOB, IDI_JOB);
-    DialogHelper::AdjustOKCancelButtons(this);
-    DialogHelper::AddIconToButton(this, IDC_COPY, IDI_COPY);
+    DialogHelper::AddIconToButton(this, IDC_COPY, IDI_COPY, 24);
+    DialogHelper::AddIconToButton(this, IDC_ENV, IDI_VARS);
+    DialogHelper::AddIconToButton(this, IDC_EXPLORE, IDI_FOLDER_FIND, 24);
+    DialogHelper::AddIconToButton(this, IDC_EXPLORE_DIR, IDI_FOLDER_FIND, 24);
 
     InitProcess();
 
@@ -93,6 +102,31 @@ LRESULT CProcessPropertiesDlg::OnExploreDirectory(WORD, WORD wID, HWND, BOOL&) {
     if ((INT_PTR)::ShellExecute(nullptr, L"explore", m_px.GetCurrentDirectory().c_str(),
         nullptr, nullptr, SW_SHOWDEFAULT) < 32)
         AtlMessageBox(*this, L"Failed to locate directory", IDS_TITLE, MB_ICONERROR);
+
+    return 0;
+}
+
+LRESULT CProcessPropertiesDlg::OnCopy(WORD, WORD wID, HWND, BOOL&) {
+    auto& cmd = m_px.GetCommandLine();
+    if (!cmd.empty()) {
+        ClipboardHelper::CopyText(*this, cmd.c_str());
+    }
+    return 0;
+}
+
+LRESULT CProcessPropertiesDlg::OnShowToken(WORD, WORD wID, HWND, BOOL&) {
+    HANDLE hToken = nullptr;
+    auto hProcess = DriverHelper::OpenProcess(m_px.GetProcessInfo()->Id, PROCESS_QUERY_INFORMATION);
+    if (hProcess) {
+        ::OpenProcessToken(hProcess, TOKEN_QUERY, &hToken);
+        ::CloseHandle(hProcess);
+    }
+    if(!hToken) {    
+        AtlMessageBox(*this, L"Failed to open process token", IDS_TITLE, MB_ICONERROR);
+        return 0;
+    }
+    CTokenPropertiesDlg dlg(hToken);
+    dlg.DoModal();
 
     return 0;
 }

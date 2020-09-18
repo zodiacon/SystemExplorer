@@ -2,6 +2,10 @@
 #include "Sid.h"
 #include <sddl.h>
 
+Sid::Sid() {
+	::memset(_buffer, 0, sizeof(_buffer));
+}
+
 Sid::Sid(PSID sid) {
 	::CopySid(sizeof(_buffer), (PSID)*this, sid);
 }
@@ -24,5 +28,17 @@ std::wstring Sid::AsString() const {
 	PWSTR str;
 	if (::ConvertSidToStringSid((PSID)*this, &str))
 		return str;
+	return L"";
+}
+
+std::wstring Sid::UserName(PSID_NAME_USE use) const {
+	WCHAR name[64], domain[64];
+	DWORD lname = _countof(name), ldomain = _countof(domain);
+	std::wstring username;
+	SID_NAME_USE dummy;
+	if (use == nullptr)
+		use = &dummy;
+	if (::LookupAccountSid(nullptr, (PSID)_buffer, name, &lname, domain, &ldomain, use))
+		return std::wstring(domain) + L"\\" + name;
 	return L"";
 }

@@ -16,10 +16,10 @@ void DialogHelper::AdjustOKCancelButtons(CWindow* dlg) {
 	}
 }
 
-bool DialogHelper::AddIconToButton(CWindow* dlg, WORD id, WORD icon) {
+bool DialogHelper::AddIconToButton(CWindow* dlg, WORD id, WORD icon, int size) {
 	CButton button(dlg->GetDlgItem(id));
 	if (button) {
-		button.SetIcon(AtlLoadIconImage(icon, 0, 16, 16));
+		button.SetIcon(AtlLoadIconImage(icon, 0, size, size));
 		CString text;
 		button.GetWindowText(text);
 		button.SetWindowText(L"  " + text);

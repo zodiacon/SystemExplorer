@@ -576,8 +576,10 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	int index = header.HitTest(&hti);
 	CMenuHandle hSubMenu;
 	CMenu menu;
+	bool headerClick = false;
 	menu.LoadMenu(IDR_CONTEXT);
 	if (index >= 0) {
+		headerClick = true;
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
 		auto cm = GetColumnManager(m_List);
@@ -599,7 +601,7 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		UpdateUI();
 		auto id = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
 		if (id) {
-			GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[index].get()));
+			GetFrame()->SendFrameMessage(WM_COMMAND, id, headerClick ? 0 : reinterpret_cast<LPARAM>(m_Processes[index].get()));
 		}
 	}
 	if (m_UpdateInterval)

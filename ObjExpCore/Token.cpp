@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Token.h"
+#include <assert.h>
 
 using namespace WinSys;
 
@@ -25,6 +26,24 @@ std::unique_ptr<Token> Token::Open(DWORD pid, TokenAccessMask access) {
 			return std::make_unique<Token>(hToken);
 	}
 	return nullptr;
+}
+
+std::pair<std::wstring, Sid> WinSys::Token::GetUserNameAndSid() const {
+	assert(_handle);
+	BYTE buffer[256];
+	DWORD len;
+	if (::GetTokenInformation(_handle.get(), TokenUser, buffer, sizeof(buffer), &len)) {
+		auto data = (TOKEN_USER*)buffer;
+		Sid sid(data->User.Sid);
+		WCHAR name[64], domain[64];
+		DWORD lname = _countof(name), ldomain = _countof(domain);
+		SID_NAME_USE use;
+		std::wstring username;
+		if (::LookupAccountSid(nullptr, sid, name, &lname, domain, &ldomain, &use))
+			username = std::wstring(domain) + L"\\" + name;
+		return { username, sid };
+	}
+	return { L"", Sid() };
 }
 
 bool Token::IsValid() const {
@@ -61,4 +80,38 @@ IntegrityLevel Token::GetIntegrityLevel() const {
 
 	auto p = (TOKEN_MANDATORY_LABEL*)buffer;
 	return (IntegrityLevel)*GetSidSubAuthority(p->Label.Sid, *GetSidSubAuthorityCount(p->Label.Sid) - 1);
+}
+
+DWORD Token::GetSessionId() const {
+	DWORD id = 0, len;
+	::GetTokenInformation(_handle.get(), TokenSessionId, &id, sizeof(id), &len);
+	return id;
+}
+
+TOKEN_STATISTICS Token::GetStats() const {
+	TOKEN_STATISTICS stats{};
+	DWORD len;
+	::GetTokenInformation(_handle.get(), TokenStatistics, &stats, sizeof(stats), &len);
+	return stats;
+}
+
+std::vector<TokenGroup> WinSys::Token::EnumGroups() const {
+	std::vector<TokenGroup> groups;
+	BYTE buffer[1 << 14];
+	DWORD len;
+	if (!::GetTokenInformation(_handle.get(), TokenGroups, buffer, sizeof(buffer), &len))
+		return groups;
+
+	auto data = (TOKEN_GROUPS*)buffer;
+	groups.reserve(data->GroupCount);
+	for (ULONG i = 0; i < data->GroupCount; i++) {
+		auto const& g = data->Groups[i];
+		TokenGroup group;
+		Sid sid(g.Sid);
+		group.Sid = sid.AsString();
+		group.Name = sid.UserName(&group.Use);
+		group.Attributes = (SidGroupAttributes)g.Attributes;
+		groups.push_back(std::move(group));
+	}
+	return groups;
 }

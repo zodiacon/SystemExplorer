@@ -225,6 +225,9 @@
     <ClCompile Include="ProcessPropertiesDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="TokenPropertiesDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -423,6 +426,9 @@
       <Filter>Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="ProcessPropertiesDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenPropertiesDlg.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
@@ -689,6 +695,15 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\dll-server.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\variables-info.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\Run.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\folder_open-find.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

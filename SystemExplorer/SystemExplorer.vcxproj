@@ -96,6 +96,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <StackCommitSize>8192</StackCommitSize>
+      <StackReserveSize>524288</StackReserveSize>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -134,6 +136,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <StackCommitSize>8192</StackCommitSize>
+      <StackReserveSize>524288</StackReserveSize>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -169,6 +173,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <StackCommitSize>8192</StackCommitSize>
+      <StackReserveSize>524288</StackReserveSize>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -205,6 +211,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <StackCommitSize>8192</StackCommitSize>
+      <StackReserveSize>524288</StackReserveSize>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -287,6 +295,7 @@
     <ClCompile Include="ThreadObjectType.cpp" />
     <ClCompile Include="TimerObjectType.cpp" />
     <ClCompile Include="TokenObjectType.cpp" />
+    <ClCompile Include="TokenPropertiesDlg.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="WindowsView.cpp" />
     <ClCompile Include="WinStationObjectType.cpp" />
@@ -352,6 +361,7 @@
     <ClInclude Include="ThreadObjectType.h" />
     <ClInclude Include="TimerObjectType.h" />
     <ClInclude Include="TokenObjectType.h" />
+    <ClInclude Include="TokenPropertiesDlg.h" />
     <ClInclude Include="UndocListView.h" />
     <ClInclude Include="ViewBase.h" />
     <ClInclude Include="VirtualListView.h" />
@@ -391,6 +401,7 @@
     <Image Include="res\find_next.ico" />
     <Image Include="res\folder.ico" />
     <Image Include="res\folder_closed.ico" />
+    <Image Include="res\folder_open-find.ico" />
     <Image Include="res\font.ico" />
     <Image Include="res\free.ico" />
     <Image Include="res\funnel.ico" />
@@ -428,6 +439,7 @@
     <Image Include="res\Ready.ico" />
     <Image Include="res\refresh.ico" />
     <Image Include="res\reserved.ico" />
+    <Image Include="res\Run.ico" />
     <Image Include="res\Running.ico" />
     <Image Include="res\section.ico" />
     <Image Include="res\semaphore.ico" />
@@ -444,6 +456,7 @@
     <Image Include="res\toolbar.bmp" />
     <Image Include="res\transition.ico" />
     <Image Include="res\types.ico" />
+    <Image Include="res\variables-info.ico" />
     <Image Include="res\Waiting.ico" />
     <Image Include="res\window.ico" />
     <Image Include="res\windows.ico" />

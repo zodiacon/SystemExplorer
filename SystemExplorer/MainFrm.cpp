@@ -712,6 +712,7 @@ void CMainFrame::InitCommandBar() {
 		HICON hIcon = nullptr;
 	} cmds[] = {
 		{ ID_EDIT_COPY, IDI_COPY },
+		{ ID_OPTIONS_ALWAYSONTOP, IDI_PIN },
 		{ ID_VIEW_PAUSE, IDI_PAUSE },
 		{ ID_VIEW_REFRESH, IDI_REFRESH },
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },

@@ -4,6 +4,7 @@
 
 class Sid final {
 public:
+	Sid();
 	explicit Sid(PSID sid);
 	explicit Sid(const wchar_t* fromString);
 
