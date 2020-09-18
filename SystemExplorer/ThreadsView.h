@@ -13,7 +13,7 @@ public:
 	CThreadsView(IMainFrame* frame, DWORD pid = 0);
 
 	CString GetColumnText(HWND, int row, int col);
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 	void DoSort(const SortInfo* si);
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);

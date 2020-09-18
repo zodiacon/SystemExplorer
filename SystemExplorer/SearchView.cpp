@@ -31,7 +31,7 @@ CString CSearchView::GetColumnText(HWND, int row, int col) const {
 	return text;
 }
 
-int CSearchView::GetRowImage(int row) const {
+int CSearchView::GetRowImage(HWND, int row) const {
 	if (m_Items.empty() && row == 0)
 		return m_FirstIcon;
 

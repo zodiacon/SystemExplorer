@@ -99,7 +99,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 	return text;
 }
 
-int CProcessesView::GetRowImage(int row) const {
+int CProcessesView::GetRowImage(HWND, int row) const {
 	return GetProcessInfoEx(m_Processes[row].get()).GetImageIndex(m_Images);
 }
 

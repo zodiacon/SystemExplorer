@@ -95,11 +95,11 @@ TOKEN_STATISTICS Token::GetStats() const {
 	return stats;
 }
 
-std::vector<TokenGroup> WinSys::Token::EnumGroups() const {
+std::vector<TokenGroup> WinSys::Token::EnumGroups(bool caps) const {
 	std::vector<TokenGroup> groups;
-	BYTE buffer[1 << 14];
+	BYTE buffer[1 << 13];
 	DWORD len;
-	if (!::GetTokenInformation(_handle.get(), TokenGroups, buffer, sizeof(buffer), &len))
+	if (!::GetTokenInformation(_handle.get(), caps ? TokenCapabilities : TokenGroups, buffer, sizeof(buffer), &len))
 		return groups;
 
 	auto data = (TOKEN_GROUPS*)buffer;
@@ -120,7 +120,7 @@ std::vector<TokenGroup> WinSys::Token::EnumGroups() const {
 	return groups;
 }
 
-std::vector<TokenPrivilege> WinSys::Token::EnumPrivileges() const {
+std::vector<TokenPrivilege> Token::EnumPrivileges() const {
 	std::vector<TokenPrivilege> privs;
 	BYTE buffer[1 << 13];
 	DWORD len;
@@ -163,3 +163,4 @@ bool Token::EnablePrivilege(PCWSTR privName, bool enable) {
 	}
 	return result;
 }
+

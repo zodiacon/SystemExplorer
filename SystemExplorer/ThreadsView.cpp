@@ -62,7 +62,7 @@ CString CThreadsView::GetColumnText(HWND, int row, int col) {
 	return text;
 }
 
-int CThreadsView::GetRowImage(int row) const {
+int CThreadsView::GetRowImage(HWND, int row) const {
 	auto& t = m_Threads[row];
 	return (int)t->ThreadState;
 }

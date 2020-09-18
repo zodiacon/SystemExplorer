@@ -27,7 +27,7 @@ CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {
 	return text;
 }
 
-int CMemoryMapView::GetRowImage(int row) const {
+int CMemoryMapView::GetRowImage(HWND, int row) const {
 	switch (m_Items[row]->State) {
 		case MEM_COMMIT: return 2;
 		case MEM_RESERVE: return 1;

@@ -15,7 +15,7 @@ public:
 	CMemoryMapView(IMainFrame* frame, DWORD pid);
 
 	CString GetColumnText(HWND h, int row, int column) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 	int GetRowIndent(int row) const;
 
 	void DoSort(const SortInfo* si);

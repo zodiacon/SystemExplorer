@@ -23,7 +23,7 @@ public:
 
 	int GetSelectedProcess(CString& name) const;
 	CString GetColumnText(HWND, int row, int col) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 
 	BEGIN_MSG_MAP(CProcessSelectDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)

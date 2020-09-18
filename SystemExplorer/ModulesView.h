@@ -15,7 +15,7 @@ public:
 	DECLARE_WND_CLASS(nullptr)
 
 	CString GetColumnText(HWND, int row, int col) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 	void DoSort(const SortInfo* si);
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);

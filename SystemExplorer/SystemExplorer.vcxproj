@@ -239,6 +239,7 @@
     <ClCompile Include="ClipboardHelper.cpp" />
     <ClCompile Include="ColumnManager.cpp" />
     <ClCompile Include="COMView.cpp" />
+    <ClCompile Include="EnvironmentDlg.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
     <ClCompile Include="ProcessPropertiesDlg.cpp" />
     <ClCompile Include="SearchBar.cpp" />
@@ -307,6 +308,7 @@
     <ClInclude Include="ClipboardHelper.h" />
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="COMView.h" />
+    <ClInclude Include="EnvironmentDlg.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />
     <ClInclude Include="SearchBar.h" />

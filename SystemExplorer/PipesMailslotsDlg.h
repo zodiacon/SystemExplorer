@@ -15,7 +15,7 @@ public:
 	CPipesMailslotsDlg(Type type);
 
 	CString GetColumnText(HWND, int row, int col);
-	int GetRowImage(int row);
+	int GetRowImage(HWND, int row);
 	void DoSort(const SortInfo* si);
 
 	enum { IDD = IDD_PIPES_MAILSLOTS };

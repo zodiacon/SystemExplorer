@@ -28,7 +28,7 @@ CString CProcessSelectDlg::GetColumnText(HWND, int row, int col) const {
 	return text;
 }
 
-int CProcessSelectDlg::GetRowImage(int row) const {
+int CProcessSelectDlg::GetRowImage(HWND, int row) const {
 	return m_Items[row].Image;
 }
 

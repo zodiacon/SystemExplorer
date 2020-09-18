@@ -37,6 +37,9 @@ public:
 	const std::wstring& GetDescription() const;
 
 	int GetBitness() const;
+	const WinSys::Process* GetProcess() const {
+		return _process.get();
+	}
 
 	DWORD64 TargetTime;
 	bool IsNew{ false };

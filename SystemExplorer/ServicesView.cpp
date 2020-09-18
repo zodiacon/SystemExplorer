@@ -27,7 +27,7 @@ bool CServicesView::IsSortable(int col) const {
 	return dummyConfig != nullptr;
 }
 
-int CServicesView::GetRowImage(int row) const {
+int CServicesView::GetRowImage(HWND, int row) const {
 	return ServiceStatusToImage(m_Services[row].GetStatusProcess().CurrentState);
 }
 

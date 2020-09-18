@@ -171,7 +171,10 @@ CString ProcessInfoEx::GetWindowTitle() const {
 
 std::wstring ProcessInfoEx::GetCurrentDirectory() const {
 	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION);
-	auto dir = _process->GetCurrentDirectory(hProcess);
+	if (!hProcess)
+		return L"";
+
+	auto dir = WinSys::Process::GetCurrentDirectory(hProcess);
 	if (hProcess)
 		::CloseHandle(hProcess);
 	return dir;

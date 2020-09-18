@@ -148,8 +148,9 @@ protected:
 		auto p = static_cast<T*>(this);
 		if (item.mask & LVIF_TEXT)
 			::StringCchCopy(item.pszText, item.cchTextMax, p->GetColumnText(hdr->hwndFrom, item.iItem, col));
-		if (item.mask & LVIF_IMAGE)
-			item.iImage = p->GetRowImage(item.iItem);
+		if (item.mask & LVIF_IMAGE) {
+			item.iImage = p->GetRowImage(hdr->hwndFrom, item.iItem);
+		}
 		if (item.mask & LVIF_INDENT)
 			item.iIndent = p->GetRowIndent(item.iItem);
 		if ((ListView_GetExtendedListViewStyle(hdr->hwndFrom) & LVS_EX_CHECKBOXES) && item.iSubItem == 0 && (item.mask & LVIF_STATE)) {
@@ -290,8 +291,9 @@ protected:
 	CString GetColumnText(HWND hWnd, int row, int column) const {
 		return L"";
 	}
-	int GetRowImage(int row) const {
-		return 0;
+
+	int GetRowImage(HWND hWnd, int row) const {
+		return -1;
 	}
 
 	int GetRowIndent(int row) const {

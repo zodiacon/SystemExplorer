@@ -22,7 +22,7 @@ CString CPipesMailslotsDlg::GetColumnText(HWND, int row, int col) {
 	return text;
 }
 
-int CPipesMailslotsDlg::GetRowImage(int row) {
+int CPipesMailslotsDlg::GetRowImage(HWND, int row) {
 	return 0;
 }
 

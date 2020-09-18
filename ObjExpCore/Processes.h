@@ -113,14 +113,18 @@ namespace WinSys {
 		int GetMemoryPriority() const;
 		IoPriority GetIoPriority() const;
 		ProcessPriorityClass GetPriorityClass() const;
-		std::wstring GetCurrentDirectory(HANDLE = nullptr);
+		std::wstring GetCurrentDirectory() const;
+		static std::wstring GetCurrentDirectory(HANDLE hProcess);
+		static std::vector<std::pair<std::wstring, std::wstring>> GetEnvironment(HANDLE hProcess);
+		std::vector<std::pair<std::wstring, std::wstring>> GetEnvironment() const;
+
 		bool SetPriorityClass(ProcessPriorityClass pc);
 		uint32_t GetGdiObjectCount() const;
 		uint32_t GetPeakGdiObjectCount() const;
 		uint32_t GetUserObjectCount() const;
 		uint32_t GetPeakUserObjectCount() const;
 		HANDLE GetNextThread(HANDLE hThread = nullptr, ThreadAccessMask access = ThreadAccessMask::QueryLimitedInformation);
-
+		
 		uint32_t GetId() const;
 
 		HANDLE GetHandle() const;

@@ -47,6 +47,11 @@ namespace WinSys {
 		uint32_t Attributes;
 	};
 
+	struct TokenCapability {
+		std::wstring Name;
+		std::wstring Sid;
+	};
+
 	class Token final {
 	public:
 		explicit Token(HANDLE hToken);
@@ -63,7 +68,7 @@ namespace WinSys {
 		IntegrityLevel GetIntegrityLevel() const;
 		DWORD GetSessionId() const;
 		TOKEN_STATISTICS GetStats() const;
-		std::vector<TokenGroup> EnumGroups() const;
+		std::vector<TokenGroup> EnumGroups(bool caps = false) const;
 		std::vector<TokenPrivilege> EnumPrivileges() const;
 
 	private:

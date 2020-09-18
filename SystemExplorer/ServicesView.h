@@ -32,7 +32,7 @@ public:
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	CString GetColumnText(HWND, int row, int col) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 
 	static PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger);
 	static CString DependenciesToString(const std::vector<std::wstring>& deps);

@@ -27,6 +27,7 @@ public:
 		COMMAND_ID_HANDLER(IDC_EXPLORE, OnExplore)
 		COMMAND_ID_HANDLER(IDC_EXPLORE_DIR, OnExploreDirectory)
 		COMMAND_ID_HANDLER(IDC_TOKEN, OnShowToken)
+		COMMAND_ID_HANDLER(IDC_ENV, OnShowEnvironment)
 		CHAIN_MSG_MAP(CDynamicDialogLayout<CProcessPropertiesDlg>)
 	END_MSG_MAP()
 
@@ -41,6 +42,7 @@ private:
 	LRESULT OnExploreDirectory(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCopy(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowToken(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowEnvironment(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	ProcessInfoEx& m_px;

@@ -2,7 +2,6 @@
 #include "TokenPropertiesDlg.h"
 #include "DialogHelper.h"
 #include "FormatHelper.h"
-#include "TokenObjectType.h"
 #include "SortHelper.h"
 
 void CTokenPropertiesDlg::OnFinalMessage(HWND) {
@@ -54,6 +53,12 @@ void CTokenPropertiesDlg::DoSort(const SortInfo* si) {
 	}
 }
 
+int CTokenPropertiesDlg::GetRowImage(HWND h, int row) const {
+	if(h == m_PrivList)
+		return (m_Privileges[row].Attributes & SE_PRIVILEGE_ENABLED) ? 0 : 1;
+	return -1;
+}
+
 void CTokenPropertiesDlg::InitToken() {
 	WinSys::Token token(m_hToken);
 	auto username = token.GetUserNameAndSid();
@@ -80,6 +85,14 @@ void CTokenPropertiesDlg::InitToken() {
 	text.Format(L"Privileges: %u\n", (ULONG)m_Privileges.size());
 	SetDlgItemText(IDC_PRIV_COUNT, text);
 	m_PrivList.SetItemCount((int)m_Privileges.size());
+
+	CListBox lb(GetDlgItem(IDC_CAPS));
+	auto caps = token.EnumGroups(true);
+	text.Format(L"Capabilities: %u", (ULONG)caps.size());
+	SetDlgItemText(IDC_CAPS_COUNT, text);
+	for (auto& cap : caps) {
+		lb.AddString(cap.Name.c_str());
+	}
 }
 
 LRESULT CTokenPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
@@ -100,6 +113,12 @@ LRESULT CTokenPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_PrivList.InsertColumn(0, L"Name", LVCFMT_LEFT, 230);
 	m_PrivList.InsertColumn(1, L"Attributes", LVCFMT_LEFT, 150);
 
+	CImageList images;
+	images.Create(16, 16, ILC_COLOR32, 2, 2);
+	images.AddIcon(AtlLoadIconImage(IDI_OK, 0, 16, 16));
+	images.AddIcon(AtlLoadIconImage(IDI_DELETE, 0, 16, 16));
+	m_PrivList.SetImageList(images, LVSIL_SMALL);
+
 	InitToken();
 
 	return 0;
@@ -107,5 +126,21 @@ LRESULT CTokenPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CTokenPropertiesDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 	EndDialog(wID);
+	return 0;
+}
+
+LRESULT CTokenPropertiesDlg::OnEnablePrivilege(WORD, WORD wID, HWND, BOOL&) {
+	return LRESULT();
+}
+
+LRESULT CTokenPropertiesDlg::OnDisablePrivilege(WORD, WORD wID, HWND, BOOL&) {
+	return LRESULT();
+}
+
+LRESULT CTokenPropertiesDlg::OnPrivItemChanged(int, LPNMHDR hdr, BOOL&) {
+	auto count = m_PrivList.GetSelectedCount();
+	GetDlgItem(IDC_ENABLE).EnableWindow(count > 0);
+	GetDlgItem(IDC_DISABLE).EnableWindow(count > 0);
+
 	return 0;
 }

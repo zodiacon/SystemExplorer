@@ -24,7 +24,7 @@ public:
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 
 	CString GetColumnText(HWND, int row, int col) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 
 	void DoSort(const SortInfo*);
 

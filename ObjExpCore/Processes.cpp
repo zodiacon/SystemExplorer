@@ -3,6 +3,7 @@
 #include <Psapi.h>
 #include <VersionHelpers.h>
 #include <array>
+#include <assert.h>
 #include "Thread.h"
 
 using namespace WinSys;
@@ -22,7 +23,15 @@ namespace WinSys {
 	};
 }
 
-bool GetExtendedInfo(HANDLE hProcess, PROCESS_EXTENDED_BASIC_INFORMATION* info) {
+static bool GetProcessPeb(HANDLE hProcess, PPEB peb) {
+	PROCESS_BASIC_INFORMATION info;
+	if (!NT_SUCCESS(::NtQueryInformationProcess(hProcess, ProcessBasicInformation, &info, sizeof(info), nullptr)))
+		return false;
+
+	return ::ReadProcessMemory(hProcess, info.PebBaseAddress, peb, sizeof(*peb), nullptr);
+}
+
+static bool GetExtendedInfo(HANDLE hProcess, PROCESS_EXTENDED_BASIC_INFORMATION* info) {
 	ULONG len;
 	info->Size = sizeof(*info);
 	auto status = ::NtQueryInformationProcess(hProcess, ProcessBasicInformation, info, sizeof(*info), &len);
@@ -281,20 +290,17 @@ HANDLE WinSys::Process::GetNextThread(HANDLE hThread, ThreadAccessMask access) {
 	return hNewThread;
 }
 
-std::wstring WinSys::Process::GetCurrentDirectory(HANDLE hProcess) {
-	PROCESS_BASIC_INFORMATION info;
-	std::wstring path;
-	if (!NT_SUCCESS(::NtQueryInformationProcess(_handle.get(), ProcessBasicInformation, &info, sizeof(info), nullptr)))
-		return path;
-	
+std::wstring WinSys::Process::GetCurrentDirectory() const {
 	wil::unique_handle h;
-	if (!hProcess) {
-		if (!::DuplicateHandle(::GetCurrentProcess(), _handle.get(), ::GetCurrentProcess(), h.addressof(), PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, 0))
-			return path;
-		hProcess = h.get();
-	}
+	if (!::DuplicateHandle(::GetCurrentProcess(), _handle.get(), ::GetCurrentProcess(), h.addressof(), PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, 0))
+		return L"";
+	return GetCurrentDirectory(h.get());
+}
+
+std::wstring Process::GetCurrentDirectory(HANDLE hProcess) {
+	std::wstring path;
 	PEB peb;
-	if (!::ReadProcessMemory(hProcess, info.PebBaseAddress, &peb, sizeof(peb), nullptr))
+	if (!GetProcessPeb(hProcess, &peb))
 		return path;
 
 	RTL_USER_PROCESS_PARAMETERS processParams;
@@ -306,4 +312,42 @@ std::wstring WinSys::Process::GetCurrentDirectory(HANDLE hProcess) {
 		return L"";
 
 	return path;
+}
+
+std::vector<std::pair<std::wstring, std::wstring>> Process::GetEnvironment(HANDLE hProcess) {
+	std::vector<std::pair<std::wstring, std::wstring>> env;
+
+	PEB peb;
+	if(!GetProcessPeb(hProcess, &peb))
+		return env;
+
+	RTL_USER_PROCESS_PARAMETERS processParams;
+	if (!::ReadProcessMemory(hProcess, peb.ProcessParameters, &processParams, sizeof(processParams), nullptr))
+		return env;
+
+	BYTE buffer[1 << 16];
+	int size = sizeof(buffer);
+	for(;;) {
+		if (::ReadProcessMemory(hProcess, processParams.Environment, buffer, size, nullptr))
+			break;
+		size -= 1 << 12;
+	}
+
+	env.reserve(64);
+
+	for (auto p = (PWSTR)buffer; *p; ) {
+		std::pair<std::wstring, std::wstring> var;
+		auto equal = wcschr(p, L'=');
+		assert(equal);
+		if (!equal)
+			break;
+		*equal = L'\0';
+		var.first = p;
+		p += ::wcslen(p) + 1;
+		var.second = p;
+		p += ::wcslen(p) + 1;
+		env.push_back(std::move(var));
+	}
+
+	return env;
 }

@@ -228,6 +228,9 @@
     <ClCompile Include="TokenPropertiesDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="EnvironmentDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -429,6 +432,9 @@
       <Filter>Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="TokenPropertiesDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentDlg.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>

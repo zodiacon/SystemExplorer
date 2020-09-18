@@ -14,7 +14,7 @@ public:
 	CProcessesView(IMainFrame* frame);
 
 	CString GetColumnText(HWND, int row, int col) const;
-	int GetRowImage(int row) const;
+	int GetRowImage(HWND, int row) const;
 	void DoSort(const SortInfo* si);
 	bool OnDoubleClickList(int row, int col, POINT& pt);
 

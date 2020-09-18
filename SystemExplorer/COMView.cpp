@@ -42,7 +42,7 @@ CString CComView::GetColumnText(HWND, int row, int col) const {
 	return L"";
 }
 
-int CComView::GetRowImage(int row) const {
+int CComView::GetRowImage(HWND, int row) const {
 	if (m_SelectedNode.GetData() == (DWORD_PTR)NodeType::Classes)
 		return (int)m_Classes[row].ServerType;
 

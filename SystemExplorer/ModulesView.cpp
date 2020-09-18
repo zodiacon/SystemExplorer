@@ -32,7 +32,7 @@ CString CModulesView::GetColumnText(HWND, int row, int col) const {
 	return text;
 }
 
-int CModulesView::GetRowImage(int row) const {
+int CModulesView::GetRowImage(HWND, int row) const {
 	auto& mi = m_Modules[row];
 
 	if (mi->Type == WinSys::MapType::Data)
