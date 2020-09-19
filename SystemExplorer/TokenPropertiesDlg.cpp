@@ -60,34 +60,33 @@ int CTokenPropertiesDlg::GetRowImage(HWND h, int row) const {
 }
 
 void CTokenPropertiesDlg::InitToken() {
-	WinSys::Token token(m_hToken);
-	auto username = token.GetUserNameAndSid();
+	auto username = m_Token.GetUserNameAndSid();
 	SetDlgItemText(IDC_USERNAME, username.first.c_str());
 	SetDlgItemText(IDC_USERSID, username.second.AsString().c_str());
 
-	SetDlgItemText(IDC_VIRT, FormatHelper::VirtualizationStateToString(token.GetVirtualizationState()));
-	SetDlgItemText(IDC_INTEGRITY, FormatHelper::IntegrityToString(token.GetIntegrityLevel()));
-	SetDlgItemInt(IDC_SESSION, token.GetSessionId());
+	SetDlgItemText(IDC_VIRT, FormatHelper::VirtualizationStateToString(m_Token.GetVirtualizationState()));
+	SetDlgItemText(IDC_INTEGRITY, FormatHelper::IntegrityToString(m_Token.GetIntegrityLevel()));
+	SetDlgItemInt(IDC_SESSION, m_Token.GetSessionId());
 
-	auto stats = token.GetStats();
+	auto stats = m_Token.GetStats();
 
 	CString text;
 	text.Format(L"0x%llX", *(ULONG64*)(&stats.AuthenticationId));
 	SetDlgItemText(IDC_LOGONSESSION, text);
-	SetDlgItemText(IDC_ELEVATED, token.IsElevated() ? L"Yes" : L"No");
+	SetDlgItemText(IDC_ELEVATED, m_Token.IsElevated() ? L"Yes" : L"No");
 
-	m_Groups = token.EnumGroups();
+	m_Groups = m_Token.EnumGroups();
 	text.Format(L"Groups: %u\n", (ULONG)m_Groups.size());
 	SetDlgItemText(IDC_GROUP_COUNT, text);
 	m_GroupList.SetItemCount((int)m_Groups.size());
 
-	m_Privileges = token.EnumPrivileges();
+	m_Privileges = m_Token.EnumPrivileges();
 	text.Format(L"Privileges: %u\n", (ULONG)m_Privileges.size());
 	SetDlgItemText(IDC_PRIV_COUNT, text);
 	m_PrivList.SetItemCount((int)m_Privileges.size());
 
 	CListBox lb(GetDlgItem(IDC_CAPS));
-	auto caps = token.EnumGroups(true);
+	auto caps = m_Token.EnumGroups(true);
 	text.Format(L"Capabilities: %u", (ULONG)caps.size());
 	SetDlgItemText(IDC_CAPS_COUNT, text);
 	for (auto& cap : caps) {
@@ -130,17 +129,47 @@ LRESULT CTokenPropertiesDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 }
 
 LRESULT CTokenPropertiesDlg::OnEnablePrivilege(WORD, WORD wID, HWND, BOOL&) {
-	return LRESULT();
+	auto index = m_PrivList.GetSelectedIndex();
+	ATLASSERT(index >= 0);
+	auto& priv = m_Privileges[index];
+	ATLASSERT((priv.Attributes & SE_PRIVILEGE_ENABLED) == 0);
+
+	if (m_Token.EnablePrivilege(priv.Name.c_str(), true)) {
+		priv.Attributes |= SE_PRIVILEGE_ENABLED;
+		m_PrivList.RedrawItems(index, index);
+	}
+	else {
+		AtlMessageBox(*this, L"Failed to enable privilege", IDS_TITLE, MB_ICONERROR);
+	}
+	return 0;
 }
 
 LRESULT CTokenPropertiesDlg::OnDisablePrivilege(WORD, WORD wID, HWND, BOOL&) {
-	return LRESULT();
+	auto index = m_PrivList.GetSelectedIndex();
+	ATLASSERT(index >= 0);
+	auto& priv = m_Privileges[index];
+	ATLASSERT((priv.Attributes & SE_PRIVILEGE_ENABLED) != 0);
+
+	if (m_Token.EnablePrivilege(priv.Name.c_str(), false)) {
+		priv.Attributes &= ~SE_PRIVILEGE_ENABLED;
+		m_PrivList.RedrawItems(index, index);
+	}
+	else {
+		AtlMessageBox(*this, L"Failed to disable privilege", IDS_TITLE, MB_ICONERROR);
+	}
+	return 0;
 }
 
 LRESULT CTokenPropertiesDlg::OnPrivItemChanged(int, LPNMHDR hdr, BOOL&) {
-	auto count = m_PrivList.GetSelectedCount();
-	GetDlgItem(IDC_ENABLE).EnableWindow(count > 0);
-	GetDlgItem(IDC_DISABLE).EnableWindow(count > 0);
+	auto index = m_PrivList.GetSelectedIndex();
+	BOOL enable = FALSE, disable = FALSE;
+	if (index >= 0) {
+		auto& priv = m_Privileges[index];
+		enable = (priv.Attributes & SE_PRIVILEGE_ENABLED) == 0;
+		disable = !enable;
+	}
+	GetDlgItem(IDC_ENABLE).EnableWindow(enable);
+	GetDlgItem(IDC_DISABLE).EnableWindow(disable);
 
 	return 0;
 }

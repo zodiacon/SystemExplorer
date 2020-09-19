@@ -9,7 +9,7 @@ class CTokenPropertiesDlg :
 public:
 	enum { IDD = IDD_TOKEN };
 
-	CTokenPropertiesDlg(HANDLE hToken) : m_hToken(hToken) {}
+	CTokenPropertiesDlg(HANDLE hToken) : m_Token(hToken) {}
 
 	void OnFinalMessage(HWND) override;
 	CString GetColumnText(HWND h, int row, int col) const;
@@ -41,7 +41,7 @@ private:
 	LRESULT OnPrivItemChanged(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/);
 
 private:
-	HANDLE m_hToken;
+	WinSys::Token m_Token;
 	CListViewCtrl m_GroupList, m_PrivList;
 	std::vector<WinSys::TokenGroup> m_Groups;
 	std::vector<WinSys::TokenPrivilege> m_Privileges;
