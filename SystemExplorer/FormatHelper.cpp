@@ -115,3 +115,15 @@ CString FormatHelper::PrivilegeAttributesToString(DWORD pattributes) {
 		result = "Disabled";
 	return result;
 }
+
+PCWSTR FormatHelper::PriorityClassToString(WinSys::ProcessPriorityClass pc) {
+	switch (pc) {
+		case WinSys::ProcessPriorityClass::Normal: return L"Normal (8)";
+		case WinSys::ProcessPriorityClass::AboveNormal: return L"Above Normal (10)";
+		case WinSys::ProcessPriorityClass::BelowNormal: return L"Below Normal (6)";
+		case WinSys::ProcessPriorityClass::High: return L"High (13)";
+		case WinSys::ProcessPriorityClass::Idle: return L"Idle (4)";
+		case WinSys::ProcessPriorityClass::Realtime: return L"Realtime (24)";
+	}
+	return L"";
+}

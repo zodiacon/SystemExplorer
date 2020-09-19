@@ -6,6 +6,8 @@
 #include "TokenPropertiesDlg.h"
 #include "DriverHelper.h"
 #include "EnvironmentDlg.h"
+#include "JobProperties.h"
+#include "ObjectManager.h"
 
 void CProcessPropertiesDlg::OnFinalMessage(HWND) {
 	delete this;
@@ -142,6 +144,33 @@ LRESULT CProcessPropertiesDlg::OnShowEnvironment(WORD, WORD wID, HWND, BOOL&) {
 	CEnvironmentDlg dlg(hProcess);
 	dlg.DoModal();
 	::CloseHandle(hProcess);
+	return 0;
+}
+
+LRESULT CProcessPropertiesDlg::OnShowJob(WORD, WORD wID, HWND, BOOL&) {
+	ObjectManager mgr;
+	mgr.EnumHandles(L"Job");
+	HANDLE hJob{ nullptr };
+	USHORT type;
+	for (auto& hi : mgr.GetHandles()) {
+		hJob = DriverHelper::DupHandle(UlongToHandle(hi->HandleValue), hi->ProcessId, JOB_OBJECT_QUERY, 0);
+		if (!hJob)
+			continue;
+		if (m_px.GetProcess()->IsInJob(hJob)) {
+			type = hi->ObjectTypeIndex;
+			break;
+		}
+		::CloseHandle(hJob);
+		hJob = nullptr;
+	}
+	if(!hJob) {
+		AtlMessageBox(*this, L"Failed to open job object", IDS_TITLE, MB_ICONERROR);
+		return 0;
+	}
+	auto name = mgr.GetObjectName(hJob, type);
+	CJobProperties dlg(m_pm, hJob, name);
+	dlg.DoModal();
+	::CloseHandle(hJob);
 	return 0;
 }
 

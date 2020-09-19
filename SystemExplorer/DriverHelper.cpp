@@ -110,20 +110,24 @@ HANDLE DriverHelper::OpenHandle(void* pObject, ACCESS_MASK access) {
 }
 
 HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DWORD flags) {
-	if (!OpenDevice())
-		return nullptr;
-
-	DupHandleData data;
-	data.AccessMask = access;
-	data.Handle = HandleToUlong(hObject);
-	data.SourcePid = pid;
-	data.Flags = flags;
-
-	DWORD bytes;
 	HANDLE hTarget = nullptr;
-	return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_DUP_HANDLE, &data, sizeof(data),
-		&hTarget, sizeof(hTarget), &bytes, nullptr)
-		? hTarget : nullptr;
+	if (OpenDevice()) {
+		DupHandleData data;
+		data.AccessMask = access;
+		data.Handle = HandleToUlong(hObject);
+		data.SourcePid = pid;
+		data.Flags = flags;
+
+		DWORD bytes;
+		::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_DUP_HANDLE, &data, sizeof(data),
+			&hTarget, sizeof(hTarget), &bytes, nullptr);
+	}
+	if (!hTarget) {
+		wil::unique_handle hProcess(OpenProcess(pid, PROCESS_DUP_HANDLE));
+		if (hProcess)
+			::DuplicateHandle(hObject, hProcess.get(), ::GetCurrentProcess(), &hTarget, access, FALSE, flags);
+	}
+	return hTarget;
 }
 
 HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {

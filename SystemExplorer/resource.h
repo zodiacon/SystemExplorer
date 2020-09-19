@@ -105,6 +105,7 @@
 #define IDI_FOLDER_FIND                 315
 #define IDD_TOKEN                       316
 #define IDD_ENVVARS                     318
+#define IDD_JOB                         320
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -135,7 +136,6 @@
 #define IDC_CANCEL                      1018
 #define IDC_ENV                         1018
 #define IDC_DISABLE                     1018
-#define IDC_COPY_VALUE                  1018
 #define IDC_EXPLORE                     1020
 #define IDC_TOKEN                       1021
 #define IDC_JOB                         1022
@@ -162,9 +162,11 @@
 #define IDC_ENABLE                      1042
 #define IDC_CAPS                        1043
 #define IDC_CAPS_COUNT                  1044
-#define IDC_COPYNAME                    1047
-#define IDC_BUTTON3                     1048
-#define IDC_BUTTON4                     1049
+#define IDC_COPYALL                     1049
+#define IDC_TERM                        1052
+#define IDC_LIMITS                      1054
+#define IDC_BASIC_INFO                  1055
+#define IDC_IO                          1056
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -269,9 +271,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        320
+#define _APS_NEXT_RESOURCE_VALUE        322
 #define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1050
+#define _APS_NEXT_CONTROL_VALUE         1057
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

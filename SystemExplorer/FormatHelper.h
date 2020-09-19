@@ -9,5 +9,5 @@ struct FormatHelper {
 	static PCWSTR IntegrityToString(WinSys::IntegrityLevel level);
 	static PCWSTR SidNameUseToString(SID_NAME_USE use);
 	static CString SidAttributesToString(WinSys::SidGroupAttributes attributes);
+	static PCWSTR PriorityClassToString(WinSys::ProcessPriorityClass pc);
 };
-

@@ -67,7 +67,6 @@ private:
 	void GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const;
 	static CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes);
 	static CString IoPriorityToString(WinSys::IoPriority io);
-	static PCWSTR PriorityClassToString(WinSys::ProcessPriorityClass  pc);
 	static PCWSTR IntegrityLevelToString(WinSys::IntegrityLevel level);
 	static PCWSTR VirtualizationStateToString(WinSys::VirtualizationState state);
 

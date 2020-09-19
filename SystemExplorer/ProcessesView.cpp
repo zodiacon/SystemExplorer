@@ -33,7 +33,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 				text.Format(L"%.2f ", value);
 			}
 			break;
-		case ProcessColumn::PriorityClass: return PriorityClassToString(px.GetPriorityClass());
+		case ProcessColumn::PriorityClass: return FormatHelper::PriorityClassToString(px.GetPriorityClass());
 		case ProcessColumn::ExePath: return px.GetExecutablePath().c_str();
 		case ProcessColumn::CreateTime: return FormatHelper::TimeToString(p->CreateTime);
 		case ProcessColumn::Session: text.Format(L"%2d  ", p->SessionId); break;
@@ -440,18 +440,6 @@ CString CProcessesView::IoPriorityToString(IoPriority io) {
 		case IoPriority::VeryLow: return L"Very Low";
 	}
 	return "(Unknown)";
-}
-
-PCWSTR CProcessesView::PriorityClassToString(ProcessPriorityClass pc) {
-	switch (pc) {
-		case ProcessPriorityClass::Normal: return L"Normal (8)";
-		case ProcessPriorityClass::AboveNormal: return L"Above Normal (10)";
-		case ProcessPriorityClass::BelowNormal: return L"Below Normal (6)";
-		case ProcessPriorityClass::High: return L"High (13)";
-		case ProcessPriorityClass::Idle: return L"Idle (4)";
-		case ProcessPriorityClass::Realtime: return L"Realtime (24)";
-	}
-	return L"";
 }
 
 PCWSTR CProcessesView::IntegrityLevelToString(WinSys::IntegrityLevel level) {

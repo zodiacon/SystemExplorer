@@ -100,6 +100,8 @@ LRESULT CTokenPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CTokenPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	DialogHelper::SetDialogIcon(this, IDI_TOKEN);
+	DialogHelper::AddIconToButton(this, IDC_ENABLE, IDI_OK);
+	DialogHelper::AddIconToButton(this, IDC_DISABLE, IDI_DELETE);
 
 	m_GroupList.Attach(GetDlgItem(IDC_GROUPS));
 	m_GroupList.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_FULLROWSELECT);

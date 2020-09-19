@@ -2,6 +2,7 @@
 #include "EnvironmentDlg.h"
 #include "DialogHelper.h"
 #include "SortHelper.h"
+#include "ClipboardHelper.h"
 
 CString CEnvironmentDlg::GetColumnText(HWND, int row, int col) const {
 	auto& var = m_Vars[row];
@@ -50,5 +51,26 @@ LRESULT CEnvironmentDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CEnvironmentDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 	EndDialog(wID);
+	return 0;
+}
+
+LRESULT CEnvironmentDlg::OnCopy(WORD, WORD wID, HWND, BOOL&) {
+	int i = -1;
+	CString text;
+	while ((i = m_List.GetNextItem(i, LVIS_SELECTED)) >= 0) {
+		text += (m_Vars[i].first + L"=" + m_Vars[i].second + L"\n").c_str();
+	}
+	ClipboardHelper::CopyText(*this, text);
+
+	return 0;
+}
+
+LRESULT CEnvironmentDlg::OnCopyAll(WORD, WORD wID, HWND, BOOL&) {
+	CString text;
+	for (auto& var : m_Vars) {
+		text += (var.first + L"=" + var.second + L"\n").c_str();
+	}
+	ClipboardHelper::CopyText(*this, text);
+
 	return 0;
 }

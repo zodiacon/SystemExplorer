@@ -47,11 +47,6 @@ namespace WinSys {
 		uint32_t Attributes;
 	};
 
-	struct TokenCapability {
-		std::wstring Name;
-		std::wstring Sid;
-	};
-
 	class Token final {
 	public:
 		explicit Token(HANDLE hToken);
