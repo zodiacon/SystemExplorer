@@ -3,18 +3,18 @@
 #include "resource.h"
 #include "VirtualListView.h"
 
-class CJobProperties : 
-	public CDialogImpl<CJobProperties>,
-	public CVirtualListView<CJobProperties> {
+class CJobPropertiesDlg : 
+	public CDialogImpl<CJobPropertiesDlg>,
+	public CVirtualListView<CJobPropertiesDlg> {
 public:
 	enum { IDD = IDD_JOB };
 
-	CJobProperties(const WinSys::ProcessManager& pm, HANDLE hJob, PCWSTR name) : m_pm(pm), m_hJob(hJob), m_Name(name) {}
+	CJobPropertiesDlg(const WinSys::ProcessManager& pm, HANDLE hJob, PCWSTR name) : m_pm(pm), m_hJob(hJob), m_Name(name) {}
 
 	CString GetColumnText(HWND h, int row, int col) const;
 	void DoSort(const SortInfo* si);
 
-	BEGIN_MSG_MAP(CJobProperties)
+	BEGIN_MSG_MAP(CJobPropertiesDlg)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_CTLCOLORDLG, OnDialogColor)
@@ -24,7 +24,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDC_TERM, OnTerminate)
-		CHAIN_MSG_MAP(CVirtualListView<CJobProperties>)
+		CHAIN_MSG_MAP(CVirtualListView<CJobPropertiesDlg>)
 	END_MSG_MAP()
 
 private:

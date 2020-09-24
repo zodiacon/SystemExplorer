@@ -6,11 +6,12 @@
 #include "TokenPropertiesDlg.h"
 #include "DriverHelper.h"
 #include "EnvironmentDlg.h"
-#include "JobProperties.h"
+#include "JobPropertiesDlg.h"
 #include "ObjectManager.h"
 
 void CProcessPropertiesDlg::OnFinalMessage(HWND) {
-	delete this;
+	if(!m_Modal)
+		delete this;
 }
 
 void CProcessPropertiesDlg::InitProcess() {
@@ -88,7 +89,10 @@ LRESULT CProcessPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 }
 
 LRESULT CProcessPropertiesDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
-	DestroyWindow();
+	if (m_Modal)
+		EndDialog(wID);
+	else
+		DestroyWindow();
 	return 0;
 }
 
@@ -151,24 +155,29 @@ LRESULT CProcessPropertiesDlg::OnShowJob(WORD, WORD wID, HWND, BOOL&) {
 	ObjectManager mgr;
 	mgr.EnumHandles(L"Job");
 	HANDLE hJob{ nullptr };
-	USHORT type;
+	USHORT type = 0;
+	std::vector<HANDLE> handles;
 	for (auto& hi : mgr.GetHandles()) {
-		hJob = DriverHelper::DupHandle(UlongToHandle(hi->HandleValue), hi->ProcessId, JOB_OBJECT_QUERY, 0);
+		hJob = DriverHelper::DupHandle(UlongToHandle(hi->HandleValue), hi->ProcessId, JOB_OBJECT_QUERY | SYNCHRONIZE, 0);
 		if (!hJob)
 			continue;
 		if (m_px.GetProcess()->IsInJob(hJob)) {
-			type = hi->ObjectTypeIndex;
-			break;
+			handles.push_back(hJob);
+			if(type == 0)
+				type = hi->ObjectTypeIndex;
 		}
-		::CloseHandle(hJob);
 		hJob = nullptr;
 	}
-	if(!hJob) {
+	if(handles.empty()) {
 		AtlMessageBox(*this, L"Failed to open job object", IDS_TITLE, MB_ICONERROR);
 		return 0;
 	}
+	hJob = handles.back();
+	handles.pop_back();
+	std::for_each(handles.begin(), handles.end(), [](auto h) { ::CloseHandle(h); });
+
 	auto name = mgr.GetObjectName(hJob, type);
-	CJobProperties dlg(m_pm, hJob, name);
+	CJobPropertiesDlg dlg(m_pm, hJob, name);
 	dlg.DoModal();
 	::CloseHandle(hJob);
 	return 0;

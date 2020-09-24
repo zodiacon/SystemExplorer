@@ -225,6 +225,8 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 		{ ID_PROCESS_KILL, IDI_DELETE },
 		{ 0 },
 		{ ID_HEADER_COLUMNS, IDI_EDITCOLUMNS, 0, L"Columns" },
+		{ 0 },
+		{ ID_PROCESS_COLORS, IDI_COLORWHEEL, 0, L"Colors" },
 	};
 	CreateAndInitToolBar(buttons, _countof(buttons));
 
@@ -680,6 +682,11 @@ LRESULT CProcessesView::OnProperties(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(selected >= 0);
 	ShowProperties(selected);
 
+	return 0;
+}
+
+LRESULT CProcessesView::OnProcessColors(WORD, WORD id, HWND, BOOL&) {
+	GetFrame()->SendFrameMessage(WM_COMMAND, id, 0);
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "JobProperties.h"
+#include "JobPropertiesDlg.h"
 #include "DialogHelper.h"
 #include "SortHelper.h"
 #include "FormatHelper.h"
@@ -11,7 +11,7 @@ namespace {
 	}
 }
 
-CString CJobProperties::GetColumnText(HWND h, int row, int col) const {
+CString CJobPropertiesDlg::GetColumnText(HWND h, int row, int col) const {
 	CString text;
 	if (h == m_ProcList) {
 		auto& p = m_Processes[row];
@@ -30,7 +30,7 @@ CString CJobProperties::GetColumnText(HWND h, int row, int col) const {
 	return text;
 }
 
-void CJobProperties::DoSort(const SortInfo* si) {
+void CJobPropertiesDlg::DoSort(const SortInfo* si) {
 	if (si->hWnd == m_ProcList) {
 		auto comparer = [&](auto const& p1, auto const& p2) {
 			switch (si->SortColumn) {
@@ -43,7 +43,7 @@ void CJobProperties::DoSort(const SortInfo* si) {
 	}
 }
 
-void CJobProperties::UpdateJob() {
+void CJobPropertiesDlg::UpdateJob() {
 	CClientDC dc(*this);
 	DrawStats(dc);
 
@@ -119,14 +119,28 @@ void CJobProperties::UpdateJob() {
 	}
 	{
 		JOBOBJECT_CPU_RATE_CONTROL_INFORMATION info;
-		if (::QueryInformationJobObject(m_hJob, JobObjectCpuRateControlInformation, &info, sizeof(info), nullptr)) {
-
+		if (::QueryInformationJobObject(m_hJob, JobObjectCpuRateControlInformation, &info, sizeof(info), nullptr)
+			&& (info.ControlFlags & JOB_OBJECT_CPU_RATE_CONTROL_ENABLE)) {
+			CString text;
+			AddLimit(L"CPU Rate Limit Flags", FormatHelper::JobCpuRateControlFlagsToString(info.ControlFlags));
+			if (info.ControlFlags & JOB_OBJECT_CPU_RATE_CONTROL_MIN_MAX_RATE) {
+				text.Format(L"Min: %u Max: %u", info.MinRate, info.MaxRate);
+				AddLimit(L"CPU Rate Limit", text);
+			}
+			else if (info.ControlFlags & JOB_OBJECT_CPU_RATE_CONTROL_WEIGHT_BASED) {
+				text.Format(L"Weight: %u", info.Weight);
+				AddLimit(L"CPU Rate Limit", text);
+			}
+			else {
+				text.Format(L"%u", info.CpuRate);
+				AddLimit(L"CPU Rate Limit", text);
+			}
 		}
 	}
 	m_LimitList.SetItemCountEx(static_cast<int>(m_Limits.size()), LVSICF_NOSCROLL);
 }
 
-void CJobProperties::DrawStats(CDC& dc) {
+void CJobPropertiesDlg::DrawStats(CDC& dc) {
 	JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION info;
 	if (::QueryInformationJobObject(m_hJob, JobObjectBasicAndIoAccountingInformation, &info, sizeof(info), nullptr)) {
 		dc.SetBkMode(TRANSPARENT);
@@ -150,18 +164,18 @@ void CJobProperties::DrawStats(CDC& dc) {
 	}
 }
 
-void CJobProperties::AddDataItem(CDC& dc, PCWSTR property, const CTimeSpan& ts) {
+void CJobPropertiesDlg::AddDataItem(CDC& dc, PCWSTR property, const CTimeSpan& ts) {
 	AddDataItem(dc, property, ts.Format(L"%H:%M:%S"));
 }
 
-void CJobProperties::AddDataItem(CDC& dc, PCWSTR property, const CString& value) {
+void CJobPropertiesDlg::AddDataItem(CDC& dc, PCWSTR property, const CString& value) {
 	dc.DrawText(property, -1, m_InfoRectProperty, DT_RIGHT | DT_SINGLELINE);
 	dc.DrawText(value, -1, m_InfoRectValue, DT_SINGLELINE | DT_LEFT);
 	m_InfoRectProperty.OffsetRect(0, m_Height);
 	m_InfoRectValue.OffsetRect(0, m_Height);
 }
 
-void CJobProperties::BeginWriteInfo(CDC& dc, UINT id) {
+void CJobPropertiesDlg::BeginWriteInfo(CDC& dc, UINT id) {
 	CRect rc;
 	GetDlgItem(id).GetWindowRect(&rc);
 	ScreenToClient(&rc);
@@ -181,24 +195,24 @@ void CJobProperties::BeginWriteInfo(CDC& dc, UINT id) {
 	m_Height = size.cy + 4;
 }
 
-void CJobProperties::AddLimit(PCWSTR name, PCWSTR value) {
+void CJobPropertiesDlg::AddLimit(PCWSTR name, PCWSTR value) {
 	LimitInfo limit = { name, value };
 	m_Limits.push_back(limit);
 }
 
-void CJobProperties::AddLimit(PCWSTR name, const std::wstring& value) {
+void CJobPropertiesDlg::AddLimit(PCWSTR name, const std::wstring& value) {
 	AddLimit(name, value.c_str());
 }
 
-void CJobProperties::AddLimit(PCWSTR name, const CString& value) {
+void CJobPropertiesDlg::AddLimit(PCWSTR name, const CString& value) {
 	AddLimit(name, (PCWSTR)value);
 }
 
-LRESULT CJobProperties::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CJobPropertiesDlg::OnDialogColor(UINT, WPARAM, LPARAM, BOOL&) {
 	return (LRESULT)::GetSysColorBrush(COLOR_WINDOW);
 }
 
-LRESULT CJobProperties::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CJobPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	DialogHelper::SetDialogIcon(this, IDI_JOB);
 	DialogHelper::AddIconToButton(this, IDC_TERM, IDI_DELETE);
 
@@ -210,7 +224,7 @@ LRESULT CJobProperties::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_LimitList.Attach(GetDlgItem(IDC_LIMITS));
 	m_LimitList.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
 	m_LimitList.InsertColumn(0, L"Name", LVCFMT_LEFT, 160);
-	m_LimitList.InsertColumn(1, L"Value", LVCFMT_LEFT, 100);
+	m_LimitList.InsertColumn(1, L"Value", LVCFMT_LEFT, 130);
 
 	SetDlgItemText(IDC_NAME, m_Name);
 
@@ -220,25 +234,25 @@ LRESULT CJobProperties::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
-LRESULT CJobProperties::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
+LRESULT CJobPropertiesDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 	EndDialog(wID);
 
 	return 0;
 }
 
-LRESULT CJobProperties::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+LRESULT CJobPropertiesDlg::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 	if (id == 1)
 		UpdateJob();
 	return 0;
 }
 
-LRESULT CJobProperties::OnPaint(UINT, WPARAM, LPARAM, BOOL&) {
+LRESULT CJobPropertiesDlg::OnPaint(UINT, WPARAM, LPARAM, BOOL&) {
 	CPaintDC dc(*this);
 	DrawStats(dc);
 	return 0;
 }
 
-LRESULT CJobProperties::OnTerminate(WORD, WORD wID, HWND, BOOL&) {
+LRESULT CJobPropertiesDlg::OnTerminate(WORD, WORD wID, HWND, BOOL&) {
 	if (AtlMessageBox(*this, L"Are you sure?", L"Kill Job", MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 

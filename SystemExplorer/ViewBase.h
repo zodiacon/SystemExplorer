@@ -9,7 +9,7 @@ class CViewBase abstract :
 	public CAutoUpdateUI<T>,
 	public CIdleHandler {
 public:
-	DECLARE_WND_CLASS(NULL)
+	DECLARE_WND_CLASS(nullptr)
 
 	CViewBase(IMainFrame* frame) : m_pFrame(frame) {
 		ATLASSERT(frame);

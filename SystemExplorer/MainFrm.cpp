@@ -26,6 +26,7 @@
 #include "ThreadsView.h"
 #include "COMView.h"
 #include "SearchView.h"
+#include "ColorsSelectionDlg.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -129,6 +130,15 @@ LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
 	frame->CreateEx();
 	frame->ShowWindow(SW_SHOW);
 
+	return 0;
+}
+
+LRESULT CMainFrame::OnProcessColors(WORD, WORD, HWND, BOOL&) {
+	CColorsSelectionDlg dlg(m_Settings.Processes.Colors, _countof(m_Settings.Processes.Colors));
+	dlg.SetTitle(L"Process Colors");
+	if (dlg.DoModal() == IDOK) {
+		memcpy(m_Settings.Processes.Colors, dlg.GetColors(), sizeof(m_Settings.Processes.Colors));
+	}
 	return 0;
 }
 
@@ -711,6 +721,7 @@ void CMainFrame::InitCommandBar() {
 		UINT id, icon;
 		HICON hIcon = nullptr;
 	} cmds[] = {
+		{ ID_PROCESS_COLORS, IDI_COLORWHEEL },
 		{ ID_EDIT_COPY, IDI_COPY },
 		{ ID_OPTIONS_ALWAYSONTOP, IDI_PIN },
 		{ ID_VIEW_PAUSE, IDI_PAUSE },

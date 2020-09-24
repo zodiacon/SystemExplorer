@@ -13,11 +13,12 @@
 #include "SecurityInfo.h"
 #include "SecurityHelper.h"
 #include "UndocListView.h"
+#include "ProcessHelper.h"
 
 using namespace WinSys;
 
 CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) : CViewBase(pFrame),
-	m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
+m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(DriverHelper::OpenProcess(pid, SYNCHRONIZE));
 	if (pid) {
 		auto hProcess = DriverHelper::OpenProcess(pid, SYNCHRONIZE | PROCESS_QUERY_INFORMATION);
@@ -44,6 +45,20 @@ void CHandlesView::DoSort(const SortInfo* si) {
 bool CHandlesView::IsSortable(int col) const {
 	// details column cannot be sorted
 	return col != 9;
+}
+
+void CHandlesView::ShowObjectProperties(int row) const {
+	auto& h = m_Handles[row];
+	auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, GENERIC_READ, 0);
+	if (!hDup) {
+		AtlMessageBox(*this, L"Failed to open handle", IDS_TITLE, MB_ICONWARNING);
+		return;
+	}
+	::SetHandleInformation(hDup, HANDLE_FLAG_PROTECT_FROM_CLOSE, HANDLE_FLAG_PROTECT_FROM_CLOSE);
+
+	ProcessHelper::OpenObjectDialog(m_ProcMgr, hDup, ObjectManager::GetType(h->ObjectTypeIndex)->TypeName);
+	::SetHandleInformation(hDup, HANDLE_FLAG_PROTECT_FROM_CLOSE, 0);
+	::CloseHandle(hDup);
 }
 
 bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
@@ -218,6 +233,7 @@ LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
 	m_pUI->UIEnable(ID_HANDLES_CLOSEHANDLE, index >= 0);
 	m_pUI->UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, index >= 0);
 	m_pUI->UIEnable(ID_EDIT_SECURITY, index >= 0);
+	m_pUI->UIEnable(ID_EDIT_PROPERTIES, index >= 0);
 
 	return 0;
 }
@@ -399,6 +415,16 @@ LRESULT CHandlesView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CHandlesView::OnObjectProperties(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	if (selected < 0)
+		return 0;
+
+	ShowObjectProperties(selected);
+
+	return 0;
+}
+
 void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
 		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
@@ -424,10 +450,6 @@ void CHandlesView::Refresh() {
 
 void CHandlesView::UpdateUI() {
 	m_pUI->UISetCheck(ID_VIEW_PAUSE, m_Paused);
-}
-
-CString CHandlesView::AccessMaskToString(PCWSTR type, ACCESS_MASK access) {
-	return CString();
 }
 
 CString CHandlesView::HandleAttributesToString(ULONG attributes) {
@@ -469,6 +491,14 @@ DWORD CHandlesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 
 DWORD CHandlesView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
 	return CDRF_NOTIFYITEMDRAW;
+}
+
+bool CHandlesView::OnDoubleClickList(int row, int col, POINT& pt) const {
+	if (row < 0)
+		return false;
+
+	ShowObjectProperties(row);
+	return true;
 }
 
 HWND CHandlesView::CreateToolBar() {

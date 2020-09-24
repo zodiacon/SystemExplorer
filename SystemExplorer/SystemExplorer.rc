@@ -170,6 +170,8 @@ BEGIN
         MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
         MENUITEM SEPARATOR
         MENUITEM "&All of the Above...",        ID_PROCESS_ALLOFTHEABOVE
+        MENUITEM SEPARATOR
+        MENUITEM "&Colors...",                  ID_PROCESS_COLORS
     END
     POPUP "&GUI"
     BEGIN
@@ -206,6 +208,8 @@ BEGIN
         MENUITEM "&Close Handle",               ID_HANDLES_CLOSEHANDLE
         MENUITEM SEPARATOR
         MENUITEM "&Security...",                ID_EDIT_SECURITY
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
     END
     POPUP "tab"
     BEGIN
@@ -219,6 +223,8 @@ BEGIN
         MENUITEM "&All Handles...",             ID_OBJECTS_ALLHANDLESFOROBJECT
         MENUITEM SEPARATOR
         MENUITEM "&Security...",                ID_EDIT_SECURITY
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
     END
     POPUP "type"
     BEGIN
@@ -310,6 +316,17 @@ BEGIN
     POPUP "dll"
     BEGIN
         MENUITEM "Open File Location...",       ID_PROCESS_GOTOFILELOCATION
+    END
+END
+
+IDR_SPLIT MENU
+BEGIN
+    POPUP "color"
+    BEGIN
+        MENUITEM "Background...",               ID_COLOR_BACKGROUND
+        MENUITEM "Foreground...",               ID_COLOR_FOREGROUND
+        MENUITEM SEPARATOR
+        MENUITEM "Default",                     ID_COLOR_DEFAULT
     END
 END
 
@@ -498,6 +515,8 @@ IDI_RUN                 ICON                    "res\\Run.ico"
 IDI_VARS                ICON                    "res\\variables-info.ico"
 
 IDI_FOLDER_FIND         ICON                    "res\\folder_open-find.ico"
+
+IDI_COLORWHEEL          ICON                    "res\\color_wheel.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -688,8 +707,20 @@ BEGIN
     GROUPBOX        "Basic Information",IDC_BASIC_INFO,6,150,126,102
     GROUPBOX        "I/O",IDC_IO,144,150,150,102
     PUSHBUTTON      "Kill",IDC_TERM,378,10,49,14
-    CONTROL         "",IDC_LIMITS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,210,42,222,96
+    CONTROL         "",IDC_LIMITS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,210,42,222,96
     LTEXT           "Limits:",IDC_STATIC,213,30,21,8
+END
+
+IDD_COLORS DIALOGEX 0, 0, 213, 236
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Colors"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,16,215,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,81,215,50,14
+    CONTROL         "New Processes",IDC_ENABLED,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,12,12,132,12
+    CONTROL         "Change",IDC_CHANGE,"Button",BS_SPLITBUTTON | WS_TABSTOP,153,12,51,14
+    PUSHBUTTON      "Defaults",IDC_DEFAULTS,146,215,50,14
 END
 
 
@@ -795,6 +826,14 @@ BEGIN
         RIGHTMARGIN, 428
         TOPMARGIN, 7
         BOTTOMMARGIN, 259
+    END
+
+    IDD_COLORS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 206
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 229
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -960,6 +999,11 @@ BEGIN
 END
 
 IDD_JOB AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_COLORS AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

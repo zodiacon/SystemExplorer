@@ -237,10 +237,11 @@
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="AccessMaskDecoder.cpp" />
     <ClCompile Include="ClipboardHelper.cpp" />
+    <ClCompile Include="ColorsSelectionDlg.cpp" />
     <ClCompile Include="ColumnManager.cpp" />
     <ClCompile Include="COMView.cpp" />
     <ClCompile Include="EnvironmentDlg.cpp" />
-    <ClCompile Include="JobProperties.cpp" />
+    <ClCompile Include="JobPropertiesDlg.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
     <ClCompile Include="ProcessPropertiesDlg.cpp" />
     <ClCompile Include="SearchBar.cpp" />
@@ -251,7 +252,6 @@
     <ClCompile Include="DialogHelper.cpp" />
     <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="EventObjectType.cpp" />
-    <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="FileObjectType.cpp" />
     <ClCompile Include="FormatHelper.cpp" />
     <ClCompile Include="HandlesView.cpp" />
@@ -307,10 +307,11 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AccessMaskDecoder.h" />
     <ClInclude Include="ClipboardHelper.h" />
+    <ClInclude Include="ColorsSelectionDlg.h" />
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="COMView.h" />
     <ClInclude Include="EnvironmentDlg.h" />
-    <ClInclude Include="JobProperties.h" />
+    <ClInclude Include="JobPropertiesDlg.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />
     <ClInclude Include="SearchBar.h" />
@@ -321,7 +322,6 @@
     <ClInclude Include="DialogHelper.h" />
     <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="EventObjectType.h" />
-    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="FileObjectType.h" />
     <ClInclude Include="FormatHelper.h" />
     <ClInclude Include="HandlesView.h" />
@@ -386,6 +386,7 @@
     <Image Include="res\briefcase.ico" />
     <Image Include="res\car_compact_green.ico" />
     <Image Include="res\class.ico" />
+    <Image Include="res\color_wheel.ico" />
     <Image Include="res\commit.ico" />
     <Image Include="res\component_blue.ico" />
     <Image Include="res\copy.ico" />

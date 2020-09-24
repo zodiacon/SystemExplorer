@@ -11,6 +11,9 @@ public:
 	enum { IDD = IDD_PROCESS_PROPERTIES };
 
 	CProcessPropertiesDlg(const WinSys::ProcessManager& pm, ProcessInfoEx& px) : m_pm(pm), m_px(px) {}
+	void SetModal(bool modal) {
+		m_Modal = modal;
+	}
 
 	void OnFinalMessage(HWND) override;
 
@@ -49,5 +52,6 @@ private:
 private:
 	ProcessInfoEx& m_px;
 	const WinSys::ProcessManager& m_pm;
+	bool m_Modal{ false };
 };
 

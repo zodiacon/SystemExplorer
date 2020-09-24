@@ -43,13 +43,13 @@ extern "C" VOID NTAPI RtlInitUnicodeString(
 
 #ifndef InitializeObjectAttributes
 #define InitializeObjectAttributes( p, n, a, r, s ) { \
-    (p)->Length = sizeof( OBJECT_ATTRIBUTES );          \
-    (p)->RootDirectory = r;                             \
-    (p)->Attributes = a;                                \
-    (p)->ObjectName = n;                                \
-    (p)->SecurityDescriptor = s;                        \
-    (p)->SecurityQualityOfService = NULL;               \
-    }
+	(p)->Length = sizeof( OBJECT_ATTRIBUTES );          \
+	(p)->RootDirectory = r;                             \
+	(p)->Attributes = a;                                \
+	(p)->ObjectName = n;                                \
+	(p)->SecurityDescriptor = s;                        \
+	(p)->SecurityQualityOfService = NULL;               \
+	}
 #endif
 
 typedef struct _IO_STATUS_BLOCK {

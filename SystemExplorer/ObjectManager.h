@@ -27,7 +27,6 @@ struct ObjectInfo {
 	PVOID Object;
 	int HandleCount;
 	int PointerCount;
-	int64_t CreateTime;
 	CString Name;
 	USHORT TypeIndex;
 	std::vector<std::shared_ptr<HandleInfo>> Handles;
@@ -123,7 +122,8 @@ public:
 
 	bool GetObjectInfo(ObjectInfo* p, HANDLE hObject, ULONG pid, USHORT type) const;
 	CString GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const;
-	CString GetObjectName(HANDLE hDup, USHORT type) const;
+	static CString GetObjectName(HANDLE hDup, USHORT type);
+
 
 	static std::shared_ptr<ObjectTypeInfo> GetType(USHORT index);
 	static std::shared_ptr<ObjectTypeInfo> GetType(PCWSTR name);

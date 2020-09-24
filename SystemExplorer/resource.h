@@ -106,6 +106,9 @@
 #define IDD_TOKEN                       316
 #define IDD_ENVVARS                     318
 #define IDD_JOB                         320
+#define IDD_COLORS                      322
+#define IDR_SPLIT                       324
+#define IDI_COLORWHEEL                  325
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -147,6 +150,7 @@
 #define IDC_DOTNET                      1027
 #define IDC_PRICLASS                    1028
 #define IDC_STATS                       1028
+#define IDC_CHANGE                      1028
 #define IDC_PLATFORM                    1029
 #define IDC_CREATED                     1030
 #define IDC_EXPLORE_DIR                 1031
@@ -158,6 +162,7 @@
 #define IDC_LOGONSESSION                1037
 #define IDC_ELEVATED                    1038
 #define IDC_GROUP_COUNT                 1039
+#define IDC_DEFAULTS                    1040
 #define IDC_PRIV_COUNT                  1041
 #define IDC_ENABLE                      1042
 #define IDC_CAPS                        1043
@@ -167,6 +172,7 @@
 #define IDC_LIMITS                      1054
 #define IDC_BASIC_INFO                  1055
 #define IDC_IO                          1056
+#define IDC_ENABLED                     1057
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -266,14 +272,18 @@
 #define ID_PROCESS_ALLOFTHEABOVE        32877
 #define ID_SYSTEM_SEARCH                32878
 #define ID_EDIT_PROPERTIES              32879
+#define ID_PROCESS_COLORS               32882
+#define ID_COLOR_BACKGROUND             32883
+#define ID_COLOR_FOREGROUND             32884
+#define ID_COLOR_DEFAULT                32885
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        322
-#define _APS_NEXT_COMMAND_VALUE         32882
-#define _APS_NEXT_CONTROL_VALUE         1057
+#define _APS_NEXT_RESOURCE_VALUE        326
+#define _APS_NEXT_COMMAND_VALUE         32886
+#define _APS_NEXT_CONTROL_VALUE         1061
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

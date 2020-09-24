@@ -20,7 +20,7 @@ LRESULT CAboutDlg::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 }
 
 LRESULT CAboutDlg::OnClickSyslink(int, LPNMHDR, BOOL&) {
-	::ShellExecute(nullptr, L"open", L"https://github.com/zodiacon/objectexplorer", nullptr, nullptr, SW_SHOWDEFAULT);
+	::ShellExecute(nullptr, L"open", L"https://github.com/zodiacon/systemexplorer", nullptr, nullptr, SW_SHOWDEFAULT);
 
 	return 0;
 }

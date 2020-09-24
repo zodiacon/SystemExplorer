@@ -90,9 +90,6 @@
     <ClCompile Include="WinStationObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
-    <ClCompile Include="WindowHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WorkerFactoryObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
@@ -207,9 +204,6 @@
     <ClCompile Include="ThreadsView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
-    <ClCompile Include="FileHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectSearcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -231,7 +225,13 @@
     <ClCompile Include="EnvironmentDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="JobProperties.cpp">
+    <ClCompile Include="WindowHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="JobPropertiesDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorsSelectionDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -291,9 +291,6 @@
       <Filter>ObjectTypes</Filter>
     </ClInclude>
     <ClInclude Include="Interfaces.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WorkerFactoryObjectType.h">
@@ -416,9 +413,6 @@
     <ClInclude Include="UndocListView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectSearcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -440,7 +434,13 @@
     <ClInclude Include="EnvironmentDlg.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="JobProperties.h">
+    <ClInclude Include="WindowHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="JobPropertiesDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorsSelectionDlg.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
@@ -716,6 +716,9 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\folder_open-find.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\color_wheel.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

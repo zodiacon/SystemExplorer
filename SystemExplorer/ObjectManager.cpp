@@ -426,7 +426,7 @@ CString ObjectManager::GetObjectName(HANDLE hObject, ULONG pid, USHORT type) con
 	return name;
 }
 
-CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) const {
+CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) {
 	static int processTypeIndex = _typesNameMap.find(L"Process")->second->TypeIndex;
 	static int threadTypeIndex = _typesNameMap.find(L"Thread")->second->TypeIndex;
 	static int fileTypeIndex = _typesNameMap.find(L"File")->second->TypeIndex;

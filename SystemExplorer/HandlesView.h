@@ -22,6 +22,7 @@ public:
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
+	bool OnDoubleClickList(int row, int col, POINT& pt) const;
 
 	BEGIN_MSG_MAP(CHandlesView)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
@@ -35,6 +36,7 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_CLOSEHANDLE, OnCloseHandle)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
+		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnObjectProperties)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_ID_HANDLER(ID_HANDLES_NAMEDOBJECTSONLY, OnShowNamedObjectsOnly)
 		CHAIN_MSG_MAP(CVirtualListView<CHandlesView>)
@@ -56,12 +58,13 @@ private:
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowNamedObjectsOnly(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnEditSecurity(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnObjectProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
+	void ShowObjectProperties(int row) const;
 	bool CompareItems(HandleInfo& o1, HandleInfo& o2, const SortInfo* si);
 	void Refresh();
 	void UpdateUI();
-	static CString AccessMaskToString(PCWSTR type, ACCESS_MASK access);
 	HWND CreateToolBar();
 
 private:

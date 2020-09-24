@@ -20,7 +20,7 @@
 int CObjectsView::ColumnCount;
 
 CObjectsView::CObjectsView(IMainFrame* pFrame, PCWSTR type) : CViewBase(pFrame),
-	m_pUpdateUI(pFrame->GetUpdateUI()), m_Typename(type) {
+m_pUpdateUI(pFrame->GetUpdateUI()), m_Typename(type) {
 }
 
 BOOL CObjectsView::PreTranslateMessage(MSG* pMsg) {
@@ -286,6 +286,16 @@ LRESULT CObjectsView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CObjectsView::OnObjectProperties(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	if (selected < 0)
+		return 0;
+
+	ShowObjectProperties(selected);
+
+	return 0;
+}
+
 void CObjectsView::Refresh() {
 	CWaitCursor wait;
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename, 0, nullptr, m_NamedObjectsOnly);
@@ -293,4 +303,26 @@ void CObjectsView::Refresh() {
 	m_Objects = m_ObjMgr.GetObjects();
 	m_List.SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
 	Sort(m_List);
+}
+
+void CObjectsView::ShowObjectProperties(int row) const {
+	auto& h = m_Objects[row]->Handles[0];
+	auto hDup = DriverHelper::DupHandle(ULongToHandle(h->HandleValue), h->ProcessId, GENERIC_READ, 0);
+	if (!hDup) {
+		AtlMessageBox(*this, L"Failed to open handle", IDS_TITLE, MB_ICONWARNING);
+		return;
+	}
+	::SetHandleInformation(hDup, HANDLE_FLAG_PROTECT_FROM_CLOSE, HANDLE_FLAG_PROTECT_FROM_CLOSE);
+
+	ProcessHelper::OpenObjectDialog(m_ProcMgr, hDup, ObjectManager::GetType(h->ObjectTypeIndex)->TypeName);
+	::SetHandleInformation(hDup, HANDLE_FLAG_PROTECT_FROM_CLOSE, 0);
+	::CloseHandle(hDup);
+}
+
+bool CObjectsView::OnDoubleClickList(int row, int col, POINT& pt) const {
+	if (row < 0)
+		return false;
+
+	ShowObjectProperties(row);
+	return true;
 }

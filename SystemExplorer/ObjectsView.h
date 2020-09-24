@@ -27,6 +27,7 @@ public:
 	BOOL PreTranslateMessage(MSG* pMsg);
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
+	bool OnDoubleClickList(int row, int col, POINT& pt) const;
 
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 
@@ -58,6 +59,7 @@ private:
 	CString GetObjectDetails(ObjectInfo* info) const;
 	CString GetProcessHandleInfo(const HandleInfo& hi) const;
 	HWND CreateToolBar();
+	void ShowObjectProperties(int row) const;
 
 private:
 	LRESULT OnActivatePage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -72,6 +74,7 @@ private:
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowNamedObjectsOnly(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnEditSecurity(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnObjectProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	CListViewCtrl m_List;

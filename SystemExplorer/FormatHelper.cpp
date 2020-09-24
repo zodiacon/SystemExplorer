@@ -116,6 +116,27 @@ CString FormatHelper::PrivilegeAttributesToString(DWORD pattributes) {
 	return result;
 }
 
+CString FormatHelper::JobCpuRateControlFlagsToString(DWORD flags) {
+	CString result;
+	struct {
+		DWORD flag;
+		PCWSTR text;
+	} data[] = {
+		//{ JOB_OBJECT_CPU_RATE_CONTROL_ENABLE, L"Enabled" },
+		{ JOB_OBJECT_CPU_RATE_CONTROL_HARD_CAP, L"Hard Cap" },
+		{ JOB_OBJECT_CPU_RATE_CONTROL_MIN_MAX_RATE, L"Min Max Rate" },
+		{ JOB_OBJECT_CPU_RATE_CONTROL_NOTIFY, L"Notify" },
+		{ JOB_OBJECT_CPU_RATE_CONTROL_WEIGHT_BASED, L"Weight Based" },
+	};
+	for (const auto& attr : data)
+		if ((attr.flag & flags) == attr.flag)
+			(result += attr.text) += ", ";
+
+	if (!result.IsEmpty())
+		result = result.Left(result.GetLength() - 2);
+	return result;
+}
+
 PCWSTR FormatHelper::PriorityClassToString(WinSys::ProcessPriorityClass pc) {
 	switch (pc) {
 		case WinSys::ProcessPriorityClass::Normal: return L"Normal (8)";
