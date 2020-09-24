@@ -24,6 +24,8 @@ public:
 	BOOL PreTranslateMessage(MSG* pMsg) override;
 	BOOL OnIdle() override;
 	void OnFinalMessage(HWND) override;
+	void SaveSettings(PCWSTR filename = nullptr);
+	void LoadSettings(PCWSTR filename = nullptr);
 
 	CCommandBarCtrl m_CmdBar;
 
@@ -150,6 +152,7 @@ private:
 	LRESULT OnSystemSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
+	CString GetDefaultSettingsFile();
 	void CloseAllBut(int page);
 	void InitCommandBar();
 	void InitToolBar(CToolBarCtrl& tb);

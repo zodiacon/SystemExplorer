@@ -55,6 +55,24 @@ void CMainFrame::OnFinalMessage(HWND) {
 	delete this;
 }
 
+void CMainFrame::SaveSettings(PCWSTR filename) {
+	CString path;
+	if (filename == nullptr) {
+		path = GetDefaultSettingsFile();
+		filename = path;
+	}
+	m_Settings.Save(filename);
+}
+
+void CMainFrame::LoadSettings(PCWSTR filename) {
+	CString path;
+	if (filename == nullptr) {
+		path = GetDefaultSettingsFile();
+		filename = path;
+	}
+	m_Settings.Load(filename);
+}
+
 LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
 	auto process = (WinSys::ProcessInfo*)GetCurrentMessage()->lParam;
 	DWORD pid = 0;
@@ -181,6 +199,7 @@ LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
 }
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+	LoadSettings();
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	CMenuHandle hMenu = GetMenu();
 	if (SecurityHelper::IsRunningElevated()) {
@@ -382,6 +401,10 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	bHandled = --s_FrameCount > 0;
 	s_Frames.erase(this);
+
+	if (s_FrameCount == 0) {
+		SaveSettings();
+	}
 
 	return 1;
 }
@@ -689,6 +712,13 @@ LRESULT CMainFrame::OnSystemSearch(WORD, WORD, HWND, BOOL&) {
 	m_view.AddPage(pView->m_hWnd, L"Search", m_Icons[(int)IconType::Search], pView);
 
 	return 0;
+}
+
+CString CMainFrame::GetDefaultSettingsFile() {
+	WCHAR path[MAX_PATH];
+	::SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, path);
+	::StringCchCat(path, _countof(path), L"\\SystemExplorer.ini");
+	return path;
 }
 
 void CMainFrame::CloseAllBut(int tab) {

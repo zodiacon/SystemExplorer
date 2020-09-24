@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Settings.h"
+#include "IniFile.h"
 
 Settings::Settings() {
 }
@@ -53,4 +54,51 @@ void Settings::GetCPUColors(int cpu, COLORREF& bk, COLORREF& text) {
 		bk = StandardColors::LimeGreen;
 		text = StandardColors::Black;
 	}
+}
+
+bool Settings::Save(PCWSTR filename) const {
+	IniFile file(filename);
+
+	file.WriteBool(L"Options", L"AlwaysOnTop", AlwaysOnTop);
+	file.WriteInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
+	
+	for (int i = 0; i < _countof(Processes.Colors); i++) {
+		WriteProcessColor(file, i);
+	}
+
+	return true;
+}
+
+bool Settings::Load(PCWSTR filename) {
+	IniFile file(filename);
+	if(!file.IsValid())
+		return false;
+
+	AlwaysOnTop = file.ReadBool(L"Options", L"AlwaysOnTop");
+	Processes.UpdateInterval = file.ReadInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
+
+	for (int i = 0; i < _countof(Processes.Colors); i++) {
+		ReadProcessColor(file, i);
+	}
+	return true;
+}
+
+void Settings::WriteProcessColor(IniFile& file, int i) const {
+	CString text;
+	text.Format(L"ProcessColor%d", i);
+	auto& info = Processes.Colors[i];
+	file.WriteColor(text, L"Color", info.Color);
+	file.WriteColor(text, L"TextColor", info.TextColor);
+	file.WriteBool(text, L"Enabled", info.Enabled);
+	file.WriteString(text, L"Name", info.Name);
+}
+
+void Settings::ReadProcessColor(IniFile& file, int i) {
+	CString text;
+	text.Format(L"ProcessColor%d", i);
+	auto& info = Processes.Colors[i];
+	info.Color = file.ReadColor(text, L"Color", info.Color);
+	info.TextColor = file.ReadColor(text, L"TextColor", info.TextColor);
+	info.Enabled = file.ReadBool(text, L"Enabled", info.Enabled);
+	info.Name = file.ReadString(text, L"Name", info.Name);
 }

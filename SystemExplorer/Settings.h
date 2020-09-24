@@ -3,6 +3,8 @@
 #include "ProcessColor.h"
 #include "StandardColors.h"
 
+class IniFile;
+
 enum class ProcessColorIndex {
 	NewObjects,
 	DeletedObjects,
@@ -43,5 +45,12 @@ public:
 	void SetDefaults();
 
 	void GetCPUColors(int cpu, COLORREF& bk, COLORREF& text);
+
+	bool Save(PCWSTR filename) const;
+	bool Load(PCWSTR filename);
+
+private:
+	void WriteProcessColor(IniFile& file, int i) const;
+	void ReadProcessColor(IniFile& file, int i);
 };
 
