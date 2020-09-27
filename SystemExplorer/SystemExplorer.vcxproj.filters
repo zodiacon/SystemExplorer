@@ -34,14 +34,11 @@
     <Filter Include="Helpers">
       <UniqueIdentifier>{d44a5596-224c-4f51-925e-17c61aba2631}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Views\Models">
-      <UniqueIdentifier>{e2f00380-7cb1-4b57-8fb5-941bd3128df7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Icons\ThreadStates">
       <UniqueIdentifier>{e2febe33-19ca-43ee-a14b-d114e4ac027a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PropertyPages">
-      <UniqueIdentifier>{9e7050b2-a5e1-41fb-99e7-93dd96245c08}</UniqueIdentifier>
+    <Filter Include="Models">
+      <UniqueIdentifier>{e2f00380-7cb1-4b57-8fb5-941bd3128df7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +162,6 @@
     <ClCompile Include="MemoryMapView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
-    <ClCompile Include="AccessMaskDecoder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SecurityInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -184,10 +178,10 @@
       <Filter>Views</Filter>
     </ClCompile>
     <ClCompile Include="ProcessInfoEx.cpp">
-      <Filter>Views\Models</Filter>
+      <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="ProcessColor.cpp">
-      <Filter>Views\Models</Filter>
+      <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
@@ -235,6 +229,9 @@
       <Filter>Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="IniFile.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="AccessMaskDecoder.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -371,9 +368,6 @@
     <ClInclude Include="MemoryMapView.h">
       <Filter>Views</Filter>
     </ClInclude>
-    <ClInclude Include="AccessMaskDecoder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SecurityInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -390,10 +384,10 @@
       <Filter>Views</Filter>
     </ClInclude>
     <ClInclude Include="ProcessInfoEx.h">
-      <Filter>Views\Models</Filter>
+      <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="ProcessColor.h">
-      <Filter>Views\Models</Filter>
+      <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
@@ -447,6 +441,9 @@
       <Filter>Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="IniFile.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="AccessMaskDecoder.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>

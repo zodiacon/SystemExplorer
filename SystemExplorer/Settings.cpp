@@ -60,6 +60,7 @@ bool Settings::Save(PCWSTR filename) const {
 	IniFile file(filename);
 
 	file.WriteBool(L"Options", L"AlwaysOnTop", AlwaysOnTop);
+	file.WriteBool(L"Options", L"SingleInstance", SingleInstanceOnly);
 	file.WriteInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 	
 	for (int i = 0; i < _countof(Processes.Colors); i++) {
@@ -75,6 +76,7 @@ bool Settings::Load(PCWSTR filename) {
 		return false;
 
 	AlwaysOnTop = file.ReadBool(L"Options", L"AlwaysOnTop");
+	SingleInstanceOnly = file.ReadBool(L"Options", L"SingleInstance");
 	Processes.UpdateInterval = file.ReadInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 
 	for (int i = 0; i < _countof(Processes.Colors); i++) {

@@ -83,6 +83,8 @@ public:
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
 		COMMAND_ID_HANDLER(ID_PROCESS_COLORS, OnProcessColors)
+		COMMAND_ID_HANDLER(ID_OPTIONS_REPLACETASKMANAGER, OnReplaceTaskManager)
+		COMMAND_ID_HANDLER(ID_OPTIONS_SINGLEINSTANCEONLY, OnSingleInstance)
 
 		COMMAND_ID_HANDLER(ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, OnShowAllWindowsDefaultDesktop)
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
@@ -150,22 +152,26 @@ private:
 	LRESULT OnProcessAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewCom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSystemSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnReplaceTaskManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSingleInstance(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	CString GetDefaultSettingsFile();
+	void ToggleAlwaysOnTop(UINT id);
 	void CloseAllBut(int page);
 	void InitCommandBar();
 	void InitToolBar(CToolBarCtrl& tb);
 	bool DetachTab(int index);
+	LRESULT SendMessageToAllFrames(bool excludeCurrent, UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
 	LRESULT ShowNotImplemented();
 
 private:
 	CTabView m_view;
 	CMultiPaneStatusBarCtrl m_StatusBar;
-	ObjectManager m_ObjMgr;
+	inline static ObjectManager m_ObjMgr;
+	int m_CurrentPage = -1;
 	inline static CImageListManaged m_TabImages;
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
-	int m_CurrentPage = -1;
 	inline static CFont m_MonoFont;
 	inline static Settings m_Settings;
 

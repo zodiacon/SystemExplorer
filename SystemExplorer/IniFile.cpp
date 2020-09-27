@@ -12,6 +12,7 @@ bool IniFile::IsValid() const {
 CString IniFile::ReadString(PCWSTR section, PCWSTR name, PCWSTR defaultValue) {
 	CString result;
 	auto count = ::GetPrivateProfileString(section, name, defaultValue, result.GetBufferSetLength(128), 128, _path);
+	result.Truncate(count);
 	return result;
 }
 

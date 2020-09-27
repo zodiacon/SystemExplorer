@@ -246,8 +246,8 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Performance\\CPU (%)", LVCFMT_RIGHT, 80, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\CPU Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Parent", LVCFMT_LEFT, 180, ColumnFlags::Const);
-	cm->AddColumn(L"Base Priority", LVCFMT_LEFT, 80, ColumnFlags::Numeric);
-	cm->AddColumn(L"Priority Class", LVCFMT_LEFT, 120, ColumnFlags::Visible);
+	cm->AddColumn(L"Performance\\Base Priority", LVCFMT_LEFT, 80, ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\Priority Class", LVCFMT_LEFT, 120, ColumnFlags::Visible);
 	cm->AddColumn(L"Performance\\Threads", LVCFMT_RIGHT, 60, ColumnFlags::Visible | ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\Peak Threads", LVCFMT_RIGHT, 60, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\Handles", LVCFMT_RIGHT, 70, ColumnFlags::Visible | ColumnFlags::Numeric);
@@ -492,36 +492,22 @@ void CProcessesView::GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COL
 	}
 
 	auto attributes = px.GetAttributes(m_ProcMgr);
-	if (colors[i = (int)ProcessColorIndex::Manageed].Enabled && (attributes & ProcessAttributes::Managed) == ProcessAttributes::Managed) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
-	}
+	static const ProcessAttributes all[] = {
+		ProcessAttributes::Managed,
+		ProcessAttributes::Immersive,
+		ProcessAttributes::Service,
+		ProcessAttributes::Protected,
+		ProcessAttributes::Secure,
+		ProcessAttributes::InJob,
+		ProcessAttributes::Wow64,
+	};
 
-	if (colors[i = (int)ProcessColorIndex::Immersive].Enabled && (attributes & ProcessAttributes::Immersive) == ProcessAttributes::Immersive) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
-	}
-	if (colors[i = (int)ProcessColorIndex::Secure].Enabled && (attributes & ProcessAttributes::Secure) == ProcessAttributes::Secure) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
-	}
-	if (colors[i = (int)ProcessColorIndex::Protected].Enabled && (attributes & ProcessAttributes::Protected) == ProcessAttributes::Protected) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
-	}
-	if (colors[i = (int)ProcessColorIndex::Services].Enabled && (attributes & ProcessAttributes::Service) == ProcessAttributes::Service) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
-	}
-	if (colors[i = (int)ProcessColorIndex::InJob].Enabled && (attributes & ProcessAttributes::InJob) == ProcessAttributes::InJob) {
-		bk = colors[i].Color;
-		text = colors[i].TextColor;
-		return;
+	for (int i = 0; i < _countof(all); i++) {
+		if (colors[i + 2].Enabled && ((attributes & all[i]) == all[i])) {
+			bk = colors[i + 2].Color;
+			text = colors[i + 2].TextColor;
+			return;
+		}
 	}
 
 	bk = text = CLR_INVALID;

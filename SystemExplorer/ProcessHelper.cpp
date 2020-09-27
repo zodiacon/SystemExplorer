@@ -7,6 +7,8 @@
 #include "ProcessPropertiesDlg.h"
 #include "ProcessInfoEx.h"
 
+const CString ifeoKey(L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\");
+
 CString ProcessHelper::GetFullProcessName(DWORD pid) {
 	wil::unique_handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid));
 	if (hProcess) {
@@ -32,6 +34,59 @@ CString ProcessHelper::GetProcessName(HANDLE hProcess) {
 	if (::QueryFullProcessImageName(hProcess, 0, path, &size))
 		return ::wcsrchr(path, L'\\') + 1;
 	return L"";
+}
+
+bool ProcessHelper::IsReplacingTaskManager() {
+	CRegKey key;
+	if (ERROR_SUCCESS != key.Open(HKEY_LOCAL_MACHINE, ifeoKey + L"taskmgr.exe", KEY_READ))
+		return false;
+	WCHAR value[MAX_PATH];
+	ULONG count = _countof(value);
+	if (ERROR_SUCCESS != key.QueryStringValue(L"Debugger", value, &count))
+		return false;
+	return ::_wcsicmp(GetProcessImageName(), value) == 0;
+}
+
+bool ProcessHelper::ReplaceTaskManager(bool revert) {
+	CRegKey key;
+	DWORD disp;
+	if (ERROR_SUCCESS != key.Create(HKEY_LOCAL_MACHINE, ifeoKey + L"taskmgr.exe", nullptr, 0, KEY_READ | KEY_WRITE | DELETE, nullptr, &disp))
+		return false;
+
+	ATLASSERT(!revert || (revert && disp == REG_OPENED_EXISTING_KEY));
+
+	if (revert)
+		return key.DeleteValue(L"Debugger") == ERROR_SUCCESS;
+
+	return key.SetStringValue(L"Debugger", GetProcessImageName(), REG_SZ) == ERROR_SUCCESS;
+}
+
+CString ProcessHelper::GetProcessImageName() {
+	static CString path;
+	if (path.IsEmpty()) {
+		::GetModuleFileName(nullptr, path.GetBufferSetLength(MAX_PATH), MAX_PATH);
+		path.FreeExtra();
+	}
+	return path;
+}
+
+bool ProcessHelper::IsInstanceRunning() {
+	static HANDLE hMutex = nullptr;
+	if (!hMutex) {
+		hMutex = ::CreateMutex(nullptr, FALSE, L"SystemExplorerInstanceMutex");
+		if (::GetLastError() == ERROR_ALREADY_EXISTS)
+			return true;
+	}
+	return false;
+}
+
+bool ProcessHelper::SetExistingInstanceFocus(PCWSTR name) {
+	auto hWnd = ::FindWindow(name, nullptr);
+	if (!hWnd)
+		return false;
+
+	::SetForegroundWindow(hWnd);
+	return true;
 }
 
 int ProcessHelper::OpenObjectDialog(const WinSys::ProcessManager& pm, HANDLE hObject, const CString& type) {
