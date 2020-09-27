@@ -12,7 +12,14 @@ extern "C" NTSTATUS ZwOpenThread(
 	_Out_ PHANDLE ThreadHandle,
 	_In_ ACCESS_MASK DesiredAccess,
 	_In_ POBJECT_ATTRIBUTES ObjectAttributes,
-	_In_opt_ PCLIENT_ID ClientId
+	_In_opt_ PCLIENT_ID ClientId);
+
+extern "C" NTSTATUS NTAPI ZwQueryInformationProcess(
+	_In_ HANDLE ProcessHandle,
+	_In_ PROCESSINFOCLASS ProcessInformationClass,
+	_Out_writes_bytes_(ProcessInformationLength) PVOID ProcessInformation,
+	_In_ ULONG ProcessInformationLength,
+	_Out_opt_ PULONG ReturnLength
 );
 
 extern "C" NTSTATUS ObOpenObjectByName(
@@ -55,10 +62,29 @@ void ObjExpUnload(PDRIVER_OBJECT DriverObject) {
 }
 
 NTSTATUS ObjExpCreateClose(PDEVICE_OBJECT, PIRP Irp) {
-	Irp->IoStatus.Status = STATUS_SUCCESS;
+	auto status = STATUS_SUCCESS;
+	if (IoGetCurrentIrpStackLocation(Irp)->MajorFunction == IRP_MJ_CREATE) {
+		// verify it's System explorer client
+		HANDLE hProcess;
+		status = ObOpenObjectByPointer(PsGetCurrentProcess(), OBJ_KERNEL_HANDLE, nullptr, 0, *PsProcessType, KernelMode, &hProcess);
+		NT_ASSERT(status);
+		if (NT_SUCCESS(status)) {
+			UCHAR buffer[280] = { 0 };
+			status = ZwQueryInformationProcess(hProcess, ProcessImageFileName, buffer, sizeof(buffer) - sizeof(WCHAR), nullptr);
+			if (NT_SUCCESS(status)) {
+				auto path = (UNICODE_STRING*)buffer;
+				auto bs = wcsrchr(path->Buffer, L'\\');
+				NT_ASSERT(bs);
+				if (0 != _wcsicmp(bs, L"\\SystemExplorer.exe"))
+					status = STATUS_ACCESS_DENIED;
+			}
+			ZwClose(hProcess);
+		}
+	}
+	Irp->IoStatus.Status = status;
 	Irp->IoStatus.Information = 0;
 	IoCompleteRequest(Irp, 0);
-	return STATUS_SUCCESS;
+	return status;
 }
 
 NTSTATUS ObjExpDeviceControl(PDEVICE_OBJECT, PIRP Irp) {

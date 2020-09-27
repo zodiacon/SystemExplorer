@@ -170,12 +170,12 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 				item.pszText = (PWSTR)PoolTypeToString(data->PoolType);
 				break;
 
-			case 7:		// default non-paged charge
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->DefaultNonPagedPoolCharge);
+			case 7:		// default paged charge
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->DefaultPagedPoolCharge);
 				break;
 
-			case 8:		// default paged charge
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->DefaultPagedPoolCharge);
+			case 8:		// default non-paged charge
+				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d", data->DefaultNonPagedPoolCharge);
 				break;
 
 			case 9:		// valid access mask
