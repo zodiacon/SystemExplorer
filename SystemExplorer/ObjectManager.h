@@ -67,20 +67,24 @@ struct ObjectNameAndType {
 
 enum class GdiObjectType {
 	DeviceContext = 1,
+	DirectDrawSurface = 3,
 	Region = 4,
 	Bitmap = 5,
+	Path = 7,
 	Palette = 8,
-	Font = 10,
-	Brush = 0x10,
-	Metafile = 0x15,
+	LFont = 10,
+	RFont = 11,
+	Brush = 16,
+	Metafile = 21,
 };
 
 struct GdiObject {
-	HGDIOBJ Handle;
+	ULONG Handle;
+	ULONG ProcessId;
+	PVOID Object;
 	GdiObjectType Type;
 	USHORT Count;
 	USHORT Index;
-	void* KernelAddress;
 };
 
 struct ObjectAndHandleStats {

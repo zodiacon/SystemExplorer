@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "ColorsSelectionDlg.h"
 #include "DialogHelper.h"
+#include "Settings.h"
+
+static WCHAR iniFileFilter[] = L"Ini files (*.ini)\0*.ini\0All Files\0*.*\0";
 
 CColorsSelectionDlg::CColorsSelectionDlg(HighlightColor* colors, int count) : m_Colors(colors, colors + count), m_CountColors(count) {
     ATLASSERT(colors);
@@ -146,6 +149,23 @@ LRESULT CColorsSelectionDlg::OnResetColors(WORD, WORD wID, HWND, BOOL&) {
         m_Colors[index].Color = m_Colors[index].DefaultColor;
         m_Colors[index].TextColor = m_Colors[index].DefaultTextColor;
         GetDlgItem(IDC_ENABLED + index).RedrawWindow();
+    }
+    return 0;
+}
+
+LRESULT CColorsSelectionDlg::OnSave(WORD, WORD wID, HWND, BOOL&) {
+    CSimpleFileDialog dlg(FALSE, L"ini", nullptr, OFN_EXPLORER | OFN_ENABLESIZING | OFN_OVERWRITEPROMPT, iniFileFilter, *this);
+    if (dlg.DoModal() == IDOK) {
+        Settings::SaveColors(dlg.m_szFileName, L"ProcessColor", m_Colors.data(), m_CountColors);
+    }
+    return 0;
+}
+
+LRESULT CColorsSelectionDlg::OnLoad(WORD, WORD wID, HWND, BOOL&) {
+    CSimpleFileDialog dlg(TRUE, L"ini", nullptr, OFN_EXPLORER | OFN_ENABLESIZING | OFN_FILEMUSTEXIST, iniFileFilter, *this);
+    if (dlg.DoModal() == IDOK) {
+        if (Settings::LoadColors(dlg.m_szFileName, L"ProcessColor", m_Colors.data(), m_CountColors))
+            RedrawWindow();
     }
     return 0;
 }

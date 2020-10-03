@@ -8,12 +8,14 @@
 #include "INterfaces.h"
 #include "ToolBarHelper.h"
 #include "Settings.h"
-#include <set>
+#include "NotifyIcon.h"
+#include <unordered_set>
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CAutoUpdateUI<CMainFrame>,
 	public CToolBarHelper<CMainFrame>,
+	public CNotifyIcon<CMainFrame>,
 	public IMainFrame,
 	public CMessageFilter, 
 	public CIdleHandler {
@@ -26,6 +28,7 @@ public:
 	void OnFinalMessage(HWND) override;
 	void SaveSettings(PCWSTR filename = nullptr);
 	void LoadSettings(PCWSTR filename = nullptr);
+	void OnTrayIconSelected();
 
 	CCommandBarCtrl m_CmdBar;
 
@@ -37,7 +40,6 @@ public:
 	void ShowAllObjects(PCWSTR type) override;
 	CUpdateUIBase* GetUpdateUI() override;
 	CFont& GetMonoFont() override;
-	Settings& GetSettings() override;
 	LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) override;
 	HWND CreateAndAddThreadsView(const CString& name, DWORD pid);
 	HWND CreateAndAddModulesView(const CString& name, DWORD pid);
@@ -63,6 +65,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSES, OnViewSystemProcesses)
 		COMMAND_ID_HANDLER(ID_SYSTEM_THREADS, OnViewSystemThreads)
 		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
+		COMMAND_ID_HANDLER(ID_SYSTEM_INFORMATION, OnViewSystemInformation)
 		COMMAND_ID_HANDLER(ID_SYSTEM_COM, OnViewCom)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
@@ -79,12 +82,14 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_HEAPS, OnProcessHeaps)
 		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessAll)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SEARCH, OnSystemSearch)
+		MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
 		COMMAND_ID_HANDLER(ID_PROCESS_COLORS, OnProcessColors)
 		COMMAND_ID_HANDLER(ID_OPTIONS_REPLACETASKMANAGER, OnReplaceTaskManager)
 		COMMAND_ID_HANDLER(ID_OPTIONS_SINGLEINSTANCEONLY, OnSingleInstance)
+		COMMAND_ID_HANDLER(ID_OPTIONS_MINIMIZETOTRAY, OnMinimizeToTray)
 
 		COMMAND_ID_HANDLER(ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, OnShowAllWindowsDefaultDesktop)
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
@@ -97,6 +102,7 @@ public:
 		CHAIN_MSG_MAP(CAutoUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CToolBarHelper<CMainFrame>)
+		CHAIN_MSG_MAP(CNotifyIcon<CMainFrame>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
@@ -117,6 +123,7 @@ private:
 	LRESULT OnTabContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileExitAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -154,6 +161,8 @@ private:
 	LRESULT OnSystemSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnReplaceTaskManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSingleInstance(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnMinimizeToTray(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewSystemInformation(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	CString GetDefaultSettingsFile();
@@ -173,15 +182,14 @@ private:
 	inline static CImageListManaged m_TabImages;
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
 	inline static CFont m_MonoFont;
-	inline static Settings m_Settings;
 
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
 		Devices, Memory, Login, Modules, Processes, COM, Threads,
-		Search,
+		Search, SystemInfo,
 		COUNT
 	};
 	inline static int m_Icons[(int)IconType::COUNT];
 	inline static int s_FrameCount;
-	inline static std::set<CMainFrame*> s_Frames;
+	inline static std::unordered_set<CMainFrame*> s_Frames;
 };

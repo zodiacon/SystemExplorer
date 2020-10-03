@@ -109,6 +109,8 @@
 #define IDD_COLORS                      322
 #define IDR_SPLIT                       324
 #define IDI_COLORWHEEL                  325
+#define IDI_SYSINFO                     326
+#define IDI_PROPERTIES                  327
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -139,6 +141,9 @@
 #define IDC_CANCEL                      1018
 #define IDC_ENV                         1018
 #define IDC_DISABLE                     1018
+#define IDC_SAVE                        1018
+#define IDC_SAVE2                       1019
+#define IDC_LOAD                        1019
 #define IDC_EXPLORE                     1020
 #define IDC_TOKEN                       1021
 #define IDC_JOB                         1022
@@ -280,14 +285,15 @@
 #define ID_OPTIONS_RUNATLOGON           32887
 #define ID_OPTIONS_MINIMIZETOTRAY       32888
 #define ID_OPTIONS_SINGLEINSTANCEONLY   32889
+#define ID_SYSTEM_INFORMATION           32890
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        326
-#define _APS_NEXT_COMMAND_VALUE         32890
-#define _APS_NEXT_CONTROL_VALUE         1061
+#define _APS_NEXT_RESOURCE_VALUE        328
+#define _APS_NEXT_COMMAND_VALUE         32891
+#define _APS_NEXT_CONTROL_VALUE         1062
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

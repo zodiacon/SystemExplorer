@@ -9,6 +9,8 @@ class CComView :
 	public CViewBase<CComView>,
 	public CCustomDraw<CComView> {
 public:
+	DECLARE_WND_CLASS(nullptr)
+
 	CComView(IMainFrame* frame);
 
 	BEGIN_MSG_MAP(CComView)
@@ -25,7 +27,6 @@ public:
 
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(HWND, int row) const;
-
 	void DoSort(const SortInfo*);
 
 private:

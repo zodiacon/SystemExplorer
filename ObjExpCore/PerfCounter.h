@@ -1,7 +1,9 @@
 #pragma once
 
 namespace WinSys {
-	class PerfCounter {
+	class PerfCounter final {
+	public:
+
 	};
 }
 

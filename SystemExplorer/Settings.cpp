@@ -5,6 +5,11 @@
 Settings::Settings() {
 }
 
+Settings& Settings::Get() {
+	static Settings settings;
+	return settings;
+}
+
 void Settings::SetDefaults() {
 	AlwaysOnTop = false;
 }
@@ -61,13 +66,10 @@ bool Settings::Save(PCWSTR filename) const {
 
 	file.WriteBool(L"Options", L"AlwaysOnTop", AlwaysOnTop);
 	file.WriteBool(L"Options", L"SingleInstance", SingleInstanceOnly);
+	file.WriteBool(L"Options", L"MinimizeToTray", MinimizeToTray);
 	file.WriteInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 	
-	for (int i = 0; i < _countof(Processes.Colors); i++) {
-		WriteProcessColor(file, i);
-	}
-
-	return true;
+	return SaveColors(filename, L"ProcessColors", Processes.Colors, _countof(Processes.Colors));
 }
 
 bool Settings::Load(PCWSTR filename) {
@@ -77,30 +79,41 @@ bool Settings::Load(PCWSTR filename) {
 
 	AlwaysOnTop = file.ReadBool(L"Options", L"AlwaysOnTop");
 	SingleInstanceOnly = file.ReadBool(L"Options", L"SingleInstance");
+	MinimizeToTray = file.ReadBool(L"Options", L"MinimizeToTray");
 	Processes.UpdateInterval = file.ReadInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 
-	for (int i = 0; i < _countof(Processes.Colors); i++) {
-		ReadProcessColor(file, i);
+	return LoadColors(filename, L"ProcessColor", Processes.Colors, _countof(Processes.Colors));
+}
+
+bool Settings::SaveColors(PCWSTR path, PCWSTR prefix, const HighlightColor* colors, int count) {
+	IniFile file(path);
+	CString text;
+	for (int i = 0; i < count; i++) {
+		text.Format(L"%s%d", prefix, i);
+		auto& info = colors[i];
+		if (!file.WriteColor(text, L"Color", info.Color))
+			return false;
+		file.WriteColor(text, L"TextColor", info.TextColor);
+		file.WriteBool(text, L"Enabled", info.Enabled);
+		file.WriteString(text, L"Name", info.Name);
 	}
 	return true;
 }
 
-void Settings::WriteProcessColor(IniFile& file, int i) const {
+bool Settings::LoadColors(PCWSTR path, PCWSTR prefix, HighlightColor* colors, int count) {
+	IniFile file(path);
+	if (!file.IsValid())
+		return false;
+	
 	CString text;
-	text.Format(L"ProcessColor%d", i);
-	auto& info = Processes.Colors[i];
-	file.WriteColor(text, L"Color", info.Color);
-	file.WriteColor(text, L"TextColor", info.TextColor);
-	file.WriteBool(text, L"Enabled", info.Enabled);
-	file.WriteString(text, L"Name", info.Name);
+	for (int i = 0; i < count; i++) {
+		text.Format(L"%s%d", prefix, i);
+		auto& info = colors[i];
+		info.Color = file.ReadColor(text, L"Color", info.Color);
+		info.TextColor = file.ReadColor(text, L"TextColor", info.TextColor);
+		info.Enabled = file.ReadBool(text, L"Enabled", info.Enabled);
+		info.Name = file.ReadString(text, L"Name", info.Name);
+	}
+	return true;
 }
 
-void Settings::ReadProcessColor(IniFile& file, int i) {
-	CString text;
-	text.Format(L"ProcessColor%d", i);
-	auto& info = Processes.Colors[i];
-	info.Color = file.ReadColor(text, L"Color", info.Color);
-	info.TextColor = file.ReadColor(text, L"TextColor", info.TextColor);
-	info.Enabled = file.ReadBool(text, L"Enabled", info.Enabled);
-	info.Name = file.ReadString(text, L"Name", info.Name);
-}

@@ -117,6 +117,7 @@ namespace WinSys {
 		static PerformanceInformation GetPerformanceInformation();
 		static const WindowsVersion& GetWindowsVersion();
 		static const BasicSystemInfo& GetBasicSystemInfo();
+		static uint64_t GetBootTime();
 	};
 
 }

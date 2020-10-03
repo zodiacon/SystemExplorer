@@ -20,10 +20,11 @@ enum class ProcessColorIndex {
 
 class Settings {
 public:
-	Settings();
-
+	static Settings& Get();
 	bool AlwaysOnTop{ false };
 	bool SingleInstanceOnly{ false };
+	bool MinimizeToTray{ false };
+
 	struct {
 		HighlightColor Colors[(int)ProcessColorIndex::COUNT] {
 			HighlightColor(L"New Process", StandardColors::LimeGreen, StandardColors::Black, true),
@@ -52,8 +53,14 @@ public:
 	bool Save(PCWSTR filename) const;
 	bool Load(PCWSTR filename);
 
+	static bool SaveColors(PCWSTR path, PCWSTR prefix, const HighlightColor* colors, int count);
+	static bool LoadColors(PCWSTR path, PCWSTR prefix, HighlightColor* colors, int count);
+
 private:
-	void WriteProcessColor(IniFile& file, int i) const;
-	void ReadProcessColor(IniFile& file, int i);
+	Settings(Settings const&) = delete;
+	Settings(Settings&&) = delete;
+	Settings& operator=(Settings const&) = delete;
+	Settings& operator=(Settings&&) = delete;
+	Settings();
 };
 

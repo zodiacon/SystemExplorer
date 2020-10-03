@@ -15,3 +15,4 @@
 #include "Token.h"
 #include "Helpers.h"
 #include "COMExplorer.h"
+#include "SystemInformation.h"

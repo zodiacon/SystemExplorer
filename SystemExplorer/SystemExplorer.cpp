@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include "resource.h"
-
 #include "MainFrm.h"
 #include "DriverHelper.h"
 

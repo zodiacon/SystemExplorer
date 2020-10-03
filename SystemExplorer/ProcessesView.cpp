@@ -207,7 +207,7 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			break;
 		case ProcessColumn::CPU:
 			if (p->Id > 0)
-				GetFrame()->GetSettings().GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
+				Settings::Get().GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
 			break;
 	}
 	
@@ -477,7 +477,7 @@ ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {
 }
 
 void CProcessesView::GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const {
-	auto& colors = GetFrame()->GetSettings().Processes.Colors;
+	auto& colors = Settings::Get().Processes.Colors;
 	int i;
 
 	if (colors[i = (int)ProcessColorIndex::DeletedObjects].Enabled && px.IsTerminated) {

@@ -26,6 +26,8 @@ public:
 		COMMAND_ID_HANDLER(ID_COLOR_FOREGROUND, OnChangeForeground)
 		COMMAND_ID_HANDLER(ID_COLOR_DEFAULT, OnChangeToDefault)
 		COMMAND_ID_HANDLER(IDC_DEFAULTS, OnResetColors)
+		COMMAND_ID_HANDLER(IDC_SAVE, OnSave)
+		COMMAND_ID_HANDLER(IDC_LOAD, OnLoad)
 		NOTIFY_CODE_HANDLER(BCN_DROPDOWN, OnChangeDropdown)
 		COMMAND_RANGE_HANDLER(IDC_CHANGE, IDC_CHANGE + m_CountColors, OnChangeColor)
 		CHAIN_MSG_MAP(CCustomDraw<CColorsSelectionDlg>)
@@ -49,6 +51,8 @@ private:
 	LRESULT OnChangeForeground(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnChangeToDefault(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnResetColors(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnLoad(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	std::vector<HighlightColor> m_Colors;

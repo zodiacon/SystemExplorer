@@ -80,7 +80,8 @@ bool DriverHelper::InstallDriver(bool justCopy) {
 
 	wil::unique_schandle hService(::CreateService(hScm.get(), L"KObjExp", nullptr, SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER,
 		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path, nullptr, nullptr, nullptr, nullptr, nullptr));
-	return hService != nullptr;
+	auto success = hService != nullptr;
+	return success;
 }
 
 bool DriverHelper::UpdateDriver() {

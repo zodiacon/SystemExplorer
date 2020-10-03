@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ObjExpCore", "ObjExpCore\ObjExpCore.vcxproj", "{CAFA77FB-4A19-47B4-909C-9AF25F0091A7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemExplorer", "SystemExplorer\SystemExplorer.vcxproj", "{A5D618EB-BD6E-4769-8EF9-92ACE34C5DA4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0EC9E22D-B694-437A-8505-2BB067BFC1D4} = {0EC9E22D-B694-437A-8505-2BB067BFC1D4}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +32,7 @@ Global
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|ARM64.Deploy.0 = Debug|ARM64
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x64.ActiveCfg = Debug|x64
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x64.Build.0 = Debug|x64
+		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x64.Deploy.0 = Debug|x64
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x86.ActiveCfg = Debug|Win32
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x86.Build.0 = Debug|Win32
 		{0EC9E22D-B694-437A-8505-2BB067BFC1D4}.Debug|x86.Deploy.0 = Debug|Win32

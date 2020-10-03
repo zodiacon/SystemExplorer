@@ -138,7 +138,7 @@ DWORD CThreadsView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 			break;
 
 		case ThreadColumn::CPU:
-			GetFrame()->GetSettings().GetCPUColors(t->CPU / 10000, lcd->clrTextBk, lcd->clrText);
+			Settings::Get().GetCPUColors(t->CPU / 10000, lcd->clrTextBk, lcd->clrText);
 			break;
 	}
 	return CDRF_NEWFONT;

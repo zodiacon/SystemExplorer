@@ -71,7 +71,7 @@ private:
 	ObjectManager m_ObjectManager;
 	std::vector<std::shared_ptr<ObjectTypeInfo>> m_Items;
 	int m_Interval = 1000;
-	HFONT m_hFont;
+	HFONT m_hFont{ nullptr };
 	CListViewCtrl m_List;
 	bool m_Paused = false;
 };

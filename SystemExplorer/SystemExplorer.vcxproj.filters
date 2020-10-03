@@ -234,6 +234,9 @@
     <ClCompile Include="AccessMaskDecoder.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="SysInfoView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -445,6 +448,12 @@
     </ClInclude>
     <ClInclude Include="AccessMaskDecoder.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="NotifyIcon.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="SysInfoView.h">
+      <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -722,6 +731,12 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\color_wheel.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\properties.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\sysinfo.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

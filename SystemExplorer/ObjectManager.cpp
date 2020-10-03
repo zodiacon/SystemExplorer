@@ -3,6 +3,32 @@
 #include "DriverHelper.h"
 #include "NtDll.h"
 
+#pragma pack(push, 1)
+typedef struct _GDI_HANDLE_ENTRY {
+	union {
+		PVOID Object;
+		PVOID NextFree;
+	};
+	union {
+		struct {
+			USHORT ProcessId;
+			USHORT Lock : 1;
+			USHORT Count : 15;
+		};
+		ULONG Value;
+	} Owner;
+	USHORT Unique;
+	UCHAR Type;
+	UCHAR Flags;
+	PVOID UserPointer;
+} GDI_HANDLE_ENTRY, * PGDI_HANDLE_ENTRY;
+#pragma pack(pop)
+
+static_assert(sizeof(GDI_HANDLE_ENTRY) == 24);
+
+#define GDI_HANDLE_INDEX_BITS 16
+#define GDI_MAKE_HANDLE(Index, Unique) ((ULONG)(((ULONG)(Unique) << GDI_HANDLE_INDEX_BITS) | (ULONG)(Index)))
+
 #define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
 
 std::vector<std::shared_ptr<ObjectTypeInfo>> ObjectManager::_types;
@@ -362,15 +388,6 @@ std::vector<HWND> ObjectManager::EnumChildWindows(HWND hWnd) {
 }
 
 std::vector<GdiObject> ObjectManager::EnumGdiObjects(DWORD pid) {
-	struct GDICELL {
-		PVOID KernelAddress;
-		USHORT ProcessId;
-		USHORT Count;
-		USHORT Upper;
-		USHORT Type;
-		PVOID UserAddress;
-	};
-
 	std::vector<GdiObject> objects;
 
 	auto hProcess = ::GetCurrentProcess();
@@ -379,30 +396,32 @@ std::vector<GdiObject> ObjectManager::EnumGdiObjects(DWORD pid) {
 	NT::NtQueryInformationProcess(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), nullptr);
 	auto const GdiSharedHandleTable = 0xf8;
 
-	GDICELL* GdiAddress;
+	GDI_HANDLE_ENTRY* GdiAddress;
 	SIZE_T read;
 	if (!::ReadProcessMemory(hProcess, (BYTE*)pbi.PebBaseAddress + GdiSharedHandleTable, &GdiAddress, sizeof(GdiAddress), &read))
 		return objects;
 
 	unsigned tableSize = 64 << 10;
-	auto table = std::make_unique<GDICELL[]>(tableSize);
-	if (!::ReadProcessMemory(hProcess, GdiAddress, table.get(), tableSize * sizeof(GDICELL), &read))
+	auto table = std::make_unique<GDI_HANDLE_ENTRY[]>(tableSize);
+	if (!::ReadProcessMemory(hProcess, GdiAddress, table.get(), tableSize * sizeof(GDI_HANDLE_ENTRY), &read))
 		return objects;
 
 	objects.reserve(128);
 	for (unsigned i = 0; i < tableSize; i++) {
 		auto obj = table.get() + i;
-		if (obj->ProcessId == 0)
+		if (obj->Owner.ProcessId == 0)
 			continue;
-		//if ((obj->ProcessId >> 2) != ((pid & 0xffff)) >> 2)
-		//	continue;
+
+		if (obj->Owner.ProcessId != pid)
+			continue;
 
 		GdiObject object;
+		object.Object = obj->Object;
+		object.ProcessId = obj->Owner.ProcessId;
 		object.Index = (USHORT)i;
-		object.Handle = ULongToHandle((obj->Upper << 16UL) + i);
+		object.Handle = GDI_MAKE_HANDLE(i, obj->Unique);
 		object.Type = (GdiObjectType)(obj->Type & 0x7f);
-		object.Count = obj->Count;
-		object.KernelAddress = obj->KernelAddress;
+		object.Count = obj->Owner.Count;
 		objects.push_back(object);
 	}
 

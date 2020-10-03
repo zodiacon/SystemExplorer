@@ -72,12 +72,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>SysExp</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>SysExp</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -232,6 +234,9 @@
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
     </Manifest>
+    <PostBuildEvent>
+      <Command>signtool sign /i DigiCert /fd sha256 $(TargetPath)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
@@ -247,6 +252,7 @@
     <ClCompile Include="ProcessPropertiesDlg.cpp" />
     <ClCompile Include="SearchBar.cpp" />
     <ClCompile Include="SearchView.cpp" />
+    <ClCompile Include="SysInfoView.cpp" />
     <ClCompile Include="ThreadsView.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
@@ -314,10 +320,12 @@
     <ClInclude Include="EnvironmentDlg.h" />
     <ClInclude Include="IniFile.h" />
     <ClInclude Include="JobPropertiesDlg.h" />
+    <ClInclude Include="NotifyIcon.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />
     <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
+    <ClInclude Include="SysInfoView.h" />
     <ClInclude Include="ThreadsView.h" />
     <ClInclude Include="DetachHostWindow.h" />
     <ClInclude Include="DeviceManagerView.h" />
@@ -443,6 +451,7 @@
     <Image Include="res\process.ico" />
     <Image Include="res\processes.ico" />
     <Image Include="res\process_view.ico" />
+    <Image Include="res\properties.ico" />
     <Image Include="res\Ready.ico" />
     <Image Include="res\refresh.ico" />
     <Image Include="res\reserved.ico" />
@@ -455,6 +464,7 @@
     <Image Include="res\Standby.ico" />
     <Image Include="res\stop.ico" />
     <Image Include="res\symboliclink.ico" />
+    <Image Include="res\sysinfo.ico" />
     <Image Include="res\table_column-edit.ico" />
     <Image Include="res\table_column_delete.ico" />
     <Image Include="res\thread.ico" />

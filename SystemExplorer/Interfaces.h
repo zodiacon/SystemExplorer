@@ -16,6 +16,5 @@ struct IMainFrame {
 	virtual void ShowAllObjects(PCWSTR typename) = 0;
 	virtual CUpdateUIBase* GetUpdateUI() = 0;
 	virtual CFont& GetMonoFont() = 0;
-	virtual Settings& GetSettings() = 0;
 	virtual LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) = 0;
 };

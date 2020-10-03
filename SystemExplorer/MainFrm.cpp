@@ -28,6 +28,7 @@
 #include "COMView.h"
 #include "SearchView.h"
 #include "ColorsSelectionDlg.h"
+#include "SysInfoView.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -62,8 +63,9 @@ void CMainFrame::SaveSettings(PCWSTR filename) {
 		path = GetDefaultSettingsFile();
 		filename = path;
 	}
-	m_Settings.AlwaysOnTop = (GetExStyle() & WS_EX_TOPMOST) > 0;
-	m_Settings.Save(filename);
+	auto& settings = Settings::Get();
+	settings.AlwaysOnTop = (GetExStyle() & WS_EX_TOPMOST) > 0;
+	settings.Save(filename);
 }
 
 void CMainFrame::LoadSettings(PCWSTR filename) {
@@ -72,7 +74,12 @@ void CMainFrame::LoadSettings(PCWSTR filename) {
 		path = GetDefaultSettingsFile();
 		filename = path;
 	}
-	m_Settings.Load(filename);
+	Settings::Get().Load(filename);
+}
+
+void CMainFrame::OnTrayIconSelected() {
+	ShowWindow(SW_RESTORE);
+	RemoveTrayIcon();
 }
 
 LRESULT CMainFrame::OnProcessMemoryMap(WORD, WORD, HWND, BOOL&) {
@@ -154,10 +161,11 @@ LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnProcessColors(WORD, WORD, HWND, BOOL&) {
-	CColorsSelectionDlg dlg(m_Settings.Processes.Colors, _countof(m_Settings.Processes.Colors));
+	auto& settings = Settings::Get();
+	CColorsSelectionDlg dlg(settings.Processes.Colors, _countof(settings.Processes.Colors));
 	dlg.SetTitle(L"Process Colors");
 	if (dlg.DoModal() == IDOK) {
-		memcpy(m_Settings.Processes.Colors, dlg.GetColors(), sizeof(m_Settings.Processes.Colors));
+		memcpy(settings.Processes.Colors, dlg.GetColors(), sizeof(settings.Processes.Colors));
 	}
 	return 0;
 }
@@ -203,7 +211,7 @@ LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	if (s_FrameCount == 1) {
 		LoadSettings();
-		if (m_Settings.SingleInstanceOnly && ProcessHelper::IsInstanceRunning()) {
+		if (Settings::Get().SingleInstanceOnly && ProcessHelper::IsInstanceRunning()) {
 			WCHAR className[64]{};
 			::GetClassName(m_hWnd, className, _countof(className));
 			if(ProcessHelper::SetExistingInstanceFocus(className))
@@ -270,11 +278,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 	m_view.SetTitleBarWindow(m_hWnd);
+	
+	const auto& settings = Settings::Get();
 
-	if (m_Settings.AlwaysOnTop)
+	if (settings.AlwaysOnTop)
 		ToggleAlwaysOnTop(ID_OPTIONS_ALWAYSONTOP);
-	if (m_Settings.SingleInstanceOnly)
+	if (settings.SingleInstanceOnly)
 		UISetCheck(ID_OPTIONS_SINGLEINSTANCEONLY, TRUE);
+	if (settings.MinimizeToTray)
+		UISetCheck(ID_OPTIONS_MINIMIZETOTRAY, TRUE);
 
 	// icons
 	struct {
@@ -319,13 +331,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
 			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD,
-			IDI_FIND
+			IDI_FIND, IDI_SYSINFO
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
 			m_Icons[i] = m_TabImages.AddIcon(AtlLoadIconImage(ids[i], 0, 16, 16));
 
-		m_MonoFont.CreatePointFont(100, L"Consolas");
+		m_MonoFont.CreatePointFont(95, L"Consolas");
 	}
 
 	int index = 0;
@@ -408,6 +420,17 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 			m_StatusBar.SetText(8, text);
 		}
 	}
+	return 0;
+}
+
+LRESULT CMainFrame::OnSysCommand(UINT, WPARAM wp, LPARAM, BOOL& bHandled) {
+	if ((wp & 0xfff0) == SC_MINIMIZE && Settings::Get().MinimizeToTray) {
+		AddTrayIcon(AtlLoadIconImage(IDR_MAINFRAME, 0, 16, 16), L"System Explorer");
+		ShowWindow(SW_MINIMIZE);
+		ShowWindow(SW_HIDE);
+		return 0;
+	}
+	bHandled = FALSE;
 	return 0;
 }
 
@@ -740,9 +763,24 @@ LRESULT CMainFrame::OnReplaceTaskManager(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnSingleInstance(WORD, WORD, HWND, BOOL&) {
-	m_Settings.SingleInstanceOnly = !m_Settings.SingleInstanceOnly;
-	UISetCheck(ID_OPTIONS_SINGLEINSTANCEONLY, m_Settings.SingleInstanceOnly);
+	Settings::Get().SingleInstanceOnly = Settings::Get().SingleInstanceOnly;
+	UISetCheck(ID_OPTIONS_SINGLEINSTANCEONLY, Settings::Get().SingleInstanceOnly);
 
+	return 0;
+}
+
+LRESULT CMainFrame::OnMinimizeToTray(WORD, WORD, HWND, BOOL&) {
+	auto& s = Settings::Get();
+	s.MinimizeToTray = !s.MinimizeToTray;
+	UISetCheck(ID_OPTIONS_MINIMIZETOTRAY, s.MinimizeToTray);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnViewSystemInformation(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CSysInfoView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"System Information", m_Icons[(int)IconType::SystemInfo], pView);
 	return 0;
 }
 
@@ -808,6 +846,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
 		{ ID_WINDOW_CLOSE, IDI_WINDOW_CLOSE },
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
+		{ ID_SYSTEM_INFORMATION, IDI_SYSINFO },
 		{ ID_FILE_RUNASADMINISTRATOR, 0, SecurityHelper::GetShieldIcon() },
 		{ ID_SERVICE_START, IDI_PLAY },
 		{ ID_SERVICE_STOP, IDI_STOP },
@@ -829,6 +868,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_PROCESS_KILL, IDI_DELETE },
 		{ ID_PROCESS_HEAPS, IDI_HEAP },
 		{ ID_SYSTEM_COM, IDI_COMPONENT },
+		{ ID_EDIT_PROPERTIES, IDI_PROPERTIES },
 	};
 	for (auto& cmd : cmds) {
 		m_CmdBar.AddIcon(cmd.icon ? AtlLoadIconImage(cmd.icon, 0, 16, 16) : cmd.hIcon, cmd.id);
@@ -938,10 +978,6 @@ CUpdateUIBase* CMainFrame::GetUpdateUI() {
 
 CFont& CMainFrame::GetMonoFont() {
 	return m_MonoFont;
-}
-
-Settings& CMainFrame::GetSettings() {
-	return m_Settings;
 }
 
 LRESULT CMainFrame::SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) {

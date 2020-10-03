@@ -47,6 +47,17 @@ const BasicSystemInfo & WinSys::SystemInformation::GetBasicSystemInfo() {
 	return info;
 }
 
+uint64_t SystemInformation::GetBootTime() {
+	static int64_t time = 0;
+	if (time == 0) {
+		SYSTEM_TIMEOFDAY_INFORMATION info;
+		if (NT_SUCCESS(::NtQuerySystemInformation(SystemTimeOfDayInformation, &info, sizeof(info), nullptr)))
+			time = info.BootTime.QuadPart;
+	}
+
+	return time;
+}
+
 int WinSys::SetLastStatus(int status) {
 	LastStatus = status;
 	return status;

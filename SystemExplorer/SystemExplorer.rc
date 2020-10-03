@@ -156,6 +156,7 @@ BEGIN
         MENUITEM "&Drivers",                    ID_SYSTEM_DRIVERS
         MENUITEM "&COM",                        ID_SYSTEM_COM
         MENUITEM "&Logon Sessions",             ID_SYSTEM_LOGONSESSIONS
+        MENUITEM "Information",                 ID_SYSTEM_INFORMATION
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE
         MENUITEM SEPARATOR
@@ -522,6 +523,10 @@ IDI_FOLDER_FIND         ICON                    "res\\folder_open-find.ico"
 
 IDI_COLORWHEEL          ICON                    "res\\color_wheel.ico"
 
+IDI_SYSINFO             ICON                    "res\\sysinfo.ico"
+
+IDI_PROPERTIES          ICON                    "res\\properties.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -715,16 +720,18 @@ BEGIN
     LTEXT           "Limits:",IDC_STATIC,213,30,21,8
 END
 
-IDD_COLORS DIALOGEX 0, 0, 213, 236
+IDD_COLORS DIALOGEX 0, 0, 213, 260
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Colors"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,16,215,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,81,215,50,14
-    CONTROL         "New Processes",IDC_ENABLED,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,12,12,132,12
-    CONTROL         "Change",IDC_CHANGE,"Button",BS_SPLITBUTTON | WS_TABSTOP,153,12,51,14
-    PUSHBUTTON      "Defaults",IDC_DEFAULTS,146,215,50,14
+    DEFPUSHBUTTON   "OK",IDOK,48,239,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,114,239,50,14
+    CONTROL         "New Processes",IDC_ENABLED,"Button",BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,12,37,132,12
+    CONTROL         "Change",IDC_CHANGE,"Button",BS_SPLITBUTTON | WS_TABSTOP,153,37,51,14
+    PUSHBUTTON      "Defaults",IDC_DEFAULTS,12,6,42,14
+    PUSHBUTTON      "Save...",IDC_SAVE,94,6,50,14
+    PUSHBUTTON      "Load...",IDC_LOAD,150,6,50,14
 END
 
 
@@ -837,7 +844,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 206
         TOPMARGIN, 7
-        BOTTOMMARGIN, 229
+        BOTTOMMARGIN, 253
     END
 END
 #endif    // APSTUDIO_INVOKED
