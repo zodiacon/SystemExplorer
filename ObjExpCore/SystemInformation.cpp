@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SystemInformation.h"
 #include <Psapi.h>
+#include <assert.h>
 
 using namespace WinSys;
 
@@ -11,7 +12,8 @@ static_assert(sizeof(PerformanceInformation) == sizeof(SYSTEM_PERFORMANCE_INFORM
 PerformanceInformation SystemInformation::GetPerformanceInformation() {
 	PerformanceInformation info{};
 	ULONG len;
-	::NtQuerySystemInformation(SystemPerformanceInformation, &info, sizeof(info), &len);
+	auto status = ::NtQuerySystemInformation(SystemPerformanceInformation, &info, sizeof(info), &len);
+	assert(NT_SUCCESS(status));
 	return info;
 }
 
