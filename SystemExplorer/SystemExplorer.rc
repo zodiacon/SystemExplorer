@@ -401,7 +401,7 @@ IDI_ABOUT               ICON                    "res\\about.ico"
 
 IDI_PACKAGE             ICON                    "res\\package.ico"
 
-IDI_PIN                 ICON                    "C:\\Dev\\SystemExplorer\\SystemExplorer\\res\\pin_green.ico"
+IDI_PIN                 ICON                    "res\\pin_green.ico"
 
 IDI_FOLDER              ICON                    "res\\folder.ico"
 
