@@ -384,7 +384,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		::SetPriorityClass(::GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
-		PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
+		//PostMessage(WM_COMMAND, ID_OBJECTS_ALLOBJECTTYPES);
 		PostMessage(WM_COMMAND, ID_SYSTEM_PROCESSES);
 	}
 	SetTimer(1, 1000, nullptr);
@@ -782,6 +782,10 @@ LRESULT CMainFrame::OnViewSystemInformation(WORD, WORD, HWND, BOOL&) {
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, L"System Information", m_Icons[(int)IconType::SystemInfo], pView);
 	return 0;
+}
+
+LRESULT CMainFrame::OnViewDrivers(WORD, WORD, HWND, BOOL&) {
+	return ShowNotImplemented();
 }
 
 CString CMainFrame::GetDefaultSettingsFile() {

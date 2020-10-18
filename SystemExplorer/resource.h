@@ -286,13 +286,14 @@
 #define ID_OPTIONS_MINIMIZETOTRAY       32888
 #define ID_OPTIONS_SINGLEINSTANCEONLY   32889
 #define ID_SYSTEM_INFORMATION           32890
+#define ID_SYSTEM_KERNELMODULES         32891
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        328
-#define _APS_NEXT_COMMAND_VALUE         32891
+#define _APS_NEXT_COMMAND_VALUE         32892
 #define _APS_NEXT_CONTROL_VALUE         1062
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

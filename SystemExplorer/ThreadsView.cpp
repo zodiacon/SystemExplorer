@@ -59,15 +59,21 @@ CString CThreadsView::GetColumnText(HWND, int row, int col) {
 		case ThreadColumn::KernelTime: return FormatHelper::TimeSpanToString(t->KernelTime);
 		case ThreadColumn::UserTime: return FormatHelper::TimeSpanToString(t->UserTime);
 		case ThreadColumn::WaitTime: text.Format(L"%u.%03d", t->WaitTime / 1000, t->WaitTime % 1000); break;
+		case ThreadColumn::ComApartment: return FormatHelper::ComApartmentToString(tx.GetComFlags());
 		case ThreadColumn::ComFlags:
 		{
 			auto flags = tx.GetComFlags();
 			if (flags != WinSys::ComFlags::Error && flags != WinSys::ComFlags::None)
-				text.Format(L"0x%X", flags);
+				text.Format(L"0x%08X (%s)", flags, FormatHelper::ComFlagsToString(flags));
 			break;
 		}
-		case ThreadColumn::MemoryPriority: text.Format(L"%d", tx.GetMemoryPriority()); break;
-		case ThreadColumn::IoPriority: return FormatHelper::IoPriorityToString(tx.GetIoPriority());
+		case ThreadColumn::MemoryPriority:
+		{
+			auto mp = tx.GetMemoryPriority();
+			if (mp >= 0)
+				text.Format(L"%d", mp);
+			break;
+		}
 	}
 	return text;
 }
@@ -108,6 +114,9 @@ void CThreadsView::DoSort(const SortInfo* si) {
 			case ThreadColumn::MemoryPriority: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetMemoryPriority(), GetThreadInfoEx(t2.get()).GetMemoryPriority(), asc);
 			case ThreadColumn::IoPriority: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetIoPriority(), GetThreadInfoEx(t2.get()).GetIoPriority(), asc);
 			case ThreadColumn::ComFlags: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetComFlags(), GetThreadInfoEx(t2.get()).GetComFlags(), asc);
+			case ThreadColumn::ComApartment: return SortHelper::SortStrings(
+				FormatHelper::ComApartmentToString(GetThreadInfoEx(t1.get()).GetComFlags()), 
+				FormatHelper::ComApartmentToString(GetThreadInfoEx(t2.get()).GetComFlags()), asc);
 		}
 		return false;
 		});
@@ -267,9 +276,10 @@ LRESULT CThreadsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"Performance\\Context Switches", LVCFMT_RIGHT, 100, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\Kernel Time", LVCFMT_RIGHT, 130, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\User Time", LVCFMT_RIGHT, 130, ColumnFlags::Numeric);
-	cm->AddColumn(L"I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
-	cm->AddColumn(L"Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
-	cm->AddColumn(L"COM Flags", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
+	cm->AddColumn(L"Performance\\Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
+	cm->AddColumn(L"COM Flags", LVCFMT_LEFT, 150, ColumnFlags::None);
+	cm->AddColumn(L"COM APT", LVCFMT_LEFT, 60, ColumnFlags::None);
 
 	Refresh();
 	SetTimer(1, m_UpdateInterval, nullptr);

@@ -159,5 +159,67 @@ PCWSTR FormatHelper::IoPriorityToString(WinSys::IoPriority io) {
 		case IoPriority::Normal: return L"Normal";
 		case IoPriority::VeryLow: return L"Very Low";
 	}
-	return L"(Unknown)";
+	return L"";
+}
+
+CString FormatHelper::ComFlagsToString(ComFlags flags) {
+	static const struct {
+		ComFlags Flag;
+		PCWSTR Name;
+	} sflags[] = {
+		{ ComFlags::LocalTid, L"Local TID" },
+		{ ComFlags::UuidInitialized, L"GUID Initialized" },
+		{ ComFlags::InThreadDetach, L"In Thread Detach" },
+		{ ComFlags::ChannelInitialized, L"Channel Initialized" },
+		{ ComFlags::WowThread, L"Wow Thread" },
+		{ ComFlags::ThreadUninitializing, L"Thread Uninitializing" },
+		{ ComFlags::DisableOle1DDE, L"Disable Ole1 DDE" },
+		{ ComFlags::STA, L"STA" },
+		{ ComFlags::MTA, L"MTA" },
+		{ ComFlags::Impersonating, L"Impersonating" },
+		{ ComFlags::DisableEventLogger, L"Disable Event Logger" },
+		{ ComFlags::InNeutralApartment, L"In NA" },
+		{ ComFlags::DispatchThread, L"Disptach Thread" },
+		{ ComFlags::HostThread, L"Host Thread" },
+		{ ComFlags::AllowCoInit, L"Allow CoInit" },
+		{ ComFlags::PendingUninit, L"Pending Uninit" },
+		{ ComFlags::FirstMTAInit, L"First MTA Init" },
+		{ ComFlags::FirstNTAInit, L"First TNA Init" },
+		{ ComFlags::ApartmentInitializing, L"Apt Initializing" },
+		{ ComFlags::UIMessageInModalLoop, L"UI Msg in Modal Loop" },
+		{ ComFlags::MarshallingErrorObject, L"Marshaling Error Object" },
+		{ ComFlags::WinRTInitialize, L"WinRT Init" },
+		{ ComFlags::ASTA, L"ASTA" },
+		{ ComFlags::InShutdownCallbacks, L"In Shutdown Callbacks" },
+		{ ComFlags::PointerInputBlocked, L"Pointer Input Blocked" },
+		{ ComFlags::InActivationFilter, L"In Activation Filter" },
+		{ ComFlags::ASTAtoASTAExempQuirk, L"ASTA to STA Exep Quirk" },
+		{ ComFlags::ASTAtoASTAExempProxy, L"ASTA to STA Exep Proxy" },
+		{ ComFlags::ASTAtoASTAExempIndoubt, L"ASTA to STA Exep In Doubt" },
+		{ ComFlags::DetectedUserInit, L"Detect User Init" },
+		{ ComFlags::BridgeSTA, L"Bridge STA" },
+		{ ComFlags::MainInitializing, L"Main Initializing" },
+	};
+
+	CString result;
+	for (const auto& attr : sflags)
+		if ((attr.Flag & flags) == attr.Flag)
+			(result += attr.Name) += ", ";
+
+	if (!result.IsEmpty())
+		result = result.Left(result.GetLength() - 2);
+	return result;
+}
+
+PCWSTR FormatHelper::ComApartmentToString(ComFlags flags) {
+	if (flags == ComFlags::Error)
+		return L"";
+	if ((flags & ComFlags::ASTA) == ComFlags::ASTA)
+		return L"ASTA";
+	if ((flags & ComFlags::STA) == ComFlags::STA)
+		return L"STA";
+	if ((flags & ComFlags::MTA) == ComFlags::MTA)
+		return L"MTA";
+
+	return L"";
 }

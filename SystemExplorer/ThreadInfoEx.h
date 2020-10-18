@@ -1,6 +1,6 @@
 #pragma once
 
-struct ThreadInfoEx {
+struct ThreadInfoEx final {
 	explicit ThreadInfoEx(WinSys::ThreadInfo* ti) : Info(ti) {}
 	DWORD64 TargetTime{ 0 };
 	bool IsNew{ false };

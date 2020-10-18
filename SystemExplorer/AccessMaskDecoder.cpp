@@ -2,11 +2,28 @@
 #include "AccessMaskDecoder.h"
 #include "NtDll.h"
 
+#define TRACELOG_REGISTER_GUIDS 0x0800
+#define WMIGUID_NOTIFICATION	0x0004
+
+#define FLT_PORT_CONNECT        0x0001
+#define FLT_PORT_ALL_ACCESS     (FLT_PORT_CONNECT | STANDARD_RIGHTS_ALL)
+
+#define IO_WAIT_COMPLETION_PACKET_MODIFY_STATE 0x0001
+#define IO_WAIT_COMPLETION_PACKET_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 1) 
+
+#define MEMORY_PARTITION_QUERY_ACCESS  0x0001
+#define MEMORY_PARTITION_MODIFY_ACCESS 0x0002
+
+#define MEMORY_PARTITION_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | MEMORY_PARTITION_QUERY_ACCESS | MEMORY_PARTITION_MODIFY_ACCESS | SYNCHRONIZE)
+
 #define SYMBOLIC_LINK_QUERY    0x0001
 #define SYMBOLIC_LINK_SET      0x0002
 
 #define SYMBOLIC_LINK_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | SYMBOLIC_LINK_QUERY)
 #define SYMBOLIC_LINK_ALL_ACCESS_EX (STANDARD_RIGHTS_REQUIRED | 0xFFFF)
+
+#define IO_COMPLETION_MODIFY_STATE  0x0002  
+#define IO_COMPLETION_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE|0x3) 
 
 #define FLT_PORT_CONNECT        0x0001
 #define FLT_PORT_ALL_ACCESS     (FLT_PORT_CONNECT | STANDARD_RIGHTS_ALL)
@@ -240,27 +257,102 @@ std::unordered_map<std::wstring, std::vector<AccessMaskDecoder::AccessMaskPair>>
 		{ WORKER_FACTORY_BIND,				L"BIND" },
 		},
 	},
-};		  
+
+	{ L"EtwRegistration", {
+		{ TRACELOG_REGISTER_GUIDS,		L"TRACELOG_REGISTER_GUIDS" },
+		{ WMIGUID_NOTIFICATION,			L"WMIGUID_NOTIFICATION" },
+		},
+	},
+
+	{ L"WaitCompletionPacket", {
+		{ IO_WAIT_COMPLETION_PACKET_ALL_ACCESS,			L"WAIT_COMPLETION_PACKET_ALL_ACCESS", true },
+		{ IO_WAIT_COMPLETION_PACKET_MODIFY_STATE,		L"MODIFY_STATE" },
+		},
+	},
+
+	{ L"FilterConnectionPort", {
+		{ FLT_PORT_ALL_ACCESS,		L"FLT_PORT_ALL_ACCESS", true },
+		{ FLT_PORT_CONNECT,			L"CONNECT" },
+		},
+	},
+
+	{ L"IoCompletion", {
+		{ IO_COMPLETION_ALL_ACCESS,			L"IO_COMPLETION_ALL_ACCESS", true },
+		{ IO_COMPLETION_MODIFY_STATE,		L"MODIFY_STATE" },
+		},
+	},
+
+	{ L"Partition", {
+		{ MEMORY_PARTITION_ALL_ACCESS,			L"MEMORY_PARTITION_ALL_ACCESS", true },
+		{ MEMORY_PARTITION_MODIFY_ACCESS,		L"MODIFY_ACCESS" },
+		{ MEMORY_PARTITION_QUERY_ACCESS,		L"QUERY_ACCESS" },
+		},
+	},
+
+	{ L"TmRm", {
+		{ RESOURCEMANAGER_ALL_ACCESS,			L"RESOURCEMANAGER_ALL_ACCESS", true },
+		{ RESOURCEMANAGER_ENLIST,				L"ENLIST" },
+		{ RESOURCEMANAGER_COMPLETE_PROPAGATION,	L"COMPLETE_PROPAGATION" },
+		{ RESOURCEMANAGER_SET_INFORMATION,		L"SET_INFORMATION" },
+		{ RESOURCEMANAGER_QUERY_INFORMATION,	L"QUERY_INFORMATION" },
+		{ RESOURCEMANAGER_GET_NOTIFICATION,		L"GET_NOTIFICATION" },
+		{ RESOURCEMANAGER_RECOVER,				L"RECOVER" },
+		{ RESOURCEMANAGER_REGISTER_PROTOCOL,	L"REGISTER_PROTOCOL" },
+		},
+	},
+
+	{ L"TmTm", {
+		{ TRANSACTIONMANAGER_ALL_ACCESS,			L"TRANSACTIONMANAGER_ALL_ACCESS", true },
+		{ TRANSACTIONMANAGER_SET_INFORMATION,		L"SET_INFORMATION" },
+		{ TRANSACTIONMANAGER_QUERY_INFORMATION,		L"QUERY_INFORMATION" },
+		{ TRANSACTIONMANAGER_RENAME,				L"RENAME" },
+		{ TRANSACTIONMANAGER_RECOVER,				L"RECOVER" },
+		{ TRANSACTIONMANAGER_CREATE_RM,				L"CREATE_RM" },
+		},
+	},
+
+	{ L"TmTx", {
+		{ TRANSACTION_ALL_ACCESS,			L"TRANSACTION_ALL_ACCESS", true },
+		{ TRANSACTION_SET_INFORMATION,		L"SET_INFORMATION" },
+		{ TRANSACTION_QUERY_INFORMATION,	L"QUERY_INFORMATION" },
+		{ TRANSACTION_COMMIT,				L"COMMIT" },
+		{ TRANSACTION_ROLLBACK,				L"ROLLBACK" },
+		{ TRANSACTION_PROPAGATE,			L"PROPAGATE" },
+		{ TRANSACTION_RIGHT_RESERVED1,		L"RESERVED1" },
+		},
+	},
+
+	{ L"TmEn", {
+		{ ENLISTMENT_ALL_ACCESS,			L"ENLISTMENT_ALL_ACCESS", true },
+		{ ENLISTMENT_SET_INFORMATION,		L"SET_INFORMATION" },
+		{ ENLISTMENT_QUERY_INFORMATION,		L"QUERY_INFORMATION" },
+		{ ENLISTMENT_RECOVER,				L"RECOVER" },
+		{ ENLISTMENT_SUBORDINATE_RIGHTS,	L"SUBORDINATE_RIGHTS" },
+		{ ENLISTMENT_SUPERIOR_RIGHTS,		L"SUPERIOR_RIGHT" },
+		},
+	},
+};
 
 CString AccessMaskDecoder::DecodeAccessMask(PCWSTR typeName, ACCESS_MASK access) {
-	auto it = Tables.find(typeName);
-	CString result;
 	bool all = false;
-	if (it != Tables.end()) {
-		for (auto& pair : it->second) {
-			if ((pair.AccessMask & access) == pair.AccessMask) {
-				result += pair.Decoded + CString(L" | ");
-				if (pair.All) {
-					all = true;
-					break;
+	CString result;
+	if (access & 0xffff) {	// any specific access bits?
+		auto it = Tables.find(typeName);
+		if (it != Tables.end()) {
+			for (auto& pair : it->second) {
+				if ((pair.AccessMask & access) == pair.AccessMask) {
+					result += pair.Decoded + CString(L" | ");
+					if (pair.All) {
+						all = true;
+						break;
+					}
 				}
 			}
 		}
+		else {
+			result = L"<unknown> | ";
+		}
 	}
-	else {
-		result = L"<unknown> | ";
-	}
-
 	// add generic access mask
 
 	static AccessMaskPair generic[] = {

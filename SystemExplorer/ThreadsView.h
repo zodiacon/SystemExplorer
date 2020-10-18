@@ -57,8 +57,8 @@ private:
 	enum class ThreadColumn {
 		State, Id, ProcessId, ProcessName, CPU, CPUTime, CreateTime, Priority, BasePriority, Teb,
 		WaitReason, StartAddress, Win32StartAddress, StackBase, StackLimit, ContextSwitches,
-		KernelTime, UserTime, IoPriority, MemoryPriority, ComFlags, WaitTime,
-		COUNT
+		KernelTime, UserTime, IoPriority, MemoryPriority, ComFlags, ComApartment, 
+		WaitTime, COUNT
 	};
 
 	ThreadInfoEx& GetThreadInfoEx(WinSys::ThreadInfo* ti) const;
