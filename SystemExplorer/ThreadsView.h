@@ -4,6 +4,7 @@
 #include "Interfaces.h"
 #include "resource.h"
 #include "ViewBase.h"
+#include "ThreadInfoEx.h"
 
 class CThreadsView :
 	public CVirtualListView<CThreadsView>,
@@ -56,15 +57,8 @@ private:
 	enum class ThreadColumn {
 		State, Id, ProcessId, ProcessName, CPU, CPUTime, CreateTime, Priority, BasePriority, Teb,
 		WaitReason, StartAddress, Win32StartAddress, StackBase, StackLimit, ContextSwitches,
-		KernelTime, UserTime, IoPriority, MemoryPriority, WaitTime,
+		KernelTime, UserTime, IoPriority, MemoryPriority, ComFlags, WaitTime,
 		COUNT
-	};
-
-	struct ThreadInfoEx {
-		DWORD64 TargetTime;
-		bool IsNew { false };
-		bool IsTerminating { false };
-		bool IsTerminated { false };
 	};
 
 	ThreadInfoEx& GetThreadInfoEx(WinSys::ThreadInfo* ti) const;

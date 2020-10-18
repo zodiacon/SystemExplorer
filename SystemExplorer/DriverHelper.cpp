@@ -153,7 +153,7 @@ HANDLE DriverHelper::OpenThread(DWORD tid, ACCESS_MASK access) {
 		HANDLE hThread;
 		DWORD bytes;
 
-		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
+		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_THREAD, &data, sizeof(data),
 			&hThread, sizeof(hThread), &bytes, nullptr) ? hThread : nullptr;
 	}
 	return ::OpenThread(access, FALSE, tid);

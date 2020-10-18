@@ -237,6 +237,9 @@
     <ClCompile Include="SysInfoView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadInfoEx.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -454,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="SysInfoView.h">
       <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadInfoEx.h">
+      <Filter>Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

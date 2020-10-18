@@ -67,9 +67,7 @@ private:
 	void TogglePause();
 	ProcessInfoEx& GetProcessInfoEx(WinSys::ProcessInfo* pi) const;
 	void GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const;
-	static CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes);
-	static CString IoPriorityToString(WinSys::IoPriority io);
-	static PCWSTR IntegrityLevelToString(WinSys::IntegrityLevel level);
+	static CString ProcessAttributesToString(ProcessAttributes attributes);
 	static PCWSTR VirtualizationStateToString(WinSys::VirtualizationState state);
 
 private:

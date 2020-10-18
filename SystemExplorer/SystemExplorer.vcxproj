@@ -253,6 +253,7 @@
     <ClCompile Include="SearchBar.cpp" />
     <ClCompile Include="SearchView.cpp" />
     <ClCompile Include="SysInfoView.cpp" />
+    <ClCompile Include="ThreadInfoEx.cpp" />
     <ClCompile Include="ThreadsView.cpp" />
     <ClCompile Include="DetachHostWindow.cpp" />
     <ClCompile Include="DeviceManagerView.cpp" />
@@ -326,6 +327,7 @@
     <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
     <ClInclude Include="SysInfoView.h" />
+    <ClInclude Include="ThreadInfoEx.h" />
     <ClInclude Include="ThreadsView.h" />
     <ClInclude Include="DetachHostWindow.h" />
     <ClInclude Include="DeviceManagerView.h" />

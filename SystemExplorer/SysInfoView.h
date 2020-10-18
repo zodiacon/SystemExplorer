@@ -15,6 +15,8 @@ public:
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
+	void DoSort(const SortInfo* si);
+	bool IsSortable(int row) const;
 
 	BEGIN_MSG_MAP(CSysInfoView)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)

@@ -70,7 +70,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 				text.Format(L"%d  ", mp);
 			break;
 		}
-		case ProcessColumn::IoPriority: return IoPriorityToString(px.GetIoPriority());
+		case ProcessColumn::IoPriority: return FormatHelper::IoPriorityToString(px.GetIoPriority());
 		case ProcessColumn::CommandLine: return px.GetCommandLine().c_str();
 		case ProcessColumn::IoReadBytes: return FormatHelper::FormatWithCommas(p->ReadTransferCount);
 		case ProcessColumn::IoWriteBytes: return FormatHelper::FormatWithCommas(p->WriteTransferCount);
@@ -83,7 +83,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::PeakGdiObjects: text.Format(L"%d ", px.GetPeakGdiObjects()); break;
 		case ProcessColumn::PeakUserObjects: text.Format(L"%d ", px.GetPeakUserObjects()); break;
 		case ProcessColumn::Elevated: return px.IsElevated() ? L"Yes" : L"No";
-		case ProcessColumn::Integrity: return p->Id > 4 ? IntegrityLevelToString(px.GetIntegrityLevel()) : L"";
+		case ProcessColumn::Integrity: return p->Id > 4 ? FormatHelper::IntegrityToString(px.GetIntegrityLevel()) : L"";
 		case ProcessColumn::Virtualized: return p->Id > 4 ? VirtualizationStateToString(px.GetVirtualizationState()) : L"";
 		case ProcessColumn::JobId: 
 			if(p->JobObjectId)
@@ -431,30 +431,6 @@ CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) 
 	if (!text.IsEmpty())
 		text = text.Mid(0, text.GetLength() - 2);
 	return text;
-}
-
-CString CProcessesView::IoPriorityToString(IoPriority io) {
-	switch (io) {
-		case IoPriority::Critical: return L"Critical";
-		case IoPriority::High: return L"High";
-		case IoPriority::Low: return L"Low";
-		case IoPriority::Normal: return L"Normal";
-		case IoPriority::VeryLow: return L"Very Low";
-	}
-	return "(Unknown)";
-}
-
-PCWSTR CProcessesView::IntegrityLevelToString(WinSys::IntegrityLevel level) {
-	switch (level) {
-		case IntegrityLevel::High: return L"High";
-		case IntegrityLevel::System: return L"System";
-		case IntegrityLevel::Medium: return L"Medium";
-		case IntegrityLevel::MediumPlus: return L"Medium Plus";
-		case IntegrityLevel::Low: return L"Low";
-		case IntegrityLevel::Protected: return L"Protected";
-		case IntegrityLevel::Untrusted: return L"Untrusted";
-	}
-	return L"<unknown>";
 }
 
 PCWSTR CProcessesView::VirtualizationStateToString(WinSys::VirtualizationState state) {

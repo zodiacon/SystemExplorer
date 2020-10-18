@@ -124,6 +124,16 @@ DWORD CSysInfoView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
     return CDRF_DODEFAULT;
 }
 
+void CSysInfoView::DoSort(const SortInfo* si) {
+    std::sort(m_Items.begin(), m_Items.end(), [&](auto& i1, auto& i2) {
+        return SortHelper::SortStrings(i1.Name, i2.Name, si->SortAscending);
+        });
+}
+
+bool CSysInfoView::IsSortable(int row) const {
+    return row == 0;
+}
+
 void CSysInfoView::Refresh() {
     m_OldSysPerfInfo = m_SysPerfInfo;
     m_OldPerfInfo = m_PerfInfo;

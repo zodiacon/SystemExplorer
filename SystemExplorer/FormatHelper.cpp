@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "FormatHelper.h"
 
+using namespace WinSys;
+
 CString FormatHelper::TimeSpanToString(int64_t ts) {
 	auto str = CTimeSpan(ts / 10000000).Format(L"%D.%H:%M:%S");
 
@@ -27,23 +29,23 @@ CString FormatHelper::TimeToString(int64_t time, bool includeMS) {
 	return str;
 }
 
-PCWSTR FormatHelper::VirtualizationStateToString(WinSys::VirtualizationState state) {
+PCWSTR FormatHelper::VirtualizationStateToString(VirtualizationState state) {
 	switch (state) {
-		case WinSys::VirtualizationState::Disabled: return L"Disabled";
-		case WinSys::VirtualizationState::Enabled: return L"Enabled";
-		case WinSys::VirtualizationState::NotAllowed: return L"Not Allowed";
+		case VirtualizationState::Disabled: return L"Disabled";
+		case VirtualizationState::Enabled: return L"Enabled";
+		case VirtualizationState::NotAllowed: return L"Not Allowed";
 	}
 	return L"Unknown";
 }
 
-PCWSTR FormatHelper::IntegrityToString(WinSys::IntegrityLevel level) {
+PCWSTR FormatHelper::IntegrityToString(IntegrityLevel level) {
 	switch (level) {
-		case WinSys::IntegrityLevel::High: return L"High";
-		case WinSys::IntegrityLevel::Medium: return L"Medium";
-		case WinSys::IntegrityLevel::MediumPlus: return L"Medium+";
-		case WinSys::IntegrityLevel::Low: return L"Low";
-		case WinSys::IntegrityLevel::System: return L"System";
-		case WinSys::IntegrityLevel::Untrusted: return L"Untrusted";
+		case IntegrityLevel::High: return L"High";
+		case IntegrityLevel::Medium: return L"Medium";
+		case IntegrityLevel::MediumPlus: return L"Medium+";
+		case IntegrityLevel::Low: return L"Low";
+		case IntegrityLevel::System: return L"System";
+		case IntegrityLevel::Untrusted: return L"Untrusted";
 	}
 	return L"Unknown";
 }
@@ -147,4 +149,15 @@ PCWSTR FormatHelper::PriorityClassToString(WinSys::ProcessPriorityClass pc) {
 		case WinSys::ProcessPriorityClass::Realtime: return L"Realtime (24)";
 	}
 	return L"";
+}
+
+PCWSTR FormatHelper::IoPriorityToString(WinSys::IoPriority io) {
+	switch (io) {
+		case IoPriority::Critical: return L"Critical";
+		case IoPriority::High: return L"High";
+		case IoPriority::Low: return L"Low";
+		case IoPriority::Normal: return L"Normal";
+		case IoPriority::VeryLow: return L"Very Low";
+	}
+	return L"(Unknown)";
 }
