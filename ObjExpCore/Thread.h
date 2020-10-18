@@ -45,30 +45,44 @@ namespace WinSys {
 		uint8_t Number;
 	};
 
-	enum class ComFlags {
+	enum class ComFlags : uint32_t {
 		None = 0,
-		LocalTid = 0x01,		
-		UuidInitialized = 0x02, 
-		InThreadDetach = 0x04,
-		ChannelInitialized = 0x08,
-		WowThread = 0x10,   
-		ThreadUninitializing = 0x20,
-		DisableOle1DDE = 0x40,
-		STA = 0x80,
-		MTA = 0x100,
-		Impersonating = 0x200,
-		DisableEventLogger = 0x400,  
-		InNeutralApartment = 0x800,
-		DispatchThread = 0x1000, 
-		HostThread = 0x2000, 
-		AllowCoInit = 0x4000,
-		PendingUninit = 0x8000,
-		FirstMTAInit = 0x10000,
-		FirstNTAInit = 0x20000,
-		ApartmentInitializing = 0x40000,
+		LocalTid =					0x01,		
+		UuidInitialized =			0x02, 
+		InThreadDetach =			0x04,
+		ChannelInitialized =		0x08,
+		WowThread =					0x10,   
+		ThreadUninitializing =		0x20,
+		DisableOle1DDE =			0x40,
+		STA =						0x80,
+		MTA =						0x100,
+		Impersonating =				0x200,
+		DisableEventLogger =		0x400,  
+		InNeutralApartment =		0x800,
+		DispatchThread =			0x1000, 
+		HostThread =				0x2000, 
+		AllowCoInit =				0x4000,
+		PendingUninit =				0x8000,
+		FirstMTAInit =				0x10000,
+		FirstNTAInit =				0x20000,
+		ApartmentInitializing =		0x40000,
+		UIMessageInModalLoop =		0x80000,
+		MarshallingErrorObject =	0x100000,
+		WinRTInitialize =			0x200000,
+		ASTA =						0x400000,
+		InShutdownCallbacks =		0x800000,
+		PointerInputBlocked =		0x1000000,
+		InActivationFilter =		0x2000000,
+		ASTAtoASTAExempQuirk =		0x4000000,
+		ASTAtoASTAExempProxy =		0x8000000,
+		ASTAtoASTAExempIndoubt =	0x10000000,
+		DetectedUserInit =			0x20000000,
+		BridgeSTA =					0x40000000,
+		MainInitializing =			0x80000000,
 
-		Error = -1,
+		Error = 0xffffffff
 	};
+	DEFINE_ENUM_FLAG_OPERATORS(WinSys::ComFlags);
 
 	class Thread final {
 	public:

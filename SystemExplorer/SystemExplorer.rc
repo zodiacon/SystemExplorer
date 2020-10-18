@@ -154,6 +154,7 @@ BEGIN
         MENUITEM "&Services",                   ID_SYSTEM_SERVICES
         MENUITEM "&Devices",                    ID_SYSTEM_DEVICES
         MENUITEM "&Drivers",                    ID_SYSTEM_DRIVERS
+        MENUITEM "&Kernel Modules",             ID_SYSTEM_KERNELMODULES
         MENUITEM "&COM",                        ID_SYSTEM_COM
         MENUITEM "&Logon Sessions",             ID_SYSTEM_LOGONSESSIONS
         MENUITEM "Information",                 ID_SYSTEM_INFORMATION
@@ -901,7 +902,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "System Explorer v0.89 (C)2019-2020 Pavel Yosifovich"
+            VALUE "FileDescription", "System Explorer v0.89"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SystemExplorer"
             VALUE "LegalCopyright", "(C) 2019-2020 Pavel Yosifovich"

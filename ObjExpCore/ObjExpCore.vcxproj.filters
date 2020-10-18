@@ -81,6 +81,9 @@
     <ClInclude Include="PerfCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KernelModuleTracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -138,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PerfCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelModuleTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

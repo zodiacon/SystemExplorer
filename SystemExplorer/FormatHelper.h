@@ -12,5 +12,6 @@ struct FormatHelper {
 	static PCWSTR PriorityClassToString(WinSys::ProcessPriorityClass pc);
 	static CString JobCpuRateControlFlagsToString(DWORD flags);
 	static PCWSTR IoPriorityToString(WinSys::IoPriority io);
-
+	static CString ComFlagsToString(WinSys::ComFlags flags);
+	static PCWSTR ComApartmentToString(WinSys::ComFlags flags);
 };
