@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Interfaces.h"
-#include <atlframe.h>
 
 template<typename T, typename TBase = CFrameWindowImpl<T, CWindow, CControlWinTraits>>
 class CViewBase abstract : 
@@ -9,8 +8,6 @@ class CViewBase abstract :
 	public CAutoUpdateUI<T>,
 	public CIdleHandler {
 public:
-	DECLARE_WND_CLASS(nullptr)
-
 	CViewBase(IMainFrame* frame) : m_pFrame(frame) {
 		ATLASSERT(frame);
 	}
@@ -37,8 +34,10 @@ protected:
 	}
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
+		auto pT = static_cast<T*>(this);
+
 		bHandled = FALSE;
-		if(m_hWndToolBar)
+		if(pT->m_hWndToolBar)
 			_Module.GetMessageLoop()->RemoveIdleHandler(this);
 		return 0;
 	}
@@ -51,8 +50,10 @@ protected:
 	};
 
 	HWND CreateAndInitToolBar(const ToolBarButtonInfo* buttons, int count) {
+		auto pT = static_cast<T*>(this);
+
 		CToolBarCtrl tb;
-		auto hWndToolBar = tb.Create(m_hWnd, rcDefault, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
+		auto hWndToolBar = tb.Create(pT->m_hWnd, pT->rcDefault, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
 		tb.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
 
 		CImageList tbImages;
@@ -68,10 +69,10 @@ protected:
 				tb.AddButton(b.id, b.style | (b.text ? BTNS_SHOWTEXT : 0), TBSTATE_ENABLED, image, b.text, 0);
 			}
 		}
-		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-		AddSimpleReBarBand(tb);
+		pT->CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+		pT->AddSimpleReBarBand(tb);
 
-		UIAddToolBar(hWndToolBar);
+		pT->UIAddToolBar(hWndToolBar);
 		_Module.GetMessageLoop()->AddIdleHandler(this);
 
 		return hWndToolBar;

@@ -12,7 +12,7 @@ CString CLogonSessionsView::GetColumnText(HWND, int row, int col) const {
 		case 0: text.Format(L"%2d", item.Index); break;
 		case 1: text.Format(L"0x%08X`%08X", item.LogonId.HighPart, item.LogonId.LowPart); break;
 		case 2: return item.UserName.empty() ? L"" : (item.LogonDomain + L"\\" + item.UserName).c_str();
-		case 3: return item.LogonTime.QuadPart == 0 ? L"" : CTime(*(FILETIME*)&item.LogonTime.QuadPart).Format(L"%D %X");
+		case 3: return item.LogonTime.QuadPart == 0 ? CString() : CTime(*(FILETIME*)&item.LogonTime.QuadPart).Format(L"%D %X");
 		case 4: text.Format(L"%d", item.Session); break;
 		case 5: return LogonTypeToString(item.LogonType);
 		case 6: return item.AuthenticationPackage.c_str();

@@ -26,7 +26,7 @@ CString CModulesView::GetColumnText(HWND, int row, int col) const {
 				text = L"N/A";
 			break;
 		case 5: return mi->Path.c_str();
-		case 6: return mi->Type == WinSys::MapType::Image ? CharacteristicsToString(mi->Characteristics) : L"";
+		case 6: return mi->Type == WinSys::MapType::Image ? CharacteristicsToString(mi->Characteristics) : CString();
 	}
 
 	return text;

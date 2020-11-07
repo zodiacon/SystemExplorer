@@ -98,7 +98,7 @@ class ObjectManager {
 public:
 	bool EnumHandlesAndObjects(PCWSTR type = nullptr, DWORD pid = 0, PCWSTR prefix = nullptr, bool namedOnly = false);
 	bool EnumHandles(PCWSTR type = nullptr, DWORD pid = 0, bool namedObjectsOnly = false);
-	int EnumTypes();
+	static int EnumTypes();
 
 	const std::vector<std::shared_ptr<ObjectInfo>>& GetObjects() const;
 

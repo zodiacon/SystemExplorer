@@ -193,7 +193,10 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 	}
 
 	int size = 1 << 22;
-	auto buffer = std::make_unique<BYTE[]>(size);
+	wil::unique_virtualalloc_ptr<BYTE> buffer((BYTE*)::VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+	if (!buffer)
+		return 0;
+
 	ULONG len;
 
 	// get timing info as close as possible to the API call

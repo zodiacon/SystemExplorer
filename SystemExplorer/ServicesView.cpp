@@ -8,7 +8,7 @@
 
 using namespace WinSys;
 
-PCWSTR AccessDenied = L"<access denied>";
+const CString AccessDenied(L"<access denied>");
 
 CServicesView::CServicesView(IMainFrame* pFrame) : CViewBase(pFrame) {
 }
@@ -99,8 +99,8 @@ CString CServicesView::GetColumnText(HWND, int row, int col) const {
 
 		case 5:	return pdata.ProcessId > 0 ? m_ProcMgr.GetProcessNameById(pdata.ProcessId).c_str() : L"";
 		case 6:	return config ? ServiceStartTypeToString(*config) : AccessDenied;
-		case 7:	return config ? config->BinaryPathName.c_str() : AccessDenied;
-		case 8: return config ? config->AccountName.c_str() : AccessDenied;
+		case 7:	return config ? CString(config->BinaryPathName.c_str()) : AccessDenied;
+		case 8: return config ? CString(config->AccountName.c_str()) : AccessDenied;
 		case 9: return config ? ErrorControlToString(config->ErrorControl) : AccessDenied;
 		case 10: return svcex.GetDescription();
 		case 11: return svcex.GetPrivileges();
@@ -386,7 +386,7 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 	return type;
 }
 
-PCWSTR CServicesView::ErrorControlToString(WinSys::ServiceErrorControl ec) {
+CString CServicesView::ErrorControlToString(WinSys::ServiceErrorControl ec) {
 	using namespace WinSys;
 
 	switch (ec) {

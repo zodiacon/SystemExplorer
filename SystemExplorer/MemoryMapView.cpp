@@ -19,8 +19,8 @@ CString CMemoryMapView::GetColumnText(HWND h, int row, int column) const {
 		case 1: text.Format(L"0x%0p", item.BaseAddress); break;
 		case 2: return FormatWithCommas(item.RegionSize >> 10) + L" KB";
 		case 3: return item.State != MEM_COMMIT ? L"" : TypeToString(item.Type);
-		case 4: return item.State != MEM_COMMIT ? L"" : ProtectionToString(item.Protect);
-		case 5: return item.State == MEM_FREE ? L"" : ProtectionToString(item.AllocationProtect);
+		case 4: return item.State != MEM_COMMIT ? CString() : ProtectionToString(item.Protect);
+		case 5: return item.State == MEM_FREE ? CString() : ProtectionToString(item.AllocationProtect);
 		case 6: return UsageToString(item);
 		case 7: return GetDetails(item).Details;
 	}

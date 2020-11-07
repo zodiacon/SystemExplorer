@@ -19,7 +19,7 @@ CString ProcessObjectType::GetDetails(HANDLE hProcess) {
 	if (::GetProcessTimes(hProcess, &create, &exit, &dummy, &dummy)) {
 		details.Format(L"PID: %d (%s) Created: %s Exited: %s", pid, name,
 			CTime(create).Format(L"%D %X"),
-			exit.dwHighDateTime + exit.dwLowDateTime == 0 ? L"(running)" : CTime(exit).Format(L"%D %X"));
+			exit.dwHighDateTime + exit.dwLowDateTime == 0 ? CString(L"(running)") : CTime(exit).Format(L"%D %X"));
 	}
 	else {
 		details.Format(L"PID: %d (%s)", pid, name);

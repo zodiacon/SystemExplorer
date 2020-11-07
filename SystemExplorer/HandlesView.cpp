@@ -207,8 +207,8 @@ LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
 				if (::GetTickCount() > m_TargetUpdateTime || m_DetailsCache.find(data.get()) == m_DetailsCache.end()) {
 					auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
 					if (h) {
-						auto& type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
-						CString details = type ? type->GetDetails(h) : L"";
+						auto type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
+						CString details = type ? type->GetDetails(h) : CString();
 						m_DetailsCache[data.get()] = details;
 						if (!details.IsEmpty())
 							::StringCchCopy(item.pszText, item.cchTextMax, details);
@@ -291,7 +291,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 
 		for (auto& h : m_HandleTracker->GetNewHandles()) {
 			auto hDup = ObjectManager::DupHandle(h.HandleValue, m_Pid, h.ObjectTypeIndex);
-			auto name = hDup ? m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex) : L"";
+			CString name = hDup ? m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex) : CString();
 			if (m_NamedObjectsOnly && name.IsEmpty()) {
 				::CloseHandle(hDup);
 				continue;

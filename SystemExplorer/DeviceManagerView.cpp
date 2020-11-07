@@ -157,7 +157,7 @@ void CDeviceManagerView::UpdateList() {
 			return;
 
 		if (m_Items.empty()) {
-			m_Items.swap(std::vector<ItemData>{
+			std::vector<ItemData> items{
 				{ L"Class", ItemType::String, DeviceRegistryPropertyType::Class },
 				{ L"Class GUID", ItemType::String, DeviceRegistryPropertyType::ClassGuid },
 				{ L"Description", ItemType::String, DeviceRegistryPropertyType::Description },
@@ -184,7 +184,8 @@ void CDeviceManagerView::UpdateList() {
 				{ L"UI Number", ItemType::Dword, DeviceRegistryPropertyType::UINumber },
 				{ L"Install State", ItemType::Dword, DeviceRegistryPropertyType::InstallState },
 				{ L"Legacy Bus Type", ItemType::Dword, DeviceRegistryPropertyType::LegacyBusType },
-			});
+			};
+			m_Items.swap(items);
 		}
 		m_SelectedClass = nullptr;
 		m_SelectedDevice = (DeviceInfo*)data;
@@ -196,14 +197,15 @@ void CDeviceManagerView::UpdateList() {
 	}
 	else {
 		if (m_ClassItems.empty()) {
-			m_ClassItems.swap(std::vector<ClassItemData> {
+			std::vector<ClassItemData> items{
 				{ L"Class GUID", ItemType::Guid },
 				{ L"Lower Filters", ItemType::MultiString, DeviceClassRegistryPropertyType::LowerFilters },
 				{ L"Upper Filters", ItemType::MultiString, DeviceClassRegistryPropertyType::UpperFilters },
-				{ L"Exclusive", ItemType::Boolean, DeviceClassRegistryPropertyType::Exclusive},
-				{ L"Characteristics", ItemType::Dword, DeviceClassRegistryPropertyType::Characteristics},
+				{ L"Exclusive", ItemType::Boolean, DeviceClassRegistryPropertyType::Exclusive },
+				{ L"Characteristics", ItemType::Dword, DeviceClassRegistryPropertyType::Characteristics },
 				{ L"Security Descriptor", ItemType::String, DeviceClassRegistryPropertyType::SecurityDescriptionString },
-			});
+			};
+			m_ClassItems.swap(items);
 		}
 
 		m_SelectedClass = &it->second;

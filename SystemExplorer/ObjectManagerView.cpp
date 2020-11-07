@@ -42,6 +42,45 @@ bool CObjectManagerView::IsSortable(int column) const {
 	return column != 2;
 }
 
+CString CObjectManagerView::GetColumnText(HWND, int row, int col) {
+	auto& data = m_Objects[row];
+	CString text;
+	switch (col) {
+		case 0:		// name
+			return data.Name;
+
+		case 1:		// type
+			return data.Type;
+			break;
+
+		case 2:		// details
+			auto type = ObjectManager::GetType(data.Type);
+			if (type) {
+				auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
+				if (type) {
+					HANDLE hObject;
+					auto status = ObjectManager::OpenObject(
+						data.FullName, data.Type, &hObject,
+						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
+					if (hObject && details) {
+						text = details->GetDetails(hObject);
+						::CloseHandle(hObject);
+					}
+					else if (status == STATUS_ACCESS_DENIED)
+						text = L"<access denied>";
+					else
+						text = L"<unavailable>";
+				}
+			}
+			break;
+	}
+	return text;
+}
+
+int CObjectManagerView::GetRowImage(HWND, int row) const {
+	return GetFrame()->GetIconIndexByType(m_Objects[row].Type);
+}
+
 LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_hWndClient = m_Splitter.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |  
@@ -65,15 +104,10 @@ LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_Splitter.SetSplitterPosPct(20);
 	m_Splitter.UpdateSplitterLayout();
 
+	ObjectManager::EnumTypes();
+
 	InitTree();
 
-	return 0;
-}
-
-LRESULT CObjectManagerView::OnSize(UINT, WPARAM, LPARAM lParam, BOOL&) {
-	auto x = GET_X_LPARAM(lParam), y = GET_Y_LPARAM(lParam);
-	if (m_Splitter)
-		m_Splitter.MoveWindow(0, 0, x, y);
 	return 0;
 }
 
@@ -81,49 +115,6 @@ LRESULT CObjectManagerView::OnTreeSelectionChanged(int, LPNMHDR, BOOL&) {
 	auto item = m_Tree.GetSelectedItem();
 	ATLASSERT(item);
 	UpdateList(true);
-	return 0;
-}
-
-LRESULT CObjectManagerView::OnListGetDispInfo(int, LPNMHDR hdr, BOOL&) {
-	auto lv = (NMLVDISPINFO*)hdr;
-	auto& item = lv->item;
-	auto& data = m_Objects[item.iItem];
-
-	if (item.mask & LVIF_TEXT) {
-		switch (item.iSubItem) {
-		case 0:		// name
-			item.pszText = (PWSTR)(PCWSTR)data.Name;
-			break;
-
-		case 1:		// type
-			item.pszText = (PWSTR)(PCWSTR)data.Type;
-			break;
-
-		case 2:		// details
-			auto type = ObjectManager::GetType(data.Type);
-			if (type) {
-				auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
-				if (type) {
-					HANDLE hObject;
-					auto status = ObjectManager::OpenObject(
-						data.FullName, data.Type, &hObject,
-						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
-					if (hObject) {
-						::StringCchCopy(item.pszText, item.cchTextMax, details->GetDetails(hObject));
-						::CloseHandle(hObject);
-					}
-					else if (status == STATUS_ACCESS_DENIED)
-						item.pszText = (PWSTR)L"<access denied>";
-					else if (status == STATUS_UNSUCCESSFUL)
-						item.pszText = (PWSTR)L"<unavailable>";
-				}
-			}
-			break;
-		}
-	}
-	if (item.mask & LVIF_IMAGE) {
-		item.iImage = GetFrame()->GetIconIndexByType(data.Type);
-	}
 	return 0;
 }
 

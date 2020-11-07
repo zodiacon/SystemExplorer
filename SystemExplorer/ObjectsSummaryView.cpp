@@ -51,7 +51,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 		return CDRF_DODEFAULT | CDRF_NEWFONT;
 
 	auto index = (int)cd->dwItemSpec;
-	auto& item = GetItem(index);
+	auto item = GetItem(index);
 	auto& changes = m_ObjectManager.GetChanges();
 	lcd->clrText = RGB(0, 0, 0);
 
@@ -138,7 +138,7 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 	auto& item = lv->item;
 	auto index = item.iItem;
 	auto col = item.iSubItem;
-	auto& data = GetItem(index);
+	auto data = GetItem(index);
 
 	if (lv->item.mask & LVIF_TEXT) {
 		switch (col) {
@@ -277,14 +277,14 @@ LRESULT CObjectSummaryView::OnContextMenu(UINT, WPARAM, LPARAM lParam, BOOL&) {
 }
 
 LRESULT CObjectSummaryView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	auto& item = GetItem(m_List.GetSelectedIndex());
+	auto item = GetItem(m_List.GetSelectedIndex());
 	GetFrame()->ShowAllHandles(item->TypeName);
 
 	return 0;
 }
 
 LRESULT CObjectSummaryView::OnShowAllObjects(WORD, WORD, HWND, BOOL&) {
-	auto& item = GetItem(m_List.GetSelectedIndex());
+	auto item = GetItem(m_List.GetSelectedIndex());
 	GetFrame()->ShowAllObjects(item->TypeName);
 	
 	return 0;

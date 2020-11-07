@@ -34,7 +34,7 @@ public:
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(HWND, int row) const;
 
-	static PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger);
+	static PCWSTR TriggerToText(const WinSys::ServiceTrigger& trigger);
 	static CString DependenciesToString(const std::vector<std::wstring>& deps);
 
 	BEGIN_MSG_MAP(CServicesView)
@@ -72,7 +72,7 @@ private:
 	static int ServiceStatusToImage(WinSys::ServiceState state);
 	static PCWSTR ServiceStateToString(WinSys::ServiceState state);
 	static CString ServiceStartTypeToString(const WinSys::ServiceConfiguration&);
-	static PCWSTR ErrorControlToString(WinSys::ServiceErrorControl ec);
+	static CString ErrorControlToString(WinSys::ServiceErrorControl ec);
 	static CString ServiceTypeToString(WinSys::ServiceType type);
 
 	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name) const;

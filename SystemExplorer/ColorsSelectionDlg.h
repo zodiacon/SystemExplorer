@@ -56,8 +56,8 @@ private:
 
 private:
 	std::vector<HighlightColor> m_Colors;
-	int m_CountColors;
-	int m_CurrentSelection;
+	UINT m_CountColors;
+	UINT m_CurrentSelection;
 	CString m_Title;
 };
 

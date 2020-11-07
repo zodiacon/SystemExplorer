@@ -73,7 +73,7 @@ CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
 		return L"";
 
 	auto type = ObjectTypeFactory::CreateObjectType(info->TypeIndex, info->TypeName);
-	CString details = type ? type->GetDetails(h) : L"";
+	CString details = type ? type->GetDetails(h) : CString();
 	::CloseHandle(h);
 	return details;
 }

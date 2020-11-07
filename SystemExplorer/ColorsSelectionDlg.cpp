@@ -18,9 +18,9 @@ DWORD CColorsSelectionDlg::OnPrePaint(int, LPNMCUSTOMDRAW) {
 }
 
 DWORD CColorsSelectionDlg::OnPreErase(int, LPNMCUSTOMDRAW cd) {
-    auto id = cd->hdr.idFrom;
+    auto id = (UINT)cd->hdr.idFrom;
     if (id >= IDC_ENABLED && id < IDC_ENABLED + m_CountColors) {
-        auto i = id - IDC_ENABLED;
+        UINT i = id - IDC_ENABLED;
         CDCHandle dc(cd->hdc);
         CRect rc(cd->rc);
         rc.InflateRect(-20, 10, -10, 10);
@@ -65,7 +65,7 @@ LRESULT CColorsSelectionDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
     ScreenToClient(&rcChange);
     changeButton.DestroyWindow();
 
-    for (int i = 0; i < m_CountColors; i++) {
+    for (UINT i = 0; i < m_CountColors; i++) {
         auto color = m_Colors.begin() + i;
         CButton cb;
         cb.Create(*this, &rc, L"", cbStyle, 0, IDC_ENABLED + i);
@@ -87,7 +87,7 @@ LRESULT CColorsSelectionDlg::OnButtonColor(UINT, WPARAM, LPARAM, BOOL&) {
 
 LRESULT CColorsSelectionDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
     if (wID == IDOK) {
-        for (int i = 0; i < m_CountColors; i++)
+        for (UINT i = 0; i < m_CountColors; i++)
             m_Colors[i].Enabled = IsDlgButtonChecked(IDC_ENABLED + i);
     }
     EndDialog(wID);
@@ -117,7 +117,7 @@ void CColorsSelectionDlg::DoChangeColors(HWND button) {
 }
 
 LRESULT CColorsSelectionDlg::OnChangeBackground(WORD, WORD wID, HWND, BOOL&) {
-    int index = m_CurrentSelection;
+    UINT index = m_CurrentSelection;
     ATLASSERT(index >= 0 && index < m_CountColors);
     m_Colors[index].Color = SelectColor(m_Colors[index].Color);
     GetDlgItem(IDC_ENABLED + index).RedrawWindow();
@@ -126,8 +126,8 @@ LRESULT CColorsSelectionDlg::OnChangeBackground(WORD, WORD wID, HWND, BOOL&) {
 }
 
 LRESULT CColorsSelectionDlg::OnChangeForeground(WORD, WORD wID, HWND, BOOL&) {
-    int index = m_CurrentSelection;
-    ATLASSERT(index >= 0 && index < m_CountColors);
+    UINT index = m_CurrentSelection;
+    ATLASSERT(index < m_CountColors);
     m_Colors[index].TextColor = SelectColor(m_Colors[index].TextColor);
     GetDlgItem(IDC_ENABLED + index).RedrawWindow();
 
@@ -135,8 +135,8 @@ LRESULT CColorsSelectionDlg::OnChangeForeground(WORD, WORD wID, HWND, BOOL&) {
 }
 
 LRESULT CColorsSelectionDlg::OnChangeToDefault(WORD, WORD wID, HWND, BOOL&) {
-    int index = m_CurrentSelection;
-    ATLASSERT(index >= 0 && index < m_CountColors);
+    UINT index = m_CurrentSelection;
+    ATLASSERT(index < m_CountColors);
     m_Colors[index].Color = m_Colors[index].DefaultColor;
     m_Colors[index].TextColor = m_Colors[index].DefaultTextColor;
     GetDlgItem(IDC_ENABLED + index).RedrawWindow();
@@ -145,7 +145,7 @@ LRESULT CColorsSelectionDlg::OnChangeToDefault(WORD, WORD wID, HWND, BOOL&) {
 }
 
 LRESULT CColorsSelectionDlg::OnResetColors(WORD, WORD wID, HWND, BOOL&) {
-    for (int index = 0; index < m_CountColors; index++) {
+    for (UINT index = 0; index < m_CountColors; index++) {
         m_Colors[index].Color = m_Colors[index].DefaultColor;
         m_Colors[index].TextColor = m_Colors[index].DefaultTextColor;
         GetDlgItem(IDC_ENABLED + index).RedrawWindow();

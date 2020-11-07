@@ -13,7 +13,7 @@ struct CVirtualListView {
 	BEGIN_MSG_MAP(CVirtualListView)
 		NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK, OnColumnClick)
 		NOTIFY_CODE_HANDLER(LVN_ODFINDITEM, OnFindItem)
-		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)		
+		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnRightClick)
 		NOTIFY_CODE_HANDLER(NM_DBLCLK, OnDoubleClick)
 
@@ -82,11 +82,21 @@ struct CVirtualListView {
 	}
 
 	LRESULT OnRightClick(int, LPNMHDR hdr, BOOL& handled) {
+		WCHAR className[16];
+		if (!::GetClassName(hdr->hwndFrom, className, _countof(className))) {
+			handled = FALSE;
+			return 0;
+		}
+		if (::wcscmp(className, WC_LISTVIEW)) {
+			handled = FALSE;
+			return 0;
+		}
 		CListViewCtrl lv(hdr->hwndFrom);
 		POINT pt;
 		::GetCursorPos(&pt);
 		POINT pt2(pt);
 		auto header = lv.GetHeader();
+		ATLASSERT(header);
 		header.ScreenToClient(&pt);
 		HDHITTESTINFO hti;
 		hti.pt = pt;

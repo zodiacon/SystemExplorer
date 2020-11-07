@@ -20,7 +20,7 @@ CString ThreadObjectType::GetDetails(HANDLE hThread) {
 		name = info->GetImageName().c_str();
 	details.Format(L"TID: %u, PID: %u (%s) Created: %s, Exited: %s, CPU Time: %s",
 		tid, pid, name,	CTime(created).Format(L"%D %X"),
-		exited.dwHighDateTime + exited.dwLowDateTime == 0 ? L"(running)" : CTime(exited).Format(L"%D %X"),
+		exited.dwHighDateTime + exited.dwLowDateTime == 0 ? CString(L"(running)") : CTime(exited).Format(L"%D %X"),
 		CTimeSpan((*(int64_t*)& kernel + *(int64_t*)& user) / 10000000).Format(L"%D.%H:%M:%S"));
 
 	return details;

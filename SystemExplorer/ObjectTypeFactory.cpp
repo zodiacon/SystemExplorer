@@ -14,6 +14,7 @@
 #include "TimerObjectType.h"
 #include "WinStationObjectType.h"
 #include "WorkerFactoryObjectType.h"
+#include "DeviceObjectType.h"
 
 std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, const CString& name) {
 	static WinSys::ProcessManager procMgr;
@@ -47,6 +48,7 @@ std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, c
 		return std::make_unique<WinStationObjectType>(typeIndex, name);
 	if (name == L"TpWorkerFactory")
 		return std::make_unique<WorkerFactoryObjectType>(procMgr, typeIndex, name);
-
+	if(name == L"Device")
+		return std::make_unique<DeviceObjectType>(typeIndex, name);
 	return nullptr;
 }

@@ -212,8 +212,8 @@ CString CComView::GetColumnTextInterface(int row, int col) const {
 	switch (col) {
 		case 0: return data.FriendlyName.c_str();
 		case 1: return ClsidToString(data.Iid);
-		case 2: return data.ProxyStub == GUID_NULL ? L"" : ClsidToString(data.ProxyStub);
-		case 3: return data.TypeLib == GUID_NULL ? L"" : ClsidToString(data.TypeLib);
+		case 2: return data.ProxyStub == GUID_NULL ? CString() : ClsidToString(data.ProxyStub);
+		case 3: return data.TypeLib == GUID_NULL ? CString() : ClsidToString(data.TypeLib);
 	}
 	return text;
 }

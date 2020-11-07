@@ -6,8 +6,8 @@
 #include "ViewBase.h"
 
 class CObjectManagerView : 
-	public CVirtualListView<CObjectManagerView>,
-	public CViewBase<CObjectManagerView> {
+	public CViewBase<CObjectManagerView>,
+	public CVirtualListView<CObjectManagerView> {
 public:
 	DECLARE_WND_CLASS(nullptr)
 
@@ -17,12 +17,12 @@ public:
 	void OnFinalMessage(HWND) override;
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int column) const;
+	CString GetColumnText(HWND, int row, int col);
+	int GetRowImage(HWND, int row) const;
 
 	BEGIN_MSG_MAP(CObjectManagerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
-		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnListGetDispInfo)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectManagerView>)
@@ -31,9 +31,7 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTreeSelectionChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
-	LRESULT OnListGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnEditSecurity(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 

@@ -187,13 +187,13 @@ void CWindowsView::InitTree() {
 	else {
 		m_ObjMgr.EnumHandlesAndObjects(L"Desktop");
 		for (auto& obj : m_ObjMgr.GetObjects()) {
-			auto root = m_Tree.InsertItem(obj->Name.IsEmpty() ? L"(Unnamed)" : obj->Name, 0, 0, TVI_ROOT, TVI_LAST);
-			if (!obj->Handles.empty()) {
+			auto root = m_Tree.InsertItem(obj->Name.IsEmpty() ? CString(L"(Unnamed)") : obj->Name, 0, 0, TVI_ROOT, TVI_LAST);
+			if (root && !obj->Handles.empty()) {
 				auto hDesktop = ObjectManager::DupHandle(obj.get(), DESKTOP_ENUMERATE);
 				if (hDesktop) {
 					CString text;
 					for (auto h : ObjectManager::EnumDsktopWindows(hDesktop)) {
-						InsertWindow(h, root);
+						InsertWindow(h, (HTREEITEM)root);
 					}
 					::CloseHandle(hDesktop);
 				}
@@ -299,7 +299,8 @@ CString CWindowsView::GetPropertyValue(HWND hWnd, int index) const {
 		{
 			DWORD pid;
 			auto tid = ::GetWindowThreadProcessId(hWnd, &pid);
-			text.Format(L"%u (0x%X)", index == 1 ? tid : pid);
+			auto id = index == 1 ? tid : pid;
+			text.Format(L"%u (0x%X)", id, id);
 			break;
 		}
 
