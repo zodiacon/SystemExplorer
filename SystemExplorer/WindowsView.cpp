@@ -174,6 +174,10 @@ LRESULT CWindowsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
 
 void CWindowsView::InitTree() {
 	m_Tree.LockWindowUpdate();
+	auto images = m_Tree.GetImageList(TVSIL_NORMAL);
+	while (images.GetImageCount() > 4)
+		images.Remove(images.GetImageCount() - 1);
+
 	m_Tree.DeleteAllItems();
 	m_ProcMgr.EnumProcesses();
 
@@ -216,9 +220,6 @@ void CWindowsView::UpdateList(bool newNode) {
 		return;
 	}
 	m_SelectedHwnd = (HWND)item.GetData();
-	int image = ::IsWindowVisible(m_SelectedHwnd) ? 1 : 3;
-	item.SetImage(image, image);
-
 	if (newNode) {
 		m_List.SetItemCount(_countof(properties));
 	}
@@ -267,10 +268,15 @@ void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 }
 
 CTreeItem CWindowsView::InsertWindow(HWND hWnd, HTREEITEM hParent) {
-	auto image = ::IsWindowVisible(hWnd) ? 1 : 3;
-	if (image == 3 && (m_TreeViewOptions & TreeViewOptions::VisibleOnly) == TreeViewOptions::VisibleOnly)
+	bool visible = ::IsWindowVisible(hWnd);
+	if (!visible && (m_TreeViewOptions & TreeViewOptions::VisibleOnly) == TreeViewOptions::VisibleOnly)
 		return nullptr;
 
+	int image = 1;
+	auto hIcon = WindowHelper::GetWindowOrProcessIcon(hWnd);
+	if (hIcon) {
+		image = m_Tree.GetImageList(TVSIL_NORMAL).AddIcon(hIcon);
+	}
 	WCHAR title[64];
 	auto len = ::GetWindowTextLength(hWnd);
 	if (len > 0)
@@ -283,7 +289,8 @@ CTreeItem CWindowsView::InsertWindow(HWND hWnd, HTREEITEM hParent) {
 	if (len > 0)
 		text += L" [" + CString(title) + (len > _countof(title) ? L"..." : L"") + L"]";
 	auto item = m_Tree.InsertItem(text, image, image, hParent, TVI_LAST);
-
+	if (!visible)
+		item.SetState(TVIS_CUT, TVIS_CUT);
 	item.SetData((DWORD_PTR)hWnd);
 	return item;
 }

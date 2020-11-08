@@ -234,7 +234,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UIAddMenu(IDR_CONTEXT);
 	m_CmdBar.AttachMenu(hMenu);
 	SetMenu(nullptr);
-	m_CmdBar.m_bAlphaImages = true;
+	m_CmdBar.SetAlphaImages(true);
 	InitCommandBar();
 
 	CToolBarCtrl tb;

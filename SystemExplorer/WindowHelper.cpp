@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WindowHelper.h"
+#include "ProcessHelper.h"
 
 CString WindowHelper::WindowStyleToString(HWND hWnd) {
 	auto style = CWindow(hWnd).GetStyle();
@@ -95,4 +96,21 @@ CString WindowHelper::WindowRectToString(HWND hWnd) {
 		text += L" (Minimized)";
 
 	return text;
+}
+
+HICON WindowHelper::GetWindowOrProcessIcon(HWND hWnd) {
+	HICON hIcon{ nullptr };
+	::SendMessageTimeout(hWnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 100, (DWORD_PTR*)&hIcon);
+	if (!hIcon) {
+		hIcon = (HICON)::GetClassLongPtr(hWnd, GCLP_HICONSM);
+	}
+	if (!hIcon) {
+		DWORD pid = 0;
+		::GetWindowThreadProcessId(hWnd, &pid);
+		if (pid) {
+			::ExtractIconEx(ProcessHelper::GetProcessName(pid), 0, nullptr, &hIcon, 1);
+		}
+	}
+
+	return hIcon;
 }
