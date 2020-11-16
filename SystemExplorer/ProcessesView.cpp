@@ -292,26 +292,12 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 
 	Refresh();
 	UpdateUI();
-	SetTimer(1, m_UpdateInterval, nullptr);
 	
 	return 0;
 }
 
-LRESULT CProcessesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
-	if (id == 1)
-		Refresh();
-	return 0;
-}
-
-LRESULT CProcessesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
-	if (activate) {
-		if(m_UpdateInterval)
-			SetTimer(1, m_UpdateInterval, nullptr);
-	}
-	else {
-		KillTimer(1);
-	}
-	return 0;
+void CProcessesView::OnUpdate() {
+	Refresh();
 }
 
 LRESULT CProcessesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
@@ -515,8 +501,9 @@ LRESULT CProcessesView::OnItemStateChanged(int, LPNMHDR hdr, BOOL& handled) {
 }
 
 LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
-	if (m_UpdateInterval)
-		KillTimer(1);
+	auto paused = IsPaused();
+	if (!paused)
+		Pause(true);
 
 	POINT pt;
 	::GetCursorPos(&pt);
@@ -556,24 +543,13 @@ LRESULT CProcessesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 			GetFrame()->SendFrameMessage(WM_COMMAND, id, headerClick ? 0 : reinterpret_cast<LPARAM>(m_Processes[index].get()));
 		}
 	}
-	if (m_UpdateInterval)
-		SetTimer(1, m_UpdateInterval);
+	if (!paused)
+		Pause(false);
 	return 0;
 }
 
-LRESULT CProcessesView::OnPause(WORD, WORD, HWND, BOOL&) {
-	if (m_UpdateInterval > 0) {
-		m_OldInterval = m_UpdateInterval;
-		m_UpdateInterval = 0;
-		KillTimer(1);
-	}
-	else {
-		m_UpdateInterval = m_OldInterval;
-		SetTimer(1, m_UpdateInterval, nullptr);
-	}
-
-	GetFrame()->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, m_UpdateInterval == 0);
-	return 0;
+void CProcessesView::OnPauseResume(bool paused) {
+	GetFrame()->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, IsPaused());
 }
 
 LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {

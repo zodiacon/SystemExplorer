@@ -275,8 +275,8 @@ LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
-LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
-	if (id == 1 && m_HandleTracker) {
+void CHandlesView::OnUpdate() {
+	if (m_HandleTracker) {
 		m_HandleTracker->EnumHandles();
 		ATLTRACE(L"New handles: %u, Closed handles: %u\n", m_HandleTracker->GetNewHandles().size(), m_HandleTracker->GetClosedHandles().size());
 
@@ -284,7 +284,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 			Change change;
 			change.Color = RGB(255, 0, 0);
 			change.Handle = HandleToUlong(h.HandleValue);
-			change.TargetTime = ::GetTickCount() + 2000;
+			change.TargetTime = ::GetTickCount64() + 2000;
 			change.IsNewHandle = false;
 			m_Changes.push_back(change);
 		}
@@ -292,7 +292,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		for (auto& h : m_HandleTracker->GetNewHandles()) {
 			auto hDup = ObjectManager::DupHandle(h.HandleValue, m_Pid, h.ObjectTypeIndex);
 			CString name = hDup ? m_ObjMgr.GetObjectName(hDup, h.ObjectTypeIndex) : CString();
-			if (m_NamedObjectsOnly && name.IsEmpty()) {
+			if (m_NamedObjectsOnly && name.IsEmpty() && hDup) {
 				::CloseHandle(hDup);
 				continue;
 			}
@@ -313,7 +313,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 			Change change;
 			change.Color = RGB(0, 255, 0);
 			change.Handle = hi->HandleValue;
-			change.TargetTime = ::GetTickCount() + 2000;
+			change.TargetTime = ::GetTickCount64() + 2000;
 			change.IsNewHandle = true;
 			m_Changes.push_back(change);
 			m_Handles.push_back(hi);
@@ -322,7 +322,7 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		// process changes
 		for (int i = 0; i < m_Changes.size(); i++) {
 			auto& change = m_Changes[i];
-			if (change.TargetTime < ::GetTickCount()) {
+			if (change.TargetTime < ::GetTickCount64()) {
 				if (!change.IsNewHandle) {
 					auto it = std::find_if(m_Handles.begin(), m_Handles.end(), [&](auto& hi) {
 						return hi->HandleValue == change.Handle;
@@ -342,35 +342,19 @@ LRESULT CHandlesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 		m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
-	return 0;
 }
 
-LRESULT CHandlesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+void CHandlesView::OnActivate(bool activate) {
 	if (m_HandleTracker) {
 		if (activate) {
-			if (!m_Paused) {
-				Refresh();
-				SetTimer(1, 1000, nullptr);
-			}
+			Refresh();
 			UpdateUI();
 		}
-		else {
-			KillTimer(1);
-		}
 	}
-	return 0;
 }
 
-LRESULT CHandlesView::OnPauseResume(WORD, WORD, HWND, BOOL&) {
-	m_Paused = !m_Paused;
-	if (m_HandleTracker) {
-		if (m_Paused)
-			KillTimer(1);
-		else
-			SetTimer(1, 1000, nullptr);
-	}
+void CHandlesView::OnPauseResume(bool paused) {
 	UpdateUI();
-	return 0;
 }
 
 LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
@@ -427,8 +411,9 @@ LRESULT CHandlesView::OnObjectProperties(WORD, WORD, HWND, BOOL&) {
 
 void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
-		MessageBox((L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), L"Object Explorer", MB_OK);
-		m_List.SetItemCount(0);
+		KillTimer(1);
+		AtlMessageBox(*this, (L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), IDS_TITLE, MB_OK | MB_ICONWARNING);
+		GetFrame()->CloseView(*this);
 		return;
 	}
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid, m_NamedObjectsOnly);

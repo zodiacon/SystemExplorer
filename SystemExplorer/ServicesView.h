@@ -34,12 +34,13 @@ public:
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(HWND, int row) const;
 
+	void OnActivate(bool activate);
+
 	static PCWSTR TriggerToText(const WinSys::ServiceTrigger& trigger);
 	static CString DependenciesToString(const std::vector<std::wstring>& deps);
 
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemStateChanged)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnListRightClick)
 		COMMAND_ID_HANDLER(ID_SERVICE_START, OnServiceStart)
@@ -55,7 +56,6 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnListRightClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnItemStateChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceStart(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

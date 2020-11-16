@@ -46,6 +46,7 @@ namespace WinSys {
 		const std::vector<std::shared_ptr<ModuleInfo>>& GetModules() const;
 		const std::vector<std::shared_ptr<ModuleInfo>>& GetNewModules() const;
 		const std::vector<std::shared_ptr<ModuleInfo>>& GetUnloadedModules() const;
+		bool IsRunning() const;
 
 	private:
 		struct Impl;

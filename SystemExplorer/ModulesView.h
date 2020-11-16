@@ -21,11 +21,11 @@ public:
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 
+	void OnActivate(bool activate);
+
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
-		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		CHAIN_MSG_MAP(CVirtualListView<CModulesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CModulesView>)
@@ -34,9 +34,7 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void Refresh();
@@ -52,7 +50,6 @@ private:
 
 private:
 	CListViewCtrl m_List;
-	int m_UpdateInterval = 1200;
 	std::vector<std::shared_ptr<WinSys::ModuleInfo>> m_Modules;
 	std::unordered_map<WinSys::ModuleInfo*, ModuleInfoEx> m_ModulesEx;
 	WinSys::ProcessModuleTracker m_Tracker;

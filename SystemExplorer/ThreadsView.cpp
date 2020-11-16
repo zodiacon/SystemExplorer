@@ -115,7 +115,7 @@ void CThreadsView::DoSort(const SortInfo* si) {
 			case ThreadColumn::IoPriority: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetIoPriority(), GetThreadInfoEx(t2.get()).GetIoPriority(), asc);
 			case ThreadColumn::ComFlags: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetComFlags(), GetThreadInfoEx(t2.get()).GetComFlags(), asc);
 			case ThreadColumn::ComApartment: return SortHelper::SortStrings(
-				FormatHelper::ComApartmentToString(GetThreadInfoEx(t1.get()).GetComFlags()), 
+				FormatHelper::ComApartmentToString(GetThreadInfoEx(t1.get()).GetComFlags()),
 				FormatHelper::ComApartmentToString(GetThreadInfoEx(t2.get()).GetComFlags()), asc);
 		}
 		return false;
@@ -234,7 +234,7 @@ void CThreadsView::Refresh() {
 
 void CThreadsView::UpdateUI() {
 	auto ui = GetFrame()->GetUpdateUI();
-	ui->UISetCheck(ID_VIEW_PAUSE, m_UpdateInterval == 0);
+	ui->UISetCheck(ID_VIEW_PAUSE, IsPaused());
 }
 
 LRESULT CThreadsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
@@ -282,28 +282,17 @@ LRESULT CThreadsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->AddColumn(L"COM APT", LVCFMT_LEFT, 60, ColumnFlags::None);
 
 	Refresh();
-	SetTimer(1, m_UpdateInterval, nullptr);
+	Pause(false);
 
 	return 0;
 }
 
-LRESULT CThreadsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
-	if (id == 1)
-		Refresh();
-
-	return 0;
+void CThreadsView::OnUpdate() {
+	Refresh();
 }
 
-LRESULT CThreadsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
-	if (activate) {
-		if (m_UpdateInterval)
-			SetTimer(1, m_UpdateInterval, nullptr);
-	}
-	else {
-		KillTimer(1);
-	}
+void CThreadsView::OnActivate(bool activate) {
 	UpdateUI();
-	return 0;
 }
 
 LRESULT CThreadsView::OnRefresh(WORD, WORD, HWND, BOOL&) {
@@ -377,19 +366,8 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	return 0;
 }
 
-LRESULT CThreadsView::OnPause(WORD, WORD, HWND, BOOL&) {
-	if (m_UpdateInterval > 0) {
-		m_OldInterval = m_UpdateInterval;
-		m_UpdateInterval = 0;
-		KillTimer(1);
-	}
-	else {
-		m_UpdateInterval = m_OldInterval;
-		SetTimer(1, m_UpdateInterval, nullptr);
-	}
-
+void CThreadsView::OnPauseResume(bool paused) {
 	UpdateUI();
-	return 0;
 }
 
 PCWSTR CThreadsView::ThreadStateToString(WinSys::ThreadState state) {

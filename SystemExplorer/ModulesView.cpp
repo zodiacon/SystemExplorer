@@ -83,16 +83,6 @@ LRESULT CModulesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	cm->UpdateColumns();
 
 	Refresh();
-	SetTimer(1, m_UpdateInterval, nullptr);
-
-	return 0;
-}
-
-LRESULT CModulesView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
-	if (id != 1)
-		return 0;
-
-	Refresh();
 
 	return 0;
 }
@@ -103,15 +93,9 @@ LRESULT CModulesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
-LRESULT CModulesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
-	if (activate) {
+void CModulesView::OnActivate(bool activate) {
+	if (activate)
 		Refresh();
-		SetTimer(1, m_UpdateInterval, nullptr);
-	}
-	else
-		KillTimer(1);
-
-	return 0;
 }
 
 LRESULT CModulesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
@@ -121,6 +105,12 @@ LRESULT CModulesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 }
 
 void CModulesView::Refresh() {
+	if (!m_Tracker.IsRunning()) {
+		KillTimer(1);
+		AtlMessageBox(*this, L"Process has terminated", IDS_TITLE, MB_OK | MB_ICONWARNING);
+		GetFrame()->CloseView(*this);
+		return;
+	}
 	auto first = m_Modules.empty();
 	m_Tracker.EnumModules();
 	if (first) {

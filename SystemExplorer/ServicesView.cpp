@@ -14,6 +14,9 @@ CServicesView::CServicesView(IMainFrame* pFrame) : CViewBase(pFrame) {
 }
 
 void CServicesView::DoSort(const SortInfo* si) {
+	if (si == nullptr)
+		return;
+
 	std::sort(m_Services.begin(), m_Services.end(), [&](const auto& s1, const auto& s2) {
 		return CompareItems(s1, s2, si->SortColumn, si->SortAscending);
 		});
@@ -73,10 +76,9 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	return 0;
 }
 
-LRESULT CServicesView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+void CServicesView::OnActivate(bool activate) {
 	if (activate)
 		Refresh();
-	return 0;
 }
 
 CString CServicesView::GetColumnText(HWND, int row, int col) const {
@@ -456,7 +458,8 @@ void CServicesView::Refresh() {
 	m_ServicesEx.clear();
 	m_Services = WinSys::ServiceManager::EnumServices();
 	m_ServicesEx.reserve(m_Services.size());
-	m_List.SetItemCount(static_cast<int>(m_Services.size()));
+	m_List.SetItemCountEx(static_cast<int>(m_Services.size()), LVSICF_NOSCROLL);
+	DoSort(GetSortInfo(m_List));
 	UpdateUI(this);
 }
 

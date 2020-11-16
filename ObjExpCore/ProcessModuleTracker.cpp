@@ -206,3 +206,7 @@ const std::vector<std::shared_ptr<ModuleInfo>>& WinSys::ProcessModuleTracker::Ge
 const std::vector<std::shared_ptr<ModuleInfo>>& WinSys::ProcessModuleTracker::GetUnloadedModules() const {
 	return _impl->GetUnloadedModules();
 }
+
+bool ProcessModuleTracker::IsRunning() const {
+	return ::WaitForSingleObject(_impl->_handle.get(), 0) == WAIT_TIMEOUT;
+}

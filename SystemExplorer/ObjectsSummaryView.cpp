@@ -53,7 +53,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto index = (int)cd->dwItemSpec;
 	auto item = GetItem(index);
 	auto& changes = m_ObjectManager.GetChanges();
-	lcd->clrText = RGB(0, 0, 0);
+	lcd->clrText = CLR_INVALID;
 
 	for (auto& change : changes) {
 		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == sub) {

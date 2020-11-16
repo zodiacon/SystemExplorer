@@ -82,6 +82,13 @@ BEGIN
         MENUITEM "&Refresh\tF5",                ID_VIEW_REFRESH
         MENUITEM SEPARATOR
         MENUITEM "&Pause",                      ID_VIEW_PAUSE
+        POPUP "&Update Interval"
+        BEGIN
+            MENUITEM "&1 Second",                   ID_UPDATEINTERVAL_1SECOND
+            MENUITEM "&2 Seconds",                  ID_UPDATEINTERVAL_2SECONDS
+            MENUITEM "&5 Seconds",                  ID_UPDATEINTERVAL_5SECONDS
+            MENUITEM "1&0 Seconds",                 ID_UPDATEINTERVAL_10SECONDS
+        END
         MENUITEM SEPARATOR
         MENUITEM "Columns...",                  ID_HEADER_COLUMNS, INACTIVE
     END
@@ -540,7 +547,7 @@ CAPTION "About System Explorer"
 FONT 9, "Segoe UI", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,81,50,14
-    CTEXT           "System Explorer v0.89\n\n(C)2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
+    CTEXT           "System Explorer v0.90\n\n© 2019-2020 Pavel Yosifovich",IDC_STATIC,43,23,101,32
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     CONTROL         "<a>https://github.com/zodiacon/SystemExplorer</a>",IDC_GITHUB,
                     "SysLink",WS_TABSTOP,25,57,144,14
@@ -902,13 +909,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "System Explorer v0.89"
+            VALUE "FileDescription", "System Explorer"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SystemExplorer"
-            VALUE "LegalCopyright", "(C) 2019-2020 Pavel Yosifovich"
+            VALUE "LegalCopyright", "© 2019-2020 Pavel Yosifovich. All Rights Rserved."
             VALUE "OriginalFilename", "SystemExplorer.exe"
             VALUE "ProductName", "System Explorer"
-            VALUE "ProductVersion", "0, 8, 9, 0"
+            VALUE "ProductVersion", "0, 9, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1036,7 +1043,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "System Explorer v0.89"
+    IDR_MAINFRAME           "System Explorer v0.90"
     IDS_TITLE               "System Explorer"
 END
 

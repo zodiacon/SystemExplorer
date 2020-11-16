@@ -319,6 +319,7 @@
     <ClInclude Include="ColorsSelectionDlg.h" />
     <ClInclude Include="ColumnManager.h" />
     <ClInclude Include="COMView.h" />
+    <ClInclude Include="CustomDrawListView.h" />
     <ClInclude Include="DeviceObjectType.h" />
     <ClInclude Include="EnvironmentDlg.h" />
     <ClInclude Include="IniFile.h" />

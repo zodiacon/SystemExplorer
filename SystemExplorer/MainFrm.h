@@ -41,6 +41,8 @@ public:
 	CUpdateUIBase* GetUpdateUI() override;
 	CFont& GetMonoFont() override;
 	LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) override;
+	void CloseView(HWND hWnd) override;
+
 	HWND CreateAndAddThreadsView(const CString& name, DWORD pid);
 	HWND CreateAndAddModulesView(const CString& name, DWORD pid);
 	HWND CreateAndAddMemoryMapView(const CString& name, DWORD pid);

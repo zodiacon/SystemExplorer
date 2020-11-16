@@ -989,6 +989,16 @@ LRESULT CMainFrame::SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
 	return SendMessage(msg, wParam, lParam);
 }
 
+void CMainFrame::CloseView(HWND hWnd) {
+	auto count = m_view.GetPageCount();
+	for (int i = 0; i < count; i++) {
+		if (m_view.GetPageHWND(i) == hWnd) {
+			m_view.RemovePage(i);
+			break;
+		}
+	}
+}
+
 HWND CMainFrame::CreateAndAddThreadsView(const CString& name, DWORD pid) {
 	auto view = new CThreadsView(this, pid);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
@@ -1001,7 +1011,7 @@ HWND CMainFrame::CreateAndAddThreadsView(const CString& name, DWORD pid) {
 }
 
 HWND CMainFrame::CreateAndAddModulesView(const CString& name, DWORD pid) {
-	auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ);
+	auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE);
 	auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	if (!hWnd) {

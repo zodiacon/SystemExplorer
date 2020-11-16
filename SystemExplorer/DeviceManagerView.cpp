@@ -89,10 +89,6 @@ LRESULT CDeviceManagerView::OnFindNext(WORD, WORD, HWND, BOOL&) {
 	return LRESULT();
 }
 
-LRESULT CDeviceManagerView::OnActivate(UINT, WPARAM, LPARAM, BOOL&) {
-	return LRESULT();
-}
-
 void CDeviceManagerView::Refresh() {
 	m_Tree.LockWindowUpdate(TRUE);
 	m_Tree.DeleteAllItems();

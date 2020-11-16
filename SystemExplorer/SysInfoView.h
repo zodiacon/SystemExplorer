@@ -18,10 +18,10 @@ public:
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int row) const;
 
+	void OnUpdate();
+
 	BEGIN_MSG_MAP(CSysInfoView)
-		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		CHAIN_MSG_MAP(CViewBase<CSysInfoView>)
 		CHAIN_MSG_MAP(CVirtualListView<CSysInfoView>)
 		CHAIN_MSG_MAP(CCustomDraw<CSysInfoView>)
@@ -31,8 +31,6 @@ private:
 	void Refresh();
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 public:
 	enum class RowType {

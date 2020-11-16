@@ -17,4 +17,5 @@ struct IMainFrame {
 	virtual CUpdateUIBase* GetUpdateUI() = 0;
 	virtual CFont& GetMonoFont() = 0;
 	virtual LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) = 0;
+	virtual void CloseView(HWND hWnd) = 0;
 };

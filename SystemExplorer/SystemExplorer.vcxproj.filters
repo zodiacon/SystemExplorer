@@ -467,6 +467,9 @@
     <ClInclude Include="DeviceObjectType.h">
       <Filter>ObjectTypes</Filter>
     </ClInclude>
+    <ClInclude Include="CustomDrawListView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\briefcase.ico">

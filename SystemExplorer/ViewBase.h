@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Interfaces.h"
+#include "resource.h"
 
 template<typename T, typename TBase = CFrameWindowImpl<T, CWindow, CControlWinTraits>>
 class CViewBase abstract : 
@@ -12,12 +13,83 @@ public:
 		ATLASSERT(frame);
 	}
 
+	int GetUpdateInterval() const {
+		return m_UpdateInterval;
+	}
+
+	bool IsPaused() const {
+		return m_Paused;
+	}
+
 protected:
 	BEGIN_MSG_MAP(CViewBase)
+		MESSAGE_HANDLER(WM_TIMER, OnTimer)
+		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPauseResume)
+		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
+		COMMAND_RANGE_HANDLER(ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS, OnUpdateInterval)
 		MESSAGE_HANDLER(OM_NEW_FRAME, OnNewFrame)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		CHAIN_MSG_MAP(TBase)
 	END_MSG_MAP()
+
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
+		auto pT = static_cast<T*>(this);
+		if (activate) {
+			auto ui = GetFrame()->GetUpdateUI();
+			ui->UISetRadioMenuItem(m_CurrentUpdateId, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
+			ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
+			pT->SetTimer(1, GetUpdateInterval(), nullptr);
+			//pT->UpdateUI();
+		}
+		else
+			pT->KillTimer(1);
+		pT->OnActivate(activate);
+		return 0;
+	}
+
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& bHandled) {
+		if (id != 1) {
+			bHandled = FALSE;
+			return 0;
+		}
+		static_cast<T*>(this)->OnUpdate();
+		return 0;
+	}
+
+	LRESULT OnPauseResume(WORD, WORD, HWND, BOOL&) {
+		Pause(!m_Paused);
+		static_cast<T*>(this)->OnPauseResume(m_Paused);
+		return 0;
+	}
+
+	void Pause(bool pause) {
+		m_Paused = pause;
+		auto pT = static_cast<T*>(this);
+		if (m_Paused)
+			pT->KillTimer(1);
+		else
+			pT->SetTimer(1, GetUpdateInterval(), nullptr);
+	}
+
+	LRESULT OnUpdateInterval(WORD, WORD id, HWND, BOOL&) {
+		int intervals[] = { 1000, 2000, 5000, 10000 };
+		int index = id - ID_UPDATEINTERVAL_1SECOND;
+		ATLASSERT(index >= 0 && index < _countof(intervals));
+
+		m_UpdateInterval = intervals[index];
+		auto pT = static_cast<T*>(this);
+		if (!m_Paused) {
+			pT->SetTimer(1, m_UpdateInterval, nullptr);
+		}
+		pT->OnUpdateIntervalChanged(m_UpdateInterval);
+		GetFrame()->GetUpdateUI()->UISetRadioMenuItem(m_CurrentUpdateId = id, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
+		return 0;
+	}
+
+	void OnPauseResume(bool paused) {}
+	void OnUpdateIntervalChanged(int interval) {}
+	void OnUpdate() {}
+	void OnActivate(bool) {}
 
 	BOOL OnIdle() override {
 		CAutoUpdateUI<T>::UIUpdateToolBar();
@@ -80,4 +152,7 @@ protected:
 
 private:
 	IMainFrame* m_pFrame;
+	int m_CurrentUpdateId = ID_UPDATEINTERVAL_1SECOND;
+	int m_UpdateInterval{ 1000 };
+	bool m_Paused{ false };
 };

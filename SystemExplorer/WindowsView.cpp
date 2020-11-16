@@ -163,13 +163,12 @@ LRESULT CWindowsView::OnComboKeyDown(UINT, WPARAM wParam, LPARAM, BOOL& handled)
 	return 0;
 }
 
-LRESULT CWindowsView::OnActivate(UINT, WPARAM activate, LPARAM, BOOL&) {
+void CWindowsView::OnActivate(bool activate) {
 	if (activate) {
 		auto ui = GetFrame()->GetUpdateUI();
 		ui->UIEnable(ID_EDIT_FIND, TRUE);
 		ui->UIEnable(ID_EDIT_FIND_NEXT, TRUE);
 	}
-	return 0;
 }
 
 void CWindowsView::InitTree() {
