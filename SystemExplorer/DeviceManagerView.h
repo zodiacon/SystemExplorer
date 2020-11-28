@@ -15,7 +15,8 @@ public:
 
 	bool IsSortable(int col) const;
 	void DoSort(const SortInfo* si);
-	
+	bool IsUpdating() const;
+
 	BEGIN_MSG_MAP(CDeviceManagerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)

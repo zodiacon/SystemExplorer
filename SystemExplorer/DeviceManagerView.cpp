@@ -29,6 +29,10 @@ void CDeviceManagerView::DoSort(const SortInfo* si) {
 	}
 }
 
+bool CDeviceManagerView::IsUpdating() const {
+	return false;
+}
+
 LRESULT CDeviceManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	auto hWndToolBar = m_Toolbar.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
 	m_Toolbar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);

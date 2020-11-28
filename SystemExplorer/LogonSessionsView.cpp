@@ -44,6 +44,10 @@ bool CLogonSessionsView::IsSortable(int col) const {
 	return col != 7;
 }
 
+bool CLogonSessionsView::IsUpdating() const {
+	return false;
+}
+
 PCWSTR CLogonSessionsView::LogonTypeToString(WinSys::SecurityLogonType type) {
 	using namespace WinSys;
 

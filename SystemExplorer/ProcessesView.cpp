@@ -392,9 +392,6 @@ void CProcessesView::ShowProperties(int row) {
 	dlg->ShowWindow(SW_SHOW);
 }
 
-void CProcessesView::TogglePause() {
-}
-
 CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) {
 	CString text;
 

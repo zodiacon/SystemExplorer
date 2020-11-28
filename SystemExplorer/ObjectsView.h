@@ -23,6 +23,7 @@ public:
 	CObjectsView(IMainFrame* pFrame, PCWSTR type = nullptr);
 
 	void Refresh();
+	void OnUpdate();
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 	void DoSort(const SortInfo* si);
@@ -33,7 +34,6 @@ public:
 
 	BEGIN_MSG_MAP(CObjectsView)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
-		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
@@ -45,6 +45,7 @@ public:
 		COMMAND_ID_HANDLER(ID_OBJECTS_ALLHANDLESFOROBJECT, OnShowAllHandles)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectsView>)
+		CHAIN_MSG_MAP(CCustomDraw<CObjectsView>)
 		CHAIN_MSG_MAP(CViewBase<CObjectsView>)
 	END_MSG_MAP()
 
@@ -63,7 +64,6 @@ private:
 
 private:
 	LRESULT OnActivatePage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

@@ -19,6 +19,7 @@ public:
 	int GetRowIndent(int row) const;
 
 	void DoSort(const SortInfo* si);
+	bool IsUpdating() const;
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnSubItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);

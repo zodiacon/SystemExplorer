@@ -6,6 +6,7 @@
 #include "TokenPropertiesDlg.h"
 #include "ProcessPropertiesDlg.h"
 #include "ProcessInfoEx.h"
+#include "ResizablePropertySheet.h"
 
 const CString ifeoKey(L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\");
 
@@ -104,6 +105,11 @@ int ProcessHelper::OpenObjectDialog(const WinSys::ProcessManager& pm, HANDLE hOb
 		if (pi == nullptr)
 			return OpenObjectDialog(pm, nullptr, L"");
 		ProcessInfoEx px(pi.get());
+		//CResizablePropertySheet ps(L"Process");
+		//CPropertyPage<IDD_JOB> page;
+		//ps.AddPage(page);
+		//ps.DoModal();
+
 		CProcessPropertiesDlg dlg(pm, px);
 		dlg.SetModal(true);
 		dlg.DoModal();

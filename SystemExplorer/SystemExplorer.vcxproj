@@ -327,6 +327,7 @@
     <ClInclude Include="NotifyIcon.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />
+    <ClInclude Include="ResizablePropertySheet.h" />
     <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
     <ClInclude Include="SysInfoView.h" />

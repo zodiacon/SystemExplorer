@@ -25,6 +25,7 @@ public:
 	int GetRowImage(HWND, int row) const;
 	void DoSort(const SortInfo*);
 	void UpdateResults();
+	bool IsUpdating() const;
 
 	void StartSearch(PCWSTR text) override;
 	bool CancelSearch() override;

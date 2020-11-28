@@ -34,15 +34,21 @@ protected:
 
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
 		auto pT = static_cast<T*>(this);
-		if (activate) {
-			auto ui = GetFrame()->GetUpdateUI();
-			ui->UISetRadioMenuItem(m_CurrentUpdateId, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
-			ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
-			pT->SetTimer(1, GetUpdateInterval(), nullptr);
-			//pT->UpdateUI();
+		auto ui = GetFrame()->GetUpdateUI();
+		if (pT->IsUpdating()) {
+			if (activate) {
+				ui->UISetRadioMenuItem(m_CurrentUpdateId, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
+				ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
+				ui->UIEnable(ID_VIEW_PAUSE, TRUE);
+				pT->SetTimer(1, GetUpdateInterval(), nullptr);
+			}
+			else {
+				pT->KillTimer(1);
+			}
 		}
-		else
-			pT->KillTimer(1);
+		else if(activate) {
+			ui->UIEnable(ID_VIEW_PAUSE, FALSE);
+		}
 		pT->OnActivate(activate);
 		return 0;
 	}
@@ -90,6 +96,10 @@ protected:
 	void OnUpdateIntervalChanged(int interval) {}
 	void OnUpdate() {}
 	void OnActivate(bool) {}
+	
+	bool IsUpdating() const {
+		return true;
+	}
 
 	BOOL OnIdle() override {
 		CAutoUpdateUI<T>::UIUpdateToolBar();

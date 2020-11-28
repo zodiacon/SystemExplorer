@@ -119,15 +119,12 @@ LRESULT CObjectsView::OnActivatePage(UINT, WPARAM, LPARAM, BOOL&) {
 	return LRESULT();
 }
 
-LRESULT CObjectsView::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
-	if (id == 1) {
-		Refresh();
-		auto si = GetSortInfo();
-		if (si && si->SortColumn >= 0)
-			DoSort(si);
-		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
-	}
-	return 0;
+void CObjectsView::OnUpdate() {
+	Refresh();
+	auto si = GetSortInfo();
+	if (si && si->SortColumn >= 0)
+		DoSort(si);
+	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 LRESULT CObjectsView::OnEditCopy(WORD, WORD, HWND, BOOL&) {

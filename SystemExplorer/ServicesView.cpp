@@ -35,8 +35,6 @@ int CServicesView::GetRowImage(HWND, int row) const {
 }
 
 LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
-	m_RunningElevated = SecurityHelper::IsRunningElevated();
-
 	InitToolBar();
 
 	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);
@@ -465,7 +463,7 @@ void CServicesView::Refresh() {
 
 void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 	auto selected = m_List.GetSelectedIndex();
-	if (selected < 0 || !m_RunningElevated) {
+	if (selected < 0 || !SecurityHelper::IsRunningElevated()) {
 		ui->UIEnable(ID_SERVICE_START, FALSE);
 		ui->UIEnable(ID_SERVICE_STOP, FALSE);
 		ui->UIEnable(ID_SERVICE_PAUSE, FALSE);

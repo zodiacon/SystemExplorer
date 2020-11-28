@@ -46,7 +46,6 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnHideColumn(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSelectColumns(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -62,7 +61,6 @@ private:
 	void Refresh();
 	void UpdateUI();
 	void ShowProperties(int row);
-	void TogglePause();
 	ProcessInfoEx& GetProcessInfoEx(WinSys::ProcessInfo* pi) const;
 	void GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const;
 	static CString ProcessAttributesToString(ProcessAttributes attributes);

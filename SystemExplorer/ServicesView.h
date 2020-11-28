@@ -87,6 +87,5 @@ private:
 	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;
 	int m_SelectedHeader;
-	bool m_RunningElevated;
 };
 

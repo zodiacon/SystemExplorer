@@ -69,6 +69,10 @@ void CSearchView::UpdateResults() {
 		m_List.SetItemCount(0);
 }
 
+bool CSearchView::IsUpdating() const {
+	return false;
+}
+
 void CSearchView::StartSearch(PCWSTR text) {
 	m_Items.clear();
 	m_List.SetItemCount(1);
