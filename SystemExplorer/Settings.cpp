@@ -82,7 +82,7 @@ bool Settings::Load(PCWSTR filename) {
 	MinimizeToTray = file.ReadBool(L"Options", L"MinimizeToTray");
 	Processes.UpdateInterval = file.ReadInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 
-	return LoadColors(filename, L"ProcessColor", Processes.Colors, _countof(Processes.Colors));
+	return LoadColors(filename, L"ProcessColors", Processes.Colors, _countof(Processes.Colors));
 }
 
 bool Settings::SaveColors(PCWSTR path, PCWSTR prefix, const HighlightColor* colors, int count) {
