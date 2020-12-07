@@ -68,6 +68,6 @@ namespace WinSys {
 		static bool Uninstall(const std::wstring& name);
 
 	private:
-		static wil::unique_schandle OpenServiceHandle(const std::wstring& name, ServiceAccessMask accessMask = ServiceAccessMask::QueryConfig);
+		static wil::unique_schandle OpenServiceHandle(const std::wstring& name, ServiceAccessMask accessMask = ServiceAccessMask::QueryConfig | ServiceAccessMask::QueryStatus);
 	};
 }

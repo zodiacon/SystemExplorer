@@ -28,7 +28,7 @@ std::unique_ptr<Token> Token::Open(DWORD pid, TokenAccessMask access) {
 	return nullptr;
 }
 
-std::pair<std::wstring, Sid> WinSys::Token::GetUserNameAndSid() const {
+std::pair<std::wstring, Sid> Token::GetUserNameAndSid() const {
 	assert(_handle);
 	BYTE buffer[256];
 	DWORD len;
@@ -44,6 +44,10 @@ std::pair<std::wstring, Sid> WinSys::Token::GetUserNameAndSid() const {
 		return { username, sid };
 	}
 	return { L"", Sid() };
+}
+
+std::wstring WinSys::Token::GetUserName() const {
+	return GetUserNameAndSid().first;
 }
 
 bool Token::IsValid() const {

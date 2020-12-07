@@ -85,12 +85,12 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::Elevated: return px.IsElevated() ? L"Yes" : L"No";
 		case ProcessColumn::Integrity: return p->Id > 4 ? FormatHelper::IntegrityToString(px.GetIntegrityLevel()) : L"";
 		case ProcessColumn::Virtualized: return p->Id > 4 ? VirtualizationStateToString(px.GetVirtualizationState()) : L"";
-		case ProcessColumn::JobId: 
-			if(p->JobObjectId)
-				text.Format(L"%u ", p->JobObjectId); 
+		case ProcessColumn::JobId:
+			if (p->JobObjectId)
+				text.Format(L"%u ", p->JobObjectId);
 			break;
 		case ProcessColumn::WindowTitle: return px.GetWindowTitle();
-		case ProcessColumn::Platform: 
+		case ProcessColumn::Platform:
 			text.Format(L"%d-bit", px.GetBitness());
 			break;
 		case ProcessColumn::Description: return px.GetDescription().c_str();
@@ -179,15 +179,25 @@ DWORD CProcessesView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
 	return CDRF_NOTIFYITEMDRAW;
 }
 
-DWORD CProcessesView::OnItemPrePaint(int, LPNMCUSTOMDRAW) {
-	return CDRF_NOTIFYSUBITEMDRAW;
+DWORD CProcessesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
+	if (cd->hdr.hwndFrom == m_List) {
+		auto lcd = (LPNMLVCUSTOMDRAW)cd;
+		auto sub = lcd->iSubItem;
+		lcd->clrTextBk = CLR_INVALID;
+		lcd->clrText = CLR_INVALID;
+		int index = (int)cd->dwItemSpec;
+		auto& p = m_Processes[index];
+		auto& px = GetProcessInfoEx(p.get());
+		GetProcessColors(px, lcd->clrTextBk, lcd->clrText);
+
+		return CDRF_NOTIFYSUBITEMDRAW;
+	}
+	return CDRF_DODEFAULT;
 }
 
 DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto lcd = (LPNMLVCUSTOMDRAW)cd;
 	auto sub = lcd->iSubItem;
-	lcd->clrTextBk = CLR_INVALID;
-	lcd->clrText = CLR_INVALID;
 	int index = (int)cd->dwItemSpec;
 
 	auto cm = GetColumnManager(m_List);
@@ -197,20 +207,21 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	else
 		::SelectObject(cd->hdc, m_hFont);
 
-	auto& p = m_Processes[index];
-	auto& px = GetProcessInfoEx(p.get());
-
-	switch (real) {
-		case ProcessColumn::Name:
-		case ProcessColumn::Id:
-			GetProcessColors(px, lcd->clrTextBk, lcd->clrText);
-			break;
-		case ProcessColumn::CPU:
-			if (p->Id > 0)
-				Settings::Get().GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
-			break;
+	if (real == ProcessColumn::CPU) {
+		auto& p = m_Processes[index];
+		if (p->Id > 0) {
+			lcd->clrTextBk = CLR_INVALID;
+			lcd->clrText = CLR_INVALID;
+			Settings::Get().GetCPUColors(p->CPU / 10000, lcd->clrTextBk, lcd->clrText);
+			m_LastTimeCPU = true;
+		}
 	}
-	
+	else if(m_LastTimeCPU) {
+		auto& p = m_Processes[index];
+		auto& px = GetProcessInfoEx(p.get());
+		GetProcessColors(px, lcd->clrTextBk, lcd->clrText);
+		m_LastTimeCPU = false;
+	}
 	return CDRF_SKIPPOSTPAINT | CDRF_NEWFONT;
 }
 
@@ -292,7 +303,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 
 	Refresh();
 	UpdateUI();
-	
+
 	return 0;
 }
 
@@ -316,7 +327,7 @@ void CProcessesView::Refresh() {
 
 	auto tick = ::GetTickCount64();
 	count = (int)m_Processes.size();
-	for(int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++) {
 		auto& p = m_Processes[i];
 		auto& px = GetProcessInfoEx(p.get());
 		if (px.IsTerminated && tick > px.TargetTime) {
@@ -346,11 +357,11 @@ void CProcessesView::Refresh() {
 	}
 
 	auto si = GetSortInfo(m_List);
-	if(!m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
+	if (!m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
 		DoSort(si);
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
 	auto top = m_List.GetTopIndex();
-	m_List.RedrawItems(top , top + m_List.GetCountPerPage());
+	m_List.RedrawItems(top, top + m_List.GetCountPerPage());
 }
 
 void CProcessesView::UpdateUI() {
@@ -380,7 +391,7 @@ void CProcessesView::UpdateUI() {
 	}
 	auto ui = GetFrame()->GetUpdateUI();
 
-	if(id)
+	if (id)
 		ui->UISetRadioMenuItem(id, ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME);
 }
 
@@ -556,7 +567,7 @@ LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
 
 	CString text;
 	text.Format(L"Kill process %u (%ws)?", p->Id, p->GetImageName().c_str());
-	if(AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
+	if (AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
 		return 0;
 
 	auto hProcess = DriverHelper::OpenProcess(p->Id, PROCESS_TERMINATE);

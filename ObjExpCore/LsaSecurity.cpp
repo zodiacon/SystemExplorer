@@ -62,6 +62,16 @@ std::vector<LogonSessionData> LsaSecurity::EnumLogonSessions() {
 	return sessions;
 }
 
+std::wstring LsaSecurity::GetUserNameByLogonSession(PLUID sessionId) {
+	SECURITY_LOGON_SESSION_DATA* data;
+	if (0 == ::LsaGetLogonSessionData(sessionId, &data)) {
+		std::wstring username(data->UserName.Buffer, data->UserName.Length / sizeof(WCHAR));
+		LsaFreeReturnBuffer(data);
+		return username;
+	}
+	return L"";
+}
+
 LSA_HANDLE OpenLsaHandle(DWORD lsaAccess) {
 	LSA_HANDLE hPolicy = nullptr;
 	LSA_OBJECT_ATTRIBUTES oa = { sizeof(oa) };

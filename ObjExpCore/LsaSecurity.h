@@ -51,7 +51,7 @@ namespace WinSys {
 	class LsaSecurity abstract final {
 	public:
 		static std::vector<LogonSessionData> EnumLogonSessions();
-
+		static std::wstring GetUserNameByLogonSession(PLUID sessionId);
 	};
 }
 

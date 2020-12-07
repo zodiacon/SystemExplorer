@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ServiceManager.h"
 #include "Service.h"
+#include "Token.h"
 //#include "subprocesstag.h"
 
 using namespace WinSys;
@@ -40,7 +41,7 @@ std::unique_ptr<ServiceConfiguration> ServiceManager::GetServiceConfiguration(co
 
 	DWORD needed = 0;
 	::QueryServiceConfig(hService.get(), nullptr, 0, &needed);
-	if (needed == 0)
+	if(needed == 0)
 		return nullptr;
 
 	auto buffer = std::make_unique<BYTE[]>(needed);
@@ -51,13 +52,30 @@ std::unique_ptr<ServiceConfiguration> ServiceManager::GetServiceConfiguration(co
 	auto result = std::make_unique<ServiceConfiguration>();
 	result->AccountName = config->lpServiceStartName;
 	result->DisplayName = config->lpDisplayName;
+	DWORD len;
+	if (result->AccountName.empty() && (config->dwServiceType & SERVICE_USER_SERVICE)) {
+		// user service (Windows 10+)
+		// extract LUID	
+		auto pos = result->DisplayName.rfind(L'_');
+		if (pos != std::wstring::npos) {
+			auto logonId = wcstoll(result->DisplayName.c_str() + pos + 1, nullptr, 16);
+			SERVICE_STATUS_PROCESS status;
+			if (::QueryServiceStatusEx(hService.get(), SC_STATUS_PROCESS_INFO, (BYTE*)&status, sizeof(status), &needed) && status.dwProcessId > 0) {
+				wil::unique_process_handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, status.dwProcessId));
+				Token token(hProcess.get(), TokenAccessMask::Query);
+				if (token) {
+					result->AccountName = token.GetUserNameAndSid().first;
+				}
+			}
+		}
+	}
 	result->Tag = config->dwTagId;
 	result->StartType = static_cast<ServiceStartType>(config->dwStartType);
 	result->ErrorControl = static_cast<ServiceErrorControl>(config->dwErrorControl);
+
 	if (result->StartType == ServiceStartType::Auto) {
 		// check if delayed auto start
 		SERVICE_DELAYED_AUTO_START_INFO info;
-		DWORD len;
 		auto ok = ::QueryServiceConfig2(hService.get(), SERVICE_CONFIG_DELAYED_AUTO_START_INFO, (BYTE*)&info, sizeof(info), &len);
 		if (ok)
 			result->DelayedAutoStart = info.fDelayedAutostart ? true : false;

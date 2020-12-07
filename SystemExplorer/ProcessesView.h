@@ -88,5 +88,6 @@ private:
 	HFONT m_hFont;
 	CListViewCtrl m_List;
 	int m_SelectedHeader;
+	bool m_LastTimeCPU{ false };
 };
 

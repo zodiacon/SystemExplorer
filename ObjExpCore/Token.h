@@ -57,7 +57,12 @@ namespace WinSys {
 		bool EnablePrivilege(PCWSTR name, bool enable);
 
 		std::pair<std::wstring, Sid> GetUserNameAndSid() const;
+		std::wstring GetUserName() const;
+
 		bool IsValid() const;
+		operator const bool() const {
+			return IsValid();
+		}
 		bool IsElevated() const;
 		VirtualizationState GetVirtualizationState() const;
 		IntegrityLevel GetIntegrityLevel() const;
