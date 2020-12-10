@@ -9,8 +9,6 @@ class CLogonSessionsView :
 public:
 	using BaseFrame = CFrameWindowImpl<CLogonSessionsView, CWindow, CControlWinTraits>;
 
-	DECLARE_WND_CLASS(nullptr)
-
 	BEGIN_MSG_MAP(CLogonSessionsView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)

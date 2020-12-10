@@ -29,6 +29,8 @@ public:
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	bool OnDoubleClickList(int row, int col, POINT& pt) const;
+	CString GetColumnText(HWND, int row, int col);
+	int GetRowImage(HWND, int row) const;
 
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 
@@ -36,7 +38,6 @@ public:
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		NOTIFY_CODE_HANDLER(LVN_GETDISPINFO, OnGetDispInfo)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemChanged)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
@@ -67,7 +68,6 @@ private:
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnGetDispInfo(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);

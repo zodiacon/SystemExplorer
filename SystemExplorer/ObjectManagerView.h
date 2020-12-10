@@ -9,8 +9,6 @@ class CObjectManagerView :
 	public CViewBase<CObjectManagerView>,
 	public CVirtualListView<CObjectManagerView> {
 public:
-	DECLARE_WND_CLASS(nullptr)
-
 	CObjectManagerView(IMainFrame* frame);
 
 	CString GetDirectoryPath() const;
@@ -19,6 +17,9 @@ public:
 	bool IsSortable(int column) const;
 	CString GetColumnText(HWND, int row, int col);
 	int GetRowImage(HWND, int row) const;
+	bool IsUpdating() const {
+		return false;
+	}
 
 	BEGIN_MSG_MAP(CObjectManagerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)

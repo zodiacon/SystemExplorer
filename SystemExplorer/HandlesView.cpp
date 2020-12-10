@@ -38,13 +38,77 @@ void CHandlesView::DoSort(const SortInfo* si) {
 	std::sort(std::execution::par_unseq, m_Handles.begin(), m_Handles.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
-
-	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 bool CHandlesView::IsSortable(int col) const {
 	// details column cannot be sorted
 	return col != 9;
+}
+
+CString CHandlesView::GetColumnText(HWND, int row, int col) {
+	CString text;
+	auto& data = m_Handles[row];
+	switch (col) {
+		case 0:	// type
+			return m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName;
+
+		case 1:	// address
+			text.Format(L"0x%p", data->Object);
+			break;
+
+		case 2:	// name
+			if (data->HandleAttributes & 0x8000)
+				return data->Name;
+			else {
+				text = m_ObjMgr.GetObjectName(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
+				data->Name = text;
+				data->HandleAttributes |= 0x8000;
+			}
+			break;
+
+		case 3:	// handle
+			text.Format(L"%d (0x%X)", data->HandleValue, data->HandleValue);
+			break;
+
+		case 4:	// process name
+			return m_ProcMgr.GetProcessNameById(data->ProcessId).c_str();
+
+		case 5:	// PID
+			text.Format(L"%d (0x%X)", data->ProcessId, data->ProcessId);
+			break;
+
+		case 6:	// attributes
+			text.Format(L"%s (%d)", (PCWSTR)HandleAttributesToString(data->HandleAttributes), data->HandleAttributes & 0x7fff);
+			break;
+
+		case 7:	// access mask
+			text.Format(L"0x%08X", data->GrantedAccess);
+			break;
+
+		case 8:	// decoded access mask
+			return AccessMaskDecoder::DecodeAccessMask(m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName, data->GrantedAccess);
+
+		case 9:	// details
+			if (::GetTickCount64() > m_TargetUpdateTime || m_DetailsCache.find(data.get()) == m_DetailsCache.end()) {
+				auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
+				if (h) {
+					auto type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
+					text = type ? type->GetDetails(h) : CString();
+					m_DetailsCache[data.get()] = text;
+					::CloseHandle(h);
+				}
+				m_TargetUpdateTime = ::GetTickCount64() + 5000;
+			}
+			else {
+				return m_DetailsCache[data.get()];
+			}
+			break;
+	}
+	return text;
+}
+
+int CHandlesView::GetRowImage(HWND, int row) const {
+	return GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Handles[row]->ObjectTypeIndex)->TypeName);
 }
 
 void CHandlesView::ShowObjectProperties(int row) const {
@@ -150,82 +214,6 @@ LRESULT CHandlesView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	m_pUI->UIEnable(ID_EDIT_SECURITY, FALSE);
 
 	return DefWindowProc();
-}
-
-LRESULT CHandlesView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
-	auto lv = (NMLVDISPINFO*)hdr;
-	auto& item = lv->item;
-	auto& data = m_Handles[item.iItem];
-
-	if (item.mask & LVIF_TEXT) {
-		switch (item.iSubItem) {
-			case 0:	// type
-				item.pszText = (PWSTR)(PCWSTR)m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName;
-				break;
-
-			case 1:	// address
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%p", data->Object);
-				break;
-
-			case 2:	// name
-				if (data->HandleAttributes & 0x8000)
-					item.pszText = (PWSTR)(PCWSTR)data->Name;
-				else {
-					CString name = m_ObjMgr.GetObjectName(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
-					if (!name.IsEmpty())
-						::StringCchCopy(item.pszText, item.cchTextMax, name);
-					data->Name = name;
-					data->HandleAttributes |= 0x8000;
-				}
-				break;
-
-			case 3:	// handle
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data->HandleValue, data->HandleValue);
-				break;
-
-			case 4:	// process name
-				::StringCchCopy(item.pszText, item.cchTextMax, m_ProcMgr.GetProcessNameById(data->ProcessId).c_str());
-				break;
-
-			case 5:	// PID
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%d (0x%X)", data->ProcessId, data->ProcessId);
-				break;
-
-			case 6:	// attributes
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%s (%d)", HandleAttributesToString(data->HandleAttributes), data->HandleAttributes & 0x7fff);
-				break;
-
-			case 7:	// access mask
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%08X", data->GrantedAccess);
-				break;
-
-			case 8:	// decoded access mask
-				::StringCchCopy(item.pszText, item.cchTextMax, AccessMaskDecoder::DecodeAccessMask(m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName, data->GrantedAccess));
-				break;
-
-			case 9:	// details
-				if (::GetTickCount() > m_TargetUpdateTime || m_DetailsCache.find(data.get()) == m_DetailsCache.end()) {
-					auto h = m_ObjMgr.DupHandle(ULongToHandle(data->HandleValue), data->ProcessId, data->ObjectTypeIndex);
-					if (h) {
-						auto type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
-						CString details = type ? type->GetDetails(h) : CString();
-						m_DetailsCache[data.get()] = details;
-						if (!details.IsEmpty())
-							::StringCchCopy(item.pszText, item.cchTextMax, details);
-						::CloseHandle(h);
-					}
-					m_TargetUpdateTime = ::GetTickCount() + 5000;
-				}
-				else {
-					::StringCchCopy(item.pszText, item.cchTextMax, m_DetailsCache[data.get()]);
-				}
-				break;
-		}
-	}
-	if (item.mask & LVIF_IMAGE) {
-		item.iImage = GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->ObjectTypeIndex)->TypeName);
-	}
-	return 0;
 }
 
 LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {

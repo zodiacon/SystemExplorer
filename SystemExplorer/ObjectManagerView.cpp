@@ -46,27 +46,25 @@ CString CObjectManagerView::GetColumnText(HWND, int row, int col) {
 	auto& data = m_Objects[row];
 	CString text;
 	switch (col) {
-		case 0:		// name
-			return data.Name;
-
-		case 1:		// type
-			return data.Type;
-			break;
-
+		case 0:	return data.Name;
+		case 1:	return data.Type;
 		case 2:		// details
 			auto type = ObjectManager::GetType(data.Type);
 			if (type) {
-				auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
 				if (type) {
 					HANDLE hObject;
 					auto status = ObjectManager::OpenObject(
 						data.FullName, data.Type, &hObject,
 						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
-					if (hObject && details) {
-						text = details->GetDetails(hObject);
-						::CloseHandle(hObject);
+					if (hObject) {
+						auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
+						if (details) {
+							text = details->GetDetails(hObject);
+							::CloseHandle(hObject);
+							return text;
+						}
 					}
-					else if (status == STATUS_ACCESS_DENIED)
+					if (status == STATUS_ACCESS_DENIED)
 						text = L"<access denied>";
 					else
 						text = L"<unavailable>";

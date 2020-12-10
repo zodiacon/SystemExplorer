@@ -183,44 +183,6 @@ LRESULT CObjectsView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 	return 0;
 }
 
-LRESULT CObjectsView::OnGetDispInfo(int, LPNMHDR hdr, BOOL&) {
-	auto lv = (NMLVDISPINFO*)hdr;
-	auto& item = lv->item;
-	auto& data = GetItem(item.iItem);
-
-	if (item.mask & LVIF_TEXT) {
-		switch (item.iSubItem) {
-			case 0:	// type
-				item.pszText = (PWSTR)(PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName;
-				break;
-
-			case 1:	// address
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"0x%p", data->Object);
-				break;
-
-			case 2:	// name
-				item.pszText = (PWSTR)(PCWSTR)data->Name;
-				break;
-
-			case 3:	// handles
-				::StringCchPrintf(item.pszText, item.cchTextMax, L"%u", data->HandleCount);
-				break;
-
-			case 4:	// first handle
-				::StringCchCopy(item.pszText, item.cchTextMax, GetProcessHandleInfo(*data->Handles[0].get()));
-				break;
-
-			case 5:	// details
-				::StringCchCopy(item.pszText, item.cchTextMax, GetObjectDetails(data.get()));
-
-		}
-	}
-	if (item.mask & LVIF_IMAGE) {
-		item.iImage = GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(data->TypeIndex)->TypeName);
-	}
-	return 0;
-}
-
 LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMITEMACTIVATE*)hdr;
 	CMenu menu = AtlLoadMenu(IDR_CONTEXT);
@@ -322,4 +284,34 @@ bool CObjectsView::OnDoubleClickList(int row, int col, POINT& pt) const {
 
 	ShowObjectProperties(row);
 	return true;
+}
+
+CString CObjectsView::GetColumnText(HWND, int row, int col) {
+	auto& data = m_Objects[row];
+	CString text;
+	switch (col) {
+		case 0:	return m_ObjMgr.GetType(data->TypeIndex)->TypeName;
+
+		case 1:	// address
+			text.Format(L"0x%p", data->Object);
+			break;
+
+		case 2:	return data->Name;
+		case 3:	// handles
+			text.Format(L"%u", data->HandleCount);
+			break;
+
+		case 4:	// first handle
+			text.Format(GetProcessHandleInfo(*data->Handles[0].get()));
+			break;
+
+		case 5:	// details
+			return GetObjectDetails(data.get());
+
+	}
+	return text;
+}
+
+int CObjectsView::GetRowImage(HWND, int row) const {
+	return GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Objects[row]->TypeIndex)->TypeName);
 }
