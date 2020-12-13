@@ -8,6 +8,7 @@
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
 #include "SecurityInfo.h"
+#include "ClipboardHelper.h"
 
 CObjectManagerView::CObjectManagerView(IMainFrame* frame) : CViewBase(frame) {
 }
@@ -79,11 +80,41 @@ int CObjectManagerView::GetRowImage(HWND, int row) const {
 	return GetFrame()->GetIconIndexByType(m_Objects[row].Type);
 }
 
+void CObjectManagerView::DoFind(const CString& text, DWORD flags) {
+	auto down = flags & FR_DOWN;
+	auto dir = down ? 1 : -1;
+	auto index = m_List.GetSelectedIndex() + dir;
+	auto count = m_List.GetItemCount();
+	if (index < 0)
+		index = 0;
+	else if (index >= count)
+		index = count - 1;
+
+	auto matchCase = flags & FR_MATCHCASE;
+	CString search(text);
+	if (!matchCase)
+		search.MakeLower();
+
+	auto start = index;
+	do {
+		CString value(m_Objects[start].Name);
+		if (!matchCase)
+			value.MakeLower();
+		if (value.Find(search) >= 0)
+			break;
+		start += dir + count;
+		start %= count;
+	} while (start != index);
+
+	m_List.SelectItem(start);
+	m_List.SetFocus();
+}
+
 LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_hWndClient = m_Splitter.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |  
-		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS);
-	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | 
+	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | 
+		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS | LVS_SHOWSELALWAYS);
+	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |  
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
 	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
 	CImageList images;
@@ -126,7 +157,25 @@ LRESULT CObjectManagerView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(index >= 0);
 	auto& item = m_Objects[index];
 
-	return LRESULT();
+	return 0;
+}
+
+LRESULT CObjectManagerView::OnEditCopy(WORD, WORD, HWND, BOOL&) {
+	auto hFocus = ::GetFocus();
+	if (m_List == hFocus) {
+		auto index = m_List.GetSelectedIndex();
+		if (index >= 0)
+			ClipboardHelper::CopyText(*this, m_Objects[index].Name);
+	}
+	else if (m_Tree == hFocus) {
+		auto hSelected = m_Tree.GetSelectedItem();
+		if (hSelected) {
+			CString text;
+			hSelected.GetText(text);
+			ClipboardHelper::CopyText(*this, text);
+		}
+	}
+	return 0;
 }
 
 void CObjectManagerView::InitTree() {

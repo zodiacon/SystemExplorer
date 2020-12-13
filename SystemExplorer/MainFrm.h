@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ObjectManager.h"
-#include "INterfaces.h"
+#include "Interfaces.h"
 #include "ToolBarHelper.h"
 #include "Settings.h"
 #include "NotifyIcon.h"
@@ -79,6 +79,10 @@ public:
 		COMMAND_ID_HANDLER(ID_TAB_NEWWINDOW, OnNewWindow)
 		COMMAND_ID_HANDLER(ID_TAB_DETACH, OnDetachTab)
 
+		MESSAGE_HANDLER(CFindReplaceDialog::GetFindReplaceMsg(), OnFindReplaceMessage)
+		COMMAND_ID_HANDLER(ID_EDIT_FIND, OnEditFind)
+		COMMAND_ID_HANDLER(ID_EDIT_FIND_NEXT, OnEditFindNext)
+
 		COMMAND_ID_HANDLER(ID_PROCESS_MEMORYMAP, OnProcessMemoryMap)
 		COMMAND_ID_HANDLER(ID_PROCESS_MODULES, OnProcessModules)
 		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
@@ -98,7 +102,6 @@ public:
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
 		COMMAND_RANGE_HANDLER(ID_SHOWOBJECTSOFTYPE_PROCESS, ID_SHOWOBJECTSOFTYPE_PROCESS + 17, OnShowObjectOfType)
 		COMMAND_RANGE_HANDLER(ID_SHOWHANDLESOFTYPE_PROCESS, ID_SHOWHANDLESOFTYPE_PROCESS + 17, OnShowHandlesOfType)
-		COMMAND_RANGE_HANDLER(32768, 65535, OnForward)
 		NOTIFY_CODE_HANDLER(TBVN_PAGEACTIVATED, OnTabActivated)
 		NOTIFY_CODE_HANDLER(TBVN_CONTEXTMENU, OnTabContextMenu)
 		NOTIFY_HANDLER(ATL_IDW_TOOLBAR, NM_RCLICK, OnBandRightClick)
@@ -106,6 +109,7 @@ public:
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CToolBarHelper<CMainFrame>)
 		CHAIN_MSG_MAP(CNotifyIcon<CMainFrame>)
+		COMMAND_RANGE_HANDLER(32768, 65535, OnForward)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
@@ -167,6 +171,9 @@ private:
 	LRESULT OnMinimizeToTray(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemInformation(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewDrivers(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnFindReplaceMessage(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& handled);
+	LRESULT OnEditFind(WORD, WORD, HWND, BOOL&);
+	LRESULT OnEditFindNext(WORD, WORD, HWND, BOOL&);
 
 private:
 	CString GetDefaultSettingsFile();
@@ -193,7 +200,10 @@ private:
 		Search, SystemInfo,
 		COUNT
 	};
+	CFindReplaceDialog* m_pFindDlg{ nullptr };
 	inline static int m_Icons[(int)IconType::COUNT];
 	inline static int s_FrameCount;
 	inline static std::unordered_set<CMainFrame*> s_Frames;
+	inline static CString m_FindText;
+	inline static DWORD m_FindFlags{ 0 };
 };

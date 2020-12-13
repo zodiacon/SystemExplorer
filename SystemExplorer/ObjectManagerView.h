@@ -20,12 +20,17 @@ public:
 	bool IsUpdating() const {
 		return false;
 	}
+	bool IsFindSupported() const override {
+		return true;
+	}
+	void DoFind(const CString& text, DWORD flags) override;
 
 	BEGIN_MSG_MAP(CObjectManagerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelectionChanged)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_EDIT_SECURITY, OnEditSecurity)
+		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
 		CHAIN_MSG_MAP(CVirtualListView<CObjectManagerView>)
 		CHAIN_MSG_MAP(CViewBase<CObjectManagerView>)
 	END_MSG_MAP()
@@ -35,6 +40,7 @@ private:
 	LRESULT OnTreeSelectionChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnEditSecurity(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void InitTree();
 	void UpdateList(bool newNode);

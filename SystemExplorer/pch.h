@@ -10,6 +10,7 @@
 #define _WIN32_WINNT	0x0601
 #define _WIN32_IE	0x0700
 #define _RICHEDIT_VER	0x0500
+#define _HAS_EXCEPTIONS 0
 
 #include <atlbase.h>
 #include <atlstr.h>

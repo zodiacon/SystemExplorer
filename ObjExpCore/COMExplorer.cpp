@@ -1,8 +1,9 @@
+#define _HAS_EXCEPTIONS 0
 #include <atlbase.h>
 #include "ComExplorer.h"
 
-using namespace WinSys;
 using namespace ATL;
+using namespace WinSys;
 
 struct ComExplorer::Impl {
 	CRegKey _root;

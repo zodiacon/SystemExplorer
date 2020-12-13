@@ -19,3 +19,10 @@ struct IMainFrame {
 	virtual LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) = 0;
 	virtual void CloseView(HWND hWnd) = 0;
 };
+
+struct IView {
+	virtual bool IsFindSupported() const {
+		return false;
+	}
+	virtual void DoFind(const CString& text, DWORD flags) {}
+};

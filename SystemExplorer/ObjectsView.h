@@ -13,7 +13,6 @@
 struct IMainFrame;
 
 class CObjectsView : 
-	public CMessageFilter,
 	public CCustomDraw<CObjectsView>,
 	public CVirtualListView<CObjectsView>,
 	public CViewBase<CObjectsView> {
@@ -25,7 +24,6 @@ public:
 	void Refresh();
 	void OnUpdate();
 
-	BOOL PreTranslateMessage(MSG* pMsg);
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
 	bool OnDoubleClickList(int row, int col, POINT& pt) const;

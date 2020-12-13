@@ -6,6 +6,7 @@
 template<typename T, typename TBase = CFrameWindowImpl<T, CWindow, CControlWinTraits>>
 class CViewBase abstract : 
 	public TBase,
+	public IView,
 	public CAutoUpdateUI<T>,
 	public CIdleHandler {
 public:
@@ -24,6 +25,7 @@ public:
 protected:
 	BEGIN_MSG_MAP(CViewBase)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
+		//MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPauseResume)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_RANGE_HANDLER(ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS, OnUpdateInterval)
@@ -35,11 +37,17 @@ protected:
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
 		auto pT = static_cast<T*>(this);
 		auto ui = GetFrame()->GetUpdateUI();
+		if (activate) {
+			ui->UIEnable(ID_EDIT_FIND, pT->IsFindSupported());
+			ui->UIEnable(ID_EDIT_FIND_NEXT, pT->IsFindSupported());
+		}
+
 		if (pT->IsUpdating()) {
 			if (activate) {
 				ui->UISetRadioMenuItem(m_CurrentUpdateId, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
 				ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
 				ui->UIEnable(ID_VIEW_PAUSE, TRUE);
+
 				pT->SetTimer(1, GetUpdateInterval(), nullptr);
 			}
 			else {
@@ -51,6 +59,13 @@ protected:
 		}
 		pT->OnActivate(activate);
 		return 0;
+	}
+
+	LRESULT OnForwardMessage(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& handled) {
+		auto msg = reinterpret_cast<MSG*>(lParam);
+		LRESULT result = 0;
+		handled = static_cast<T*>(this)->ProcessWindowMessage(msg->hwnd, msg->message, msg->wParam, msg->lParam, result, 1);
+		return result;
 	}
 
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& bHandled) {
@@ -96,7 +111,7 @@ protected:
 	void OnUpdateIntervalChanged(int interval) {}
 	void OnUpdate() {}
 	void OnActivate(bool) {}
-	
+
 	bool IsUpdating() const {
 		return true;
 	}

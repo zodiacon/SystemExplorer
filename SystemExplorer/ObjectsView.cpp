@@ -23,10 +23,6 @@ CObjectsView::CObjectsView(IMainFrame* pFrame, PCWSTR type) : CViewBase(pFrame),
 m_pUpdateUI(pFrame->GetUpdateUI()), m_Typename(type) {
 }
 
-BOOL CObjectsView::PreTranslateMessage(MSG* pMsg) {
-	return FALSE;
-}
-
 void CObjectsView::DoSort(const SortInfo* si) {
 	std::sort(std::execution::seq, m_Objects.begin(), m_Objects.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
