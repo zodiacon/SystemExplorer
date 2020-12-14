@@ -37,7 +37,6 @@
 #define IDI_HANDLES                     232
 #define IDI_PROCESS_VIEW                233
 #define IDI_DELETE                      234
-#define IDI_ABOUT                       236
 #define IDI_PACKAGE                     237
 #define IDI_PIN                         238
 #define IDI_FOLDER                      239

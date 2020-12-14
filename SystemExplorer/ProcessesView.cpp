@@ -367,15 +367,11 @@ void CProcessesView::Refresh() {
 void CProcessesView::UpdateUI() {
 	int selected = m_List.GetSelectedIndex();
 
-	UIEnable(ID_PROCESS_THREADS, selected >= 0);
-	UIEnable(ID_PROCESS_MODULES, selected >= 0);
-	UIEnable(ID_PROCESS_HEAPS, selected >= 0);
-	UIEnable(ID_PROCESS_MEMORYMAP, selected >= 0);
-	UIEnable(ID_PROCESS_KILL, selected >= 0);
-	UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
-	UIEnable(ID_PROCESS_GOTOFILELOCATION, selected >= 0);
-	UIEnable(ID_PROCESS_PRIORITYCLASS, selected >= 0);
-	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
+	auto ui = GetFrame()->GetUpdateUI();
+	ui->UIEnable(ID_PROCESS_KILL, selected >= 0);
+	ui->UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
+	ui->UIEnable(ID_PROCESS_GOTOFILELOCATION, selected >= 0);
+	ui->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
 
 	if (selected < 0)
 		return;
@@ -391,7 +387,6 @@ void CProcessesView::UpdateUI() {
 		case ProcessPriorityClass::High: id = ID_PRIORITYCLASS_HIGH; break;
 		case ProcessPriorityClass::Realtime: id = ID_PRIORITYCLASS_REALTIME; break;
 	}
-	auto ui = GetFrame()->GetUpdateUI();
 
 	if (id)
 		ui->UISetRadioMenuItem(id, ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME);

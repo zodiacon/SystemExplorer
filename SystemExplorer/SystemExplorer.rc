@@ -59,9 +59,9 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&New Window",                 ID_TAB_NEWWINDOW
         MENUITEM SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT
+        MENUITEM "&Close",                      ID_APP_EXIT
         MENUITEM SEPARATOR
-        MENUITEM "Exit &All",                   ID_FILE_EXITALL
+        MENUITEM "E&xit",                       ID_FILE_EXITALL
     END
     POPUP "&Edit"
     BEGIN
@@ -71,6 +71,8 @@ BEGIN
         MENUITEM "Find &Next\tF3",              ID_EDIT_FIND_NEXT
         MENUITEM SEPARATOR
         MENUITEM "&Security...",                ID_EDIT_SECURITY, INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "&Search...",                  ID_SYSTEM_SEARCH
         MENUITEM SEPARATOR
         MENUITEM "&Properties...\tAlt+Enter",   ID_EDIT_PROPERTIES
     END
@@ -167,8 +169,6 @@ BEGIN
         MENUITEM "Information",                 ID_SYSTEM_INFORMATION
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE
-        MENUITEM SEPARATOR
-        MENUITEM "&Search...",                  ID_SYSTEM_SEARCH
     END
     POPUP "&Process"
     BEGIN
@@ -404,8 +404,6 @@ IDI_HANDLES             ICON                    "res\\handles.ico"
 IDI_PROCESS_VIEW        ICON                    "res\\process_view.ico"
 
 IDI_DELETE              ICON                    "res\\delete.ico"
-
-IDI_ABOUT               ICON                    "res\\about.ico"
 
 IDI_PACKAGE             ICON                    "res\\package.ico"
 
