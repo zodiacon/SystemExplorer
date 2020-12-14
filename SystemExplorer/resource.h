@@ -178,6 +178,7 @@
 #define IDC_BASIC_INFO                  1055
 #define IDC_IO                          1056
 #define IDC_ENABLED                     1057
+#define IDC_SILO                        1062
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -299,7 +300,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        328
 #define _APS_NEXT_COMMAND_VALUE         32897
-#define _APS_NEXT_CONTROL_VALUE         1062
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

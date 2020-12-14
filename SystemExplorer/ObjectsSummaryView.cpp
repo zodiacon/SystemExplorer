@@ -199,13 +199,14 @@ LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
 
 	auto first = -1;
 	CString text, temp;
+	auto columns = GetColumnManager(m_List)->GetCount();
 	for (UINT i = 0; i < m_List.GetSelectedCount(); i++) {
 		first = m_List.GetNextItem(first, LVNI_SELECTED);
 		ATLASSERT(first >= 0);
-		for (int col = 0; col < ColumnCount; col++) {
+		for (int col = 0; col < columns; col++) {
 			m_List.GetItemText(first, col, temp);
 			text += temp;
-			if (col < ColumnCount - 1)
+			if (col < columns - 1)
 				text += L",";
 		}
 		text += L"\r\n";
@@ -232,18 +233,19 @@ void CObjectSummaryView::UpdateUI() {
 }
 
 LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
-	CSimpleFileDialog dlg(FALSE, nullptr, nullptr,
+	CSimpleFileDialog dlg(FALSE, L"csv", nullptr,
 		OFN_HIDEREADONLY | OFN_EXPLORER | OFN_OVERWRITEPROMPT,
-		L"All Files\0*.*\0", m_hWnd);
+		L"CSV Files (*.csv)\0*.csv\0All Files\0*.*\0", m_hWnd);
 	if (dlg.DoModal() == IDOK) {
 		wil::unique_hfile hFile(::CreateFile(dlg.m_szFileName, GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, 0, nullptr));
 		if (hFile) {
 			CString text, temp;
+			auto columns = GetColumnManager(m_List)->GetCount();
 			for (int i = 0; i < m_List.GetItemCount(); i++) {
-				for (int col = 0; col < ColumnCount; col++) {
+				for (int col = 0; col < columns; col++) {
 					m_List.GetItemText(i, col, temp);
 					text += temp;
-					if (col < ColumnCount - 1)
+					if (col < columns - 1)
 						text += L",";
 				}
 				text += L"\r\n";

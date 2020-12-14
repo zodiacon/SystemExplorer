@@ -104,6 +104,23 @@ LRESULT CModulesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CModulesView::OnGoToFileLocation(WORD, WORD, HWND, BOOL&) {
+	int selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& mi = m_Modules[selected];
+	if (mi->Path.empty()) {
+		AtlMessageBox(*this, L"No file is associated with this module", IDS_TITLE, MB_ICONEXCLAMATION);
+		return 0;
+	}
+
+	if ((INT_PTR)::ShellExecute(nullptr, L"open", L"explorer",
+		(L"/select,\"" + mi->Path + L"\"").c_str(),
+		nullptr, SW_SHOWDEFAULT) < 32)
+		AtlMessageBox(*this, L"Failed to locate module", IDS_TITLE, MB_ICONERROR);
+
+	return 0;
+}
+
 void CModulesView::Refresh() {
 	if (!m_Tracker.IsRunning()) {
 		KillTimer(1);
@@ -215,6 +232,13 @@ DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 		lcd->clrTextBk = RGB(255, 255, 128);
 
 	return CDRF_DODEFAULT;
+}
+
+bool CModulesView::OnRightClickList(int row, int col, POINT& pt) {
+	CMenu menu;
+	menu.LoadMenu(IDR_CONTEXT);
+	GetFrame()->TrackPopupMenu(menu.GetSubMenu(9), *this, &pt);
+	return true;
 }
 
 DWORD CModulesView::OnPrePaint(int, LPNMCUSTOMDRAW cd) {

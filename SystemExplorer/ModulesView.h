@@ -20,6 +20,7 @@ public:
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW /*lpNMCustomDraw*/);
+	bool OnRightClickList(int row, int col, POINT& pt);
 
 	void OnActivate(bool activate);
 
@@ -27,6 +28,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CREATE, OnDestroy)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
+		COMMAND_ID_HANDLER(ID_PROCESS_GOTOFILELOCATION, OnGoToFileLocation)
 		CHAIN_MSG_MAP(CVirtualListView<CModulesView>)
 		CHAIN_MSG_MAP(CCustomDraw<CModulesView>)
 		CHAIN_MSG_MAP(CViewBase<CModulesView>)
@@ -36,6 +38,7 @@ private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnGoToFileLocation(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void Refresh();
 

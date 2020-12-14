@@ -689,7 +689,7 @@ LRESULT CMainFrame::OnDetachTab(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnViewLogonSessions(WORD, WORD, HWND, BOOL&) {
-	auto pView = new CLogonSessionsView;
+	auto pView = new CLogonSessionsView(this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, L"Logon Sessions", m_Icons[(int)IconType::Login], (IView*)pView);
 
@@ -839,6 +839,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_EDIT_COPY, IDI_COPY },
 		{ ID_OPTIONS_ALWAYSONTOP, IDI_PIN },
 		{ ID_VIEW_PAUSE, IDI_PAUSE },
+		{ ID_FILE_SAVE, IDI_FILE },
 		{ ID_VIEW_REFRESH, IDI_REFRESH },
 		{ ID_OBJECTS_ALLOBJECTS, IDI_OBJECTS },
 		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
@@ -917,8 +918,6 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ 0 },
 		{ ID_HANDLES_OFTYPE, IDI_HANDLES, BTNS_SHOWTEXT, L"Handles" },
 		{ 0 },
-		{ 100, IDI_PROCESS, BTNS_SHOWTEXT, L"Process" },
-		{ 0 },
 		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
 	};
 	for (auto& b : buttons) {
@@ -931,7 +930,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 	}
 	AddToolBarDropDownMenu(tb, ID_HANDLES_OFTYPE, IDR_CONTEXT, 4);
 	AddToolBarDropDownMenu(tb, ID_OBJECTS_OFTYPE, IDR_CONTEXT, 5);
-	AddToolBarDropDownMenu(tb, 100, IDR_CONTEXT, 8);
+	//AddToolBarDropDownMenu(tb, 100, IDR_CONTEXT, 10);
 }
 
 bool CMainFrame::DetachTab(int page) {

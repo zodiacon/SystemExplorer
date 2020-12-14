@@ -373,6 +373,8 @@ void CProcessesView::UpdateUI() {
 	UIEnable(ID_PROCESS_MEMORYMAP, selected >= 0);
 	UIEnable(ID_PROCESS_KILL, selected >= 0);
 	UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
+	UIEnable(ID_PROCESS_GOTOFILELOCATION, selected >= 0);
+	UIEnable(ID_PROCESS_PRIORITYCLASS, selected >= 0);
 	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
 
 	if (selected < 0)

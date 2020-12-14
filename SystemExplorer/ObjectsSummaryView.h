@@ -14,8 +14,6 @@ public:
 
 	BOOL PreTranslateMessage(MSG* pMsg);
 
-	static const int ColumnCount = 10;
-
 	bool TogglePause();
 	void SetInterval(int interval);
 	bool IsSortable(int col) const;

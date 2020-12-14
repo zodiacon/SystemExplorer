@@ -1,19 +1,20 @@
 #pragma once
 
+#include "ViewBase.h"
 #include "VirtualListView.h"
 #include "resource.h"
 
 class CLogonSessionsView :
-	public CFrameWindowImpl<CLogonSessionsView, CWindow, CControlWinTraits>,
+	public CViewBase<CLogonSessionsView>,
 	public CVirtualListView<CLogonSessionsView> {
 public:
-	using BaseFrame = CFrameWindowImpl<CLogonSessionsView, CWindow, CControlWinTraits>;
+	CLogonSessionsView(IMainFrame* frame) : CViewBase(frame) {}
 
 	BEGIN_MSG_MAP(CLogonSessionsView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
-		CHAIN_MSG_MAP(BaseFrame)
 		CHAIN_MSG_MAP(CVirtualListView<CLogonSessionsView>)
+		CHAIN_MSG_MAP(CViewBase<CLogonSessionsView>)
 	END_MSG_MAP()
 
 	CString GetColumnText(HWND, int row, int col) const;

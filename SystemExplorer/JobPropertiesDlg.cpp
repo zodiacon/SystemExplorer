@@ -226,6 +226,12 @@ LRESULT CJobPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_LimitList.InsertColumn(0, L"Name", LVCFMT_LEFT, 160);
 	m_LimitList.InsertColumn(1, L"Value", LVCFMT_LEFT, 130);
 
+	SILOOBJECT_BASIC_INFORMATION silo;
+	CString text(L"Silo: No");
+	if (::QueryInformationJobObject(m_hJob, JobObjectSiloBasicInformation, &silo, sizeof(silo), nullptr)) {
+		text.Format(L"%s Silo\t Silo ID: %u (0x%X)", silo.IsInServerSilo ? L"Server" : L"App", silo.SiloId, silo.SiloId);
+	}
+	SetDlgItemText(IDC_SILO, text);
 	SetDlgItemText(IDC_NAME, m_Name);
 
 	UpdateJob();
