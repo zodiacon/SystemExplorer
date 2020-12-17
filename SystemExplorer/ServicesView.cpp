@@ -172,13 +172,18 @@ LRESULT CServicesView::OnServiceStart(WORD, WORD, HWND, BOOL&) {
 	dlg.ShowCancelButton(false);
 	dlg.SetMessageText((L"Starting service " + svc.GetName() + L"...").c_str());
 	dlg.SetProgressMarquee(true);
+	auto now = ::GetTickCount64();
 	dlg.SetTimerCallback([&]() {
 		service->Refresh(svc);
 		if (svc.GetStatusProcess().CurrentState == ServiceState::Running)
 			dlg.Close();
+		if (::GetTickCount64() - now > 5000)
+			dlg.Close(IDCANCEL);
 		}, 500);
-	dlg.DoModal();
-	m_List.RedrawItems(index, index);
+	if (dlg.DoModal() == IDCANCEL) {
+		AtlMessageBox(*this, L"Failed to start service within 5 seconds", IDS_TITLE, MB_ICONEXCLAMATION);
+	}
+	Refresh();
 	UpdateUI(this);
 
 	return 0;
@@ -304,6 +309,24 @@ LRESULT CServicesView::OnSelectColumns(WORD, WORD, HWND, BOOL&) {
 LRESULT CServicesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 	Refresh();
 
+	return 0;
+}
+
+LRESULT CServicesView::OnServiceProperties(WORD, WORD, HWND, BOOL&) {
+	return LRESULT();
+}
+
+LRESULT CServicesView::OnServiceDelete(WORD, WORD, HWND, BOOL&) {
+	auto index = m_List.GetSelectedIndex();
+	auto& svc = m_Services[index];
+	CString text;
+	text.Format(L"Uninstall the service %s?\n", svc.GetName().c_str());
+	if (AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2) == IDYES) {
+		auto success = WinSys::ServiceManager::Uninstall(svc.GetName());
+		AtlMessageBox(*this, success ? L"Service uninstalled successfully" : L"Failed to uninstall service", 
+			IDS_TITLE, success ? MB_ICONINFORMATION : MB_ICONERROR);
+		Refresh();
+	}
 	return 0;
 }
 
@@ -463,11 +486,14 @@ void CServicesView::Refresh() {
 
 void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 	auto selected = m_List.GetSelectedIndex();
+	ui->UIEnable(ID_EDIT_PROPERTIES, selected >= 0);
+
 	if (selected < 0 || !SecurityHelper::IsRunningElevated()) {
 		ui->UIEnable(ID_SERVICE_START, FALSE);
 		ui->UIEnable(ID_SERVICE_STOP, FALSE);
 		ui->UIEnable(ID_SERVICE_PAUSE, FALSE);
 		ui->UIEnable(ID_SERVICE_CONTINUE, FALSE);
+		ui->UIEnable(ID_SERVICE_UNINSTALL, FALSE);
 	}
 	else {
 		auto& svc = m_Services[selected];
@@ -477,6 +503,7 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 		ui->UIEnable(ID_SERVICE_STOP, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_PAUSE, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_CONTINUE, state == ServiceState::Paused);
+		ui->UIEnable(ID_SERVICE_UNINSTALL, TRUE);
 	}
 }
 

@@ -71,6 +71,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SYSTEM_COM, OnViewCom)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DRIVERS, OnViewDrivers)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
+		COMMAND_ID_HANDLER(ID_SYSTEM_INSTALLSERVICE, OnInstallService)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSEALLBUTTHIS, OnCloseAllButThis)
 		COMMAND_ID_HANDLER(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
 		COMMAND_ID_HANDLER(ID_OBJECTS_OBJECTMANAGER, OnShowObjectManager)
@@ -87,6 +88,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_MODULES, OnProcessModules)
 		COMMAND_ID_HANDLER(ID_PROCESS_THREADS, OnProcessThreads)
 		COMMAND_ID_HANDLER(ID_PROCESS_HEAPS, OnProcessHeaps)
+		COMMAND_ID_HANDLER(ID_PROCESS_HANDLES, OnShowHandlesInProcess)
 		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessAll)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SEARCH, OnSystemSearch)
 		MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
@@ -125,7 +127,7 @@ private:
 	LRESULT OnProcessHeaps(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
+	LRESULT OnInstallService(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnTabActivated(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnTabContextMenu(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

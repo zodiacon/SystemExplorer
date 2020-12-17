@@ -143,7 +143,7 @@ BEGIN
             MENUITEM "Key",                         ID_SHOWHANDLESOFTYPE_KEY
             MENUITEM "Mutant",                      ID_SHOWHANDLESOFTYPE_MUTEX
             MENUITEM "Power&Request",               ID_SHOWHANDLESOFTYPE_POWERREQUEST
-            MENUITEM "&Process",                    ID_SHOWHANDLESOFTYPE_PROCESS
+            MENUITEM "&Process",                    ID_HANDLES_SHOWHANDLESOFTYPE
             MENUITEM "&Section",                    ID_SHOWHANDLESOFTYPE_SECTION
             MENUITEM "Semaphore",                   ID_SHOWHANDLESOFTYPE_SEMAPHORE
             MENUITEM "&SymbolicLink",               ID_SHOWHANDLESOFTYPE_SYMBOLICLINK
@@ -174,7 +174,7 @@ BEGIN
     BEGIN
         MENUITEM "&Threads...",                 ID_PROCESS_THREADS
         MENUITEM "Mo&dules...",                 ID_PROCESS_MODULES
-        MENUITEM "&Handles...",                 ID_HANDLES_SHOWHANDLEINPROCESS
+        MENUITEM "&Handles...",                 ID_PROCESS_HANDLES
         MENUITEM "&Memory Map...",              ID_PROCESS_MEMORYMAP
         MENUITEM "Hea&ps...",                   ID_PROCESS_HEAPS
         MENUITEM SEPARATOR
@@ -294,6 +294,8 @@ BEGIN
         MENUITEM "Continue",                    ID_SERVICE_CONTINUE
         MENUITEM SEPARATOR
         MENUITEM "Uninstall",                   ID_SERVICE_UNINSTALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
     END
     POPUP "header"
     BEGIN
@@ -741,6 +743,42 @@ BEGIN
     PUSHBUTTON      "Load...",IDC_LOAD,150,6,50,14
 END
 
+IDD_INSTALLSVC DIALOGEX 0, 0, 357, 212
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Install New Service/Driver"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Name:",IDC_STATIC,27,7,22,8
+    EDITTEXT        IDC_NAME,51,5,81,14,ES_AUTOHSCROLL
+    LTEXT           "Display Name:",IDC_STATIC,3,26,46,8
+    EDITTEXT        IDC_DISPLAYNAME,51,24,159,14,ES_AUTOHSCROLL
+    LTEXT           "Type:",IDC_STATIC,29,47,20,8
+    COMBOBOX        IDC_TYPE,51,45,111,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Startup Type:",IDC_STATIC,178,47,46,8
+    COMBOBOX        IDC_STARTUP,230,45,106,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Error Control:",IDC_STATIC,4,68,45,8
+    COMBOBOX        IDC_ERROR_CONTROL,51,66,63,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Load Order Group:",IDC_STATIC,128,68,61,8
+    EDITTEXT        IDC_GROUP,194,66,81,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TAG,308,66,44,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Image Path:",IDC_STATIC,6,92,40,8
+    EDITTEXT        IDC_PATH,51,90,234,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSE,294,90,26,14
+    LTEXT           "Dependencies:",IDC_STATIC,3,140,48,8
+    EDITTEXT        IDC_DEP,51,138,198,14,ES_AUTOHSCROLL
+    LTEXT           "Service Account:",IDC_STATIC,3,162,55,8
+    COMBOBOX        IDC_ACCOUNT,60,160,106,63,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_PASSWORD,220,159,81,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Install",IDOK,120,191,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,191,50,14
+    LTEXT           "Tag:",IDC_STATIC,286,69,16,8
+    LTEXT           "Password:",IDC_STATIC,180,162,34,8
+    LTEXT           "Target Path:",IDC_STATIC,6,116,42,8
+    EDITTEXT        IDC_TARGET_PATH,51,114,234,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSE2,294,114,26,14
+    CONTROL         "Add Service",IDC_ADDSERVICE,"Button",BS_SPLITBUTTON | WS_TABSTOP,270,138,72,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -852,6 +890,14 @@ BEGIN
         RIGHTMARGIN, 206
         TOPMARGIN, 7
         BOTTOMMARGIN, 253
+    END
+
+    IDD_INSTALLSVC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 350
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 205
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -1022,6 +1068,11 @@ BEGIN
 END
 
 IDD_COLORS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_INSTALLSVC AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

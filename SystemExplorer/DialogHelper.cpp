@@ -5,7 +5,9 @@
 void DialogHelper::AdjustOKCancelButtons(CWindow* dlg) {
 	CButton ok(dlg->GetDlgItem(IDOK));
 	if (ok) {
-		ok.SetWindowText(L"  OK");
+		CString text;
+		ok.GetWindowText(text);
+		ok.SetWindowText(L"  " + text);
 		ok.SetIcon(AtlLoadIconImage(IDI_OK, 0, 16, 16));
 	}
 

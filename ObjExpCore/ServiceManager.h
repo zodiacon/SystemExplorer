@@ -53,6 +53,22 @@ namespace WinSys {
 		bool TriggerStart;
 	};
 
+	struct ServiceInstallParams {
+		std::wstring ServiceName;
+		std::wstring DisplayName;
+		std::wstring AccountName;
+		std::wstring Password;
+		std::wstring ImagePath;
+		std::wstring TargetPath;
+		int Tag;
+		std::wstring Dependencies;
+		std::wstring LoadOrderGroup;
+		WinSys::ServiceStartType StartupType;
+		WinSys::ServiceType ServiceType;
+		WinSys::ServiceErrorControl ErrorControl;
+		bool DelayedAutoStart;
+	};
+
 	class ServiceManager final abstract {
 		friend class Service;
 	public:
@@ -61,11 +77,12 @@ namespace WinSys {
 		static std::wstring GetServiceDescription(const std::wstring& name);
 		static ServiceState GetServiceState(const std::wstring& name);
 		static ServiceStatusProcess GetServiceStatus(const std::wstring& name);
-		static std::unique_ptr<Service> Install(const std::wstring& name, const std::wstring& displayName, ServiceAccessMask desiredAccess, ServiceType type, 
-			ServiceStartType startType, ServiceErrorControl errorControl, const std::wstring& imagePath);
-
-		static std::unique_ptr<Service> Install(const std::wstring& name, ServiceType type,	ServiceStartType startType, const std::wstring& imagePath);
 		static bool Uninstall(const std::wstring& name);
+
+		static std::unique_ptr<Service> Install(const std::wstring& name, const std::wstring& displayName, ServiceAccessMask desiredAccess, ServiceType type,
+			ServiceStartType startType, ServiceErrorControl errorControl, const std::wstring& imagePath);
+		static std::unique_ptr<Service> Install(const std::wstring& name, ServiceType type,	ServiceStartType startType, const std::wstring& imagePath);
+		static std::unique_ptr<Service> Install(const ServiceInstallParams& params);
 
 	private:
 		static wil::unique_schandle OpenServiceHandle(const std::wstring& name, ServiceAccessMask accessMask = ServiceAccessMask::QueryConfig | ServiceAccessMask::QueryStatus);

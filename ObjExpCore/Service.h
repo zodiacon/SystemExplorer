@@ -34,7 +34,7 @@ namespace WinSys {
 
 	class Service final {
 	public:
-		Service(wil::unique_schandle) noexcept;
+		explicit Service(wil::unique_schandle) noexcept;
 
 		static std::unique_ptr<Service> Open(const std::wstring& name, ServiceAccessMask access) noexcept;
 

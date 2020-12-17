@@ -110,6 +110,7 @@
 #define IDI_COLORWHEEL                  325
 #define IDI_SYSINFO                     326
 #define IDI_PROPERTIES                  327
+#define IDD_INSTALLSVC                  328
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -117,21 +118,27 @@
 #define IDC_COUNT                       1003
 #define IDC_PATH                        1003
 #define IDC_PID                         1004
+#define IDC_GROUP                       1004
 #define IDC_PROGRESS                    1005
 #define IDC_COMMANDLINE                 1005
+#define IDC_TAG                         1005
 #define IDC_MESSAGE                     1006
+#define IDC_DEP                         1006
 #define IDC_CURDIR                      1007
+#define IDC_PASSWORD                    1007
 #define IDC_EDIT2                       1008
 #define IDC_DISPLAYNAME                 1008
 #define IDC_PRIORITY                    1008
 #define IDC_REFRESH                     1009
 #define IDC_DESC                        1009
+#define IDC_TARGET_PATH                 1009
 #define IDC_SERVICETYPE                 1010
 #define IDC_STARTTYPE                   1011
 #define IDC_LIST                        1011
 #define IDC_COLUMNS                     1012
 #define IDC_ERROR_CONTROL               1012
 #define IDC_TREE                        1013
+#define IDC_ACCOUNT                     1013
 #define IDC_TYPE                        1014
 #define IDC_TYPE2                       1015
 #define IDC_TEXT                        1016
@@ -178,6 +185,11 @@
 #define IDC_IO                          1056
 #define IDC_ENABLED                     1057
 #define IDC_SILO                        1062
+#define IDC_STARTUP                     1065
+#define IDC_BROWSE                      1066
+#define IDC_BROWSE2                     1067
+#define IDC_SPLIT1                      1068
+#define IDC_ADDSERVICE                  1068
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_SEARCH_FIND                  32775
@@ -292,14 +304,15 @@
 #define ID_UPDATEINTERVAL_2SECONDS      32894
 #define ID_UPDATEINTERVAL_5SECONDS      32895
 #define ID_UPDATEINTERVAL_10SECONDS     32896
+#define ID_PROCESS_HANDLES              32897
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        328
-#define _APS_NEXT_COMMAND_VALUE         32897
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_RESOURCE_VALUE        331
+#define _APS_NEXT_COMMAND_VALUE         32898
+#define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

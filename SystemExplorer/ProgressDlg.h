@@ -17,7 +17,7 @@ public:
 	void SetProgressMarquee(bool set = true);
 	void SetMessageText(PCWSTR text);
 	void SetTimerCallback(std::function<void()> callback, int interval);
-	void Close();
+	void Close(UINT id = IDOK);
 
 private:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

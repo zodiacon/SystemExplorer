@@ -50,6 +50,8 @@ public:
 		COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
 		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
+		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnServiceProperties)
+		COMMAND_ID_HANDLER(ID_SERVICE_UNINSTALL, OnServiceDelete)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
 		CHAIN_MSG_MAP(CViewBase<CServicesView>)
 	END_MSG_MAP()
@@ -65,6 +67,8 @@ private:
 	LRESULT OnHideColumn(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSelectColumns(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnServiceProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnServiceDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(const WinSys::ServiceInfo& s1, const WinSys::ServiceInfo& s2, int col, bool asc);

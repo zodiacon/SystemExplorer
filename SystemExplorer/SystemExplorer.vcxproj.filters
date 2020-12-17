@@ -243,6 +243,9 @@
     <ClCompile Include="DeviceObjectType.cpp">
       <Filter>ObjectTypes</Filter>
     </ClCompile>
+    <ClCompile Include="InstallServiceDlg.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -473,6 +476,9 @@
     <ClInclude Include="ResizablePropertySheet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InstallServiceDlg.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\briefcase.ico">
@@ -529,9 +535,6 @@
     <Image Include="res\token.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
-    <Image Include="res\toolbar.bmp">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
     <Image Include="res\Waiting.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
@@ -557,9 +560,6 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\process_view.ico">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
-    <Image Include="res\about.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\package.ico">

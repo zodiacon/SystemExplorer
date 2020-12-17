@@ -29,6 +29,7 @@
 #include "SearchView.h"
 #include "ColorsSelectionDlg.h"
 #include "SysInfoView.h"
+#include "InstallServiceDlg.h"
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -169,6 +170,18 @@ LRESULT CMainFrame::OnProcessColors(WORD, WORD, HWND, BOOL&) {
 	dlg.SetTitle(L"Process Colors");
 	if (dlg.DoModal() == IDOK) {
 		memcpy(settings.Processes.Colors, dlg.GetColors(), sizeof(settings.Processes.Colors));
+	}
+	return 0;
+}
+
+LRESULT CMainFrame::OnInstallService(WORD, WORD, HWND, BOOL&) {
+	CInstallServiceDlg dlg;
+	if (dlg.DoModal() == IDOK) {
+		auto svc = WinSys::ServiceManager::Install(dlg.GetInstallParams());
+		if (svc == nullptr)
+			AtlMessageBox(*this, WinSys::Helpers::GetErrorText(::GetLastError()).c_str(), IDS_TITLE, MB_ICONERROR);
+		else
+			AtlMessageBox(*this, L"Installation successful", IDS_TITLE, MB_ICONINFORMATION);
 	}
 	return 0;
 }
@@ -845,6 +858,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_OBJECTS_ALLOBJECTTYPES, IDI_TYPES },
 		{ ID_HANDLES_ALLHANDLES, IDI_HANDLES },
 		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_HANDLES },
+		{ ID_PROCESS_HANDLES, IDI_HANDLES },
 		{ ID_HANDLES_CLOSEHANDLE, IDI_DELETE },
 		{ ID_OBJECTS_OBJECTMANAGER, IDI_PACKAGE },
 		{ ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, IDI_WINDOWS },
@@ -910,6 +924,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		{ 0 },
 		{ ID_SYSTEM_PROCESSES, IDI_PROCESSES },
 		{ ID_SYSTEM_THREADS, IDI_THREAD },
+		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
 		{ 0 },
 		{ ID_SYSTEM_DEVICES, IDI_DEVICE },
 		{ 0 },

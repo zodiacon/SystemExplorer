@@ -180,3 +180,53 @@ bool WinSys::ServiceManager::Uninstall(const std::wstring& name) {
 	return ::DeleteService(svc.get());
 }
 
+std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallParams& params) {
+	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE));
+	if (!hScm)
+		return nullptr;
+
+	auto imagePath = params.ImagePath;
+	if (!params.TargetPath.empty()) {
+		auto pos = params.ImagePath.rfind(L'\\');
+		auto filename = params.ImagePath.substr(pos);
+		// copy path to target
+		imagePath = params.TargetPath + filename;
+		if (!::CopyFile(params.ImagePath.c_str(), imagePath.c_str(), FALSE))
+			return nullptr;
+	}
+	WCHAR buffer[512] = { 0 };
+	if (!params.Dependencies.empty()) {
+		::wcscpy_s(buffer, params.Dependencies.c_str());
+		for (auto& ch : buffer)
+			if (ch == L';')
+				ch = L'\0';
+	}
+
+	std::wstring account;
+	if (params.AccountName == L"Network Service")
+		account = L"NT AUTHORITY\\NetworkService";
+	else if (params.AccountName == L"Local Service")
+		account = L"NT AUTHORITY\\LocalService";
+	else if (::_wcsicmp(params.AccountName.c_str(), L"Local System") != 0)
+		account = params.AccountName;
+
+	wil::unique_schandle hService(
+		::CreateService(hScm.get(),
+			params.ServiceName.c_str(),
+			params.DisplayName.c_str(),
+			SERVICE_ALL_ACCESS,
+			static_cast<DWORD>(params.ServiceType),
+			static_cast<DWORD>(params.StartupType),
+			static_cast<DWORD>(params.ErrorControl),
+			imagePath.c_str(),
+			params.LoadOrderGroup.c_str(),
+			params.Tag < 0 ? nullptr : (PDWORD)&params.Tag,
+			* buffer == 0 ? nullptr : buffer,
+			account.empty() ? nullptr : account.c_str(),
+			params.Password.empty() ? nullptr : params.Password.c_str()));
+
+	if (!hService)
+		return nullptr;
+
+	return std::make_unique<Service>(std::move(hService));
+}

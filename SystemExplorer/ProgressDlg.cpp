@@ -30,8 +30,8 @@ void CProgressDlg::SetTimerCallback(std::function<void()> callback, int interval
 	m_Interval = interval;
 }
 
-void CProgressDlg::Close() {
-	EndDialog(IDCANCEL);
+void CProgressDlg::Close(UINT code) {
+	EndDialog(code);
 }
 
 LRESULT CProgressDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
@@ -42,8 +42,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	if (!m_ShowCancel)
 		GetDlgItem(IDCANCEL).ShowWindow(SW_HIDE);
 
-	if (m_IsMarquee)
-		m_Progress.SetMarquee(true);
+	m_Progress.SetMarquee(m_IsMarquee);
 	SetDlgItemText(IDC_MESSAGE, m_Text);
 
 	if (m_Interval)

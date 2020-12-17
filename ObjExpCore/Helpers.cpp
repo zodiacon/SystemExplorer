@@ -31,3 +31,14 @@ std::wstring Helpers::GetDosNameFromNtName(PCWSTR name) {
 	}
 	return L"";
 }
+
+std::wstring WinSys::Helpers::GetErrorText(DWORD error) {
+	PWSTR buffer;
+	std::wstring text;
+	if (::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		0, error, 0, (LPTSTR)&buffer, 0, nullptr) > 0) {
+		text = buffer;
+		::LocalFree(buffer);
+	}
+	return text;
+}
