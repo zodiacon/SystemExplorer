@@ -78,6 +78,10 @@ LRESULT CInstallServiceDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 		m_InstallParams.AccountName = GetDlgItemText(IDC_ACCOUNT);
 		m_InstallParams.Password = GetDlgItemText(IDC_PASSWORD);
 		m_InstallParams.ImagePath = GetDlgItemText(IDC_PATH);
+		if (m_InstallParams.ImagePath.empty()) {
+			AtlMessageBox(*this, L"Image path cannot be empty", IDS_TITLE, MB_ICONERROR);
+			return 0;
+		}
 		m_InstallParams.TargetPath = GetDlgItemText(IDC_TARGET_PATH);
 		m_InstallParams.Dependencies = GetDlgItemText(IDC_DEP);
 		m_InstallParams.LoadOrderGroup = GetDlgItemText(IDC_GROUP);
@@ -92,6 +96,14 @@ LRESULT CInstallServiceDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 LRESULT CInstallServiceDlg::OnNameChanged(WORD, WORD wID, HWND, BOOL&) {
 	GetDlgItem(IDOK).EnableWindow(GetDlgItem(IDC_NAME).GetWindowTextLength() > 0);
 
+	return 0;
+}
+
+LRESULT CInstallServiceDlg::OnBrowseFile(WORD, WORD wID, HWND, BOOL&) {
+	CSimpleFileDialog dlg(TRUE, nullptr, nullptr, OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"Executables (*.exe)\0*.exe\0Drivers (*.sys)\0*.sys\0All Files\0*.*\0", *this);
+	if (dlg.DoModal() == IDOK)
+		SetDlgItemText(IDC_PATH, dlg.m_szFileName);
 	return 0;
 }
 

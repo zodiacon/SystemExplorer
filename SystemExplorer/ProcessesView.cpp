@@ -8,6 +8,7 @@
 #include "SelectColumnsDlg.h"
 #include "DriverHelper.h"
 #include "ProcessPropertiesDlg.h"
+#include "ListViewHelper.h"
 
 using namespace WinSys;
 
@@ -369,6 +370,7 @@ void CProcessesView::UpdateUI() {
 
 	auto ui = GetFrame()->GetUpdateUI();
 	ui->UIEnable(ID_PROCESS_KILL, selected >= 0);
+	ui->UIEnable(ID_PROCESS_KILLBYNAME, selected >= 0);
 	ui->UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
 	ui->UIEnable(ID_PROCESS_GOTOFILELOCATION, selected >= 0);
 	ui->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
@@ -571,6 +573,7 @@ LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
 	BOOL ok = false;
 	if (hProcess) {
 		ok = ::TerminateProcess(hProcess, 0);
+		::CloseHandle(hProcess);
 	}
 	if (!ok)
 		AtlMessageBox(*this, L"Failed to kill process", IDS_TITLE, MB_ICONERROR);
@@ -630,6 +633,47 @@ LRESULT CProcessesView::OnProperties(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CProcessesView::OnProcessColors(WORD, WORD id, HWND, BOOL&) {
 	GetFrame()->SendFrameMessage(WM_COMMAND, id, 0);
+	return 0;
+}
+
+LRESULT CProcessesView::OnProcessKillByName(WORD, WORD, HWND, BOOL&) {
+	int selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+	auto& process = m_Processes[selected];
+
+	std::vector<DWORD> pids;
+	for (auto& p : m_Processes)
+		if (p->GetImageName() == process->GetImageName())
+			pids.push_back(p->Id);
+
+	CString text;
+	text.Format(L"Kill %u processes named %s?", (DWORD)pids.size(), process->GetImageName().c_str());
+	if (AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
+		int killed = 0;
+		for(auto pid : pids) {
+			auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_TERMINATE);
+			if (hProcess && ::TerminateProcess(hProcess, 0))
+				killed++;
+			if (hProcess)
+				::CloseHandle(hProcess);
+		}
+		text.Format(L"Successfully killed %d processes", killed);
+		AtlMessageBox(*this, killed ? (PCWSTR)text : L"Failed to kill processes", IDS_TITLE, MB_ICONINFORMATION);
+	}
+
+	return 0;
+}
+
+LRESULT CProcessesView::OnFileSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	PauseResumeUpdates pr(this);
+
+	CSimpleFileDialog dlg(FALSE, L"tsv", nullptr, OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING,
+		L"Tab Separated Values (*.tsv)\0*.tsv\0All Files\0*.*\0", *this);
+	if (dlg.DoModal() == IDOK) {
+		CWaitCursor wait;
+		ListViewHelper::SaveAll(dlg.m_szFileName, m_List);
+	}
+
 	return 0;
 }
 

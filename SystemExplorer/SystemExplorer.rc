@@ -304,15 +304,19 @@ BEGIN
     END
     POPUP "process"
     BEGIN
-        MENUITEM "&Threads",                    ID_PROCESS_THREADS
-        MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
-        MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
-        MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
-        MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
-        MENUITEM SEPARATOR
-        MENUITEM "&All of the Above",           ID_PROCESS_ALLOFTHEABOVE
+        POPUP "&Details"
+        BEGIN
+            MENUITEM "&Threads",                    ID_PROCESS_THREADS
+            MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
+            MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
+            MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
+            MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
+            MENUITEM SEPARATOR
+            MENUITEM "&All of the Above",           ID_PROCESS_ALLOFTHEABOVE
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Kill",                       ID_PROCESS_KILL
+        MENUITEM "Kill by &Name",               ID_PROCESS_KILLBYNAME
         MENUITEM SEPARATOR
         POPUP "Priority &Class"
         BEGIN
@@ -769,7 +773,7 @@ BEGIN
     LTEXT           "Service Account:",IDC_STATIC,3,162,55,8
     COMBOBOX        IDC_ACCOUNT,60,160,106,63,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_PASSWORD,220,159,81,14,ES_PASSWORD | ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "Install",IDOK,120,191,50,14
+    DEFPUSHBUTTON   "Install",IDOK,120,191,50,14,WS_DISABLED
     PUSHBUTTON      "Cancel",IDCANCEL,186,191,50,14
     LTEXT           "Tag:",IDC_STATIC,286,69,16,8
     LTEXT           "Password:",IDC_STATIC,180,162,34,8

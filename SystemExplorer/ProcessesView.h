@@ -35,9 +35,11 @@ public:
 		COMMAND_RANGE_HANDLER(ID_PROCESS_MEMORYMAP, ID_PROCESS_HEAPS, OnProcessItem)
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnProcessItem)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILL, OnProcessKill)
+		COMMAND_ID_HANDLER(ID_PROCESS_KILLBYNAME, OnProcessKillByName)
 		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnProperties)
 		COMMAND_ID_HANDLER(ID_PROCESS_COLORS, OnProcessColors)
 		COMMAND_ID_HANDLER(ID_PROCESS_GOTOFILELOCATION, OnProcessGoToFileLocation)
+		COMMAND_ID_HANDLER(ID_FILE_SAVE, OnFileSave)
 		COMMAND_RANGE_HANDLER(ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME, OnPriorityClass)
 		CHAIN_MSG_MAP(CViewBase<CProcessesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CProcessesView>)
@@ -57,6 +59,8 @@ private:
 	LRESULT OnProcessItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessKillByName(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnFileSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void Refresh();
 	void UpdateUI();

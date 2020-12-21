@@ -305,13 +305,15 @@
 #define ID_UPDATEINTERVAL_5SECONDS      32895
 #define ID_UPDATEINTERVAL_10SECONDS     32896
 #define ID_PROCESS_HANDLES              32897
+#define ID_PROCESS_DETAILS              32898
+#define ID_PROCESS_KILLBYNAME           32899
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        331
-#define _APS_NEXT_COMMAND_VALUE         32898
+#define _APS_NEXT_COMMAND_VALUE         32900
 #define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

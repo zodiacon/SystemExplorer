@@ -246,6 +246,9 @@
     <ClCompile Include="InstallServiceDlg.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="ListViewHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -478,6 +481,9 @@
     </ClInclude>
     <ClInclude Include="InstallServiceDlg.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ListViewHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

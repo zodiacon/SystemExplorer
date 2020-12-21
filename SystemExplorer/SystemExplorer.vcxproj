@@ -125,7 +125,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
@@ -251,6 +251,7 @@
     <ClCompile Include="IniFile.cpp" />
     <ClCompile Include="InstallServiceDlg.cpp" />
     <ClCompile Include="JobPropertiesDlg.cpp" />
+    <ClCompile Include="ListViewHelper.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
     <ClCompile Include="ProcessPropertiesDlg.cpp" />
     <ClCompile Include="SearchBar.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="IniFile.h" />
     <ClInclude Include="InstallServiceDlg.h" />
     <ClInclude Include="JobPropertiesDlg.h" />
+    <ClInclude Include="ListViewHelper.h" />
     <ClInclude Include="NotifyIcon.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />

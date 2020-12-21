@@ -228,5 +228,9 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallPar
 	if (!hService)
 		return nullptr;
 
+	if (params.DelayedAutoStart) {
+		BOOL autoStart = TRUE;
+		::ChangeServiceConfig2(hService.get(), SERVICE_CONFIG_DELAYED_AUTO_START_INFO, &autoStart);
+	}
 	return std::make_unique<Service>(std::move(hService));
 }

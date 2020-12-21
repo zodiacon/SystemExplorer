@@ -3,6 +3,21 @@
 #include "Interfaces.h"
 #include "resource.h"
 
+template<typename T>
+struct PauseResumeUpdates {
+	PauseResumeUpdates(T* view) : _view(view), _paused(view->IsPaused()) {
+		if (!_paused)
+			_view->Pause(true);
+	}
+	~PauseResumeUpdates() {
+		if (!_paused)
+			_view->Pause(false);
+	}
+
+	T* _view;
+	bool _paused;
+};
+
 template<typename T, typename TBase = CFrameWindowImpl<T, CWindow, CControlWinTraits>>
 class CViewBase abstract : 
 	public TBase,
