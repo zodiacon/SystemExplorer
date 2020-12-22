@@ -34,7 +34,10 @@ public:
 	WinSys::VirtualizationState GetVirtualizationState() const;
 	CString GetWindowTitle() const;
 	std::wstring GetCurrentDirectory() const;
-	const std::wstring& GetDescription() const;
+	const CString& GetDescription() const;
+	const CString& GetCompanyName() const;
+
+	CString GetVersionObject(const CString& name) const;
 
 	int GetBitness() const;
 	const WinSys::Process* GetProcess() const {
@@ -53,10 +56,10 @@ private:
 	mutable std::wstring _executablePath;
 	mutable std::wstring _username;
 	mutable std::wstring _commandLine;
-	mutable std::wstring _description;
+	mutable CString _description, _company;
 	mutable HWND _hWnd{ nullptr };
 	mutable DWORD _firstThreadId{ 0 };
 	mutable int _bitness{ 0 };
-	mutable bool _elevated : 1, _elevatedChecked{ false }, _descChecked{ false };
+	mutable bool _elevated : 1, _elevatedChecked : 1{ false }, _descChecked : 1{ false }, _companyChecked : 1 {false };
 };
 

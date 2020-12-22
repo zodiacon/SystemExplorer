@@ -180,23 +180,37 @@ std::wstring ProcessInfoEx::GetCurrentDirectory() const {
 	return dir;
 }
 
-const std::wstring& ProcessInfoEx::GetDescription() const {
+const CString& ProcessInfoEx::GetDescription() const {
 	if (!_descChecked) {
-		BYTE buffer[1 << 12];
-		if (::GetFileVersionInfo(GetExecutablePath().c_str(), 0, sizeof(buffer), buffer)) {
-			WORD* langAndCodePage;
-			UINT len;
-			if (::VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void**)&langAndCodePage, &len)) {
-				CString text;
-				text.Format(L"\\StringFileInfo\\%04x%04x\\FileDescription", langAndCodePage[0], langAndCodePage[1]);
-				WCHAR* desc;
-				if (::VerQueryValue(buffer, text, (void**)&desc, &len))
-					_description = desc;
-			}
-		}
+		_description = GetVersionObject(L"FileDescription");
 		_descChecked = true;
 	}
 	return _description;
+}
+
+const CString& ProcessInfoEx::GetCompanyName() const {
+	if (!_companyChecked) {
+		_company = GetVersionObject(L"CompanyName");
+		_companyChecked = true;
+	}
+	return _company;
+}
+
+CString ProcessInfoEx::GetVersionObject(const CString& name) const {
+	BYTE buffer[1 << 12];
+	CString result;
+	if (::GetFileVersionInfo(GetExecutablePath().c_str(), 0, sizeof(buffer), buffer)) {
+		WORD* langAndCodePage;
+		UINT len;
+		if (::VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void**)&langAndCodePage, &len)) {
+			CString text;
+			text.Format(L"\\StringFileInfo\\%04x%04x\\" + name, langAndCodePage[0], langAndCodePage[1]);
+			WCHAR* desc;
+			if (::VerQueryValue(buffer, text, (void**)&desc, &len))
+				result = desc;
+		}
+	}
+	return result;
 }
 
 int ProcessInfoEx::GetBitness() const {

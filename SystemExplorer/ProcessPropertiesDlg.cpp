@@ -55,7 +55,7 @@ void CProcessPropertiesDlg::InitProcess() {
 		text.Empty();
 	}
 	SetDlgItemText(IDC_PARENT, text);
-	SetDlgItemText(IDC_DESC, m_px.GetDescription().c_str());
+	SetDlgItemText(IDC_DESC, m_px.GetDescription());
 
 	GetDlgItem(IDC_EXPLORE).EnableWindow(imagePath);
 	auto dir = m_px.GetCurrentDirectory();

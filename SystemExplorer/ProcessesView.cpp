@@ -9,6 +9,7 @@
 #include "DriverHelper.h"
 #include "ProcessPropertiesDlg.h"
 #include "ListViewHelper.h"
+#include "ClipboardHelper.h"
 
 using namespace WinSys;
 
@@ -94,7 +95,8 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 		case ProcessColumn::Platform:
 			text.Format(L"%d-bit", px.GetBitness());
 			break;
-		case ProcessColumn::Description: return px.GetDescription().c_str();
+		case ProcessColumn::Description: return px.GetDescription();
+		case ProcessColumn::Company: return px.GetCompanyName();
 	}
 
 	return text;
@@ -160,6 +162,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::WindowTitle: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetWindowTitle(), GetProcessInfoEx(p2.get()).GetWindowTitle(), asc);
 			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
 			case ProcessColumn::Description: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
+			case ProcessColumn::Company: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCompanyName(), GetProcessInfoEx(p2.get()).GetCompanyName(), asc);
 		}
 		return false;
 		});
@@ -299,7 +302,7 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Window Title", LVCFMT_LEFT, 200, ColumnFlags::None);
 	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::Const);
 	cm->AddColumn(L"Description", LVCFMT_LEFT, 250, ColumnFlags::Const | ColumnFlags::Visible);
-
+	cm->AddColumn(L"Company Name", LVCFMT_LEFT, 150, ColumnFlags::Const | ColumnFlags::Visible);
 	cm->UpdateColumns();
 
 	Refresh();
@@ -677,3 +680,9 @@ LRESULT CProcessesView::OnFileSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	return 0;
 }
 
+LRESULT CProcessesView::OnCopyRow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	auto selected = m_List.GetSelectedIndex();
+	if (selected >= 0)
+		ClipboardHelper::CopyText(*this, ListViewHelper::GetRowAsString(m_List, selected));
+	return 0;
+}

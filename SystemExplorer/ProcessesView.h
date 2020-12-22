@@ -36,6 +36,7 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnProcessItem)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILL, OnProcessKill)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILLBYNAME, OnProcessKillByName)
+		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnCopyRow)
 		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnProperties)
 		COMMAND_ID_HANDLER(ID_PROCESS_COLORS, OnProcessColors)
 		COMMAND_ID_HANDLER(ID_PROCESS_GOTOFILELOCATION, OnProcessGoToFileLocation)
@@ -61,6 +62,7 @@ private:
 	LRESULT OnProcessColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessKillByName(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnCopyRow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void Refresh();
 	void UpdateUI();
@@ -80,7 +82,7 @@ private:
 		IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
 		IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
 		GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized, 
-		WindowTitle, Platform, Description,
+		WindowTitle, Platform, Description, Company,
 		COUNT
 	};
 
