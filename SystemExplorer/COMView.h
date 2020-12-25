@@ -3,6 +3,7 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ViewBase.h"
+#include "COMExplorer.h"
 
 class CComView :
 	public CVirtualListView<CComView>,

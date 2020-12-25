@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Token.h"
+
 struct FormatHelper {
 	static CString TimeSpanToString(int64_t ts);
 	static CString FormatWithCommas(long long size);

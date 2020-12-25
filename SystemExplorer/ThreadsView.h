@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "ViewBase.h"
 #include "ThreadInfoEx.h"
+#include "ProcessManager.h"
 
 class CThreadsView :
 	public CVirtualListView<CThreadsView>,

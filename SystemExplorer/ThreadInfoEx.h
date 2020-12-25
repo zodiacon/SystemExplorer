@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Thread.h"
+#include "ThreadInfo.h"
+
 struct ThreadInfoEx final {
 	explicit ThreadInfoEx(WinSys::ThreadInfo* ti) : Info(ti) {}
 	DWORD64 TargetTime{ 0 };

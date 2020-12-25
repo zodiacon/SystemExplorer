@@ -30,6 +30,9 @@
 #include "ColorsSelectionDlg.h"
 #include "SysInfoView.h"
 #include "InstallServiceDlg.h"
+#include "SystemModulesView.h"
+#include <ProcessInfo.h>
+#include <Helpers.h>
 
 const UINT WINDOW_MENU_POSITION = 9;
 
@@ -348,7 +351,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
 			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD,
-			IDI_FIND, IDI_SYSINFO
+			IDI_FIND, IDI_SYSINFO, IDI_ATOM
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -881,6 +884,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_TAB_NEWWINDOW, IDI_WINDOW_NEW },
 		{ ID_PROCESS_MEMORYMAP, IDI_DRAM },
 		{ ID_SYSTEM_PROCESSES, IDI_PROCESSES },
+		{ ID_SYSTEM_KERNELMODULES, IDI_ATOM },
 		{ ID_SYSTEM_THREADS, IDI_THREAD },
 		{ ID_SYSTEM_LOGONSESSIONS, IDI_LOGIN },
 		{ ID_HEADER_HIDECOLUMN, IDI_HIDECOLUMN },
@@ -1116,3 +1120,13 @@ LRESULT CMainFrame::OnEditFindNext(WORD, WORD, HWND, BOOL&) {
 	}
 	return 0;
 }
+
+
+LRESULT CMainFrame::OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	auto pView = new CSystemModulesView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"System Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);
+
+	return 0;
+}
+

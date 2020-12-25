@@ -39,9 +39,7 @@ CSysInfoView::CSysInfoView(IMainFrame* frame) : CViewBase(frame), m_Items{
 	ItemData(RowType::CopyOnWriteCount, L"Copy On Write Count", &m_SysPerfInfo.CopyOnWriteCount, &m_OldSysPerfInfo.CopyOnWriteCount, ItemDataFlags::Bits32),
 	ItemData(RowType::TransitionCount, L"Transition Count", &m_SysPerfInfo.TransitionCount, &m_OldSysPerfInfo.TransitionCount, ItemDataFlags::Bits32),
 	ItemData(RowType::FreeSystemPtes, L"Free System PTEs", &m_SysPerfInfo.FreeSystemPtes, &m_OldSysPerfInfo.FreeSystemPtes, ItemDataFlags::Bits32),
-
-} {
-}
+} {}
 
 CString CSysInfoView::GetColumnText(HWND, int row, int col) const {
 	auto& item = m_Items[row];

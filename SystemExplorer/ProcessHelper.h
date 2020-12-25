@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ProcessManager.h>
+
 struct ProcessHelper final {
 	static CString GetFullProcessName(DWORD pid);
 	static CString GetProcessName(DWORD pid);

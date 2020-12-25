@@ -68,6 +68,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SYSTEM_THREADS, OnViewSystemThreads)
 		COMMAND_ID_HANDLER(ID_SYSTEM_LOGONSESSIONS, OnViewLogonSessions)
 		COMMAND_ID_HANDLER(ID_SYSTEM_INFORMATION, OnViewSystemInformation)
+		COMMAND_ID_HANDLER(ID_SYSTEM_KERNELMODULES, OnViewKernelModules)
 		COMMAND_ID_HANDLER(ID_SYSTEM_COM, OnViewCom)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DRIVERS, OnViewDrivers)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
@@ -176,6 +177,7 @@ private:
 	LRESULT OnFindReplaceMessage(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& handled);
 	LRESULT OnEditFind(WORD, WORD, HWND, BOOL&);
 	LRESULT OnEditFindNext(WORD, WORD, HWND, BOOL&);
+	LRESULT OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	CString GetDefaultSettingsFile();
@@ -199,7 +201,7 @@ private:
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
 		Devices, Memory, Login, Modules, Processes, COM, Threads,
-		Search, SystemInfo,
+		Search, SystemInfo, Kernel,
 		COUNT
 	};
 	CFindReplaceDialog* m_pFindDlg{ nullptr };

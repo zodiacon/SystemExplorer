@@ -8,6 +8,7 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ToolBarHelper.h"
+#include <ProcessManager.h>
 #include "ViewBase.h"
 
 struct IMainFrame;

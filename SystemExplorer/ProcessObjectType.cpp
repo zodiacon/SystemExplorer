@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ProcessObjectType.h"
 #include "ProcessHelper.h"
+#include <ProcessInfo.h>
 
 ProcessObjectType::ProcessObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name) :
 	ObjectType(index, name), _pm(pm) {

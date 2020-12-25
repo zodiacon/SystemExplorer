@@ -1,13 +1,15 @@
 #include "pch.h"
 #include "ProcessInfoEx.h"
 #include "DriverHelper.h"
+#include <ProcessInfo.h>
+#include <Helpers.h>
 
 #pragma comment(lib, "Version.lib")
 
 ProcessInfoEx::ProcessInfoEx(WinSys::ProcessInfo* pi) : _pi(pi) {
 	auto hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_INFORMATION);
-	if(!hProcess)
-		hProcess  = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_LIMITED_INFORMATION);
+	if (!hProcess)
+		hProcess = DriverHelper::OpenProcess(_pi->Id, PROCESS_QUERY_LIMITED_INFORMATION);
 	if (hProcess)
 		_process.reset(new WinSys::Process(hProcess));
 }
@@ -43,12 +45,12 @@ ProcessAttributes ProcessInfoEx::GetAttributes(const WinSys::ProcessManager& pm)
 const std::wstring& ProcessInfoEx::GetExecutablePath() const {
 	if (_executablePath.empty() && _pi->Id != 0) {
 		const auto& path = _pi->GetNativeImagePath();
-		if (path[0] == L'\\') {
+		if (path[0] == L'\\')
 			_executablePath = WinSys::Helpers::GetDosNameFromNtName(path.c_str());
-		}
-		else {
+		if (_executablePath.empty() && path.substr(0, 8) == L"\\Device\\")
+			_executablePath = L"\\??\\" + path.substr(8);
+		if (_executablePath.empty())
 			_executablePath = path;
-		}
 	}
 	return _executablePath;
 }
@@ -199,7 +201,8 @@ const CString& ProcessInfoEx::GetCompanyName() const {
 CString ProcessInfoEx::GetVersionObject(const CString& name) const {
 	BYTE buffer[1 << 12];
 	CString result;
-	if (::GetFileVersionInfo(GetExecutablePath().c_str(), 0, sizeof(buffer), buffer)) {
+	const auto& exe = GetExecutablePath();
+	if (::GetFileVersionInfo(exe.c_str(), 0, sizeof(buffer), buffer)) {
 		WORD* langAndCodePage;
 		UINT len;
 		if (::VerQueryValue(buffer, L"\\VarFileInfo\\Translation", (void**)&langAndCodePage, &len)) {
@@ -216,7 +219,7 @@ CString ProcessInfoEx::GetVersionObject(const CString& name) const {
 int ProcessInfoEx::GetBitness() const {
 	if (_bitness == 0) {
 		static SYSTEM_INFO si = { 0 };
-		if(si.dwNumberOfProcessors == 0)
+		if (si.dwNumberOfProcessors == 0)
 			::GetNativeSystemInfo(&si);
 		if (_process == nullptr) {
 			_bitness = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM ? 32 : 64;
@@ -224,7 +227,7 @@ int ProcessInfoEx::GetBitness() const {
 		else {
 			if (_process->IsWow64Process())
 				_bitness = 32;
-			else 
+			else
 				_bitness = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL || si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM ? 32 : 64;
 		}
 	}

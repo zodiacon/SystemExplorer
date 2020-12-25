@@ -126,7 +126,6 @@
 #define IDC_DEP                         1006
 #define IDC_CURDIR                      1007
 #define IDC_PASSWORD                    1007
-#define IDC_EDIT2                       1008
 #define IDC_DISPLAYNAME                 1008
 #define IDC_PRIORITY                    1008
 #define IDC_REFRESH                     1009
@@ -143,12 +142,10 @@
 #define IDC_TYPE2                       1015
 #define IDC_TEXT                        1016
 #define IDC_SEARCH                      1017
-#define IDC_BUTTON2                     1018
 #define IDC_CANCEL                      1018
 #define IDC_ENV                         1018
 #define IDC_DISABLE                     1018
 #define IDC_SAVE                        1018
-#define IDC_SAVE2                       1019
 #define IDC_LOAD                        1019
 #define IDC_EXPLORE                     1020
 #define IDC_TOKEN                       1021

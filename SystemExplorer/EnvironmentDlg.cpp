@@ -3,6 +3,7 @@
 #include "DialogHelper.h"
 #include "SortHelper.h"
 #include "ClipboardHelper.h"
+#include "Processes.h"
 
 CString CEnvironmentDlg::GetColumnText(HWND, int row, int col) const {
 	auto& var = m_Vars[row];

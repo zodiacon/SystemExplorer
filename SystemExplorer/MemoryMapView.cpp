@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <Psapi.h>
 #include "ntdll.h"
+#include <Helpers.h>
 
 CMemoryMapView::CMemoryMapView(IMainFrame* frame, DWORD pid) : CViewBase(frame), m_Pid(pid) {
 }

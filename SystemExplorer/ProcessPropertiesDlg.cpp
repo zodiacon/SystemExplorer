@@ -8,6 +8,7 @@
 #include "EnvironmentDlg.h"
 #include "JobPropertiesDlg.h"
 #include "ObjectManager.h"
+#include "ProcessInfo.h"
 
 void CProcessPropertiesDlg::OnFinalMessage(HWND) {
 	if(!m_Modal)

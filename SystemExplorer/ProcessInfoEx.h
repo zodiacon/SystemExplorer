@@ -1,5 +1,9 @@
 #pragma once
 
+#include "ProcessManager.h"
+#include "Processes.h"
+#include "Token.h"
+
 enum class ProcessAttributes {
 	NotComputed = -1,
 	None = 0,

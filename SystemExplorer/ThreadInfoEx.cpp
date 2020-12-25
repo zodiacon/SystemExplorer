@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ThreadInfo.h"
 #include "ThreadInfoEx.h"
 #include "DriverHelper.h"
 

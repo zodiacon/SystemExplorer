@@ -2,6 +2,7 @@
 
 #include "resource.h"
 #include "VirtualListView.h"
+#include <ProcessManager.h>
 
 class CProcessSelectDlg :
 	public CDialogImpl<CProcessSelectDlg>,

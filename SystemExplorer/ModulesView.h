@@ -3,6 +3,7 @@
 #include "VirtualListView.h"
 #include "Interfaces.h"
 #include "ViewBase.h"
+#include <ProcessModuleTracker.h>
 
 class CModulesView : 
 	public CVirtualListView<CModulesView>,

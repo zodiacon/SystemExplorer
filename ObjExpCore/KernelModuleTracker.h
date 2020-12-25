@@ -4,7 +4,7 @@
 
 namespace WinSys {
 	struct KernelModuleInfo {
-		std::wstring Name;
+		std::string Name;
 		std::string FullPath;
 		HANDLE hSection;
 		void* MappedBase;

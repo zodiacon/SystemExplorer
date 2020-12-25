@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WorkerFactoryObjectType.h"
 #include "NtDll.h"
+#include <ProcessInfo.h>
 
 using namespace WinSys;
 

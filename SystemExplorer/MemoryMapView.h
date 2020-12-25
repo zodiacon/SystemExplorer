@@ -1,6 +1,9 @@
 #pragma once
 
 #include "VirtualListView.h"
+#include <ProcessVMTracker.h>
+#include <ThreadInfo.h>
+#include <ProcessManager.h>
 #include "ViewBase.h"
 
 struct IMainFrame;

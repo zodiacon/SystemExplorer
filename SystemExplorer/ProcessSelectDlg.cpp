@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "ProcessSelectDlg.h"
-#include <string>
 #include "DialogHelper.h"
 #include <TlHelp32.h>
-#include <algorithm>
 #include "SortHelper.h"
+#include <ProcessInfo.h>
 
 int CProcessSelectDlg::GetSelectedProcess(CString& name) const {
 	name = m_Name;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ObjectType.h"
+#include <ProcessManager.h>
 
 class ThreadObjectType : public ObjectType {
 public:

@@ -2,6 +2,7 @@
 
 #include "ViewBase.h"
 #include "VirtualListView.h"
+#include "SystemInformation.h"
 #include <Psapi.h>
 
 class CSysInfoView :

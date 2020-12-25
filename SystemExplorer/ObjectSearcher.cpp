@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ObjectSearcher.h"
 #include "ObjectManager.h"
+#include "ProcessManager.h"
 
 ObjectSearcher::ObjectSearcher(HWND hWnd, ObjectSearchType searchType, DWORD pid, const CString& filter)
 	: _hWnd(hWnd), _type(searchType), _pid(pid), _filter(filter) {

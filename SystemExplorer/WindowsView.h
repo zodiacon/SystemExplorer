@@ -4,6 +4,7 @@
 #include "Interfaces.h"
 #include "ObjectManager.h"
 #include "ToolBarHelper.h"
+#include <ProcessManager.h>
 #include "ViewBase.h"
 
 class CWindowsView : 

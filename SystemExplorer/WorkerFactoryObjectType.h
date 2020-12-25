@@ -1,8 +1,7 @@
 #pragma once
 
 #include "ObjectType.h"
-
-class WinSys::ProcessManager;
+#include <ProcessManager.h>
 
 class WorkerFactoryObjectType :	public ObjectType {
 public:

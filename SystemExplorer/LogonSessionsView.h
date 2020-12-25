@@ -3,6 +3,7 @@
 #include "ViewBase.h"
 #include "VirtualListView.h"
 #include "resource.h"
+#include <LsaSecurity.h>
 
 class CLogonSessionsView :
 	public CViewBase<CLogonSessionsView>,

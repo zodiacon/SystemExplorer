@@ -41,6 +41,7 @@ protected:
 	BEGIN_MSG_MAP(CViewBase)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		//MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMessage)
+		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_ID_HANDLER(ID_VIEW_PAUSE, OnPauseResume)
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_RANGE_HANDLER(ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS, OnUpdateInterval)
@@ -48,6 +49,12 @@ protected:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		CHAIN_MSG_MAP(TBase)
 	END_MSG_MAP()
+
+	LRESULT OnRefresh(WORD, WORD, HWND, BOOL&) {
+		auto pT = static_cast<T*>(this);
+		pT->DoRefresh();
+		return 0;
+	}
 
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
 		auto pT = static_cast<T*>(this);
@@ -126,6 +133,7 @@ protected:
 	void OnUpdateIntervalChanged(int interval) {}
 	void OnUpdate() {}
 	void OnActivate(bool) {}
+	void DoRefresh() {}
 
 	bool IsUpdating() const {
 		return true;

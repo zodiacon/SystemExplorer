@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ThreadObjectType.h"
+#include <ProcessInfo.h>
 
 ThreadObjectType::ThreadObjectType(const WinSys::ProcessManager& pm, int index, PCWSTR name) :
 	ObjectType(index, name), _pm(pm) {

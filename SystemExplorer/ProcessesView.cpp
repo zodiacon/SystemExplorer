@@ -10,6 +10,7 @@
 #include "ProcessPropertiesDlg.h"
 #include "ListViewHelper.h"
 #include "ClipboardHelper.h"
+#include <ProcessInfo.h>
 
 using namespace WinSys;
 
@@ -281,10 +282,10 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Memory\\Peak NPaged (K)", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\kernel Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"Performance\\User Time", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
-	cm->AddColumn(L"I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
-	cm->AddColumn(L"Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
+	cm->AddColumn(L"Performance\\I/O Priority", LVCFMT_LEFT, 80, ColumnFlags::None);
+	cm->AddColumn(L"Performance\\Memory Priority", LVCFMT_RIGHT, 80, ColumnFlags::Numeric);
 	cm->AddColumn(L"Command Line", LVCFMT_LEFT, 250, ColumnFlags::Const);
-	cm->AddColumn(L"Package Name", LVCFMT_LEFT, 200, ColumnFlags::Const);
+	cm->AddColumn(L"Package Name", LVCFMT_LEFT, 250, ColumnFlags::Const);
 	cm->AddColumn(L"Job Object Id", LVCFMT_RIGHT, 100, ColumnFlags::Numeric | ColumnFlags::Const);
 	cm->AddColumn(L"I/O\\I/O Read Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);
 	cm->AddColumn(L"I/O\\I/O Write Bytes", LVCFMT_RIGHT, 120, ColumnFlags::Numeric);

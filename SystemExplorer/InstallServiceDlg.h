@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ServiceManager.h"
+
 class CInstallServiceDlg : public CDialogImpl<CInstallServiceDlg> {
 public:
 	enum { IDD = IDD_INSTALLSVC };

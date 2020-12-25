@@ -3,6 +3,7 @@
 #include "Interfaces.h"
 #include "VirtualListView.h"
 #include "ViewBase.h"
+#include "DeviceManager.h"
 
 class CDeviceManagerView :
 	public CCustomDraw<CDeviceManagerView>,

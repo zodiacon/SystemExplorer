@@ -249,6 +249,9 @@
     <ClCompile Include="ListViewHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="SystemModulesView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -484,6 +487,9 @@
     </ClInclude>
     <ClInclude Include="ListViewHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemModulesView.h">
+      <Filter>Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

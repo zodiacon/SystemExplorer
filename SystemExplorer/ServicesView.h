@@ -4,6 +4,10 @@
 #include "resource.h"
 #include "VirtualListView.h"
 #include "ViewBase.h"
+#include <ServiceInfo.h>
+#include <ServiceManager.h>
+#include <Service.h>
+#include <ProcessManager.h>
 
 struct ServiceInfoEx {
 	ServiceInfoEx(PCWSTR name);

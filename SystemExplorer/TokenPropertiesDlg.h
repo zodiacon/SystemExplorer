@@ -2,6 +2,7 @@
 
 #include "resource.h"
 #include "VirtualListView.h"
+#include <Token.h>
 
 class CTokenPropertiesDlg : 
 	public CDialogImpl<CTokenPropertiesDlg>,

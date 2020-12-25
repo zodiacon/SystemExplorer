@@ -3,7 +3,6 @@
 #include "HandlesView.h"
 #include "SortHelper.h"
 #include "DialogHelper.h"
-#include <algorithm>
 
 CObjectHandlesDlg::CObjectHandlesDlg(ObjectInfo* info, WinSys::ProcessManager& pm) : m_pObject(info), m_ProcMgr(pm) {
 }
