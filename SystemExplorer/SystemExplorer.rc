@@ -159,6 +159,7 @@ BEGIN
     POPUP "&System"
     BEGIN
         MENUITEM "&Processes",                  ID_SYSTEM_PROCESSES
+        MENUITEM "Process Tree",                ID_SYSTEM_PROCESSTREE
         MENUITEM "&Threads",                    ID_SYSTEM_THREADS
         MENUITEM "&Services",                   ID_SYSTEM_SERVICES
         MENUITEM "&Devices",                    ID_SYSTEM_DEVICES
@@ -539,6 +540,8 @@ IDI_SYSINFO             ICON                    "res\\sysinfo.ico"
 
 IDI_PROPERTIES          ICON                    "res\\properties.ico"
 
+IDI_TREE                ICON                    "res\\tree.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -747,7 +750,7 @@ BEGIN
     PUSHBUTTON      "Load...",IDC_LOAD,150,6,50,14
 END
 
-IDD_INSTALLSVC DIALOGEX 0, 0, 357, 212
+IDD_INSTALLSVC DIALOGEX 0, 0, 345, 212
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Install New Service/Driver"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -761,10 +764,9 @@ BEGIN
     LTEXT           "Startup Type:",IDC_STATIC,178,47,46,8
     COMBOBOX        IDC_STARTUP,230,45,106,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Error Control:",IDC_STATIC,4,68,45,8
-    COMBOBOX        IDC_ERROR_CONTROL,51,66,63,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Load Order Group:",IDC_STATIC,128,68,61,8
-    EDITTEXT        IDC_GROUP,194,66,81,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TAG,308,66,44,14,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_ERROR_CONTROL,51,66,75,63,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Load Order Group:",IDC_STATIC,136,68,61,8
+    EDITTEXT        IDC_GROUP,202,66,81,14,ES_AUTOHSCROLL
     LTEXT           "Image Path:",IDC_STATIC,6,92,40,8
     EDITTEXT        IDC_PATH,51,90,234,14,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_BROWSE,294,90,26,14
@@ -773,9 +775,8 @@ BEGIN
     LTEXT           "Service Account:",IDC_STATIC,3,162,55,8
     COMBOBOX        IDC_ACCOUNT,60,160,106,63,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_PASSWORD,220,159,81,14,ES_PASSWORD | ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "Install",IDOK,120,191,50,14,WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,186,191,50,14
-    LTEXT           "Tag:",IDC_STATIC,286,69,16,8
+    DEFPUSHBUTTON   "Install",IDOK,114,191,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,180,191,50,14
     LTEXT           "Password:",IDC_STATIC,180,162,34,8
     LTEXT           "Target Path:",IDC_STATIC,6,116,42,8
     EDITTEXT        IDC_TARGET_PATH,51,114,234,14,ES_AUTOHSCROLL
@@ -899,7 +900,7 @@ BEGIN
     IDD_INSTALLSVC, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 350
+        RIGHTMARGIN, 338
         TOPMARGIN, 7
         BOTTOMMARGIN, 205
     END

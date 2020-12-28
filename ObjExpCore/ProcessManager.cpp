@@ -90,6 +90,40 @@ struct ProcessManager::Impl {
 		return _threads.size();
 	}
 
+	std::vector<std::pair<std::shared_ptr<ProcessInfo>, int>> BuildProcessTree() {
+		std::vector<std::pair<std::shared_ptr<ProcessInfo>, int>> tree;
+		auto count = EnumProcesses(false, 0);
+		tree.reserve(count);
+
+		auto map = _processesById;
+		for (auto& p : _processes) {
+			auto it = _processesById.find(p->ParentId);
+			if (p->ParentId == 0 || it == _processesById.end() || it->second->CreateTime > p->CreateTime) {
+				// root
+				tree.push_back(std::make_pair(p, 0));
+				map.erase(p->Id);
+				if (p->Id == 0)
+					continue;
+				auto children = FindChildren(map, p->Id, 1);
+				for (auto& child : children)
+					tree.push_back(std::make_pair(_processesById[child.first], child.second));
+			}
+		}
+		return tree;
+	}
+
+	std::vector<std::pair<uint32_t, int>> FindChildren(decltype(_processesById)& map, uint32_t pid, int indent) {
+		std::vector<std::pair<uint32_t, int>> children;
+		for (auto& p : _processes) {
+			if (p->ParentId == pid) {
+				children.push_back(std::make_pair(p->Id, indent));
+				map.erase(p->Id);
+				auto children2 = FindChildren(map, p->Id, indent + 1);
+				children.insert(children.end(), children2.begin(), children2.end());
+			}
+		}
+		return children;
+	}
 };
 
 uint32_t ProcessManager::Impl::_totalProcessors;
@@ -166,6 +200,10 @@ std::wstring ProcessManager::GetProcessNameById(uint32_t pid) const {
 		return L"";
 	auto pi = GetProcessById(pid);
 	return pi ? pi->GetImageName() : L"";
+}
+
+std::vector<std::pair<std::shared_ptr<ProcessInfo>, int>> ProcessManager::BuildProcessTree() {
+	return _impl->BuildProcessTree();
 }
 
 size_t ProcessManager::EnumProcessesAndThreads(uint32_t pid) {

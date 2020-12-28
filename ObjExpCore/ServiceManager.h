@@ -60,7 +60,6 @@ namespace WinSys {
 		std::wstring Password;
 		std::wstring ImagePath;
 		std::wstring TargetPath;
-		int Tag;
 		std::wstring Dependencies;
 		std::wstring LoadOrderGroup;
 		WinSys::ServiceStartType StartupType;

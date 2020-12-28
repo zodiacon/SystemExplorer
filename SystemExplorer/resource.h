@@ -111,6 +111,8 @@
 #define IDI_SYSINFO                     326
 #define IDI_PROPERTIES                  327
 #define IDD_INSTALLSVC                  328
+#define IDI_ICON1                       331
+#define IDI_TREE                        331
 #define IDC_PROCLIST                    1000
 #define IDC_HANDLES                     1000
 #define IDC_GITHUB                      1001
@@ -304,13 +306,14 @@
 #define ID_PROCESS_HANDLES              32897
 #define ID_PROCESS_DETAILS              32898
 #define ID_PROCESS_KILLBYNAME           32899
+#define ID_SYSTEM_PROCESSTREE           32900
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        331
-#define _APS_NEXT_COMMAND_VALUE         32900
+#define _APS_NEXT_RESOURCE_VALUE        332
+#define _APS_NEXT_COMMAND_VALUE         32901
 #define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -10,6 +10,7 @@
 #include "ProcessPropertiesDlg.h"
 #include "ListViewHelper.h"
 #include "ClipboardHelper.h"
+#include "ImageIconCache.h"
 #include <ProcessInfo.h>
 
 using namespace WinSys;
@@ -104,7 +105,7 @@ CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 }
 
 int CProcessesView::GetRowImage(HWND, int row) const {
-	return GetProcessInfoEx(m_Processes[row].get()).GetImageIndex(m_Images);
+	return ImageIconCache::Get().GetIcon(GetProcessInfoEx(m_Processes[row].get()).GetExecutablePath());	//GetImageIndex(m_Images);
 }
 
 void CProcessesView::DoSort(const SortInfo* si) {
@@ -246,13 +247,10 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	};
 	CreateAndInitToolBar(buttons, _countof(buttons));
 
-	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle & ~LVS_SHAREIMAGELISTS);
+	m_hWndClient = m_List.Create(m_hWnd, rcDefault, nullptr, ListViewDefaultStyle);// &~LVS_SHAREIMAGELISTS);
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
-	m_Images.Create(16, 16, ILC_COLOR32, 64, 32);
-	m_Images.AddIcon(AtlLoadSysIcon(IDI_APPLICATION));
-
-	m_List.SetImageList(m_Images, LVSIL_SMALL);
+	m_List.SetImageList(ImageIconCache::Get().GetImageList(), LVSIL_SMALL);
 
 	auto cm = GetColumnManager(m_List);
 	cm->AddColumn(L"Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Mandatory | ColumnFlags::Const);
@@ -329,6 +327,8 @@ void CProcessesView::Refresh() {
 		m_List.SetItemCount(count);
 		return;
 	}
+
+	auto tree = m_ProcMgr.BuildProcessTree();
 
 	auto tick = ::GetTickCount64();
 	count = (int)m_Processes.size();

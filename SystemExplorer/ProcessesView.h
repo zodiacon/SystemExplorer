@@ -90,7 +90,6 @@ private:
 	std::vector<std::shared_ptr<WinSys::ProcessInfo>> m_Processes;
 	mutable std::unordered_map<WinSys::ProcessInfo*, ProcessInfoEx> m_ProcessesEx;
 	WinSys::ProcessManager m_ProcMgr;
-	CImageList m_Images;
 	HFONT m_hFont;
 	CListViewCtrl m_List;
 	int m_SelectedHeader;

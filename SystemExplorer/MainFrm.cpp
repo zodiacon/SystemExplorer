@@ -31,6 +31,7 @@
 #include "SysInfoView.h"
 #include "InstallServiceDlg.h"
 #include "SystemModulesView.h"
+#include "ProcessTreeView.h"
 #include <ProcessInfo.h>
 #include <Helpers.h>
 
@@ -351,7 +352,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
 			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD,
-			IDI_FIND, IDI_SYSINFO, IDI_ATOM
+			IDI_FIND, IDI_SYSINFO, IDI_ATOM, IDI_TREE,
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -894,6 +895,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_PROCESS_KILL, IDI_DELETE },
 		{ ID_PROCESS_HEAPS, IDI_HEAP },
 		{ ID_SYSTEM_COM, IDI_COMPONENT },
+		{ ID_SYSTEM_PROCESSTREE, IDI_TREE },
 		{ ID_EDIT_PROPERTIES, IDI_PROPERTIES },
 	};
 	for (auto& cmd : cmds) {
@@ -1121,11 +1123,22 @@ LRESULT CMainFrame::OnEditFindNext(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
-
 LRESULT CMainFrame::OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	auto pView = new CSystemModulesView(this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"System Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);
+	m_view.AddPage(pView->m_hWnd, L"Kernel Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::SendMessageToAllFrames(bool excludeCurrent, UINT msg, WPARAM wParam, LPARAM lParam) {
+	return LRESULT();
+}
+
+LRESULT CMainFrame::OnViewProcessTree(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	auto pView = new CProcessTreeView(this);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Process Tree", m_Icons[(int)IconType::Tree], (IView*)pView);
 
 	return 0;
 }

@@ -220,7 +220,7 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallPar
 			static_cast<DWORD>(params.ErrorControl),
 			imagePath.c_str(),
 			params.LoadOrderGroup.c_str(),
-			params.Tag < 0 ? nullptr : (PDWORD)&params.Tag,
+			nullptr,
 			* buffer == 0 ? nullptr : buffer,
 			account.empty() ? nullptr : account.c_str(),
 			params.Password.empty() ? nullptr : params.Password.c_str()));

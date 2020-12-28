@@ -85,7 +85,6 @@ LRESULT CInstallServiceDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&) {
 		m_InstallParams.TargetPath = GetDlgItemText(IDC_TARGET_PATH);
 		m_InstallParams.Dependencies = GetDlgItemText(IDC_DEP);
 		m_InstallParams.LoadOrderGroup = GetDlgItemText(IDC_GROUP);
-		m_InstallParams.Tag = GetDlgItem(IDC_TAG).GetWindowTextLength() == 0 ? -1 : GetDlgItemInt(IDC_TAG);
 	}
 
 	EndDialog(wID);

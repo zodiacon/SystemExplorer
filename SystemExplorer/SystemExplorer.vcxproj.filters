@@ -252,6 +252,12 @@
     <ClCompile Include="SystemModulesView.cpp">
       <Filter>Views</Filter>
     </ClCompile>
+    <ClCompile Include="ProcessTreeView.cpp">
+      <Filter>Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageIconCache.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -490,6 +496,12 @@
     </ClInclude>
     <ClInclude Include="SystemModulesView.h">
       <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessTreeView.h">
+      <Filter>Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageIconCache.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -767,6 +779,9 @@
       <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\sysinfo.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\tree.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

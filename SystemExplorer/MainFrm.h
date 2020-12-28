@@ -93,6 +93,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessAll)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SEARCH, OnSystemSearch)
 		MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
+		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSTREE, OnViewProcessTree)
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_EXITALL, OnFileExitAll)
@@ -178,6 +179,7 @@ private:
 	LRESULT OnEditFind(WORD, WORD, HWND, BOOL&);
 	LRESULT OnEditFindNext(WORD, WORD, HWND, BOOL&);
 	LRESULT OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewProcessTree(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	CString GetDefaultSettingsFile();
@@ -201,7 +203,7 @@ private:
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
 		Devices, Memory, Login, Modules, Processes, COM, Threads,
-		Search, SystemInfo, Kernel,
+		Search, SystemInfo, Kernel, Tree,
 		COUNT
 	};
 	CFindReplaceDialog* m_pFindDlg{ nullptr };

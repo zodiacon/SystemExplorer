@@ -39,6 +39,8 @@ namespace WinSys {
 		[[nodiscard]] size_t GetProcessCount() const;
 		[[nodiscard]] std::wstring GetProcessNameById(uint32_t pid) const;
 
+		std::vector<std::pair<std::shared_ptr<ProcessInfo>, int>> BuildProcessTree();
+
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> _impl;

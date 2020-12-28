@@ -248,12 +248,14 @@
     <ClCompile Include="COMView.cpp" />
     <ClCompile Include="DeviceObjectType.cpp" />
     <ClCompile Include="EnvironmentDlg.cpp" />
+    <ClCompile Include="ImageIconCache.cpp" />
     <ClCompile Include="IniFile.cpp" />
     <ClCompile Include="InstallServiceDlg.cpp" />
     <ClCompile Include="JobPropertiesDlg.cpp" />
     <ClCompile Include="ListViewHelper.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
     <ClCompile Include="ProcessPropertiesDlg.cpp" />
+    <ClCompile Include="ProcessTreeView.cpp" />
     <ClCompile Include="SearchBar.cpp" />
     <ClCompile Include="SearchView.cpp" />
     <ClCompile Include="SysInfoView.cpp" />
@@ -326,6 +328,7 @@
     <ClInclude Include="CustomDrawListView.h" />
     <ClInclude Include="DeviceObjectType.h" />
     <ClInclude Include="EnvironmentDlg.h" />
+    <ClInclude Include="ImageIconCache.h" />
     <ClInclude Include="IniFile.h" />
     <ClInclude Include="InstallServiceDlg.h" />
     <ClInclude Include="JobPropertiesDlg.h" />
@@ -333,6 +336,7 @@
     <ClInclude Include="NotifyIcon.h" />
     <ClInclude Include="ObjectSearcher.h" />
     <ClInclude Include="ProcessPropertiesDlg.h" />
+    <ClInclude Include="ProcessTreeView.h" />
     <ClInclude Include="ResizablePropertySheet.h" />
     <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
@@ -483,6 +487,7 @@
     <Image Include="res\timer.ico" />
     <Image Include="res\token.ico" />
     <Image Include="res\transition.ico" />
+    <Image Include="res\tree.ico" />
     <Image Include="res\types.ico" />
     <Image Include="res\variables-info.ico" />
     <Image Include="res\Waiting.ico" />
