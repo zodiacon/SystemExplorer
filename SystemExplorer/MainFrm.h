@@ -63,6 +63,7 @@ public:
 		COMMAND_ID_HANDLER(ID_HANDLES_ALLHANDLES, OnShowAllHandles)
 		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnShowHandlesInProcess)
 		COMMAND_ID_HANDLER(ID_SYSTEM_SERVICES, OnViewSystemServices)
+		COMMAND_ID_HANDLER(ID_SYSTEM_DRIVERS, OnViewSystemDrivers)
 		COMMAND_ID_HANDLER(ID_SYSTEM_DEVICES, OnViewSystemDevices)
 		COMMAND_ID_HANDLER(ID_SYSTEM_PROCESSES, OnViewSystemProcesses)
 		COMMAND_ID_HANDLER(ID_SYSTEM_THREADS, OnViewSystemThreads)
@@ -139,6 +140,7 @@ private:
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileExitAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemServices(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnViewSystemDrivers(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemDevices(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowAllHandles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -203,7 +205,7 @@ private:
 	enum class IconType {
 		Objects, Types, Handles, ObjectManager, Windows, Services,
 		Devices, Memory, Login, Modules, Processes, COM, Threads,
-		Search, SystemInfo, Kernel, Tree,
+		Search, SystemInfo, Kernel, Tree, Drivers,
 		COUNT
 	};
 	CFindReplaceDialog* m_pFindDlg{ nullptr };

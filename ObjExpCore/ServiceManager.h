@@ -71,7 +71,7 @@ namespace WinSys {
 	class ServiceManager final abstract {
 		friend class Service;
 	public:
-		static std::vector<ServiceInfo> EnumServices(ServiceEnumType enumType = ServiceEnumType::All);
+		static std::vector<ServiceInfo> EnumServices(ServiceEnumType enumType, ServiceEnumState enumState = ServiceEnumState::All);
 		static std::unique_ptr<ServiceConfiguration> GetServiceConfiguration(const std::wstring& serviceName);
 		static std::wstring GetServiceDescription(const std::wstring& name);
 		static ServiceState GetServiceState(const std::wstring& name);

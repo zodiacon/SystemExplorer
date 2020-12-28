@@ -424,7 +424,7 @@ IDI_ATOM                ICON                    "res\\atom.ico"
 
 IDI_BATTERY             ICON                    "res\\battery.ico"
 
-IDI_CAR                 ICON                    "res\\car_compact_green.ico"
+IDI_CAR                 ICON                    "res\\car.ico"
 
 IDI_DRAM                ICON                    "res\\dram.ico"
 

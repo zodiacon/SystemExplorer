@@ -10,7 +10,7 @@ using namespace WinSys;
 
 const CString AccessDenied(L"<access denied>");
 
-CServicesView::CServicesView(IMainFrame* pFrame) : CViewBase(pFrame) {
+CServicesView::CServicesView(IMainFrame* pFrame, bool services) : CViewBase(pFrame), m_ViewServices(services) {
 }
 
 void CServicesView::DoSort(const SortInfo* si) {
@@ -45,13 +45,13 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Display Name", LVCFMT_LEFT, 280, ColumnFlags::Visible | ColumnFlags::Mandatory);
 	cm->AddColumn(L"State", LVCFMT_LEFT, 80, ColumnFlags::Visible);
 	cm->AddColumn(L"Type", LVCFMT_LEFT, 100, ColumnFlags::Visible);
-	cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, ColumnFlags::Visible);
-	cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, ColumnFlags::Visible);
+	cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
 	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible);
-	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 250, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, ColumnFlags::None);
-	cm->AddColumn(L"Description", LVCFMT_LEFT, 250, ColumnFlags::None);
+	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 350, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() && m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
+	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, ColumnFlags::Visible);
+	cm->AddColumn(L"Description", LVCFMT_LEFT, 350, ColumnFlags::None);
 	cm->AddColumn(L"Privileges", LVCFMT_LEFT, 180, ColumnFlags::None);
 	cm->AddColumn(L"Triggers", LVCFMT_LEFT, 200, ColumnFlags::None);
 	cm->AddColumn(L"Dependencies", LVCFMT_LEFT, 200, ColumnFlags::None);
@@ -396,6 +396,8 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 	CString type;
 
 	switch (config.StartType) {
+		case ServiceStartType::Boot: type = L"Boot"; break;
+		case ServiceStartType::System: type = L"System"; break;
 		case ServiceStartType::Auto: type = L"Automatic"; break;
 		case ServiceStartType::Demand: type = L"Manual"; break;
 		case ServiceStartType::Disabled: type = L"Disabled"; break;
@@ -429,6 +431,8 @@ CString CServicesView::ServiceTypeToString(WinSys::ServiceType type) {
 		ServiceType type;
 		PCWSTR text;
 	} types[] = {
+		{ ServiceType::KernelDriver, L"Kernel Driver" },
+		{ ServiceType::FileSystemDriver, L"FS/Filter Driver" },
 		{ ServiceType::Win32OwnProcess, L"Own" },
 		{ ServiceType::Win32SharedProcess, L"Shared" },
 		{ ServiceType::InteractiveProcess, L"Interactive" },
@@ -477,7 +481,7 @@ HWND CServicesView::InitToolBar() {
 void CServicesView::Refresh() {
 	m_ProcMgr.EnumProcesses();
 	m_ServicesEx.clear();
-	m_Services = WinSys::ServiceManager::EnumServices();
+	m_Services = WinSys::ServiceManager::EnumServices(m_ViewServices ? ServiceEnumType::AllServices : ServiceEnumType::AllDrivers);
 	m_ServicesEx.reserve(m_Services.size());
 	m_List.SetItemCountEx(static_cast<int>(m_Services.size()), LVSICF_NOSCROLL);
 	DoSort(GetSortInfo(m_List));

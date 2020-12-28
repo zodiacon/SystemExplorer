@@ -5,10 +5,21 @@
 
 namespace WinSys {
 	enum class ServiceEnumType {
+		AllDrivers = SERVICE_DRIVER,
+		KernelDrivers = SERVICE_KERNEL_DRIVER,
+		FileSystemDrivers = SERVICE_FILE_SYSTEM_DRIVER,
+		AllServices = SERVICE_WIN32,
+		ServicesOwnProcess = SERVICE_WIN32_OWN_PROCESS,
+		ServicesSharedProcess = SERVICE_WIN32_OWN_PROCESS,
+	};
+	DEFINE_ENUM_FLAG_OPERATORS(ServiceEnumType);
+
+	enum class ServiceEnumState {
 		Active = SERVICE_ACTIVE,
 		Inactive = SERVICE_INACTIVE,
 		All = Active | Inactive
 	};
+	DEFINE_ENUM_FLAG_OPERATORS(ServiceEnumState);
 
 	enum class ServiceType {
 		FileSystemDriver = SERVICE_FILE_SYSTEM_DRIVER,

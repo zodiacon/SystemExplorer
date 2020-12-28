@@ -6,7 +6,7 @@
 
 using namespace WinSys;
 
-std::vector<ServiceInfo> ServiceManager::EnumServices(ServiceEnumType enumType) {
+std::vector<ServiceInfo> ServiceManager::EnumServices(ServiceEnumType enumType, ServiceEnumState enumState) {
 	std::vector<ServiceInfo> services;
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE));
 	if (!hScm)
@@ -15,8 +15,8 @@ std::vector<ServiceInfo> ServiceManager::EnumServices(ServiceEnumType enumType) 
 	auto buffer = std::make_unique<BYTE[]>(1 << 18);
 	DWORD needed;
 	DWORD count;
-	auto ok = ::EnumServicesStatusEx(hScm.get(), SC_ENUM_PROCESS_INFO, SERVICE_WIN32,
-		static_cast<DWORD>(enumType), buffer.get(), 1 << 18, &needed, &count, nullptr, nullptr);
+	auto ok = ::EnumServicesStatusEx(hScm.get(), SC_ENUM_PROCESS_INFO, static_cast<DWORD>(enumType),
+		static_cast<DWORD>(enumState), buffer.get(), 1 << 18, &needed, &count, nullptr, nullptr);
 	if (!ok)
 		return services;
 

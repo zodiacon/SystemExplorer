@@ -410,6 +410,7 @@
     <Image Include="res\atom.ico" />
     <Image Include="res\battery.ico" />
     <Image Include="res\briefcase.ico" />
+    <Image Include="res\car.ico" />
     <Image Include="res\car_compact_green.ico" />
     <Image Include="res\class.ico" />
     <Image Include="res\color_wheel.ico" />

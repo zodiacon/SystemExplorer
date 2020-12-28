@@ -784,6 +784,9 @@
     <Image Include="res\tree.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\car.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

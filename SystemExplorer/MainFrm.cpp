@@ -352,7 +352,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			IDI_OBJECTS, IDI_TYPES, IDI_HANDLES, IDI_PACKAGE,
 			IDI_WINDOWS, IDI_SERVICES, IDI_DEVICE, IDI_DRAM,
 			IDI_LOGIN, IDI_DLL, IDI_PROCESSES, IDI_COMPONENT, IDI_THREAD,
-			IDI_FIND, IDI_SYSINFO, IDI_ATOM, IDI_TREE,
+			IDI_FIND, IDI_SYSINFO, IDI_ATOM, IDI_TREE, IDI_CAR,
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
@@ -483,9 +483,17 @@ LRESULT CMainFrame::OnFileExitAll(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnViewSystemServices(WORD, WORD, HWND, BOOL&) {
-	auto pView = new CServicesView(this);
+	auto pView = new CServicesView(this, true);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, L"Services", m_Icons[(int)IconType::Services], (IView*)pView);
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnViewSystemDrivers(WORD, WORD, HWND, BOOL&) {
+	auto pView = new CServicesView(this, false);
+	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+	m_view.AddPage(pView->m_hWnd, L"Drivers", m_Icons[(int)IconType::Drivers], (IView*)pView);
 
 	return 0;
 }
@@ -872,6 +880,7 @@ void CMainFrame::InitCommandBar() {
 		{ ID_EDIT_FIND_NEXT, IDI_FIND_NEXT },
 		{ ID_WINDOW_CLOSE, IDI_WINDOW_CLOSE },
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
+		{ ID_SYSTEM_DRIVERS, IDI_CAR},
 		{ ID_SYSTEM_INFORMATION, IDI_SYSINFO },
 		{ ID_FILE_RUNASADMINISTRATOR, 0, SecurityHelper::GetShieldIcon() },
 		{ ID_SERVICE_START, IDI_PLAY },

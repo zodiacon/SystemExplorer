@@ -31,7 +31,7 @@ class CServicesView :
 	public CViewBase<CServicesView> {
 public:
 
-	CServicesView(IMainFrame* pFrame);
+	CServicesView(IMainFrame* pFrame, bool services = true);
 
 	void DoSort(const SortInfo* si);
 	bool IsSortable(int col) const;
@@ -95,5 +95,6 @@ private:
 	CListViewCtrl m_List;
 	WinSys::ProcessManager m_ProcMgr;
 	int m_SelectedHeader;
+	bool m_ViewServices;
 };
 
