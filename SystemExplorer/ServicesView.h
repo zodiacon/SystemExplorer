@@ -42,6 +42,7 @@ public:
 
 	static PCWSTR TriggerToText(const WinSys::ServiceTrigger& trigger);
 	static CString DependenciesToString(const std::vector<std::wstring>& deps);
+	static CString ServiceControlsAcceptedToString(WinSys::ServiceControlsAccepted accepted);
 
 	BEGIN_MSG_MAP(CServicesView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)

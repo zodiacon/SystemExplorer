@@ -94,7 +94,7 @@ bool ColumnManager::IsConst(int column) const {
 	return (m_Columns[column].Flags & ColumnFlags::Const) == ColumnFlags::Const;
 }
 
-int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags flags) {
+int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags flags, int tag) {
 	auto category = ::wcschr(name, L'\\');
 	CString categoryName;
 	if (category) {
@@ -110,6 +110,7 @@ int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags fla
 	info.Flags = flags;
 	info.Name = name;
 	info.Category = categoryName;
+	info.Tag = tag;
 
 	if (m_ListView && ((flags & ColumnFlags::Visible) == ColumnFlags::Visible)) {
 		auto header = m_ListView.GetHeader();
@@ -128,6 +129,14 @@ int ColumnManager::AddColumn(PCWSTR name, int format, int width, ColumnFlags fla
 	}
 
 	return static_cast<int>(m_Columns.size());
+}
+
+int ColumnManager::GetColumnIndex(int tag) const {
+	auto count = (int)m_Columns.size();
+	for (int i = 0; i < count; i++)
+		if (m_Columns[i].Tag == tag)
+			return i;
+	return -1;
 }
 
 void ColumnManager::Clear() {

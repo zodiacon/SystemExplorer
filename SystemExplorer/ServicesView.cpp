@@ -18,7 +18,7 @@ void CServicesView::DoSort(const SortInfo* si) {
 		return;
 
 	std::sort(m_Services.begin(), m_Services.end(), [&](const auto& s1, const auto& s2) {
-		return CompareItems(s1, s2, si->SortColumn, si->SortAscending);
+		return CompareItems(s1, s2, GetColumnManager(m_List)->GetColumn(si->SortColumn).Tag, si->SortAscending);
 		});
 }
 
@@ -41,20 +41,25 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
 	auto cm = GetColumnManager(m_List);
-	cm->AddColumn(L"Name", LVCFMT_LEFT, 170, ColumnFlags::Visible | ColumnFlags::Mandatory);
-	cm->AddColumn(L"Display Name", LVCFMT_LEFT, 280, ColumnFlags::Visible | ColumnFlags::Mandatory);
-	cm->AddColumn(L"State", LVCFMT_LEFT, 80, ColumnFlags::Visible);
-	cm->AddColumn(L"Type", LVCFMT_LEFT, 100, ColumnFlags::Visible);
-	cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible);
-	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 350, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() && m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None);
-	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, ColumnFlags::Visible);
-	cm->AddColumn(L"Description", LVCFMT_LEFT, 350, ColumnFlags::None);
-	cm->AddColumn(L"Privileges", LVCFMT_LEFT, 180, ColumnFlags::None);
-	cm->AddColumn(L"Triggers", LVCFMT_LEFT, 200, ColumnFlags::None);
-	cm->AddColumn(L"Dependencies", LVCFMT_LEFT, 200, ColumnFlags::None);
+	cm->AddColumn(L"Name", LVCFMT_LEFT, 170, ColumnFlags::Visible | ColumnFlags::Mandatory, 0);
+	cm->AddColumn(L"Display Name", LVCFMT_LEFT, 280, ColumnFlags::Visible | ColumnFlags::Mandatory, 1);
+	cm->AddColumn(L"State", LVCFMT_LEFT, 80, ColumnFlags::Visible, 2);
+	cm->AddColumn(L"Type", LVCFMT_LEFT, 100, ColumnFlags::Visible, 3);
+	if (m_ViewServices) {
+		cm->AddColumn(L"PID", LVCFMT_RIGHT, 100, ColumnFlags::Visible, 4);
+		cm->AddColumn(L"Process Name", LVCFMT_LEFT, 150, ColumnFlags::Visible, 5);
+	}
+	cm->AddColumn(L"Start Type", LVCFMT_LEFT, 150, ColumnFlags::Visible, 6);
+	cm->AddColumn(L"Binary Path", LVCFMT_LEFT, 350, SecurityHelper::IsRunningElevated() ? ColumnFlags::Visible : ColumnFlags::None, 7);
+	cm->AddColumn(L"Account Name", LVCFMT_LEFT, 150, SecurityHelper::IsRunningElevated() && m_ViewServices ? ColumnFlags::Visible : ColumnFlags::None, 8);
+	cm->AddColumn(L"Error Control", LVCFMT_LEFT, 80, ColumnFlags::Visible, 9);
+	cm->AddColumn(L"Description", LVCFMT_LEFT, 350, ColumnFlags::None, 10);
+	if (m_ViewServices) {
+		cm->AddColumn(L"Privileges", LVCFMT_LEFT, 180, ColumnFlags::None, 11);
+		cm->AddColumn(L"Triggers", LVCFMT_LEFT, 200, ColumnFlags::None, 12);
+		cm->AddColumn(L"Dependencies", LVCFMT_LEFT, 200, ColumnFlags::None, 13);
+		cm->AddColumn(L"Controls Accepted", LVCFMT_LEFT, 180, ColumnFlags::Visible, 14);
+	}
 
 	cm->UpdateColumns();
 
@@ -86,7 +91,7 @@ CString CServicesView::GetColumnText(HWND, int row, int col) const {
 	auto config = svcex.GetConfiguration();
 
 	CString text;
-	switch (col) {
+	switch (GetColumnManager(m_List)->GetColumn(col).Tag) {
 		case 0: return data.GetName().c_str();
 		case 1:	return data.GetDisplayName().c_str();
 		case 2: return ServiceStateToString(pdata.CurrentState);
@@ -106,6 +111,7 @@ CString CServicesView::GetColumnText(HWND, int row, int col) const {
 		case 11: return svcex.GetPrivileges();
 		case 12: return svcex.GetTriggers();
 		case 13: return config ? svcex.GetDependencies() : AccessDenied;
+		case 14: return ServiceControlsAcceptedToString(pdata.ControlsAccepted);
 	}
 
 	return text;
@@ -364,6 +370,7 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 		case 13: return SortHelper::SortStrings(
 			GetServiceInfoEx(s1.GetName()).GetDependencies(),
 			GetServiceInfoEx(s2.GetName()).GetDependencies(), asc);
+		case 14: return SortHelper::SortNumbers(s1.GetStatusProcess().ControlsAccepted, s2.GetStatusProcess().ControlsAccepted, asc);
 
 	}
 	return false;
@@ -409,6 +416,41 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 		type += L" (Trigger)";
 
 	return type;
+}
+
+CString CServicesView::ServiceControlsAcceptedToString(ServiceControlsAccepted accepted) {
+	if (accepted == ServiceControlsAccepted::None)
+		return L"(None)";
+
+	static struct {
+		ServiceControlsAccepted type;
+		PCWSTR text;
+	} types[] = {
+		{ ServiceControlsAccepted::Stop, L"Stop" },
+		{ ServiceControlsAccepted::PauseContinue, L"Pause, Continue" },
+		{ ServiceControlsAccepted::Shutdown, L"Shutdown" },
+		{ ServiceControlsAccepted::ParamChange, L"Param Change" },
+		{ ServiceControlsAccepted::NetBindChange, L"NET Bind Change" },
+		{ ServiceControlsAccepted::HardwareProfileChange, L"Hardware Profile Change" },
+		{ ServiceControlsAccepted::PowerEvent, L"Power Event" },
+		{ ServiceControlsAccepted::SessionChange, L"Session Change" },
+		{ ServiceControlsAccepted::Preshutdown, L"Pre Shutdown" },
+		{ ServiceControlsAccepted::TimeChanged, L"Time Change" },
+		{ ServiceControlsAccepted::TriggerEvent, L"Trigger Event" },
+		{ ServiceControlsAccepted::UserLogOff, L"User Log off" },
+		{ ServiceControlsAccepted::LowResources, L"Low Resources" },
+		{ ServiceControlsAccepted::SystemLowResources, L"System Low Resources" },
+		{ ServiceControlsAccepted::InternalReserved, L"(Internal)" },
+	};
+
+	CString text;
+	for (auto& item : types)
+		if ((item.type & accepted) == item.type)
+			text += CString(item.text) + L", ";
+
+	text = text.Left(text.GetLength() - 2);
+	text.Format(L"%s (0x%X)", (PCWSTR)text, (DWORD)accepted);
+	return text;
 }
 
 CString CServicesView::ErrorControlToString(WinSys::ServiceErrorControl ec) {
@@ -591,3 +633,4 @@ const CString& ServiceInfoEx::GetDependencies() const {
 	}
 	return _dependencies;
 }
+

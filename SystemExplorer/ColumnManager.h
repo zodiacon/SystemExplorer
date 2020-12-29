@@ -22,6 +22,7 @@ public:
 		CString Name;
 		ColumnFlags Flags;
 		CString Category;
+		int Tag;
 
 		bool IsVisible() const;
 		bool IsMandatory() const;
@@ -44,7 +45,9 @@ public:
 	bool IsModified(int column) const;
 	void SetModified(int column, bool modified);
 	bool IsConst(int column) const;
-	int AddColumn(PCWSTR name, int format, int width, ColumnFlags flags = ColumnFlags::Visible);
+	int AddColumn(PCWSTR name, int format, int width, ColumnFlags flags = ColumnFlags::Visible, int tag = -1);
+	int GetColumnIndex(int tag) const;
+
 	void Clear();
 	const ColumnInfo& GetColumn(int index) const;
 	const std::vector<int>& GetColumnsByCategory(PCWSTR category) const;

@@ -45,6 +45,7 @@ namespace WinSys {
 	};
 
 	enum class ServiceControlsAccepted {
+		None = 0,
 		NetBindChange = SERVICE_ACCEPT_NETBINDCHANGE,
 		ParamChange = SERVICE_ACCEPT_PARAMCHANGE,
 		PauseContinue = SERVICE_ACCEPT_PAUSE_CONTINUE,
@@ -53,7 +54,13 @@ namespace WinSys {
 		Stop = SERVICE_ACCEPT_STOP,
 		HardwareProfileChange = SERVICE_ACCEPT_HARDWAREPROFILECHANGE,
 		PowerEvent = SERVICE_ACCEPT_POWEREVENT,
-		SessionChange = SERVICE_ACCEPT_SESSIONCHANGE
+		SessionChange = SERVICE_ACCEPT_SESSIONCHANGE,
+		TimeChanged = SERVICE_ACCEPT_TIMECHANGE,
+		TriggerEvent = SERVICE_ACCEPT_TRIGGEREVENT,
+		UserLogOff = SERVICE_ACCEPT_USER_LOGOFF,
+		LowResources = SERVICE_ACCEPT_LOWRESOURCES,
+		SystemLowResources = SERVICE_ACCEPT_SYSTEMLOWRESOURCES,
+		InternalReserved = 0x1000,
 	};
 	DEFINE_ENUM_FLAG_OPERATORS(ServiceControlsAccepted);
 
