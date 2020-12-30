@@ -17,6 +17,13 @@ namespace WinSys {
 		Aggregate = 30
 	};
 
+	enum class ServiceSidType {
+		None = SERVICE_SID_TYPE_NONE,
+		Restricted = SERVICE_SID_TYPE_RESTRICTED,
+		Unrestricted = SERVICE_SID_TYPE_UNRESTRICTED,
+		Unknown = -1
+	};
+
 	enum class ServiceTriggerAction {
 		Start = 1,
 		Stop = 2
@@ -42,12 +49,15 @@ namespace WinSys {
 		std::vector<ServiceTrigger> GetTriggers() const;
 		std::vector<std::wstring> GetRequiredPrivileges() const;
 
+		ServiceSidType GetSidType() const;
+
 		bool Start();
 		bool Start(const std::vector<const wchar_t*>& args);
 		bool Stop();
 		bool Pause();
 		bool Continue();
 		bool Delete();
+
 		bool Refresh(ServiceInfo& info);
 
 	private:

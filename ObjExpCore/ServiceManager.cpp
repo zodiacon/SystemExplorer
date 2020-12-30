@@ -234,3 +234,19 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallPar
 	}
 	return std::make_unique<Service>(std::move(hService));
 }
+
+Sid ServiceManager::GetServiceSid(const wchar_t* name) {
+	bool userService = (GetServiceStatus(name).Type & ServiceType::UserService) == ServiceType::UserService;
+	BYTE sid[SECURITY_MAX_SID_SIZE];
+	WCHAR domain[32];
+	DWORD domainSize = _countof(domain), sidSize = sizeof(sid);
+	SID_NAME_USE use;
+	std::wstring serviceName(L"NT SERVICE\\");
+	serviceName += name;
+	if (userService)	// use base name
+		serviceName = serviceName.substr(0, serviceName.rfind(L'_'));
+
+	if(::LookupAccountName(nullptr, serviceName.c_str(), (PSID)sid, &sidSize, domain, &domainSize, &use))
+		return Sid((PSID)sid);
+	return Sid();
+}

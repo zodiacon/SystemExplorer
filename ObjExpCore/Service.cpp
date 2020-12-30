@@ -71,6 +71,14 @@ std::vector<std::wstring> Service::GetRequiredPrivileges() const {
 	return privileges;
 }
 
+ServiceSidType WinSys::Service::GetSidType() const {
+	ServiceSidType type;
+	DWORD len;
+	if (::QueryServiceConfig2(_handle.get(), SERVICE_CONFIG_SERVICE_SID_INFO, (BYTE*)&type, sizeof(type), &len))
+		return type;
+	return ServiceSidType::Unknown;
+}
+
 std::unique_ptr<WinSys::Service> Service::Open(const std::wstring & name, ServiceAccessMask access) noexcept {
 	auto hService = ServiceManager::OpenServiceHandle(name, access);
 	if (!hService)

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "ServiceInfo.h"
+#include "Sid.h"
 #include <memory>
 #include <string>
 
@@ -82,6 +83,7 @@ namespace WinSys {
 			ServiceStartType startType, ServiceErrorControl errorControl, const std::wstring& imagePath);
 		static std::unique_ptr<Service> Install(const std::wstring& name, ServiceType type,	ServiceStartType startType, const std::wstring& imagePath);
 		static std::unique_ptr<Service> Install(const ServiceInstallParams& params);
+		static Sid GetServiceSid(const wchar_t* name);
 
 	private:
 		static wil::unique_schandle OpenServiceHandle(const std::wstring& name, ServiceAccessMask accessMask = ServiceAccessMask::QueryConfig | ServiceAccessMask::QueryStatus);

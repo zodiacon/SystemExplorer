@@ -2,6 +2,8 @@
 #include "Sid.h"
 #include <sddl.h>
 
+using namespace WinSys;
+
 Sid::Sid() {
 	::memset(_buffer, 0, sizeof(_buffer));
 }

@@ -307,13 +307,14 @@
 #define ID_PROCESS_DETAILS              32898
 #define ID_PROCESS_KILLBYNAME           32899
 #define ID_SYSTEM_PROCESSTREE           32900
+#define ID_SERVICE_PROCESSPROPERTIES    32901
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        332
-#define _APS_NEXT_COMMAND_VALUE         32901
+#define _APS_NEXT_COMMAND_VALUE         32902
 #define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

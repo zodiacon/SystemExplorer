@@ -258,6 +258,9 @@
     <ClCompile Include="ImageIconCache.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="ServiceInfoEx.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
@@ -502,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="ImageIconCache.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceInfoEx.h">
+      <Filter>Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -258,6 +258,7 @@
     <ClCompile Include="ProcessTreeView.cpp" />
     <ClCompile Include="SearchBar.cpp" />
     <ClCompile Include="SearchView.cpp" />
+    <ClCompile Include="ServiceInfoEx.cpp" />
     <ClCompile Include="SysInfoView.cpp" />
     <ClCompile Include="SystemModulesView.cpp" />
     <ClCompile Include="ThreadInfoEx.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="ResizablePropertySheet.h" />
     <ClInclude Include="SearchBar.h" />
     <ClInclude Include="SearchView.h" />
+    <ClInclude Include="ServiceInfoEx.h" />
     <ClInclude Include="SysInfoView.h" />
     <ClInclude Include="SystemModulesView.h" />
     <ClInclude Include="ThreadInfoEx.h" />

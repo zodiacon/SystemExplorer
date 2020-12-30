@@ -8,23 +8,7 @@
 #include <ServiceManager.h>
 #include <Service.h>
 #include <ProcessManager.h>
-
-struct ServiceInfoEx {
-	ServiceInfoEx(PCWSTR name);
-	const WinSys::ServiceConfiguration* GetConfiguration() const;
-	const CString& GetDescription() const;
-	const CString& GetPrivileges() const;
-	const CString& GetTriggers() const;
-	const CString& GetDependencies() const;
-
-private:
-	mutable std::unique_ptr<WinSys::ServiceConfiguration> _config;
-	std::wstring _name;
-	mutable CString _desc, _privileges, _triggers, _dependencies;
-	mutable bool _flagPriveleges { false };
-	mutable bool _flagTriggers { false };
-	mutable bool _flagDependencies { false };
-};
+#include "ServiceInfoEx.h"
 
 class CServicesView :
 	public CVirtualListView<CServicesView>,
@@ -55,8 +39,10 @@ public:
 		COMMAND_ID_HANDLER(ID_HEADER_HIDECOLUMN, OnHideColumn)
 		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
+		COMMAND_ID_HANDLER(ID_SERVICE_PROCESSPROPERTIES, OnProcessProperties)
 		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnServiceProperties)
 		COMMAND_ID_HANDLER(ID_SERVICE_UNINSTALL, OnServiceDelete)
+		COMMAND_RANGE_HANDLER(ID_PROCESS_MEMORYMAP, ID_PROCESS_HEAPS, OnProcessItem)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
 		CHAIN_MSG_MAP(CViewBase<CServicesView>)
 	END_MSG_MAP()
@@ -74,6 +60,8 @@ private:
 	LRESULT OnRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnServiceDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnProcessItem(WORD, WORD id, HWND, BOOL&);
 
 private:
 	bool CompareItems(const WinSys::ServiceInfo& s1, const WinSys::ServiceInfo& s2, int col, bool asc);
@@ -83,6 +71,7 @@ private:
 	static CString ServiceStartTypeToString(const WinSys::ServiceConfiguration&);
 	static CString ErrorControlToString(WinSys::ServiceErrorControl ec);
 	static CString ServiceTypeToString(WinSys::ServiceType type);
+	static PCWSTR ServiceSidTypeToString(WinSys::ServiceSidType type);
 
 	ServiceInfoEx& GetServiceInfoEx(const std::wstring& name) const;
 

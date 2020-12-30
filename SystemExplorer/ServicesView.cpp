@@ -5,6 +5,8 @@
 #include <algorithm>
 #include "SortHelper.h"
 #include "SelectColumnsDlg.h"
+#include "ProcessPropertiesDlg.h"
+#include "ProcessInfoEx.h"
 
 using namespace WinSys;
 
@@ -59,6 +61,8 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 		cm->AddColumn(L"Triggers", LVCFMT_LEFT, 200, ColumnFlags::None, 12);
 		cm->AddColumn(L"Dependencies", LVCFMT_LEFT, 200, ColumnFlags::None, 13);
 		cm->AddColumn(L"Controls Accepted", LVCFMT_LEFT, 180, ColumnFlags::Visible, 14);
+		cm->AddColumn(L"Service SID", LVCFMT_LEFT, 250, ColumnFlags::None, 15);
+		cm->AddColumn(L"SID Type", LVCFMT_LEFT, 80, ColumnFlags::None, 16);
 	}
 
 	cm->UpdateColumns();
@@ -112,6 +116,8 @@ CString CServicesView::GetColumnText(HWND, int row, int col) const {
 		case 12: return svcex.GetTriggers();
 		case 13: return config ? svcex.GetDependencies() : AccessDenied;
 		case 14: return ServiceControlsAcceptedToString(pdata.ControlsAccepted);
+		case 15: return svcex.GetSID();
+		case 16: return ServiceSidTypeToString(svcex.GetSidType());
 	}
 
 	return text;
@@ -148,8 +154,11 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 			UpdateUI(GetFrame()->GetUpdateUI());
 		}
 	}
-	if(hSubMenu)
-		GetFrame()->TrackPopupMenu(hSubMenu, nullptr, &pt);
+	if (hSubMenu) {
+		auto cmd = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, nullptr, &pt, TPM_RETURNCMD);
+		if (cmd)
+			PostMessage(WM_COMMAND, cmd);
+	}
 	return 0;
 }
 
@@ -336,6 +345,19 @@ LRESULT CServicesView::OnServiceDelete(WORD, WORD, HWND, BOOL&) {
 	return 0;
 }
 
+LRESULT CServicesView::OnProcessProperties(WORD, WORD, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	ATLASSERT(selected >= 0);
+
+	auto& svc = m_Services[selected];
+	ProcessInfoEx px(m_ProcMgr.GetProcessById(svc.GetStatusProcess().ProcessId).get());
+	CProcessPropertiesDlg dlg(m_ProcMgr, px);
+	dlg.SetModal(true);
+	dlg.DoModal();
+
+	return 0;
+}
+
 bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, int col, bool asc) {
 	switch (col) {
 		case 0:	return SortHelper::SortStrings(s1.GetName(), s2.GetName(), asc);
@@ -371,7 +393,7 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 			GetServiceInfoEx(s1.GetName()).GetDependencies(),
 			GetServiceInfoEx(s2.GetName()).GetDependencies(), asc);
 		case 14: return SortHelper::SortNumbers(s1.GetStatusProcess().ControlsAccepted, s2.GetStatusProcess().ControlsAccepted, asc);
-
+		case 15: return SortHelper::SortStrings(GetServiceInfoEx(s1.GetName()).GetSID(), GetServiceInfoEx(s2.GetName()).GetSID(), asc);
 	}
 	return false;
 }
@@ -491,6 +513,15 @@ CString CServicesView::ServiceTypeToString(WinSys::ServiceType type) {
 	return text.Left(text.GetLength() - 2);
 }
 
+PCWSTR CServicesView::ServiceSidTypeToString(WinSys::ServiceSidType type) {
+	switch (type) {
+		case ServiceSidType::None: return L"None";
+		case ServiceSidType::Restricted: return L"Restricted";
+		case ServiceSidType::Unrestricted: return L"Unrestricted";
+	}
+	return L"(Unknown)";
+}
+
 CString CServicesView::DependenciesToString(const std::vector<std::wstring>& deps) {
 	CString text;
 	for (auto& dep : deps)
@@ -540,6 +571,7 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 		ui->UIEnable(ID_SERVICE_PAUSE, FALSE);
 		ui->UIEnable(ID_SERVICE_CONTINUE, FALSE);
 		ui->UIEnable(ID_SERVICE_UNINSTALL, FALSE);
+		ui->UIEnable(ID_SERVICE_PROCESSPROPERTIES, FALSE);
 	}
 	else {
 		auto& svc = m_Services[selected];
@@ -550,42 +582,11 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 		ui->UIEnable(ID_SERVICE_PAUSE, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_CONTINUE, state == ServiceState::Paused);
 		ui->UIEnable(ID_SERVICE_UNINSTALL, TRUE);
+		auto active = svc.GetStatusProcess().ProcessId != 0;
+		ui->UIEnable(ID_SERVICE_PROCESSPROPERTIES, active);
 	}
 }
 
-ServiceInfoEx::ServiceInfoEx(PCWSTR name) : _name(name) {
-}
-
-const WinSys::ServiceConfiguration* ServiceInfoEx::GetConfiguration() const {
-	if (_config == nullptr)
-		_config = ServiceManager::GetServiceConfiguration(_name);
-	return _config.get();
-}
-
-const CString& ServiceInfoEx::GetDescription() const {
-	if (_desc.IsEmpty()) {
-		_desc = WinSys::ServiceManager::GetServiceDescription(_name).c_str();
-	}
-	return _desc;
-}
-
-const CString& ServiceInfoEx::GetPrivileges() const {
-	if (!_flagPriveleges) {
-		auto svc = Service::Open(_name, ServiceAccessMask::QueryConfig);
-		if (svc) {
-			auto privs = svc->GetRequiredPrivileges();
-			CString text;
-			for (auto& priv : privs) {
-				if (!text.IsEmpty())
-					text += L", ";
-				text += priv.substr(2, priv.size() - 11).c_str();
-			}
-			_privileges = std::move(text);
-		}
-		_flagPriveleges = true;
-	}
-	return _privileges;
-}
 
 PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger) {
 	using namespace WinSys;
@@ -604,33 +605,19 @@ PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger) {
 	return L"";
 }
 
-const CString& ServiceInfoEx::GetTriggers() const {
-	if (!_flagTriggers) {
-		_flagTriggers = true;
-		auto svc = WinSys::Service::Open(_name, ServiceAccessMask::QueryConfig);
-		if (svc) {
-			auto triggers = svc->GetTriggers();
-			CString text;
-			for (auto& trigger : triggers) {
-				auto desc = CServicesView::TriggerToText(trigger);
-				if (text.Find(desc) < 0) {
-					if (!text.IsEmpty())
-						text += L", ";
-					text += desc;
-				}
-			}
-			_triggers = std::move(text);
-		}
-	}
-	return _triggers;
-}
+LRESULT CServicesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
+	auto selected = m_List.GetSelectedIndex();
+	if (selected < 0)
+		return 0;
 
-const CString& ServiceInfoEx::GetDependencies() const {
-	if (!_flagDependencies) {
-		_flagDependencies = true;
-		if(GetConfiguration())
-			_dependencies = CServicesView::DependenciesToString(GetConfiguration()->Dependencies);
+	auto& svc = m_Services[selected];
+	auto pid = svc.GetStatusProcess().ProcessId;
+	if (pid) {
+		auto pi = m_ProcMgr.GetProcessById(svc.GetStatusProcess().ProcessId);
+		GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(pi.get()));
 	}
-	return _dependencies;
+	else {
+		AtlMessageBox(*this, L"Service is not running", IDS_TITLE, MB_ICONWARNING);
+	}
+	return 0;
 }
-

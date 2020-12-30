@@ -297,6 +297,19 @@ BEGIN
         MENUITEM "Uninstall",                   ID_SERVICE_UNINSTALL
         MENUITEM SEPARATOR
         MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM "Process Properties...",       ID_SERVICE_PROCESSPROPERTIES
+        MENUITEM SEPARATOR
+        POPUP "Process &Details"
+        BEGIN
+            MENUITEM "&Threads",                    ID_PROCESS_THREADS
+            MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
+            MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
+            MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
+            MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
+            MENUITEM SEPARATOR
+            MENUITEM "&All of the Above",           ID_PROCESS_ALLOFTHEABOVE
+        END
     END
     POPUP "header"
     BEGIN
@@ -1099,7 +1112,7 @@ IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "System Explorer v0.90"
+    IDR_MAINFRAME           "System Explorer v0.91"
     IDS_TITLE               "System Explorer"
 END
 
