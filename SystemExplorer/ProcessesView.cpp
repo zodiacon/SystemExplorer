@@ -328,8 +328,6 @@ void CProcessesView::Refresh() {
 		return;
 	}
 
-	auto tree = m_ProcMgr.BuildProcessTree();
-
 	auto tick = ::GetTickCount64();
 	count = (int)m_Processes.size();
 	for (int i = 0; i < count; i++) {

@@ -394,6 +394,7 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 			GetServiceInfoEx(s2.GetName()).GetDependencies(), asc);
 		case 14: return SortHelper::SortNumbers(s1.GetStatusProcess().ControlsAccepted, s2.GetStatusProcess().ControlsAccepted, asc);
 		case 15: return SortHelper::SortStrings(GetServiceInfoEx(s1.GetName()).GetSID(), GetServiceInfoEx(s2.GetName()).GetSID(), asc);
+		case 16: return SortHelper::SortNumbers(GetServiceInfoEx(s1.GetName()).GetSidType(), GetServiceInfoEx(s2.GetName()).GetSidType(), asc);
 	}
 	return false;
 }
