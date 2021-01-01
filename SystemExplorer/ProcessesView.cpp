@@ -21,87 +21,7 @@ CProcessesView::CProcessesView(IMainFrame* frame) : CViewBase(frame) {
 CString CProcessesView::GetColumnText(HWND, int row, int col) const {
 	auto& p = m_Processes[row];
 	auto& px = GetProcessInfoEx(p.get());
-	CString text;
-
-	switch (static_cast<ProcessColumn>(col)) {
-		case ProcessColumn::Name: return p->GetImageName().c_str();
-		case ProcessColumn::PackageFullName: return p->GetPackageFullName().c_str();
-		case ProcessColumn::UserName: return px.UserName().c_str();
-		case ProcessColumn::Id: text.Format(L"%6u (0x%05X)", p->Id, p->Id); break;
-		case ProcessColumn::Handles: text.Format(L"%u ", p->HandleCount); break;
-		case ProcessColumn::Threads: text.Format(L"%u ", p->ThreadCount); break;
-		case ProcessColumn::PeakThreads: text.Format(L"%u ", p->PeakThreads); break;
-		case ProcessColumn::CPU:
-			if (p->CPU > 0 && !px.IsTerminated) {
-				auto value = p->CPU / 10000.0f;
-				text.Format(L"%.2f ", value);
-			}
-			break;
-		case ProcessColumn::PriorityClass: return FormatHelper::PriorityClassToString(px.GetPriorityClass());
-		case ProcessColumn::ExePath: return px.GetExecutablePath().c_str();
-		case ProcessColumn::CreateTime: return FormatHelper::TimeToString(p->CreateTime);
-		case ProcessColumn::Session: text.Format(L"%2d  ", p->SessionId); break;
-		case ProcessColumn::Priority: text.Format(L"%2d  ", p->BasePriority); break;
-		case ProcessColumn::Attributes: return ProcessAttributesToString(px.GetAttributes(m_ProcMgr));
-		case ProcessColumn::CPUTime: return FormatHelper::TimeSpanToString(p->UserTime + p->KernelTime);
-		case ProcessColumn::KernelTime: return FormatHelper::TimeSpanToString(p->KernelTime);
-		case ProcessColumn::UserTime: return FormatHelper::TimeSpanToString(p->UserTime);
-		case ProcessColumn::CommitSize: return FormatHelper::FormatWithCommas(p->PagefileUsage >> 10);
-		case ProcessColumn::PeakCommitSize: return FormatHelper::FormatWithCommas(p->PeakPagefileUsage >> 10);
-		case ProcessColumn::WorkingSet: return FormatHelper::FormatWithCommas(p->WorkingSetSize >> 10);
-		case ProcessColumn::PeakWorkingSet: return FormatHelper::FormatWithCommas(p->PeakWorkingSetSize >> 10);
-		case ProcessColumn::VirtualSize: return FormatHelper::FormatWithCommas(p->VirtualSize >> 10);
-		case ProcessColumn::PeakVirtualSize: return FormatHelper::FormatWithCommas(p->PeakVirtualSize >> 10);
-		case ProcessColumn::PagedPool: return FormatHelper::FormatWithCommas(p->PagedPoolUsage >> 10);
-		case ProcessColumn::NonPagedPool: return FormatHelper::FormatWithCommas(p->NonPagedPoolUsage >> 10);
-		case ProcessColumn::PeakPagedPool: return FormatHelper::FormatWithCommas(p->PeakPagedPoolUsage >> 10);
-		case ProcessColumn::PeakNonPagedPool: return FormatHelper::FormatWithCommas(p->PeakNonPagedPoolUsage >> 10);
-		case ProcessColumn::Parent:
-			if (p->ParentId > 0) {
-				auto parent = m_ProcMgr.GetProcessById(p->ParentId);
-				if (parent && (parent->CreateTime < p->CreateTime || parent->Id == 4)) {
-					text.Format(L"%s (%u)", parent->GetImageName().c_str(), parent->Id);
-				}
-				else {
-					text.Format(L"<non-existent> (%u)", p->ParentId);
-				}
-			}
-			break;
-		case ProcessColumn::MemoryPriority:
-		{
-			auto mp = px.GetMemoryPriority();
-			if (mp >= 0)
-				text.Format(L"%d  ", mp);
-			break;
-		}
-		case ProcessColumn::IoPriority: return FormatHelper::IoPriorityToString(px.GetIoPriority());
-		case ProcessColumn::CommandLine: return px.GetCommandLine().c_str();
-		case ProcessColumn::IoReadBytes: return FormatHelper::FormatWithCommas(p->ReadTransferCount);
-		case ProcessColumn::IoWriteBytes: return FormatHelper::FormatWithCommas(p->WriteTransferCount);
-		case ProcessColumn::IoOtherBytes: return FormatHelper::FormatWithCommas(p->OtherTransferCount);
-		case ProcessColumn::IoReads: return FormatHelper::FormatWithCommas(p->ReadOperationCount);
-		case ProcessColumn::IoWrites: return FormatHelper::FormatWithCommas(p->WriteOperationCount);
-		case ProcessColumn::IoOther: return FormatHelper::FormatWithCommas(p->OtherOperationCount);
-		case ProcessColumn::GDIObjects: text.Format(L"%d ", px.GetGdiObjects()); break;
-		case ProcessColumn::UserObjects: text.Format(L"%d ", px.GetUserObjects()); break;
-		case ProcessColumn::PeakGdiObjects: text.Format(L"%d ", px.GetPeakGdiObjects()); break;
-		case ProcessColumn::PeakUserObjects: text.Format(L"%d ", px.GetPeakUserObjects()); break;
-		case ProcessColumn::Elevated: return px.IsElevated() ? L"Yes" : L"No";
-		case ProcessColumn::Integrity: return p->Id > 4 ? FormatHelper::IntegrityToString(px.GetIntegrityLevel()) : L"";
-		case ProcessColumn::Virtualized: return p->Id > 4 ? VirtualizationStateToString(px.GetVirtualizationState()) : L"";
-		case ProcessColumn::JobId:
-			if (p->JobObjectId)
-				text.Format(L"%u ", p->JobObjectId);
-			break;
-		case ProcessColumn::WindowTitle: return px.GetWindowTitle();
-		case ProcessColumn::Platform:
-			text.Format(L"%d-bit", px.GetBitness());
-			break;
-		case ProcessColumn::Description: return px.GetDescription();
-		case ProcessColumn::Company: return px.GetCompanyName();
-	}
-
-	return text;
+	return FormatHelper::GetProcessColumnValue((ProcessColumn)col, m_ProcMgr, p.get(), px);
 }
 
 int CProcessesView::GetRowImage(HWND, int row) const {
@@ -404,39 +324,6 @@ void CProcessesView::ShowProperties(int row) {
 	dlg->ShowWindow(SW_SHOW);
 }
 
-CString CProcessesView::ProcessAttributesToString(ProcessAttributes attributes) {
-	CString text;
-
-	static const struct {
-		ProcessAttributes Attribute;
-		PCWSTR Text;
-	} attribs[] = {
-		{ ProcessAttributes::Managed, L"Managed" },
-		{ ProcessAttributes::Immersive, L"Immersive" },
-		{ ProcessAttributes::Protected, L"Protected" },
-		{ ProcessAttributes::Secure, L"Secure" },
-		{ ProcessAttributes::Service, L"Service" },
-		{ ProcessAttributes::InJob, L"Job" },
-		{ ProcessAttributes::Wow64, L"Wow64" },
-	};
-
-	for (auto& item : attribs)
-		if ((item.Attribute & attributes) == item.Attribute)
-			text += CString(item.Text) + ", ";
-	if (!text.IsEmpty())
-		text = text.Mid(0, text.GetLength() - 2);
-	return text;
-}
-
-PCWSTR CProcessesView::VirtualizationStateToString(WinSys::VirtualizationState state) {
-	switch (state) {
-		case VirtualizationState::Disabled: return L"Disabled";
-		case VirtualizationState::Enabled: return L"Enabled";
-		case VirtualizationState::NotAllowed: return L"Not Allowed";
-	}
-	return L"(Unknown)";
-}
-
 ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {
 	auto it = m_ProcessesEx.find(pi);
 	if (it != m_ProcessesEx.end())
@@ -621,8 +508,7 @@ LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
 }
 
 LRESULT CProcessesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
-	GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[m_List.GetSelectedIndex()].get()));
-	return 0;
+	return GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[m_List.GetSelectedIndex()].get()));
 }
 
 LRESULT CProcessesView::OnProperties(WORD, WORD, HWND, BOOL&) {

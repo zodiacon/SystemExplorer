@@ -304,7 +304,7 @@ BEGIN
         BEGIN
             MENUITEM "&Threads",                    ID_PROCESS_THREADS
             MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
-            MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
+            MENUITEM "&Handles",                    ID_PROCESS_HANDLES
             MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
             MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
             MENUITEM SEPARATOR
@@ -322,7 +322,7 @@ BEGIN
         BEGIN
             MENUITEM "&Threads",                    ID_PROCESS_THREADS
             MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
-            MENUITEM "&Handles",                    ID_HANDLES_SHOWHANDLEINPROCESS
+            MENUITEM "&Handles",                    ID_PROCESS_HANDLES
             MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
             MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
             MENUITEM SEPARATOR
@@ -349,6 +349,25 @@ BEGIN
     POPUP "dll"
     BEGIN
         MENUITEM "Open File Location...",       ID_PROCESS_GOTOFILELOCATION
+    END
+    POPUP "driver"
+    BEGIN
+        MENUITEM "Start",                       ID_SERVICE_START
+        MENUITEM "Stop",                        ID_SERVICE_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "Uninstall",                   ID_SERVICE_UNINSTALL
+    END
+    POPUP "processtree"
+    BEGIN
+        MENUITEM "&Threads",                    ID_PROCESS_THREADS
+        MENUITEM "Mo&dules",                    ID_PROCESS_MODULES
+        MENUITEM "&Handles",                    ID_PROCESS_HANDLES
+        MENUITEM "&Memory Map",                 ID_PROCESS_MEMORYMAP
+        MENUITEM "Hea&ps",                      ID_PROCESS_HEAPS
+        MENUITEM SEPARATOR
+        MENUITEM "&Kill",                       ID_PROCESS_KILL
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties...",              ID_EDIT_PROPERTIES
     END
 END
 
@@ -1202,6 +1221,12 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_SYSTEM_PROCESSES     "View all processes\nProcesses"
+    ID_SYSTEM_THREADS       "View all threads\nThreads"
+END
+
+STRINGTABLE
+BEGIN
     ID_HANDLES_SHOWHANDLEINPROCESS 
                             "Show all handles in a selected process\nHandles in Process"
 END
@@ -1228,12 +1253,6 @@ END
 STRINGTABLE
 BEGIN
     ID_EDIT_SECURITY        "Show security properties\nSecurity Properties"
-END
-
-STRINGTABLE
-BEGIN
-    ID_SYSTEM_PROCESSES     "View all processes\nProcesses"
-    ID_SYSTEM_THREADS       "View all threads\nThreads"
 END
 
 #endif    // English (United States) resources

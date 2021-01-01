@@ -1,6 +1,22 @@
 #pragma once
 
-#include "Token.h"
+#include <Token.h>
+#include <ProcessInfo.h>
+#include <ProcessManager.h>
+#include "ProcessInfoEx.h"
+
+enum class ProcessColumn {
+	Name, Id, UserName, Session, CPU, CPUTime, Parent, Priority, PriorityClass, Threads, PeakThreads,
+	Handles, Attributes, ExePath, CreateTime, CommitSize, PeakCommitSize,
+	WorkingSet, PeakWorkingSet, VirtualSize, PeakVirtualSize,
+	PagedPool, PeakPagedPool, NonPagedPool, PeakNonPagedPool,
+	KernelTime, UserTime,
+	IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
+	IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
+	GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized,
+	WindowTitle, Platform, Description, Company,
+	COUNT
+};
 
 struct FormatHelper {
 	static CString TimeSpanToString(int64_t ts);
@@ -16,4 +32,6 @@ struct FormatHelper {
 	static PCWSTR IoPriorityToString(WinSys::IoPriority io);
 	static CString ComFlagsToString(WinSys::ComFlags flags);
 	static PCWSTR ComApartmentToString(WinSys::ComFlags flags);
+	static CString GetProcessColumnValue(ProcessColumn col, const WinSys::ProcessManager& pm, WinSys::ProcessInfo* pi, ProcessInfoEx& px);
+	static CString ProcessAttributesToString(ProcessAttributes attributes);
 };

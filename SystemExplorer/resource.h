@@ -187,7 +187,6 @@
 #define IDC_STARTUP                     1065
 #define IDC_BROWSE                      1066
 #define IDC_BROWSE2                     1067
-#define IDC_SPLIT1                      1068
 #define IDC_ADDSERVICE                  1068
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
@@ -235,14 +234,13 @@
 #define ID_SHOWHANDLESOFTYPE_SECTION    32820
 #define ID_SHOWHANDLESOFTYPE_POWERREQUEST 32821
 #define ID_SHOWHANDLESOFTYPE_WORKERFACTORY 32822
-#define ID_HANDLES_SHOWHANDLEINPROCESS  32823
+#define ID_TAB_NEWWINDOW                32823
 #define ID_HANDLES_PIPES                32824
 #define ID_HANDLES_CLOSEHANDLE          32825
 #define ID_OBJECTS_DRIVERS              32826
 #define ID_WINDOW_CLOSEALLBUTTHIS       32827
 #define ID_OBJECTS_ALLHANDLESFOROBJECT  32828
 #define ID_OPTIONS_ALWAYSONTOP          32829
-#define ID_OBJECT                       32831
 #define ID_TYPE_ALLOBJECTS              32832
 #define ID_TYPE_ALLHANDLES              32833
 #define ID_DESKTOPS_ALLWINDOWS          32837
@@ -267,8 +265,8 @@
 #define ID_PROCESS_MEMORYMAP            32856
 #define ID_PROCESS_THREADS              32857
 #define ID_PROCESS_MODULES              32858
-#define ID_PROCESS_HEAPS                32859
-#define ID_TAB_NEWWINDOW                32860
+#define ID_PROCESS_HANDLES              32859
+#define ID_PROCESS_HEAPS                32860
 #define ID_HEADER_HIDECOLUMN            32861
 #define ID_HEADER_COLUMNS               32862
 #define ID_HANDLES_NAMEDOBJECTSONLY     32863
@@ -283,7 +281,6 @@
 #define ID_PRIORITYCLASS_HIGH           32872
 #define ID_PRIORITYCLASS_REALTIME       32873
 #define ID_PROCESS_GOTOFILELOCATION     32874
-#define ID_TAB_DETACH32875              32875
 #define ID_FILE_EXITALL                 32876
 #define ID_PROCESS_ALLOFTHEABOVE        32877
 #define ID_SYSTEM_SEARCH                32878
@@ -303,7 +300,7 @@
 #define ID_UPDATEINTERVAL_2SECONDS      32894
 #define ID_UPDATEINTERVAL_5SECONDS      32895
 #define ID_UPDATEINTERVAL_10SECONDS     32896
-#define ID_PROCESS_HANDLES              32897
+#define ID_HANDLES_SHOWHANDLEINPROCESS  32897
 #define ID_PROCESS_DETAILS              32898
 #define ID_PROCESS_KILLBYNAME           32899
 #define ID_SYSTEM_PROCESSTREE           32900

@@ -26,6 +26,7 @@ public:
 	void OnPauseResume(bool paused);
 
 	BEGIN_MSG_MAP(CProcessesView)
+		CHAIN_MSG_MAP(CCustomDraw<CProcessesView>)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED, OnItemStateChanged)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnListRightClick)
@@ -33,7 +34,6 @@ public:
 		COMMAND_ID_HANDLER(ID_HEADER_COLUMNS, OnSelectColumns)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
 		COMMAND_RANGE_HANDLER(ID_PROCESS_MEMORYMAP, ID_PROCESS_HEAPS, OnProcessItem)
-		COMMAND_ID_HANDLER(ID_HANDLES_SHOWHANDLEINPROCESS, OnProcessItem)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILL, OnProcessKill)
 		COMMAND_ID_HANDLER(ID_PROCESS_KILLBYNAME, OnProcessKillByName)
 		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnCopyRow)
@@ -44,7 +44,6 @@ public:
 		COMMAND_RANGE_HANDLER(ID_PRIORITYCLASS_IDLE, ID_PRIORITYCLASS_REALTIME, OnPriorityClass)
 		CHAIN_MSG_MAP(CViewBase<CProcessesView>)
 		CHAIN_MSG_MAP(CVirtualListView<CProcessesView>)
-		CHAIN_MSG_MAP(CCustomDraw<CProcessesView>)
 	END_MSG_MAP()
 
 private:
@@ -69,22 +68,6 @@ private:
 	void ShowProperties(int row);
 	ProcessInfoEx& GetProcessInfoEx(WinSys::ProcessInfo* pi) const;
 	void GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const;
-	static CString ProcessAttributesToString(ProcessAttributes attributes);
-	static PCWSTR VirtualizationStateToString(WinSys::VirtualizationState state);
-
-private:
-	enum class ProcessColumn {
-		Name, Id, UserName, Session, CPU, CPUTime, Parent, Priority, PriorityClass, Threads, PeakThreads,
-		Handles, Attributes, ExePath, CreateTime, CommitSize, PeakCommitSize,
-		WorkingSet, PeakWorkingSet, VirtualSize, PeakVirtualSize,
-		PagedPool, PeakPagedPool, NonPagedPool, PeakNonPagedPool,
-		KernelTime, UserTime,
-		IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
-		IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
-		GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized, 
-		WindowTitle, Platform, Description, Company,
-		COUNT
-	};
 
 private:
 	std::vector<std::shared_ptr<WinSys::ProcessInfo>> m_Processes;

@@ -148,7 +148,7 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		index = m_List.GetSelectedIndex();
 		if (index >= 0) {
 			auto item = (NMITEMACTIVATE*)hdr;
-			hSubMenu = menu.GetSubMenu(6);
+			hSubMenu = menu.GetSubMenu(m_ViewServices ? 6 : 10);
 			pt = item->ptAction;
 			m_List.ClientToScreen(&pt);
 			UpdateUI(GetFrame()->GetUpdateUI());
@@ -410,14 +410,15 @@ int CServicesView::ServiceStatusToImage(ServiceState state) {
 }
 
 PCWSTR CServicesView::ServiceStateToString(ServiceState state) {
+	using enum ServiceState;
 	switch (state) {
-		case ServiceState::Running: return L"Running";
-		case ServiceState::Stopped: return L"Stopped";
-		case ServiceState::Paused: return L"Paused";
-		case ServiceState::StartPending: return L"Start Pending";
-		case ServiceState::ContinuePending: return L"Continue Pending";
-		case ServiceState::StopPending: return L"Stop Pending";
-		case ServiceState::PausePending: return L"Pause Pending";
+		case Running: return L"Running";
+		case Stopped: return L"Stopped";
+		case Paused: return L"Paused";
+		case StartPending: return L"Start Pending";
+		case ContinuePending: return L"Continue Pending";
+		case StopPending: return L"Stop Pending";
+		case PausePending: return L"Pause Pending";
 	}
 	return L"Unknown";
 }
@@ -426,11 +427,12 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 	CString type;
 
 	switch (config.StartType) {
-		case ServiceStartType::Boot: type = L"Boot"; break;
-		case ServiceStartType::System: type = L"System"; break;
-		case ServiceStartType::Auto: type = L"Automatic"; break;
-		case ServiceStartType::Demand: type = L"Manual"; break;
-		case ServiceStartType::Disabled: type = L"Disabled"; break;
+		using enum ServiceStartType;
+		case Boot: type = L"Boot"; break;
+		case System: type = L"System"; break;
+		case Auto: type = L"Automatic"; break;
+		case Demand: type = L"Manual"; break;
+		case Disabled: type = L"Disabled"; break;
 	}
 
 	if (config.DelayedAutoStart)
@@ -442,28 +444,29 @@ CString CServicesView::ServiceStartTypeToString(const ServiceConfiguration& conf
 }
 
 CString CServicesView::ServiceControlsAcceptedToString(ServiceControlsAccepted accepted) {
-	if (accepted == ServiceControlsAccepted::None)
+	using enum ServiceControlsAccepted;
+	if (accepted == None)
 		return L"(None)";
 
 	static struct {
 		ServiceControlsAccepted type;
 		PCWSTR text;
 	} types[] = {
-		{ ServiceControlsAccepted::Stop, L"Stop" },
-		{ ServiceControlsAccepted::PauseContinue, L"Pause, Continue" },
-		{ ServiceControlsAccepted::Shutdown, L"Shutdown" },
-		{ ServiceControlsAccepted::ParamChange, L"Param Change" },
-		{ ServiceControlsAccepted::NetBindChange, L"NET Bind Change" },
-		{ ServiceControlsAccepted::HardwareProfileChange, L"Hardware Profile Change" },
-		{ ServiceControlsAccepted::PowerEvent, L"Power Event" },
-		{ ServiceControlsAccepted::SessionChange, L"Session Change" },
-		{ ServiceControlsAccepted::Preshutdown, L"Pre Shutdown" },
-		{ ServiceControlsAccepted::TimeChanged, L"Time Change" },
-		{ ServiceControlsAccepted::TriggerEvent, L"Trigger Event" },
-		{ ServiceControlsAccepted::UserLogOff, L"User Log off" },
-		{ ServiceControlsAccepted::LowResources, L"Low Resources" },
-		{ ServiceControlsAccepted::SystemLowResources, L"System Low Resources" },
-		{ ServiceControlsAccepted::InternalReserved, L"(Internal)" },
+		{ Stop, L"Stop" },
+		{ PauseContinue, L"Pause, Continue" },
+		{ Shutdown, L"Shutdown" },
+		{ ParamChange, L"Param Change" },
+		{ NetBindChange, L"NET Bind Change" },
+		{ HardwareProfileChange, L"Hardware Profile Change" },
+		{ PowerEvent, L"Power Event" },
+		{ SessionChange, L"Session Change" },
+		{ Preshutdown, L"Pre Shutdown" },
+		{ TimeChanged, L"Time Change" },
+		{ TriggerEvent, L"Trigger Event" },
+		{ UserLogOff, L"User Log off" },
+		{ LowResources, L"Low Resources" },
+		{ SystemLowResources, L"System Low Resources" },
+		{ InternalReserved, L"(Internal)" },
 	};
 
 	CString text;
@@ -476,34 +479,34 @@ CString CServicesView::ServiceControlsAcceptedToString(ServiceControlsAccepted a
 	return text;
 }
 
-CString CServicesView::ErrorControlToString(WinSys::ServiceErrorControl ec) {
-	using namespace WinSys;
+CString CServicesView::ErrorControlToString(ServiceErrorControl ec) {
+	using enum ServiceErrorControl;
 
 	switch (ec) {
-		case ServiceErrorControl::Normal: return L"Normal (1)";
-		case ServiceErrorControl::Ignore: return L"Ignore (0)";
-		case ServiceErrorControl::Critical: return L"Critical (3)";
-		case ServiceErrorControl::Severe: return L"Severe (2)";
+		case Normal: return L"Normal (1)";
+		case Ignore: return L"Ignore (0)";
+		case Critical: return L"Critical (3)";
+		case Severe: return L"Severe (2)";
 	}
 	ATLASSERT(false);
 	return L"";
 }
 
 CString CServicesView::ServiceTypeToString(WinSys::ServiceType type) {
-	using namespace WinSys;
+	using enum ServiceType;
 
 	static struct {
 		ServiceType type;
 		PCWSTR text;
 	} types[] = {
-		{ ServiceType::KernelDriver, L"Kernel Driver" },
-		{ ServiceType::FileSystemDriver, L"FS/Filter Driver" },
-		{ ServiceType::Win32OwnProcess, L"Own" },
-		{ ServiceType::Win32SharedProcess, L"Shared" },
-		{ ServiceType::InteractiveProcess, L"Interactive" },
-		{ ServiceType::UserService, L"User" },
-		{ ServiceType::UserServiceInstance, L"Instance" },
-		{ ServiceType::PackageService, L"Packaged" },
+		{ KernelDriver, L"Kernel Driver" },
+		{ FileSystemDriver, L"FS/Filter Driver" },
+		{ Win32OwnProcess, L"Own" },
+		{ Win32SharedProcess, L"Shared" },
+		{ InteractiveProcess, L"Interactive" },
+		{ UserService, L"User" },
+		{ UserServiceInstance, L"Instance" },
+		{ PackageService, L"Packaged" },
 	};
 
 	CString text;
@@ -592,15 +595,16 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 PCWSTR CServicesView::TriggerToText(const WinSys::ServiceTrigger& trigger) {
 	using namespace WinSys;
 	switch (trigger.Type) {
-		case ServiceTriggerType::Custom: return L"Custom";
-		case ServiceTriggerType::DeviceInterfaceArrival: return L"Device Arrival";
-		case ServiceTriggerType::DomainJoin: return L"Domain Join";
-		case ServiceTriggerType::FirewallPortEvent: return L"Firewall Port Event";
-		case ServiceTriggerType::GroupPolicy: return L"Group Policy";
-		case ServiceTriggerType::IpAddressAvailability: return L"IP Address Availability";
-		case ServiceTriggerType::NetworkEndpoint: return L"Network Endpoint";
-		case ServiceTriggerType::SystemStateChanged: return L"System State Changed";
-		case ServiceTriggerType::Aggregate: return L"Aggregate";
+		using enum ServiceTriggerType;
+		case Custom: return L"Custom";
+		case DeviceInterfaceArrival: return L"Device Arrival";
+		case DomainJoin: return L"Domain Join";
+		case FirewallPortEvent: return L"Firewall Port Event";
+		case GroupPolicy: return L"Group Policy";
+		case IpAddressAvailability: return L"IP Address Availability";
+		case NetworkEndpoint: return L"Network Endpoint";
+		case SystemStateChanged: return L"System State Changed";
+		case Aggregate: return L"Aggregate";
 	}
 	ATLASSERT(false);
 	return L"";

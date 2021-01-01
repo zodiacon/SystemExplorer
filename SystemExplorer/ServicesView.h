@@ -43,6 +43,7 @@ public:
 		COMMAND_ID_HANDLER(ID_EDIT_PROPERTIES, OnServiceProperties)
 		COMMAND_ID_HANDLER(ID_SERVICE_UNINSTALL, OnServiceDelete)
 		COMMAND_RANGE_HANDLER(ID_PROCESS_MEMORYMAP, ID_PROCESS_HEAPS, OnProcessItem)
+		COMMAND_ID_HANDLER(ID_PROCESS_ALLOFTHEABOVE, OnProcessItem)
 		CHAIN_MSG_MAP(CVirtualListView<CServicesView>)
 		CHAIN_MSG_MAP(CViewBase<CServicesView>)
 	END_MSG_MAP()
@@ -62,6 +63,7 @@ private:
 	LRESULT OnServiceDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessProperties(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnProcessItem(WORD, WORD id, HWND, BOOL&);
+	LRESULT OnProcessAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
 	bool CompareItems(const WinSys::ServiceInfo& s1, const WinSys::ServiceInfo& s2, int col, bool asc);
