@@ -98,13 +98,14 @@ struct ProcessManager::Impl {
 		auto map = _processesById;
 		for (auto& p : _processes) {
 			auto it = _processesById.find(p->ParentId);
-			if (p->ParentId == 0 || it == _processesById.end() || it->second->CreateTime > p->CreateTime) {
+			if (p->ParentId == 0 || it == _processesById.end() || (it != _processesById.end() && it->second->CreateTime > p->CreateTime)) {
 				// root
+				DbgPrint((PSTR)"Root: %ws (%u) (Parent: %u)\n", p->GetImageName().c_str(), p->Id, p->ParentId);
 				tree.push_back(std::make_pair(p, 0));
 				map.erase(p->Id);
 				if (p->Id == 0)
 					continue;
-				auto children = FindChildren(map, p->Id, 1);
+				auto children = FindChildren(map, p.get(), 1);
 				for (auto& child : children)
 					tree.push_back(std::make_pair(_processesById[child.first], child.second));
 			}
@@ -112,13 +113,13 @@ struct ProcessManager::Impl {
 		return tree;
 	}
 
-	std::vector<std::pair<uint32_t, int>> FindChildren(decltype(_processesById)& map, uint32_t pid, int indent) {
+	std::vector<std::pair<uint32_t, int>> FindChildren(decltype(_processesById)& map, ProcessInfo* parent, int indent) {
 		std::vector<std::pair<uint32_t, int>> children;
 		for (auto& p : _processes) {
-			if (p->ParentId == pid) {
+			if (p->ParentId == parent->Id && p->CreateTime > parent->CreateTime) {
 				children.push_back(std::make_pair(p->Id, indent));
 				map.erase(p->Id);
-				auto children2 = FindChildren(map, p->Id, indent + 1);
+				auto children2 = FindChildren(map, p.get(), indent + 1);
 				children.insert(children.end(), children2.begin(), children2.end());
 			}
 		}

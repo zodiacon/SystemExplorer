@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "ClipboardHelper.h"
 
-
 bool ClipboardHelper::CopyText(HWND hWnd, PCWSTR text) {
 	if (::OpenClipboard(hWnd)) {
 		::EmptyClipboard();
