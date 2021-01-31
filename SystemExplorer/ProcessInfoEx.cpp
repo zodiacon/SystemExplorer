@@ -3,6 +3,7 @@
 #include "DriverHelper.h"
 #include <ProcessInfo.h>
 #include <Helpers.h>
+#include <shellscalingapi.h>
 
 #pragma comment(lib, "Version.lib")
 
@@ -196,6 +197,17 @@ const CString& ProcessInfoEx::GetCompanyName() const {
 		_companyChecked = true;
 	}
 	return _company;
+}
+
+DpiAwareness ProcessInfoEx::GetDpiAwareness() const {
+	static const auto pGetProcessDpiAware = (decltype(::GetProcessDpiAwareness)*)::GetProcAddress(::GetModuleHandle(L"shcore"), "GetProcessDpiAwareness");
+
+	if (!_process || pGetProcessDpiAware == nullptr)
+		return DpiAwareness::None;
+
+	DpiAwareness da = DpiAwareness::None;
+	pGetProcessDpiAware(_process->GetHandle(), reinterpret_cast<PROCESS_DPI_AWARENESS*>(&da));
+	return da;
 }
 
 CString ProcessInfoEx::GetVersionObject(const CString& name) const {

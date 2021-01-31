@@ -17,6 +17,13 @@ enum class ProcessAttributes {
 };
 DEFINE_ENUM_FLAG_OPERATORS(ProcessAttributes);
 
+enum class DpiAwareness {
+	None = DPI_AWARENESS_UNAWARE,
+	System = DPI_AWARENESS_SYSTEM_AWARE,
+	PerMonitor = DPI_AWARENESS_PER_MONITOR_AWARE,
+	Unknown = 0xff
+};
+
 class ProcessInfoEx {
 public:
 	ProcessInfoEx(WinSys::ProcessInfo* pi);
@@ -40,6 +47,7 @@ public:
 	std::wstring GetCurrentDirectory() const;
 	const CString& GetDescription() const;
 	const CString& GetCompanyName() const;
+	DpiAwareness GetDpiAwareness() const;
 
 	CString GetVersionObject(const CString& name) const;
 

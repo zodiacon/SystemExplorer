@@ -14,7 +14,7 @@ enum class ProcessColumn {
 	IoPriority, MemoryPriority, CommandLine, PackageFullName, JobId,
 	IoReadBytes, IoWriteBytes, IoOtherBytes, IoReads, IoWrites, IoOther,
 	GDIObjects, UserObjects, PeakGdiObjects, PeakUserObjects, Integrity, Elevated, Virtualized,
-	WindowTitle, Platform, Description, Company,
+	WindowTitle, Platform, Description, Company, DpiAwareness,
 	COUNT
 };
 
@@ -34,4 +34,5 @@ struct FormatHelper {
 	static PCWSTR ComApartmentToString(WinSys::ComFlags flags);
 	static CString GetProcessColumnValue(ProcessColumn col, const WinSys::ProcessManager& pm, WinSys::ProcessInfo* pi, ProcessInfoEx& px);
 	static CString ProcessAttributesToString(ProcessAttributes attributes);
+	static PCWSTR DpiAwarenessToString(DpiAwareness da);
 };

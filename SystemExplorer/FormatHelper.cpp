@@ -304,6 +304,7 @@ CString FormatHelper::GetProcessColumnValue(ProcessColumn col, const WinSys::Pro
 			break;
 		case ProcessColumn::Description: return px.GetDescription();
 		case ProcessColumn::Company: return px.GetCompanyName();
+		case ProcessColumn::DpiAwareness: return FormatHelper::DpiAwarenessToString(px.GetDpiAwareness());
 	}
 
 	return text;
@@ -331,4 +332,13 @@ CString FormatHelper::ProcessAttributesToString(ProcessAttributes attributes) {
 	if (!text.IsEmpty())
 		text = text.Mid(0, text.GetLength() - 2);
 	return text;
+}
+
+PCWSTR FormatHelper::DpiAwarenessToString(DpiAwareness da) {
+	switch (da) {
+		case DpiAwareness::None: return L"None";
+		case DpiAwareness::System: return L"System";
+		case DpiAwareness::PerMonitor: return L"Per Monitor";
+	}
+	return L"Unknown";
 }

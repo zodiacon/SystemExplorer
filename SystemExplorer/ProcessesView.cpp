@@ -85,6 +85,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
 			case ProcessColumn::Description: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
 			case ProcessColumn::Company: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCompanyName(), GetProcessInfoEx(p2.get()).GetCompanyName(), asc);
+			case ProcessColumn::DpiAwareness: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetDpiAwareness(), GetProcessInfoEx(p2.get()).GetDpiAwareness(), asc);
 		}
 		return false;
 		});
@@ -222,6 +223,8 @@ LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	cm->AddColumn(L"Platform", LVCFMT_LEFT, 60, ColumnFlags::Const);
 	cm->AddColumn(L"Description", LVCFMT_LEFT, 250, ColumnFlags::Const | ColumnFlags::Visible);
 	cm->AddColumn(L"Company Name", LVCFMT_LEFT, 150, ColumnFlags::Const | ColumnFlags::Visible);
+	cm->AddColumn(L"DPI Awareness", LVCFMT_LEFT, 80, ColumnFlags::None);
+
 	cm->UpdateColumns();
 
 	Refresh();
