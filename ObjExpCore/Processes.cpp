@@ -238,11 +238,9 @@ bool Process::IsManaged() const {
 		PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, 0))
 		return false;
 
-	WCHAR filename[MAX_PATH], sysPath[MAX_PATH];
+	WCHAR filename[MAX_PATH];
 	BOOL wow64 = FALSE;
 	::IsWow64Process(hProcess.get(), &wow64);
-	::GetSystemDirectory(sysPath, MAX_PATH);
-	::wcscat_s(sysPath, L"\\mscoree.dll");
 
 	HMODULE hModule[64];
 	DWORD needed;
@@ -254,8 +252,9 @@ bool Process::IsManaged() const {
 	for (int i = 0; i < count; i++) {
 		if (::GetModuleFileNameEx(hProcess.get(), hModule[i], filename, MAX_PATH) == 0)
 			continue;
-		if (::_wcsicmp(filename, sysPath) == 0)
-			return true;
+			auto bs = ::wcsrchr(filename, L'\\');
+			if (bs && (::_wcsicmp(bs, L"\\clr.dll") == 0 || ::_wcsicmp(bs, L"\\coreclr.dll") == 0 || ::_wcsicmp(bs, L"\\mscorwks.dll") == 0))
+				return true;
 	}
 	return false;
 }

@@ -440,8 +440,11 @@ bool ObjectManager::GetObjectInfo(ObjectInfo* info, HANDLE hObject, ULONG pid, U
 
 CString ObjectManager::GetObjectName(HANDLE hObject, ULONG pid, USHORT type) const {
 	auto hDup = DriverHelper::DupHandle(hObject, pid, 0);
-	auto name = GetObjectName(hDup, type);
-	::CloseHandle(hDup);
+	CString name;
+	if(hDup) {
+		name = GetObjectName(hDup, type);
+		::CloseHandle(hDup);
+	}
 	return name;
 }
 

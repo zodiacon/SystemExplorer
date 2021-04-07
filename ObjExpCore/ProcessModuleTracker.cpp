@@ -17,7 +17,7 @@ struct ProcessModuleTracker::Impl {
 	BOOL _isWow64;
 
 	explicit Impl(DWORD pid) : _pid(pid) {
-		_handle.reset(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid));
+		_handle.reset(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pid));
 		if (_handle)
 			::IsWow64Process(_handle.get(), &_isWow64);
 	}

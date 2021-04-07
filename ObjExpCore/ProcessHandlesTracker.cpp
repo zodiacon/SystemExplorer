@@ -12,7 +12,7 @@ bool HandleEntryInfo::operator==(const HandleEntryInfo& other) const {
 template<>
 struct std::hash<HandleEntryInfo> {
 	size_t operator()(const HandleEntryInfo& key) const {
-		return (size_t)key.HandleValue;
+		return (size_t)key.HandleValue ^ (key.ObjectTypeIndex << 16);
 	}
 };
 
