@@ -5,11 +5,11 @@
 
 using namespace WinSys;
 
-CSysInfoView::CSysInfoView(IMainFrame* frame) : CViewBase(frame), m_Items{
+CSysInfoView::CSysInfoView(IMainFrame* frame) : CViewBase(frame), m_CpuCount(::GetActiveProcessorCount(ALL_PROCESSOR_GROUPS)), m_Items{
 	ItemData(RowType::Version, L"Windows Version", ItemDataFlags::Const | ItemDataFlags::Special),
 	ItemData(RowType::BootTime, L"Boot Time", ItemDataFlags::Const | ItemDataFlags::Time | ItemDataFlags::Special),
 	ItemData(RowType::TotalRAM, L"Usable RAM", ItemDataFlags::Const | ItemDataFlags::Special),
-	ItemData(RowType::TotalCPUs, L"Processor Count", &m_BasicSysInfo.NumberOfProcessors, &m_BasicSysInfo.NumberOfProcessors, ItemDataFlags::Bits32 | ItemDataFlags::Const),
+	ItemData(RowType::TotalCPUs, L"Processor Count", &m_CpuCount, &m_CpuCount, ItemDataFlags::Bits32 | ItemDataFlags::Const),
 	ItemData(RowType::Processes, L"Processes", &m_PerfInfo.ProcessCount, &m_OldPerfInfo.ProcessCount, ItemDataFlags::Bits32),
 	ItemData(RowType::Threads, L"Threads", &m_PerfInfo.ThreadCount, &m_OldPerfInfo.ThreadCount, ItemDataFlags::Bits32),
 	ItemData(RowType::Handles, L"Handles", &m_PerfInfo.HandleCount, &m_OldPerfInfo.HandleCount, ItemDataFlags::Bits32),

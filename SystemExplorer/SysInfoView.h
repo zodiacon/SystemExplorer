@@ -85,6 +85,7 @@ private:
 	PERFORMANCE_INFORMATION m_PerfInfo{};
 	WinSys::PerformanceInformation m_OldSysPerfInfo{};
 	PERFORMANCE_INFORMATION m_OldPerfInfo{};
+	DWORD m_CpuCount;
 };
 
 DEFINE_ENUM_FLAG_OPERATORS(CSysInfoView::ItemDataFlags);

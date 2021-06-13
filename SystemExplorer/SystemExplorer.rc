@@ -995,7 +995,7 @@ BEGIN
             VALUE "FileDescription", "System Explorer"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SystemExplorer"
-            VALUE "LegalCopyright", "© 2019-2021 Pavel Yosifovich. All Rights Rserved."
+            VALUE "LegalCopyright", "© 2019-2021 Pavel Yosifovich. All Rights Reserved."
             VALUE "OriginalFilename", "SysExp.exe"
             VALUE "ProductName", "System Explorer"
             VALUE "ProductVersion", "0, 9, 1, 0"

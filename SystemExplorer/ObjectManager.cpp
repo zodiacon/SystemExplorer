@@ -217,7 +217,7 @@ bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid, bool namedObjectsOnly) {
 		if (filteredTypeIndex >= 0 && handle.ObjectTypeIndex != filteredTypeIndex)
 			continue;
 
-		// skip Object Explorer process?
+		// skip System Explorer process?
 		if (_skipThisProcess && handle.UniqueProcessId == ::GetCurrentProcessId())
 			continue;
 
