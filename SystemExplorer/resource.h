@@ -305,13 +305,16 @@
 #define ID_PROCESS_KILLBYNAME           32899
 #define ID_SYSTEM_PROCESSTREE           32900
 #define ID_SERVICE_PROCESSPROPERTIES    32901
+#define ID_SYSTEM_SCHEDULEDTASKS        32902
+#define ID_SYSTEM_WMINAMESPACE          32903
+#define ID_SYSTEM_WMI                   32904
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        332
-#define _APS_NEXT_COMMAND_VALUE         32902
+#define _APS_NEXT_COMMAND_VALUE         32905
 #define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

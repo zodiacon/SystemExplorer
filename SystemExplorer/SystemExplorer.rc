@@ -167,6 +167,8 @@ BEGIN
         MENUITEM "&Kernel Modules",             ID_SYSTEM_KERNELMODULES
         MENUITEM "&COM",                        ID_SYSTEM_COM
         MENUITEM "&Logon Sessions",             ID_SYSTEM_LOGONSESSIONS
+        MENUITEM "Sc&heduled Tasks",            ID_SYSTEM_SCHEDULEDTASKS
+        MENUITEM "&WMI",                        ID_SYSTEM_WMI
         MENUITEM "Information",                 ID_SYSTEM_INFORMATION
         MENUITEM SEPARATOR
         MENUITEM "&Install Service/Driver...",  ID_SYSTEM_INSTALLSERVICE

@@ -28,9 +28,12 @@ bool Sid::IsValid() const {
 
 std::wstring Sid::AsString() const {
 	PWSTR str;
-	if (::ConvertSidToStringSid((PSID)*this, &str))
-		return str;
-	return L"";
+	std::wstring result;
+	if (::ConvertSidToStringSid((PSID)*this, &str)) {
+		result = str;
+		::LocalFree(str);
+	}
+	return result;
 }
 
 std::wstring Sid::UserName(PSID_NAME_USE use) const {
