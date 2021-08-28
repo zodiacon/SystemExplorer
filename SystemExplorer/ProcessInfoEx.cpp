@@ -45,7 +45,10 @@ ProcessAttributes ProcessInfoEx::GetAttributes(const WinSys::ProcessManager& pm)
 
 const std::wstring& ProcessInfoEx::GetExecutablePath() const {
 	if (_executablePath.empty() && _pi->Id != 0) {
-		const auto& path = _pi->GetNativeImagePath();
+		auto path = _pi->GetNativeImagePath();
+		if (path.empty() && _process){
+			path = _process->GetFullImageName();
+		}
 		if (path[0] == L'\\')
 			_executablePath = WinSys::Helpers::GetDosNameFromNtName(path.c_str());
 		if (_executablePath.empty() && path.substr(0, 8) == L"\\Device\\")

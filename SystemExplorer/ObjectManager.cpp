@@ -2,6 +2,7 @@
 #include "ObjectManager.h"
 #include "DriverHelper.h"
 #include "NtDll.h"
+#include <VersionHelpers.h>
 
 #pragma pack(push, 1)
 typedef struct _GDI_HANDLE_ENTRY {
@@ -61,6 +62,10 @@ int ObjectManager::EnumTypes() {
 	_totalHandles = _totalObjects = 0;
 
 	for (ULONG i = 0; i < count; i++) {
+		if (!IsWindows8OrGreater()) {
+			// TypeIndex is only supported since Win8. Uses the fake index for previous OS.
+			raw->TypeIndex = static_cast<decltype(raw->TypeIndex)>(i);
+		}
 		auto type = empty ? std::make_shared<ObjectTypeInfo>() : _typesMap[raw->TypeIndex];
 		if (empty) {
 			type->GenericMapping = raw->GenericMapping;

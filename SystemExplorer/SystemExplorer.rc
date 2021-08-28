@@ -1122,9 +1122,11 @@ END
 //
 // BIN
 //
-
+#ifdef _DEBUG
+IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
+#else
 IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
-
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //

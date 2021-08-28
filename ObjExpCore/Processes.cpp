@@ -199,7 +199,8 @@ bool Process::Resume() {
 }
 
 bool Process::IsImmersive() const noexcept {
-	return IsWindows8OrGreater() && ::IsImmersiveProcess(_handle.get()) ? true : false;
+	static const auto pIsImmersiveProcess = (decltype(::IsImmersiveProcess)*)::GetProcAddress(::GetModuleHandle(L"user32"), "IsImmersiveProcess");
+	return pIsImmersiveProcess && pIsImmersiveProcess(_handle.get()) ? true : false;
 }
 
 bool Process::IsProtected() const {
