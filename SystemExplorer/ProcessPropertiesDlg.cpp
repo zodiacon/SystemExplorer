@@ -34,7 +34,7 @@ void CProcessPropertiesDlg::InitProcess() {
 	SetDlgItemInt(IDC_PID, pi->Id);
 	auto& path = m_px.GetExecutablePath();
 	bool imagePath = false;
-	if (path[1] == L':') {
+	if (!path.empty() && path[1] == L':') {
 		imagePath = true;
 		SetDlgItemText(IDC_PATH, path.c_str());
 	}
