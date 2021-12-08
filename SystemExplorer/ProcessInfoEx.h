@@ -18,10 +18,10 @@ enum class ProcessAttributes {
 DEFINE_ENUM_FLAG_OPERATORS(ProcessAttributes);
 
 enum class DpiAwareness {
+	Unknown = -1,
 	None = DPI_AWARENESS_UNAWARE,
 	System = DPI_AWARENESS_SYSTEM_AWARE,
 	PerMonitor = DPI_AWARENESS_PER_MONITOR_AWARE,
-	Unknown = 0xff
 };
 
 class ProcessInfoEx {
