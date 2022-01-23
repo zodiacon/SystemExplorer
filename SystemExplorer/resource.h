@@ -2,10 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by SystemExplorer.rc
 //
-#define IDD_ABOUTBOX                    100
-#define IDD_SEARCHBAR                   103
-#define IDD_PROCESS_PROPERTIES          107
 #define IDR_MAINFRAME                   128
+#define IDD_ABOUTBOX                    200
+#define IDD_SEARCHBAR                   153
+#define IDD_PROCESS_PROPERTIES          157
 #define IDS_TITLE                       129
 #define IDR_DRIVER                      202
 #define IDI_JOB                         203

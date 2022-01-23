@@ -190,7 +190,7 @@ void CWindowsView::InitTree() {
 	else {
 		m_ObjMgr.EnumHandlesAndObjects(L"Desktop");
 		for (auto& obj : m_ObjMgr.GetObjects()) {
-			auto root = m_Tree.InsertItem(obj->Name.IsEmpty() ? CString(L"(Unnamed)") : obj->Name, 0, 0, TVI_ROOT, TVI_LAST);
+			auto root = m_Tree.InsertItem(obj->Name.IsEmpty() ? CString(L"(Unnamed)") : obj->Name, 0, 0, TVI_ROOT, TVI_SORT);
 			if (root && !obj->Handles.empty()) {
 				auto hDesktop = ObjectManager::DupHandle(obj.get(), DESKTOP_ENUMERATE);
 				if (hDesktop) {

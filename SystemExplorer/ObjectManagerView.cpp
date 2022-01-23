@@ -182,7 +182,7 @@ void CObjectManagerView::InitTree() {
 	m_Tree.LockWindowUpdate();
 	m_Tree.DeleteAllItems();
 
-	auto root = m_Tree.InsertItem(L"\\", 1, 0, TVI_ROOT, TVI_LAST);
+	auto root = m_Tree.InsertItem(L"\\", 1, 0, TVI_ROOT, TVI_SORT);
 	EnumDirectory(root, L"\\");
 	root.SortChildren(TRUE);
 	root.Expand(TVE_EXPAND);

@@ -41,7 +41,7 @@ LRESULT CDeviceManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(m_Toolbar);
 
-	m_hWndClient = m_Splitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, WS_EX_CLIENTEDGE);
+	m_hWndClient = m_Splitter.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0);
 
 	m_List.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL);
@@ -120,7 +120,7 @@ void CDeviceManagerView::Refresh() {
 			// add new device class
 			auto name = DeviceManager::GetDeviceClassDescription(&guid);
 			int image = DeviceManager::GetClassImageIndex(&guid);
-			auto hClass = m_Tree.InsertItem(name.c_str(), image, image, root, TVI_LAST);
+			auto hClass = m_Tree.InsertItem(name.c_str(), image, image, root, TVI_SORT);
 			m_DeviceClasses.insert({ hClass, guid });
 			devClasses.insert({ guid, hClass });
 		}
@@ -131,13 +131,11 @@ void CDeviceManagerView::Refresh() {
 			image = m_Tree.GetImageList().AddIcon(hIcon);
 		else
 			m_Tree.GetItemImage(hClass, image, image);
-		auto hItem = m_Tree.InsertItem(di.Description.c_str(), image, image, hClass, TVI_LAST);
-		m_Tree.SortChildren(hClass);
+		auto hItem = m_Tree.InsertItem(di.Description.c_str(), image, image, hClass, TVI_SORT);
 		m_Tree.SetItemData(hItem, (DWORD_PTR)&di);
 	}
 
 	root.Expand(TVE_EXPAND);
-	root.SortChildren();
 
 	m_Tree.LockWindowUpdate(FALSE);
 }

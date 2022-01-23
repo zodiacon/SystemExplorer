@@ -143,7 +143,7 @@ void CProcessTreeView::DoRefresh() {
 
 		if(indent > currentIndent) {
 			ATLASSERT(indent == currentIndent + 1);
-			node = m_Tree.InsertItem(text, icon, icon, indent == 0 ? TVI_ROOT : node.m_hTreeItem, TVI_LAST);
+			node = m_Tree.InsertItem(text, icon, icon, indent == 0 ? TVI_ROOT : node.m_hTreeItem, TVI_SORT);
 			node.SetData(p->Id);
 			currentIndent = indent;
 		}
@@ -152,7 +152,7 @@ void CProcessTreeView::DoRefresh() {
 				node = node.GetParent();
 				currentIndent--;
 			}
-			node = m_Tree.InsertItem(text, icon, icon, indent == 0 ? TVI_ROOT : node.GetParent().m_hTreeItem, TVI_LAST);
+			node = m_Tree.InsertItem(text, icon, icon, indent == 0 ? TVI_ROOT : node.GetParent().m_hTreeItem, TVI_SORT);
 			node.SetData(p->Id);
 		}
 		else {
