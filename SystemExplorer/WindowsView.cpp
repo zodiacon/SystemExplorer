@@ -195,7 +195,7 @@ void CWindowsView::InitTree() {
 				auto hDesktop = ObjectManager::DupHandle(obj.get(), DESKTOP_ENUMERATE);
 				if (hDesktop) {
 					CString text;
-					for (auto h : ObjectManager::EnumDsktopWindows(hDesktop)) {
+					for (auto h : ObjectManager::EnumDsktopWindows((HDESK)hDesktop)) {
 						InsertWindow(h, (HTREEITEM)root);
 					}
 					::CloseHandle(hDesktop);

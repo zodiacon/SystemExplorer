@@ -372,7 +372,7 @@ int64_t ObjectManager::GetTotalObjects() {
 	return _totalObjects;
 }
 
-std::vector<HWND> ObjectManager::EnumDsktopWindows(HANDLE hDesktop) {
+std::vector<HWND> ObjectManager::EnumDsktopWindows(HDESK hDesktop) {
 	std::vector<HWND> windows;
 	windows.reserve(128);
 

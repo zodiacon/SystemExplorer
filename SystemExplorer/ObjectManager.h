@@ -109,7 +109,7 @@ public:
 
 	static int64_t GetTotalHandles();
 	static int64_t GetTotalObjects();
-	static std::vector<HWND> EnumDsktopWindows(HANDLE hDesktop);
+	static std::vector<HWND> EnumDsktopWindows(HDESK hDesktop);
 	static std::vector<HWND> EnumChildWindows(HWND hWnd);
 	static std::vector<GdiObject> EnumGdiObjects(DWORD pid);
 

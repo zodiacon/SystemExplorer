@@ -425,13 +425,13 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 			m_StatusBar.SetText(1, text);
 			text.Format(L"Threads: %u", pi.ThreadCount);
 			m_StatusBar.SetText(2, text);
-			text.Format(L"Commit: %d / %d GB", ROUND_MEM(pi.CommitTotal), ROUND_MEM(pi.CommitLimit));
+			text.Format(L"Commit: %u / %u GB", ROUND_MEM(pi.CommitTotal), ROUND_MEM(pi.CommitLimit));
 			m_StatusBar.SetText(3, text);
-			text.Format(L"RAM Avail: %d / %d GB", ROUND_MEM(pi.PhysicalAvailable), ROUND_MEM(pi.PhysicalTotal));
+			text.Format(L"RAM Avail: %u / %u GB", ROUND_MEM(pi.PhysicalAvailable), ROUND_MEM(pi.PhysicalTotal));
 			m_StatusBar.SetText(4, text);
-			text.Format(L"Kernel Paged: %u MB", pi.KernelPaged >> 8);
+			text.Format(L"Kernel Paged: %llu MB", pi.KernelPaged >> 8);
 			m_StatusBar.SetText(5, text);
-			text.Format(L"Kernel NP: %u MB", pi.KernelNonpaged >> 8);
+			text.Format(L"Kernel NP: %llu MB", pi.KernelNonpaged >> 8);
 			m_StatusBar.SetText(6, text);
 		}
 		if (ObjectManager::GetStats(stats)) {
@@ -1035,7 +1035,7 @@ HWND CMainFrame::CreateAndAddThreadsView(const CString& name, DWORD pid) {
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	ATLASSERT(hWnd);
 	CString title;
-	title.Format(L"Threads (%s: %u)", name, pid);
+	title.Format(L"Threads (%s: %u)", (PCWSTR)name, pid);
 	m_view.AddPage(*view, title, m_Icons[(int)IconType::Threads], view);
 
 	return hWnd;
@@ -1050,7 +1050,7 @@ HWND CMainFrame::CreateAndAddModulesView(const CString& name, DWORD pid) {
 	}
 	else {
 		CString title;
-		title.Format(L"Modules (%s: %u)", name, pid);
+		title.Format(L"Modules (%s: %u)", (PCWSTR)name, pid);
 		m_view.AddPage(*view, title, m_Icons[(int)IconType::Modules], (IView*)view);
 	}
 	return hWnd;
@@ -1064,7 +1064,7 @@ HWND CMainFrame::CreateAndAddMemoryMapView(const CString& name, DWORD pid) {
 	}
 	else {
 		CString title;
-		title.Format(L"Memory (%s: %u)", name, pid);
+		title.Format(L"Memory (%s: %u)", (PCWSTR)name, pid);
 		m_view.AddPage(*view, title, m_Icons[(int)IconType::Memory], (IView*)view);
 	}
 	return hWnd;
@@ -1074,7 +1074,7 @@ HWND CMainFrame::CreateAndAddHandlesView(const CString& name, DWORD pid) {
 	auto pView = new CHandlesView(this, nullptr, pid);
 	auto hWnd = pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
 	CString title;
-	title.Format(L"Handles (%s: %d)", name, pid);
+	title.Format(L"Handles (%s: %d)", (PCWSTR)name, pid);
 	m_view.AddPage(pView->m_hWnd, title, m_Icons[(int)IconType::Handles], pView);
 	return hWnd;
 }
@@ -1141,7 +1141,7 @@ LRESULT CMainFrame::OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 }
 
 LRESULT CMainFrame::SendMessageToAllFrames(bool excludeCurrent, UINT msg, WPARAM wParam, LPARAM lParam) {
-	return LRESULT();
+	return 0;
 }
 
 LRESULT CMainFrame::OnViewProcessTree(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
