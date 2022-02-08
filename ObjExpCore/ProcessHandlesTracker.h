@@ -3,7 +3,7 @@
 namespace WinSys {
 	struct HandleEntryInfo {
 		HANDLE HandleValue;
-		uint32_t ObjectTypeIndex;
+		uint16_t ObjectTypeIndex;
 
 		bool operator==(const HandleEntryInfo& other) const;
 	};
