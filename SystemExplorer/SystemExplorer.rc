@@ -997,7 +997,7 @@ BEGIN
             VALUE "FileDescription", "System Explorer"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "SystemExplorer"
-            VALUE "LegalCopyright", "© 2019-2021 Pavel Yosifovich. All Rights Reserved."
+            VALUE "LegalCopyright", "© 2019-2022 Pavel Yosifovich. All Rights Reserved."
             VALUE "OriginalFilename", "SysExp.exe"
             VALUE "ProductName", "System Explorer"
             VALUE "ProductVersion", "0, 9, 1, 0"
@@ -1122,11 +1122,9 @@ END
 //
 // BIN
 //
-#ifdef _DEBUG
-IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
-#else
+
 IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
-#endif
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -30,4 +30,5 @@ void ProcessInfo::AddThread(std::shared_ptr<ThreadInfo> thread) {
 
 void ProcessInfo::ClearThreads() {
 	_threads.clear();
+	_threads.reserve(16);
 }

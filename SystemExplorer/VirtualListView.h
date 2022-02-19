@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ColumnManager.h"
+#include "ListViewHelper.h"
 
 enum class ListViewRowCheck {
 	None,
@@ -192,19 +193,72 @@ protected:
 		auto len = ::wcslen(text);
 		auto list = fi->hdr.hwndFrom;
 
-		if (ListView_GetSelectedCount(list) == 0)
-			return -1;
-
-		int selected = ListView_GetNextItem(list, -1, LVIS_SELECTED);
+		int selected = fi->iStart;
 		int start = selected + 1;
 		int count = ListView_GetItemCount(list);
-		WCHAR name[256];
-		for (int i = start; i < count + start; i++) {
+		WCHAR name[128]{};
+		if (len >= _countof(name))
+			len = _countof(name) - 1;
+		int end = (fi->lvfi.flags & LVFI_WRAP) ? (count + start) : count;
+		bool partial = fi->lvfi.flags & (LVFI_PARTIAL | LVFI_SUBSTRING);
+		for (int i = start; i < end; i++) {
 			ListView_GetItemText(list, i % count, 0, name, _countof(name));
-			if (::_wcsnicmp(name, text, len) == 0)
-				return i % count;
+			if (partial) {
+				if (::_wcsnicmp(name, text, len) == 0)
+					return i % count;
+			}
+			else {
+				if (::_wcsicmp(name, text) == 0)
+					return i % count;
+			}
 		}
 		return -1;
+	}
+
+	void Sort(SortInfo const* si, bool ensureVisible = false) {
+		ATLASSERT(si);
+
+		CListViewCtrl list(si->hWnd);
+		auto header = list.GetHeader();
+
+		auto selected = list.GetSelectedIndex();
+		int count = header.GetItemCount();
+		std::vector<CString> selectedText;
+		if (selected >= 0) {
+			//list.SetItemState(selected, LVIS_SELECTED, 0);
+			CString text;
+			for (int i = 0; i < count; i++) {
+				list.GetItemText(selected, i, text);
+				selectedText.push_back(text);
+			}
+		}
+		static_cast<T*>(this)->DoSort(si);
+		if (selected >= 0) {
+			selected = -1;
+			int start = -1, i, n;
+			CString text;
+			while ((n = list.FindItem(selectedText[0], false, false, start)) >= 0) {
+				for (i = 1; i < count; i++) {
+					if (list.GetItemText(n, i, text) && text != selectedText[i]) {
+						break;
+					}
+				}
+				if (i == count) {
+					selected = n;
+					break;
+				}
+				start = n;
+			}
+
+		}
+		if (selected >= 0) {
+			if (ensureVisible) {
+				list.EnsureVisible(selected, FALSE);
+				//list.SetSelectionMark(selected);
+			}
+			//list.SetItemState(-1, 0, LVIS_SELECTED);
+			list.SetItemState(selected, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+		}
 	}
 
 	LRESULT OnColumnClick(int /*idCtrl*/, LPNMHDR hdr, BOOL& /*bHandled*/) {
@@ -223,6 +277,8 @@ protected:
 			m_Controls.push_back(s);
 			si = m_Controls.data() + m_Controls.size() - 1;
 		}
+		CListViewCtrl list(hdr->hwndFrom);
+		auto header = list.GetHeader();
 
 		auto oldSortColumn = si->SortColumn;
 		if (col == si->SortColumn)
@@ -231,9 +287,6 @@ protected:
 			si->SortColumn = col;
 			si->SortAscending = true;
 		}
-
-		CListViewCtrl list(hdr->hwndFrom);
-		auto header = list.GetHeader();
 
 		HDITEM h;
 		if (si->RealSortColumn >= 0) {
@@ -256,7 +309,7 @@ protected:
 		//	header.SetItem(oldSortColumn, &h);
 		//}
 
-		static_cast<T*>(this)->DoSort(si);
+		Sort(si);
 		list.RedrawItems(list.GetTopIndex(), list.GetTopIndex() + list.GetCountPerPage());
 
 		return 0;
@@ -264,10 +317,7 @@ protected:
 
 	void Sort(CListViewCtrl list, bool redraw = false) {
 		auto si = GetSortInfo(list);
-		if (si) {
-			static_cast<T*>(this)->DoSort(si);
-			redraw = true;
-		}
+		Sort(si, false);
 		if (redraw)
 			list.RedrawItems(list.GetTopIndex(), list.GetTopIndex() + list.GetCountPerPage());
 	}

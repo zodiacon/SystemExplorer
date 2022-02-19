@@ -107,7 +107,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 	m_List.SetItemCount(count);
 	m_Items = m_ObjectManager.GetObjectTypes();
 
-	SetTimer(1, m_Interval, nullptr);
+	SetTimer(1, m_Interval);
 
 	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_COPY, FALSE);
 

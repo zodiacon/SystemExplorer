@@ -1,6 +1,6 @@
 #pragma once
 
-struct DriverHelper final {
+struct DriverHelper abstract final {
 	static bool LoadDriver(bool load = true);
 	static bool InstallDriver(bool justCopy = false);
 	static bool UpdateDriver();

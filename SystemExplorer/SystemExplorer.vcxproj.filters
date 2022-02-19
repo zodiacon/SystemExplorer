@@ -793,6 +793,9 @@
     <Image Include="res\car.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
+    <Image Include="res\SysExp.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Bin\x64\KObjExp.sys">

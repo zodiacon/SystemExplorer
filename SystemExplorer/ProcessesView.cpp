@@ -35,7 +35,7 @@ void CProcessesView::DoSort(const SortInfo* si) {
 	auto col = si->SortColumn;
 	auto asc = si->SortAscending;
 
-	std::sort(m_Processes.begin(), m_Processes.end(), [=](const auto& p1, const auto& p2) {
+	std::sort(m_Processes.begin(), m_Processes.end(), [&](const auto& p1, const auto& p2) {
 		switch (static_cast<ProcessColumn>(col)) {
 			case ProcessColumn::Name: return SortHelper::SortStrings(p1->GetImageName(), p2->GetImageName(), asc);
 			case ProcessColumn::PackageFullName: return SortHelper::SortStrings(p1->GetPackageFullName(), p2->GetPackageFullName(), asc);
@@ -283,9 +283,9 @@ void CProcessesView::Refresh() {
 	}
 
 	auto si = GetSortInfo(m_List);
-	if (!m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
-		DoSort(si);
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
+	if (si && !m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
+		Sort(si);
 	auto top = m_List.GetTopIndex();
 	m_List.RedrawItems(top, top + m_List.GetCountPerPage());
 }
