@@ -252,6 +252,7 @@
     <ClCompile Include="COMView.cpp" />
     <ClCompile Include="DeviceObjectType.cpp" />
     <ClCompile Include="EnvironmentDlg.cpp" />
+    <ClCompile Include="IListView.cpp" />
     <ClCompile Include="ImageIconCache.cpp" />
     <ClCompile Include="IniFile.cpp" />
     <ClCompile Include="InstallServiceDlg.cpp" />

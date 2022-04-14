@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "IListView.h"
 #include "ListViewHelper.h"
 
 bool ListViewHelper::SaveAll(PCWSTR path, CListViewCtrl& lv, bool includeHeaders) {
@@ -47,4 +48,10 @@ CString ListViewHelper::GetRowAsString(CListViewCtrl& lv, int row, WCHAR separat
 			text += separator;
 	}
 	return text;
+}
+
+IListView* ListViewHelper::GetIListView(HWND hListView) {
+	IListView* p{ nullptr };
+	::SendMessage(hListView, LVM_QUERYINTERFACE, reinterpret_cast<WPARAM>(&__uuidof(IListView)), reinterpret_cast<LPARAM>(&p));
+	return p;
 }

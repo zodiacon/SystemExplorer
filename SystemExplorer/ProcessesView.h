@@ -75,6 +75,7 @@ private:
 	WinSys::ProcessManager m_ProcMgr;
 	HFONT m_hFont;
 	CListViewCtrl m_List;
+	CComPtr<IListView> m_spList;
 	int m_SelectedHeader;
 	bool m_LastTimeCPU{ false };
 };

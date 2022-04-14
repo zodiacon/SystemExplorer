@@ -216,13 +216,15 @@ protected:
 	}
 
 	void Sort(SortInfo const* si, bool ensureVisible = false) {
-		ATLASSERT(si);
+		if (si == nullptr)
+			return;
 
 		CListViewCtrl list(si->hWnd);
 		auto header = list.GetHeader();
 
 		auto selected = list.GetSelectedIndex();
-		int count = header.GetItemCount();
+		// comparing 4 columns should be enough...
+		int count = min(4, header.GetItemCount());
 		std::vector<CString> selectedText;
 		if (selected >= 0) {
 			//list.SetItemState(selected, LVIS_SELECTED, 0);

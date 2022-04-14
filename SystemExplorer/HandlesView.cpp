@@ -18,7 +18,7 @@
 using namespace WinSys;
 
 CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) : CViewBase(pFrame),
-m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
+	m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(DriverHelper::OpenProcess(pid, SYNCHRONIZE));
 	if (pid) {
 		auto hProcess = DriverHelper::OpenProcess(pid, SYNCHRONIZE | PROCESS_QUERY_INFORMATION);

@@ -58,7 +58,7 @@ PCWSTR CLogonSessionsView::LogonTypeToString(WinSys::SecurityLogonType type) {
 		case SecurityLogonType::CachedUnlock: return L"Cached Unlock";
 		case SecurityLogonType::Interactive: return L"Interactive";
 		case SecurityLogonType::Network: return L"Network";
-		case SecurityLogonType::NetworkCleartext: return L"Network Cleartext";
+		case SecurityLogonType::NetworkCleartext: return L"Network Clear text";
 		case SecurityLogonType::NewCredentials: return L"New Credentials";
 		case SecurityLogonType::Proxy: return L"Proxy";
 		case SecurityLogonType::RemoteInteractive: return L"Remote Interactive";

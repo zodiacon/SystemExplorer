@@ -261,6 +261,9 @@
     <ClCompile Include="ServiceInfoEx.cpp">
       <Filter>Models</Filter>
     </ClCompile>
+    <ClCompile Include="IListView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainFrm.h">
