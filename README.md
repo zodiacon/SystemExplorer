@@ -4,10 +4,10 @@ System, processes, threads, objects, handles, services, and more, all in one too
 
 ![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp1.png)
 
-![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysexp2.png)
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp2.png)
 
-![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysexp3.png)
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp3.png)
 
-![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysExp4.png)
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysExp4.png)
 
-![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysexp5.png)
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp5.png)
