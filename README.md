@@ -1,7 +1,8 @@
 # System Explorer
-System, processes, threads, objects, and more, all in one tool
 
-![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysexp1.png)
+System, processes, threads, objects, handles, services, and more, all in one tool!
+
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp1.png)
 
 ![](https://github.com/zodiacon/ObjectExplorer/blob/master/sysexp2.png)
 
