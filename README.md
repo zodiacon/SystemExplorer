@@ -8,6 +8,6 @@ System, processes, threads, objects, handles, services, and more, all in one too
 
 ![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp3.png)
 
-![](https://github.com/zodiacon/SystemExplorer/blob/master/sysExp4.png)
+![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp4.png)
 
 ![](https://github.com/zodiacon/SystemExplorer/blob/master/sysexp5.png)
