@@ -1,5 +1,6 @@
 #include <ntifs.h>
 #include <ntddk.h>
+#include <wdmsec.h>
 #include "KObjExp.h"
 
 #define DRIVER_PREFIX "KObjExp"
@@ -41,7 +42,8 @@ extern "C" HANDLE NTAPI __win32kstub_NtUserOpenWindowStation(
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING) {
 	PDEVICE_OBJECT DeviceObject;
 	UNICODE_STRING devName = RTL_CONSTANT_STRING(L"\\Device\\KObjExp");
-	auto status = IoCreateDevice(DriverObject, 0, &devName, FILE_DEVICE_UNKNOWN, 0, FALSE, &DeviceObject);
+	auto status = IoCreateDeviceSecure(DriverObject, 0, &devName, FILE_DEVICE_UNKNOWN, 0, FALSE,
+		&SDDL_DEVOBJ_SYS_ALL_ADM_ALL, nullptr, &DeviceObject);
 	if (!NT_SUCCESS(status)) {
 		KdPrint((DRIVER_PREFIX "Failed to create device object (0x%X)\n", status));
 		return status;

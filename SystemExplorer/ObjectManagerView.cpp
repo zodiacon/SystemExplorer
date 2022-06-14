@@ -77,7 +77,7 @@ CString CObjectManagerView::GetColumnText(HWND, int row, int col) {
 }
 
 int CObjectManagerView::GetRowImage(HWND, int row) const {
-	return GetFrame()->GetIconIndexByType(m_Objects[row].Type);
+	return Frame()->GetIconIndexByType(m_Objects[row].Type);
 }
 
 void CObjectManagerView::DoFind(const CString& text, DWORD flags) {
@@ -116,7 +116,7 @@ LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_OWNERDATA | LVS_SINGLESEL | LVS_SHAREIMAGELISTS | LVS_SHOWSELALWAYS);
 	m_Tree.Create(m_Splitter, rcDefault, nullptr, WS_CHILD | WS_VISIBLE |  
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS);
-	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(Frame()->GetImageList(), LVSIL_SMALL);
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR | ILC_COLOR32, 2, 0);
 	images.AddIcon(AtlLoadIcon(IDI_FOLDER));

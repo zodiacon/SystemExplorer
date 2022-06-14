@@ -125,7 +125,7 @@ void CModulesView::Refresh() {
 	if (!m_Tracker.IsRunning()) {
 		KillTimer(1);
 		AtlMessageBox(*this, L"Process has terminated", IDS_TITLE, MB_OK | MB_ICONWARNING);
-		GetFrame()->CloseView(*this);
+		Frame()->CloseView(*this);
 		return;
 	}
 	auto first = m_Modules.empty();
@@ -237,7 +237,7 @@ DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 bool CModulesView::OnRightClickList(int row, int col, POINT& pt) {
 	CMenu menu;
 	menu.LoadMenu(IDR_CONTEXT);
-	GetFrame()->TrackPopupMenu(menu.GetSubMenu(9), *this, &pt);
+	Frame()->TrackPopupMenu(menu.GetSubMenu(9), *this, &pt);
 	return true;
 }
 

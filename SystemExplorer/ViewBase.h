@@ -58,7 +58,7 @@ protected:
 
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
 		auto pT = static_cast<T*>(this);
-		auto ui = GetFrame()->GetUpdateUI();
+		auto ui = Frame()->GetUpdateUI();
 		if (activate) {
 			ui->UIEnable(ID_EDIT_FIND, pT->IsFindSupported());
 			ui->UIEnable(ID_EDIT_FIND_NEXT, pT->IsFindSupported());
@@ -125,7 +125,7 @@ protected:
 			pT->SetTimer(1, m_UpdateInterval, nullptr);
 		}
 		pT->OnUpdateIntervalChanged(m_UpdateInterval);
-		GetFrame()->GetUpdateUI()->UISetRadioMenuItem(m_CurrentUpdateId = id, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
+		Frame()->GetUpdateUI()->UISetRadioMenuItem(m_CurrentUpdateId = id, ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS);
 		return 0;
 	}
 
@@ -144,7 +144,7 @@ protected:
 		return FALSE;
 	}
 
-	IMainFrame* GetFrame() const {
+	IMainFrame* Frame() const {
 		return m_pFrame;
 	}
 

@@ -27,7 +27,7 @@ DWORD CComView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto cm = GetColumnManager(m_List);
 	auto real = cm->GetRealColumn(sub);
 	if ((cm->GetColumn((int)real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
-		::SelectObject(cd->hdc, GetFrame()->GetMonoFont());
+		::SelectObject(cd->hdc, Frame()->GetMonoFont());
 	else
 		::SelectObject(cd->hdc, m_hFont);
 

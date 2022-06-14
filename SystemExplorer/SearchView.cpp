@@ -39,7 +39,7 @@ int CSearchView::GetRowImage(HWND, int row) const {
 	if (type == L"DLL")
 		return m_FirstIcon + 1;
 
-	auto icon = GetFrame()->GetIconIndexByType(type);
+	auto icon = Frame()->GetIconIndexByType(type);
 	return icon;
 }
 
@@ -104,7 +104,7 @@ LRESULT CSearchView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.InsertColumn(3, L"PID", LVCFMT_RIGHT, 120);
 	m_List.InsertColumn(4, L"Details", LVCFMT_LEFT, 250);
 
-	CImageList il = GetFrame()->GetImageList();
+	CImageList il = Frame()->GetImageList();
 	CImageList images = il.Duplicate();
 	m_FirstIcon = images.AddIcon(AtlLoadIconImage(IDI_FIND, 0, 16, 16));
 	images.AddIcon(AtlLoadIconImage(IDI_DLL, 0, 16, 16));

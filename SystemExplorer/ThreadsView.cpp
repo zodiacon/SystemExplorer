@@ -146,7 +146,7 @@ DWORD CThreadsView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto cm = GetColumnManager(m_List);
 	auto real = static_cast<ThreadColumn>(cm->GetRealColumn(sub));
 	if ((cm->GetColumn((int)real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
-		::SelectObject(cd->hdc, GetFrame()->GetMonoFont());
+		::SelectObject(cd->hdc, Frame()->GetMonoFont());
 	else
 		::SelectObject(cd->hdc, m_hFont);
 
@@ -235,7 +235,7 @@ void CThreadsView::Refresh() {
 }
 
 void CThreadsView::UpdateUI() {
-	auto ui = GetFrame()->GetUpdateUI();
+	auto ui = Frame()->GetUpdateUI();
 	ui->UISetCheck(ID_VIEW_PAUSE, IsPaused());
 }
 
@@ -344,7 +344,7 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		// right-click header
 		hSubMenu = menu.GetSubMenu(7);
 		m_SelectedHeader = cm->GetRealColumn(index);
-		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
+		Frame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
 			(cm->GetColumn(m_SelectedHeader).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 		headerClick = true;
@@ -360,9 +360,9 @@ LRESULT CThreadsView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 	}
 	if (hSubMenu) {
 		UpdateUI();
-		auto id = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
+		auto id = (UINT)Frame()->TrackPopupMenu(hSubMenu, *this, &pt, TPM_RETURNCMD);
 		if (id) {
-			GetFrame()->SendFrameMessage(WM_COMMAND, id, headerClick ? 0 : reinterpret_cast<LPARAM>(m_Threads[index].get()));
+			Frame()->SendFrameMessage(WM_COMMAND, id, headerClick ? 0 : reinterpret_cast<LPARAM>(m_Threads[index].get()));
 		}
 	}
 	return 0;

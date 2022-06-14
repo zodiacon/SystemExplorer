@@ -81,7 +81,7 @@ LRESULT CProcessTreeView::OnTreeItemDoubleClick(int, LPNMHDR hdr, BOOL&) {
 LRESULT CProcessTreeView::OnTreeItemChanged(int, LPNMHDR hdr, BOOL&) {
 	m_SelectedProcess = m_ProcMgr.GetProcessById((uint32_t)m_Tree.GetSelectedItem().GetData());
 	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
-	auto ui = GetFrame()->GetUpdateUI();
+	auto ui = Frame()->GetUpdateUI();
 	ui->UIEnable(ID_EDIT_PROPERTIES, TRUE);
 
 	return 0;
@@ -101,7 +101,7 @@ LRESULT CProcessTreeView::OnRightClick(int, LPNMHDR hdr, BOOL& handled) {
 		m_Tree.SelectItem(item);
 		CMenu menu;
 		menu.LoadMenu(IDR_CONTEXT);
-		auto cmd = (UINT)GetFrame()->TrackPopupMenu(menu.GetSubMenu(11), nullptr, nullptr, TPM_RETURNCMD);
+		auto cmd = (UINT)Frame()->TrackPopupMenu(menu.GetSubMenu(11), nullptr, nullptr, TPM_RETURNCMD);
 		if (cmd)
 			PostMessage(WM_COMMAND, cmd);
 	}
@@ -167,7 +167,7 @@ void CProcessTreeView::DoRefresh() {
 }
 
 LRESULT CProcessTreeView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
-	return GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(GetSelectedProcess()));
+	return Frame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(GetSelectedProcess()));
 }
 
 LRESULT CProcessTreeView::OnProcessProperties(WORD, WORD id, HWND, BOOL&) {

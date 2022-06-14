@@ -140,7 +140,7 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 		hSubMenu = menu.GetSubMenu(7);
 		auto cm = GetColumnManager(m_List);
 		m_SelectedHeader = cm->GetRealColumn(index);
-		GetFrame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
+		Frame()->GetUpdateUI()->UIEnable(ID_HEADER_HIDECOLUMN,
 			(cm->GetColumn(m_SelectedHeader).Flags & ColumnFlags::Mandatory) == ColumnFlags::None);
 		pt = pt2;
 	}
@@ -151,11 +151,11 @@ LRESULT CServicesView::OnListRightClick(int, LPNMHDR hdr, BOOL&) {
 			hSubMenu = menu.GetSubMenu(m_ViewServices ? 6 : 10);
 			pt = item->ptAction;
 			m_List.ClientToScreen(&pt);
-			UpdateUI(GetFrame()->GetUpdateUI());
+			UpdateUI(Frame()->GetUpdateUI());
 		}
 	}
 	if (hSubMenu) {
-		auto cmd = (UINT)GetFrame()->TrackPopupMenu(hSubMenu, nullptr, &pt, TPM_RETURNCMD);
+		auto cmd = (UINT)Frame()->TrackPopupMenu(hSubMenu, nullptr, &pt, TPM_RETURNCMD);
 		if (cmd)
 			PostMessage(WM_COMMAND, cmd);
 	}
@@ -619,7 +619,7 @@ LRESULT CServicesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
 	auto pid = svc.GetStatusProcess().ProcessId;
 	if (pid) {
 		auto pi = m_ProcMgr.GetProcessById(svc.GetStatusProcess().ProcessId);
-		GetFrame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(pi.get()));
+		Frame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(pi.get()));
 	}
 	else {
 		AtlMessageBox(*this, L"Service is not running", IDS_TITLE, MB_ICONWARNING);

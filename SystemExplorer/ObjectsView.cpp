@@ -168,7 +168,7 @@ LRESULT CObjectsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto& c : columns)
 		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(Frame()->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -182,7 +182,7 @@ LRESULT CObjectsView::OnDestroy(UINT, WPARAM, LPARAM, BOOL&) {
 LRESULT CObjectsView::OnContextMenu(int, LPNMHDR hdr, BOOL&) {
 	auto lv = (NMITEMACTIVATE*)hdr;
 	CMenu menu = AtlLoadMenu(IDR_CONTEXT);
-	GetFrame()->TrackPopupMenu(menu.GetSubMenu(2), *this);
+	Frame()->TrackPopupMenu(menu.GetSubMenu(2), *this);
 	return FALSE;
 }
 
@@ -204,8 +204,8 @@ LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	ATLASSERT(m_List.GetSelectedIndex() >= 0);
 	auto& item = GetItem(m_List.GetSelectedIndex());
 	CObjectHandlesDlg dlg(item.get(), m_ProcMgr);
-	CImageList il = GetFrame()->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(GetFrame()->GetIconIndexByType(item->TypeName)));
+	CImageList il = Frame()->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(Frame()->GetIconIndexByType(item->TypeName)));
 
 	return 0;
 }
@@ -309,5 +309,5 @@ CString CObjectsView::GetColumnText(HWND, int row, int col) {
 }
 
 int CObjectsView::GetRowImage(HWND, int row) const {
-	return GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Objects[row]->TypeIndex)->TypeName);
+	return Frame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Objects[row]->TypeIndex)->TypeName);
 }

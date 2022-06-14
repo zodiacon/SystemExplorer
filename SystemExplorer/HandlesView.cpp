@@ -108,7 +108,7 @@ CString CHandlesView::GetColumnText(HWND, int row, int col) {
 }
 
 int CHandlesView::GetRowImage(HWND, int row) const {
-	return GetFrame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Handles[row]->ObjectTypeIndex)->TypeName);
+	return Frame()->GetIconIndexByType((PCWSTR)m_ObjMgr.GetType(m_Handles[row]->ObjectTypeIndex)->TypeName);
 }
 
 void CHandlesView::ShowObjectProperties(int row) const {
@@ -195,7 +195,7 @@ LRESULT CHandlesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto& c : columns)
 		m_List.InsertColumn(i++, c.Header, c.Format, c.Width);
 
-	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(Frame()->GetImageList(), LVSIL_SMALL);
 
 	Refresh();
 
@@ -229,7 +229,7 @@ LRESULT CHandlesView::OnItemChanged(int, LPNMHDR, BOOL&) {
 LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
 	CMenu menu;
 	menu.LoadMenuW(IDR_CONTEXT);
-	GetFrame()->TrackPopupMenu(menu.GetSubMenu(0), *this);
+	Frame()->TrackPopupMenu(menu.GetSubMenu(0), *this);
 
 	return 0;
 }
@@ -350,8 +350,8 @@ LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto& item = m_Handles[m_List.GetSelectedIndex()];
 	ATLASSERT(item->ObjectInfo);
 	CObjectHandlesDlg dlg(item->ObjectInfo, m_ProcMgr);
-	CImageList il = GetFrame()->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(GetFrame()->GetIconIndexByType(item->ObjectInfo->TypeName)));
+	CImageList il = Frame()->GetImageList();
+	dlg.DoModal(*this, (LPARAM)il.GetIcon(Frame()->GetIconIndexByType(item->ObjectInfo->TypeName)));
 
 	return 0;
 }
@@ -401,7 +401,7 @@ void CHandlesView::Refresh() {
 	if (m_hProcess && ::WaitForSingleObject(m_hProcess.get(), 0) == WAIT_OBJECT_0) {
 		KillTimer(1);
 		AtlMessageBox(*this, (L"Process " + std::to_wstring(m_Pid) + L" is no longer running.").c_str(), IDS_TITLE, MB_OK | MB_ICONWARNING);
-		GetFrame()->CloseView(*this);
+		Frame()->CloseView(*this);
 		return;
 	}
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid, m_NamedObjectsOnly);

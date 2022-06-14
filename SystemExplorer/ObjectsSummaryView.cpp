@@ -43,7 +43,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	}
 
 	if((GetColumnManager(m_List)->GetColumn(GetRealColumn(m_List, sub)).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
-		::SelectObject(cd->hdc, (HFONT)GetFrame()->GetMonoFont());
+		::SelectObject(cd->hdc, (HFONT)Frame()->GetMonoFont());
 	else
 		::SelectObject(cd->hdc, m_hFont);
 
@@ -101,7 +101,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 
 	m_List.SetExtendedListViewStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_HEADERDRAGDROP);
 
-	m_List.SetImageList(GetFrame()->GetImageList(), LVSIL_SMALL);
+	m_List.SetImageList(Frame()->GetImageList(), LVSIL_SMALL);
 
 	auto count = m_ObjectManager.EnumTypes();
 	m_List.SetItemCount(count);
@@ -109,7 +109,7 @@ LRESULT CObjectSummaryView::OnCreate(UINT, WPARAM, LPARAM, BOOL &) {
 
 	SetTimer(1, m_Interval);
 
-	GetFrame()->GetUpdateUI()->UIEnable(ID_EDIT_COPY, FALSE);
+	Frame()->GetUpdateUI()->UIEnable(ID_EDIT_COPY, FALSE);
 
 	return 0;
 }
@@ -189,7 +189,7 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 		}
 	}
 	if (lv->item.mask & LVIF_IMAGE) {
-		item.iImage = GetFrame()->GetIconIndexByType(data->TypeName);
+		item.iImage = Frame()->GetIconIndexByType(data->TypeName);
 	}
 	return 0;
 }
@@ -224,7 +224,7 @@ LRESULT CObjectSummaryView::OnSelectionChanged(int, LPNMHDR, BOOL &) {
 }
 
 void CObjectSummaryView::UpdateUI() {
-	auto ui = GetFrame()->GetUpdateUI();
+	auto ui = Frame()->GetUpdateUI();
 	auto count = m_List.GetSelectedCount();
 	ui->UIEnable(ID_EDIT_COPY, count > 0);
 	ui->UIEnable(ID_TYPE_ALLHANDLES, count == 1);
@@ -273,28 +273,28 @@ LRESULT CObjectSummaryView::OnContextMenu(UINT, WPARAM, LPARAM lParam, BOOL&) {
 
 	CMenu menu;
 	menu.LoadMenu(IDR_CONTEXT);
-	GetFrame()->TrackPopupMenu(menu.GetSubMenu(3), *this);
+	Frame()->TrackPopupMenu(menu.GetSubMenu(3), *this);
 
 	return 0;
 }
 
 LRESULT CObjectSummaryView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto item = GetItem(m_List.GetSelectedIndex());
-	GetFrame()->ShowAllHandles(item->TypeName);
+	Frame()->ShowAllHandles(item->TypeName);
 
 	return 0;
 }
 
 LRESULT CObjectSummaryView::OnShowAllObjects(WORD, WORD, HWND, BOOL&) {
 	auto item = GetItem(m_List.GetSelectedIndex());
-	GetFrame()->ShowAllObjects(item->TypeName);
+	Frame()->ShowAllObjects(item->TypeName);
 	
 	return 0;
 }
 
 LRESULT CObjectSummaryView::OnPause(WORD, WORD, HWND, BOOL&) {
 	auto paused = TogglePause();
-	GetFrame()->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, paused);
+	Frame()->GetUpdateUI()->UISetCheck(ID_VIEW_PAUSE, paused);
 
 	return 0;
 }
