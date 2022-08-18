@@ -15,8 +15,8 @@ CString CPipesMailslotsDlg::GetColumnText(HWND, int row, int col) {
 		case 0: return item->Name.Mid(m_Prefix.GetLength());
 		case 1: text.Format(L"0x%p", item->Object); break;
 		case 2: text.Format(L"%u", item->HandleCount); break;
-		case 3: text.Format(L"%u (0x%u)", h->HandleValue, h->HandleValue); break;
-		case 4: text.Format(L"%u (0x%u)", h->ProcessId, h->ProcessId); break;
+		case 3: text.Format(L"%u (0x%X)", h->HandleValue, h->HandleValue); break;
+		case 4: text.Format(L"%u (0x%X)", h->ProcessId, h->ProcessId); break;
 		case 5: return GetProcessName(item.get()).c_str();
 	}
 	return text;
