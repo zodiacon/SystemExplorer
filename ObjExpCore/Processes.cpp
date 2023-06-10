@@ -316,7 +316,7 @@ std::wstring Process::GetCurrentDirectory(HANDLE hProcess) {
 
 std::vector<std::pair<std::wstring, std::wstring>> Process::GetEnvironment(HANDLE hProcess) {
 	std::vector<std::pair<std::wstring, std::wstring>> env;
-
+	
 	PEB peb;
 	if(!GetProcessPeb(hProcess, &peb))
 		return env;

@@ -75,20 +75,14 @@ NTSTATUS ObjExpCreateClose(PDEVICE_OBJECT, PIRP Irp) {
 	auto stack = IoGetCurrentIrpStackLocation(Irp);
 	if (stack->MajorFunction == IRP_MJ_CREATE) {
 		// verify it's System explorer client (very simple at the moment)
-		HANDLE hProcess;
-		status = ObOpenObjectByPointer(PsGetCurrentProcess(), OBJ_KERNEL_HANDLE, nullptr, 0, *PsProcessType, KernelMode, &hProcess);
-		NT_ASSERT(NT_SUCCESS(status));
+		UCHAR buffer[280] = { 0 };
+		status = ZwQueryInformationProcess(NtCurrentProcess(), ProcessImageFileName, buffer, sizeof(buffer) - sizeof(WCHAR), nullptr);
 		if (NT_SUCCESS(status)) {
-			UCHAR buffer[280] = { 0 };
-			status = ZwQueryInformationProcess(hProcess, ProcessImageFileName, buffer, sizeof(buffer) - sizeof(WCHAR), nullptr);
-			if (NT_SUCCESS(status)) {
-				auto path = (UNICODE_STRING*)buffer;
-				auto bs = wcsrchr(path->Buffer, L'\\');
-				NT_ASSERT(bs);
-				if(bs == nullptr || (0 != _wcsicmp(bs, L"\\SysExp.exe") && 0 != _wcsicmp(bs, L"\\ObjExp.exe")))
-					status = STATUS_ACCESS_DENIED;
-			}
-			ZwClose(hProcess);
+			auto path = (UNICODE_STRING*)buffer;
+			auto bs = wcsrchr(path->Buffer, L'\\');
+			NT_ASSERT(bs);
+			if (bs == nullptr || (0 != _wcsicmp(bs, L"\\SysExp.exe") && 0 != _wcsicmp(bs, L"\\ObjExp.exe")))
+				status = STATUS_ACCESS_DENIED;
 		}
 	}
 	Irp->IoStatus.Status = status;
