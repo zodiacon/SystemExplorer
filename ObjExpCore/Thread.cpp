@@ -31,7 +31,7 @@ IoPriority Thread::GetIoPriority() const {
 	return priority;
 }
 
-size_t WinSys::Thread::GetSubProcessTag() const {
+size_t Thread::GetSubProcessTag() const {
 	THREAD_BASIC_INFORMATION tbi;
 	auto status = ::NtQueryInformationThread(_handle, ThreadBasicInformation, &tbi, sizeof(tbi), nullptr);
 	if (!NT_SUCCESS(status))
