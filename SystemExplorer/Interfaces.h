@@ -12,8 +12,8 @@ struct IMainFrame {
 	virtual BOOL TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT* pt = nullptr, UINT flags = 0) = 0;
 	virtual HIMAGELIST GetImageList() = 0;
 	virtual int GetIconIndexByType(PCWSTR type) const = 0;
-	virtual void ShowAllHandles(PCWSTR typename) = 0;
-	virtual void ShowAllObjects(PCWSTR typename) = 0;
+	virtual void ShowAllHandles(PCWSTR type) = 0;
+	virtual void ShowAllObjects(PCWSTR type) = 0;
 	virtual CUpdateUIBase* GetUpdateUI() = 0;
 	virtual CFont& GetMonoFont() = 0;
 	virtual LRESULT SendFrameMessage(UINT msg, WPARAM wParam, LPARAM lParam) = 0;
