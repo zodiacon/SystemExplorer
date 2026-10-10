@@ -60,7 +60,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lps
 	ATLASSERT(SUCCEEDED(hRes));
 
 	CMainFrame::LoadSettings();
-	WTLHelper::InitDarkMode(Settings::Get().DarkMode ? DarkModeKind::Dark : DarkModeKind::Light);
+	// dark or not as the user last chose, and as the system is until then
+	int dark = Settings::Get().DarkMode;
+	if (dark < 0)
+		WTLHelper::InitDarkMode();
+	else
+		WTLHelper::InitDarkMode(dark ? DarkModeKind::Dark : DarkModeKind::Classic);
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 

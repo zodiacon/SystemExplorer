@@ -224,7 +224,7 @@ protected:
 
 		auto selected = list.GetSelectedIndex();
 		// comparing 4 columns should be enough...
-		int count = min(4, header.GetItemCount());
+		int count = std::min(4, header.GetItemCount());
 		std::vector<CString> selectedText;
 		if (selected >= 0) {
 			//list.SetItemState(selected, LVIS_SELECTED, 0);

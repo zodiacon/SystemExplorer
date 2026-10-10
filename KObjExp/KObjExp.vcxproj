@@ -162,6 +162,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSigned|Win32'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <TimeStampServer />
+    <SignMode>Off</SignMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -172,7 +173,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSigned|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <TimeStampServer />
+    <TimeStampServer>https://time.digicert.com</TimeStampServer>
+    <SignMode>Off</SignMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -184,6 +186,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSigned|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <TimeStampServer />
+    <SignMode>Off</SignMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -195,6 +198,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSigned|ARM64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <TimeStampServer />
+    <SignMode>Off</SignMode>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DriverSign>
@@ -220,7 +224,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
-      <Command>signtool sign /sha1 c02e18e443f87954d6ecc7299f97ad2361ab1314 /fd sha256 $(TargetPath)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSigned|x64'">
@@ -235,7 +240,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
-      <Command>signtool sign /sha1 c02e18e443f87954d6ecc7299f97ad2361ab1314 /t http://timestamp.digicert.com /fd sha256 $(TargetPath)</Command>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -259,6 +265,10 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DriverSign>
@@ -294,6 +304,10 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <Link>
@@ -318,6 +332,10 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />

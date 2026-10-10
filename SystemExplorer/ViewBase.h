@@ -4,42 +4,6 @@
 #include "resource.h"
 #include <WTLHelper.h>
 
-namespace ViewBaseHelper {
-	inline BOOL CALLBACK ApplyDarkModeToChild(HWND hWnd, LPARAM lParam) {
-		auto dark = lParam != 0;
-		WCHAR cls[32]{};
-		::GetClassName(hWnd, cls, _countof(cls));
-		if (_wcsicmp(cls, WC_LISTVIEW) == 0) {
-			auto bk = dark ? RGB(32, 32, 32) : ::GetSysColor(COLOR_WINDOW);
-			auto text = dark ? RGB(255, 255, 255) : ::GetSysColor(COLOR_WINDOWTEXT);
-			ListView_SetBkColor(hWnd, bk);
-			ListView_SetTextBkColor(hWnd, bk);
-			ListView_SetTextColor(hWnd, text);
-			::InvalidateRect(hWnd, nullptr, TRUE);
-		}
-		else if (_wcsicmp(cls, WC_TREEVIEW) == 0) {
-			auto bk = dark ? RGB(32, 32, 32) : ::GetSysColor(COLOR_WINDOW);
-			auto text = dark ? RGB(255, 255, 255) : ::GetSysColor(COLOR_WINDOWTEXT);
-			TreeView_SetBkColor(hWnd, bk);
-			TreeView_SetTextColor(hWnd, text);
-			::InvalidateRect(hWnd, nullptr, TRUE);
-		}
-		else if (_wcsicmp(cls, WC_HEADER) == 0) {
-			// Headers embedded in composite controls (e.g. WTLHelper's TreeListView)
-			// aren't reached by WTLHelper's own automatic per-control theming, which
-			// only recognizes direct children of a known class (list/tree view etc.)
-			// and doesn't descend into unrecognized composite containers.
-			WTLHelper::ApplyHeaderTheme(hWnd);
-			::InvalidateRect(hWnd, nullptr, TRUE);
-		}
-		return TRUE;
-	}
-
-	inline void ApplyDarkModeToChildren(HWND hWnd) {
-		::EnumChildWindows(hWnd, ApplyDarkModeToChild, WTLHelper::IsDarkMode() ? 1 : 0);
-	}
-}
-
 template<typename T>
 struct PauseResumeUpdates {
 	PauseResumeUpdates(T* view) : _view(view), _paused(view->IsPaused()) {
@@ -83,8 +47,6 @@ protected:
 		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivate)
 		COMMAND_RANGE_HANDLER(ID_UPDATEINTERVAL_1SECOND, ID_UPDATEINTERVAL_10SECONDS, OnUpdateInterval)
 		MESSAGE_HANDLER(OM_NEW_FRAME, OnNewFrame)
-		MESSAGE_HANDLER(WM_UPDATE_DARKMODE, OnDarkModeUpdated)
-		MESSAGE_HANDLER(WM_SIZE, OnSizeApplyDarkMode)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		CHAIN_MSG_MAP(TBase)
 	END_MSG_MAP()
@@ -95,32 +57,8 @@ protected:
 		return 0;
 	}
 
-	LRESULT OnDarkModeUpdated(UINT, WPARAM, LPARAM, BOOL& bHandled) {
-		ViewBaseHelper::ApplyDarkModeToChildren(static_cast<T*>(this)->m_hWnd);
-		bHandled = FALSE;
-		return 0;
-	}
-
-	//
-	// WM_SIZE reliably fires once the view (and the child list/tree view it
-	// creates in its own WM_CREATE handler) exists and is laid out by the tab
-	// control, regardless of whether tab-activation notifications fire for the
-	// very first page. Applied once; later dark-mode toggles are handled by
-	// OnDarkModeUpdated/OnActivate instead.
-	//
-	LRESULT OnSizeApplyDarkMode(UINT, WPARAM, LPARAM, BOOL& bHandled) {
-		if (!m_DarkModeAppliedOnce) {
-			m_DarkModeAppliedOnce = true;
-			ViewBaseHelper::ApplyDarkModeToChildren(static_cast<T*>(this)->m_hWnd);
-		}
-		bHandled = FALSE;
-		return 0;
-	}
-
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM activate, LPARAM, BOOL&) {
 		auto pT = static_cast<T*>(this);
-		if (activate)
-			ViewBaseHelper::ApplyDarkModeToChildren(pT->m_hWnd);
 		auto ui = Frame()->GetUpdateUI();
 		if (activate) {
 			ui->UIEnable(ID_EDIT_FIND, pT->IsFindSupported());
@@ -266,5 +204,4 @@ private:
 	int m_CurrentUpdateId = ID_UPDATEINTERVAL_1SECOND;
 	int m_UpdateInterval{ 1000 };
 	bool m_Paused{ false };
-	bool m_DarkModeAppliedOnce{ false };
 };

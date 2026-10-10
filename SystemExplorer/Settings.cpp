@@ -15,6 +15,10 @@ void Settings::SetDefaults() {
 	AlwaysOnTop = false;
 }
 
+HighlightColor* Settings::GetProcessColors() {
+	return WTLHelper::IsDarkMode() ? Processes.DarkColors : Processes.Colors;
+}
+
 void Settings::GetCPUColors(int cpu, COLORREF& bk, COLORREF& text) {
 	// The brighter stops in this gradient (orange/yellow/light blue/cyan) are
 	// too glaring against a dark background, so they get muted, darker
@@ -73,10 +77,11 @@ bool Settings::Save(PCWSTR filename) const {
 	file.WriteBool(L"Options", L"AlwaysOnTop", AlwaysOnTop);
 	file.WriteBool(L"Options", L"SingleInstance", SingleInstanceOnly);
 	file.WriteBool(L"Options", L"MinimizeToTray", MinimizeToTray);
-	file.WriteBool(L"Options", L"DarkMode", DarkMode);
+	file.WriteInt(L"Options", L"DarkMode", DarkMode);
 	file.WriteInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 	
-	return SaveColors(filename, L"ProcessColors", Processes.Colors, _countof(Processes.Colors));
+	return SaveColors(filename, L"ProcessColors", Processes.Colors, _countof(Processes.Colors))
+		&& SaveColors(filename, L"ProcessColorsDark", Processes.DarkColors, _countof(Processes.DarkColors));
 }
 
 bool Settings::Load(PCWSTR filename) {
@@ -87,9 +92,11 @@ bool Settings::Load(PCWSTR filename) {
 	AlwaysOnTop = file.ReadBool(L"Options", L"AlwaysOnTop");
 	SingleInstanceOnly = file.ReadBool(L"Options", L"SingleInstance");
 	MinimizeToTray = file.ReadBool(L"Options", L"MinimizeToTray");
-	DarkMode = file.ReadBool(L"Options", L"DarkMode");
+	DarkMode = file.ReadInt(L"Options", L"DarkMode", -1);
 	Processes.UpdateInterval = file.ReadInt(L"ProcessOptions", L"Interval", Processes.UpdateInterval);
 
+	// a settings file from before there were dark colors has none; the dark defaults stay then
+	LoadColors(filename, L"ProcessColorsDark", Processes.DarkColors, _countof(Processes.DarkColors));
 	return LoadColors(filename, L"ProcessColors", Processes.Colors, _countof(Processes.Colors));
 }
 

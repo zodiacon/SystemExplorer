@@ -177,11 +177,15 @@ LRESULT CMainFrame::OnNewWindow(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnProcessColors(WORD, WORD, HWND, BOOL&) {
-	auto& settings = Settings::Get();
-	CColorsSelectionDlg dlg(settings.Processes.Colors, _countof(settings.Processes.Colors));
-	dlg.SetTitle(L"Process Colors");
+	// edits the colors of the current mode; each mode has its own
+	auto colors = Settings::Get().GetProcessColors();
+	const int count = (int)ProcessColorIndex::COUNT;
+	CColorsSelectionDlg dlg(colors, count);
+	dlg.SetTitle(WTLHelper::IsDarkMode() ? L"Process Colors (Dark Mode)" : L"Process Colors (Light Mode)");
 	if (dlg.DoModal() == IDOK) {
-		memcpy(settings.Processes.Colors, dlg.GetColors(), sizeof(settings.Processes.Colors));
+		std::copy_n(dlg.GetColors(), count, colors);
+		for (auto frame : s_Frames)
+			frame->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_ALLCHILDREN);
 	}
 	return 0;
 }
@@ -222,7 +226,7 @@ LRESULT CMainFrame::OnTabContextMenu(int, LPNMHDR hdr, BOOL&) {
 	auto tab = static_cast<int>(hdr->idFrom);
 	POINT pt;
 	::GetCursorPos(&pt);
-	auto cmd = (UINT)::TrackPopupMenu(menu.GetSubMenu(1), TPM_RETURNCMD, pt.x, pt.y, 0, m_hWnd, nullptr);
+	auto cmd = (UINT)TrackPopupMenu(menu.GetSubMenu(1), m_hWnd, &pt, TPM_RETURNCMD);
 	switch (cmd) {
 		case ID_WINDOW_CLOSE:
 			m_view.RemovePage(tab);
@@ -259,7 +263,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	UIAddMenu(hMenu);
 	UIAddMenu(IDR_CONTEXT);
-	InitMenu(hMenu);
 
 	CToolBarCtrl tb;
 	auto hWndToolBar = tb.Create(m_hWnd, nullptr, nullptr, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST, 0, ATL_IDW_TOOLBAR);
@@ -288,7 +291,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
-	UISetCheck(ID_OPTIONS_DARKMODE, Settings::Get().DarkMode);
+	UISetCheck(ID_OPTIONS_DARKMODE, WTLHelper::IsDarkMode());
 	UIEnable(ID_OBJECTS_ALLHANDLESFOROBJECT, FALSE);
 	UIEnable(ID_HANDLES_CLOSEHANDLE, FALSE);
 	UIEnable(ID_EDIT_FIND, FALSE);
@@ -363,14 +366,22 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 			m_Icons[i] = m_TabImages.AddIcon(AtlLoadIconImage(ids[i], 0, 16, 16));
 
 		m_MonoFont.CreatePointFont(95, L"Consolas");
+
+		index = 0;
+		for (auto& icon : icons) {
+			HICON hIcon = nullptr;
+			for (auto& id : icon.id) {
+				if (id == 0)
+					continue;
+				if (!hIcon)
+					hIcon = m_TabImages.GetIcon(index);
+				s_TypeMenuItems.push_back(MenuItemData{ (int)id, 0, hIcon });
+			}
+			index++;
+		}
 	}
 
-	int index = 0;
-	for (auto& icon : icons) {
-		for (auto& id : icon.id)
-			WTLHelper::InitMenu(hMenu, MenuItemData{ (int)id, 0, m_TabImages.GetIcon(index) });
-		index++;
-	}
+	InitMenu(hMenu);
 	m_view.SetImageList(m_TabImages);
 
 	if (s_FrameCount == 1) {
@@ -817,19 +828,26 @@ LRESULT CMainFrame::OnMinimizeToTray(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnToggleDarkMode(WORD, WORD, HWND, BOOL&) {
-	auto& s = Settings::Get();
-	s.DarkMode = !s.DarkMode;
-	UISetCheck(ID_OPTIONS_DARKMODE, s.DarkMode);
-	PostMessage(WM_UPDATE_DARKMODE);
-
+	WTLHelper::SwitchToMode(WTLHelper::IsDarkMode() ? DarkModeKind::Classic : DarkModeKind::Dark, m_hWnd);
+	Settings::Get().DarkMode = WTLHelper::IsDarkMode() ? 1 : 0;
+	for (auto frame : s_Frames) {
+		if (frame != this) {
+			// SwitchToMode re-themes only the window it's given; the mode itself is global
+			DarkMode::setDarkTitleBarEx(*frame, true);
+			DarkMode::setChildCtrlsTheme(*frame);
+			frame->SendMessageToDescendants(WTLHelper::ThemeChangedMessage, 0, static_cast<LPARAM>(WTLHelper::DarkModeType()));
+			frame->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_FRAME);
+		}
+		frame->OnModeSwitched();
+	}
 	return 0;
 }
 
-LRESULT CMainFrame::OnUpdateDarkMode(UINT, WPARAM, LPARAM, BOOL&) {
-	WTLHelper::SwitchToMode(Settings::Get().DarkMode ? DarkModeKind::Dark : DarkModeKind::Light, m_hWnd);
-	SendMessageToDescendants(WM_UPDATE_DARKMODE);
-
-	return 0;
+void CMainFrame::OnModeSwitched() {
+	// the menu icons are bitmaps drawn on the menu's background
+	InitMenu(GetMenu());
+	DrawMenuBar();
+	UISetCheck(ID_OPTIONS_DARKMODE, WTLHelper::IsDarkMode());
 }
 
 LRESULT CMainFrame::OnViewSystemInformation(WORD, WORD, HWND, BOOL&) {
@@ -862,6 +880,7 @@ BOOL CMainFrame::TrackPopupMenu(HMENU hMenu, HWND hWnd, POINT* pt, UINT flags) {
 		pos = *pt;
 	else
 		::GetCursorPos(&pos);
+	InitMenu(hMenu);
 	return ::TrackPopupMenu(hMenu, flags, pos.x, pos.y, 0, m_hWnd, nullptr);
 }
 
@@ -875,6 +894,7 @@ int CMainFrame::GetIconIndexByType(PCWSTR type) const {
 }
 
 void CMainFrame::InitMenu(HMENU hMenu) {
+	static HICON hShieldIcon = SecurityHelper::GetShieldIcon();
 	MenuItemData cmds[] = {
 		{ ID_PROCESS_COLORS, IDI_COLORWHEEL },
 		{ ID_EDIT_COPY, IDI_COPY },
@@ -898,7 +918,7 @@ void CMainFrame::InitMenu(HMENU hMenu) {
 		{ ID_SYSTEM_SERVICES, IDI_SERVICES },
 		{ ID_SYSTEM_DRIVERS, IDI_CAR},
 		{ ID_SYSTEM_INFORMATION, IDI_SYSINFO },
-		{ ID_FILE_RUNASADMINISTRATOR, 0, SecurityHelper::GetShieldIcon() },
+		{ ID_FILE_RUNASADMINISTRATOR, 0, hShieldIcon },
 		{ ID_SERVICE_START, IDI_PLAY },
 		{ ID_SERVICE_STOP, IDI_STOP },
 		{ ID_SERVICE_PAUSE, IDI_PAUSE },
@@ -924,6 +944,8 @@ void CMainFrame::InitMenu(HMENU hMenu) {
 		{ ID_EDIT_PROPERTIES, IDI_PROPERTIES },
 	};
 	WTLHelper::InitMenu(hMenu, cmds, _countof(cmds));
+	if (!s_TypeMenuItems.empty())
+		WTLHelper::InitMenu(hMenu, s_TypeMenuItems.data(), (int)s_TypeMenuItems.size());
 }
 
 #define ID_OBJECTS_OFTYPE 200

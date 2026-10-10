@@ -348,7 +348,7 @@ ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {
 }
 
 void CProcessesView::GetProcessColors(const ProcessInfoEx& px, COLORREF& bk, COLORREF& text) const {
-	auto& colors = Settings::Get().Processes.Colors;
+	auto colors = Settings::Get().GetProcessColors();
 	int i;
 
 	if (colors[i = (int)ProcessColorIndex::DeletedObjects].Enabled && px.IsTerminated) {

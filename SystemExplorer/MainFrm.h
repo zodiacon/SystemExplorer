@@ -10,6 +10,7 @@
 #include "NotifyIcon.h"
 #include <unordered_set>
 #include <NativeCustomTabView.h>
+#include <WTLHelper.h>
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
@@ -102,7 +103,6 @@ public:
 		COMMAND_ID_HANDLER(ID_OPTIONS_SINGLEINSTANCEONLY, OnSingleInstance)
 		COMMAND_ID_HANDLER(ID_OPTIONS_MINIMIZETOTRAY, OnMinimizeToTray)
 		COMMAND_ID_HANDLER(ID_OPTIONS_DARKMODE, OnToggleDarkMode)
-		MESSAGE_HANDLER(WM_UPDATE_DARKMODE, OnUpdateDarkMode)
 
 		COMMAND_ID_HANDLER(ID_GUI_ALLWINDOWSINDEFAULTDESKTOP, OnShowAllWindowsDefaultDesktop)
 		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
@@ -177,7 +177,6 @@ private:
 	LRESULT OnSingleInstance(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnMinimizeToTray(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnToggleDarkMode(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	LRESULT OnUpdateDarkMode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnViewSystemInformation(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewDrivers(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFindReplaceMessage(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& handled);
@@ -190,6 +189,7 @@ private:
 	void ToggleAlwaysOnTop(UINT id);
 	void CloseAllBut(int page);
 	void InitMenu(HMENU hMenu);
+	void OnModeSwitched();
 	void InitToolBar(CToolBarCtrl& tb);
 	bool DetachTab(int index);
 	LRESULT SendMessageToAllFrames(bool excludeCurrent, UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
@@ -202,6 +202,9 @@ private:
 	int m_CurrentPage = -1;
 	inline static CImageListManaged m_TabImages;
 	inline static std::unordered_map<std::wstring, int> m_IconMap;
+	// the Objects/Handles of type menu items, with icons from m_TabImages (kept for the life of the process, as
+	// WTLHelper::InitMenu requires)
+	inline static std::vector<MenuItemData> s_TypeMenuItems;
 	inline static CFont m_MonoFont;
 
 	enum class IconType {

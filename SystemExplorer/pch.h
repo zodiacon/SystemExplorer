@@ -11,6 +11,7 @@
 #define _WIN32_IE	0x0700
 #define _RICHEDIT_VER	0x0500
 #define _HAS_EXCEPTIONS 0
+#define NOMINMAX
 
 #include <atlbase.h>
 #include <atlstr.h>
@@ -28,7 +29,6 @@ extern CAppModule _Module;
 #include <wil\resource.h>
 #include <memory>
 #include <unordered_map>
-#include <vector>
 #include <string>
 #include <TlHelp32.h>
 #include <atltime.h>

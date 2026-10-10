@@ -20,7 +20,7 @@ public:
 	BEGIN_MSG_MAP(CMemoryMapView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnRefresh)
-		MESSAGE_HANDLER(WM_UPDATE_DARKMODE, OnDarkModeChanged)
+		MESSAGE_HANDLER(WTLHelper::ThemeChangedMessage, OnDarkModeChanged)
 		CHAIN_MSG_MAP(CViewBase<CMemoryMapView>)
 	END_MSG_MAP()
 

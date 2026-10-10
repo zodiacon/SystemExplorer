@@ -123,7 +123,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore;..\WTLHelper\WTLHelper</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -204,7 +204,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore;..\WTLHelper\WTLHelper</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -244,7 +244,7 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <AdditionalIncludeDirectories>..\ObjExpCore;..\WTLHelper\WTLHelper</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -275,6 +275,10 @@
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <PostBuildEvent>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -358,7 +362,8 @@
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
     <PostBuildEvent>
-      <Command>signtool sign /a /n Scorpio /t http://timestamp.digicert.com /fd sha256 $(TargetPath)</Command>
+      <Command>signtool sign /sha1 005e539186924dedb83c0aecd2aeeea3044b88b7 /fd sha256 /tr http://timestamp.digicert.com /td sha256 "$(TargetPath)"</Command>
+      <Message>Signing $(TargetFileName) with Scorpio Software LLC certificate</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -630,8 +635,6 @@
     <Image Include="res\window_title.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\x64\ReleaseSigned\KObjExp.sys" />
-    <None Include="..\x64\Release\KObjExp.sys" />
     <None Include="Bin\x64\KObjExp.sys" />
     <None Include="packages.config" />
   </ItemGroup>
