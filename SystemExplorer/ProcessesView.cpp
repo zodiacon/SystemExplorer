@@ -37,6 +37,29 @@ void CProcessesView::DoSort(const SortInfo* si) {
 	auto col = si->SortColumn;
 	auto asc = si->SortAscending;
 
+	// columns queried from the system on each call: each process' value is read once (see SortHelper::SortByKey)
+	auto byNumber = [&](auto get) {
+		SortHelper::SortByKey(m_Processes, [&](const auto& p) { return (int64_t)get(GetProcessInfoEx(p.get())); },
+			[&](int64_t a, int64_t b) { return SortHelper::SortNumbers(a, b, asc); });
+	};
+	auto byString = [&](auto get) {
+		SortHelper::SortByKey(m_Processes, [&](const auto& p) { return CString(get(GetProcessInfoEx(p.get()))); },
+			[&](const CString& a, const CString& b) { return SortHelper::SortStrings(a, b, asc); });
+	};
+	switch (static_cast<ProcessColumn>(col)) {
+		case ProcessColumn::PriorityClass: return byNumber([](ProcessInfoEx& px) { return px.GetPriorityClass(); });
+		case ProcessColumn::MemoryPriority: return byNumber([](ProcessInfoEx& px) { return px.GetMemoryPriority(); });
+		case ProcessColumn::IoPriority: return byNumber([](ProcessInfoEx& px) { return px.GetIoPriority(); });
+		case ProcessColumn::GDIObjects: return byNumber([](ProcessInfoEx& px) { return px.GetGdiObjects(); });
+		case ProcessColumn::UserObjects: return byNumber([](ProcessInfoEx& px) { return px.GetUserObjects(); });
+		case ProcessColumn::PeakGdiObjects: return byNumber([](ProcessInfoEx& px) { return px.GetPeakGdiObjects(); });
+		case ProcessColumn::PeakUserObjects: return byNumber([](ProcessInfoEx& px) { return px.GetPeakUserObjects(); });
+		case ProcessColumn::Integrity: return byNumber([](ProcessInfoEx& px) { return px.GetIntegrityLevel(); });
+		case ProcessColumn::Virtualized: return byNumber([](ProcessInfoEx& px) { return px.GetVirtualizationState(); });
+		case ProcessColumn::DpiAwareness: return byNumber([](ProcessInfoEx& px) { return px.GetDpiAwareness(); });
+		case ProcessColumn::WindowTitle: return byString([](ProcessInfoEx& px) { return px.GetWindowTitle(); });
+	}
+
 	std::sort(m_Processes.begin(), m_Processes.end(), [&](const auto& p1, const auto& p2) {
 		switch (static_cast<ProcessColumn>(col)) {
 			case ProcessColumn::Name: return SortHelper::SortStrings(p1->GetImageName(), p2->GetImageName(), asc);
@@ -44,7 +67,6 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::Id: return SortHelper::SortNumbers(p1->Id, p2->Id, asc);
 			case ProcessColumn::UserName: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).UserName(), GetProcessInfoEx(p2.get()).UserName(), asc);
 			case ProcessColumn::Session: return SortHelper::SortNumbers(p1->SessionId, p2->SessionId, asc);
-			case ProcessColumn::PriorityClass: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetPriorityClass(), GetProcessInfoEx(p2.get()).GetPriorityClass(), asc);
 			case ProcessColumn::CPU: return SortHelper::SortNumbers(p1->CPU, p2->CPU, asc);
 			case ProcessColumn::Parent: return SortHelper::SortNumbers(p1->ParentId, p2->ParentId, asc);
 			case ProcessColumn::CreateTime: return SortHelper::SortNumbers(p1->CreateTime, p2->CreateTime, asc);
@@ -64,8 +86,6 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::PeakPagedPool: return SortHelper::SortNumbers(p1->PeakPagedPoolUsage, p2->PeakPagedPoolUsage, asc);
 			case ProcessColumn::NonPagedPool: return SortHelper::SortNumbers(p1->NonPagedPoolUsage, p2->NonPagedPoolUsage, asc);
 			case ProcessColumn::PeakNonPagedPool: return SortHelper::SortNumbers(p1->PeakNonPagedPoolUsage, p2->PeakNonPagedPoolUsage, asc);
-			case ProcessColumn::MemoryPriority: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetMemoryPriority(), GetProcessInfoEx(p2.get()).GetMemoryPriority(), asc);
-			case ProcessColumn::IoPriority: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetIoPriority(), GetProcessInfoEx(p2.get()).GetIoPriority(), asc);
 			case ProcessColumn::CommandLine: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCommandLine(), GetProcessInfoEx(p2.get()).GetCommandLine(), asc);
 			case ProcessColumn::IoReadBytes: return SortHelper::SortNumbers(p1->ReadTransferCount, p2->ReadTransferCount, asc);
 			case ProcessColumn::IoWriteBytes: return SortHelper::SortNumbers(p1->WriteTransferCount, p2->WriteTransferCount, asc);
@@ -73,21 +93,13 @@ void CProcessesView::DoSort(const SortInfo* si) {
 			case ProcessColumn::IoReads: return SortHelper::SortNumbers(p1->ReadOperationCount, p2->ReadOperationCount, asc);
 			case ProcessColumn::IoWrites: return SortHelper::SortNumbers(p1->WriteOperationCount, p2->WriteOperationCount, asc);
 			case ProcessColumn::IoOther: return SortHelper::SortNumbers(p1->OtherOperationCount, p2->OtherOperationCount, asc);
-			case ProcessColumn::GDIObjects: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetGdiObjects(), GetProcessInfoEx(p2.get()).GetGdiObjects(), asc);
-			case ProcessColumn::UserObjects: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetUserObjects(), GetProcessInfoEx(p2.get()).GetUserObjects(), asc);
-			case ProcessColumn::PeakGdiObjects: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetPeakGdiObjects(), GetProcessInfoEx(p2.get()).GetPeakGdiObjects(), asc);
-			case ProcessColumn::PeakUserObjects: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetPeakUserObjects(), GetProcessInfoEx(p2.get()).GetPeakUserObjects(), asc);
 			case ProcessColumn::KernelTime: return SortHelper::SortNumbers(p1->KernelTime, p2->KernelTime, asc);
 			case ProcessColumn::UserTime: return SortHelper::SortNumbers(p1->UserTime, p2->UserTime, asc);
 			case ProcessColumn::Elevated: return SortHelper::SortBoolean(GetProcessInfoEx(p1.get()).IsElevated(), GetProcessInfoEx(p2.get()).IsElevated(), asc);
-			case ProcessColumn::Integrity: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetIntegrityLevel(), GetProcessInfoEx(p2.get()).GetIntegrityLevel(), asc);
-			case ProcessColumn::Virtualized: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetVirtualizationState(), GetProcessInfoEx(p2.get()).GetVirtualizationState(), asc);
 			case ProcessColumn::JobId: return SortHelper::SortNumbers(p1->JobObjectId, p2->JobObjectId, asc);
-			case ProcessColumn::WindowTitle: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetWindowTitle(), GetProcessInfoEx(p2.get()).GetWindowTitle(), asc);
 			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
 			case ProcessColumn::Description: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
 			case ProcessColumn::Company: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCompanyName(), GetProcessInfoEx(p2.get()).GetCompanyName(), asc);
-			case ProcessColumn::DpiAwareness: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetDpiAwareness(), GetProcessInfoEx(p2.get()).GetDpiAwareness(), asc);
 		}
 		return false;
 		});
@@ -330,9 +342,8 @@ void CProcessesView::UpdateUI() {
 }
 
 void CProcessesView::ShowProperties(int row) {
-	auto& process = m_Processes[row];
-	auto& px = GetProcessInfoEx(process.get());
-	auto dlg = new CProcessPropertiesDlg(m_ProcMgr, px);
+	// the dialog keeps the process' information: this view drops it soon after the process exits
+	auto dlg = new CProcessPropertiesDlg(m_ProcMgr, m_Processes[row]);
 	dlg->Create(::GetAncestor(m_hWnd, GA_ROOT));
 	dlg->ShowWindow(SW_SHOW);
 
@@ -476,19 +487,18 @@ LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
 	if (selected < 0 || selected >= (int)m_Processes.size())
 		return 0;	// toolbar buttons and accelerators work without a selection too
-	auto& p = m_Processes[selected];
+	// a copy, not a reference: the refresh timer keeps running while the message box is up, and reorders and
+	// replaces m_Processes
+	auto p = m_Processes[selected];
+	// opened before asking: the handle is to this very process, even if it exits and its ID is reused meanwhile
+	wil::unique_handle hProcess(DriverHelper::OpenProcess(p->Id, PROCESS_TERMINATE));
 
 	CString text;
 	text.Format(L"Kill process %u (%ws)?", p->Id, p->GetImageName().c_str());
 	if (AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
 		return 0;
 
-	auto hProcess = DriverHelper::OpenProcess(p->Id, PROCESS_TERMINATE);
-	BOOL ok = false;
-	if (hProcess) {
-		ok = ::TerminateProcess(hProcess, 0);
-		::CloseHandle(hProcess);
-	}
+	BOOL ok = hProcess && ::TerminateProcess(hProcess.get(), 0);
 	if (!ok)
 		AtlMessageBox(*this, L"Failed to kill process", IDS_TITLE, MB_ICONERROR);
 
@@ -559,23 +569,26 @@ LRESULT CProcessesView::OnProcessKillByName(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
 	if (selected < 0 || selected >= (int)m_Processes.size())
 		return 0;	// toolbar buttons and accelerators work without a selection too
-	auto& process = m_Processes[selected];
+	auto name = m_Processes[selected]->GetImageName();
 
-	std::vector<DWORD> pids;
-	for (auto& p : m_Processes)
-		if (p->GetImageName() == process->GetImageName())
-			pids.push_back(p->Id);
+	// opened before asking: the handles are to these very processes, even if their IDs are reused meanwhile
+	// (the refresh timer keeps running while the message box is up)
+	std::vector<wil::unique_handle> processes;
+	DWORD count = 0;
+	for (auto& p : m_Processes) {
+		if (p->GetImageName() == name) {
+			count++;
+			processes.emplace_back(DriverHelper::OpenProcess(p->Id, PROCESS_TERMINATE));
+		}
+	}
 
 	CString text;
-	text.Format(L"Kill %u processes named %s?", (DWORD)pids.size(), process->GetImageName().c_str());
+	text.Format(L"Kill %u processes named %s?", count, name.c_str());
 	if (AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONWARNING | MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
 		int killed = 0;
-		for(auto pid : pids) {
-			auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_TERMINATE);
-			if (hProcess && ::TerminateProcess(hProcess, 0))
+		for (auto& hProcess : processes) {
+			if (hProcess && ::TerminateProcess(hProcess.get(), 0))
 				killed++;
-			if (hProcess)
-				::CloseHandle(hProcess);
 		}
 		text.Format(L"Successfully killed %d processes", killed);
 		AtlMessageBox(*this, killed ? (PCWSTR)text : L"Failed to kill processes", IDS_TITLE, MB_ICONINFORMATION);

@@ -111,11 +111,11 @@ void CProcessSelectDlg::EnumProcesses() {
 	WCHAR imagePath[MAX_PATH];
 	for (auto& p : m_ProcMgr.GetProcesses()) {
 		ProcessInfo pi;
-		auto hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, p->Id);
+		wil::unique_handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, p->Id));
 		auto path = p->GetImageName().c_str();
 		if (hProcess) {
 			DWORD size = _countof(imagePath);
-			if (::QueryFullProcessImageName(hProcess, 0, imagePath, &size))
+			if (::QueryFullProcessImageName(hProcess.get(), 0, imagePath, &size))
 				path = imagePath;
 		}
 		auto it = images.find(path);
@@ -125,6 +125,7 @@ void CProcessSelectDlg::EnumProcesses() {
 			HICON hIcon;
 			if (::ExtractIconEx(path, 0, nullptr, &hIcon, 1) == 1) {
 				pi.Image = m_Images.AddIcon(hIcon);
+				::DestroyIcon(hIcon);	// the image list keeps a copy
 				images.insert({ path, pi.Image });
 			}
 			else

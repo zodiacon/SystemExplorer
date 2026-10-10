@@ -10,7 +10,12 @@ class CProcessPropertiesDlg :
 public:
 	enum { IDD = IDD_PROCESS_PROPERTIES };
 
+	// for a modal dialog: px must outlive it
 	CProcessPropertiesDlg(const WinSys::ProcessManager& pm, ProcessInfoEx& px) : m_pm(pm), m_px(px) {}
+	// for a modeless dialog: it keeps the process' information itself, as the view's may go away first (a process'
+	// information is dropped soon after it exits)
+	CProcessPropertiesDlg(const WinSys::ProcessManager& pm, std::shared_ptr<WinSys::ProcessInfo> pi)
+		: m_Process(std::move(pi)), m_OwnPx(std::make_unique<ProcessInfoEx>(m_Process.get())), m_px(*m_OwnPx), m_pm(pm) {}
 	void SetModal(bool modal) {
 		m_Modal = modal;
 	}
@@ -50,6 +55,9 @@ private:
 	LRESULT OnShowJob(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 private:
+	// declared (so initialized) before m_px, which may refer to them
+	std::shared_ptr<WinSys::ProcessInfo> m_Process;
+	std::unique_ptr<ProcessInfoEx> m_OwnPx;
 	ProcessInfoEx& m_px;
 	const WinSys::ProcessManager& m_pm;
 	bool m_Modal{ false };

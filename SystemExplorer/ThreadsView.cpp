@@ -90,6 +90,21 @@ void CThreadsView::DoSort(const SortInfo* si) {
 	auto col = si->SortColumn;
 	auto asc = si->SortAscending;
 
+	// columns queried from the system on each call: each thread's value is read once (see SortHelper::SortByKey)
+	auto byNumber = [&](auto get) {
+		SortHelper::SortByKey(m_Threads, [&](const auto& t) { return (int64_t)get(GetThreadInfoEx(t.get())); },
+			[&](int64_t a, int64_t b) { return SortHelper::SortNumbers(a, b, asc); });
+	};
+	switch (static_cast<ThreadColumn>(col)) {
+		case ThreadColumn::MemoryPriority: return byNumber([](ThreadInfoEx& tx) { return tx.GetMemoryPriority(); });
+		case ThreadColumn::IoPriority: return byNumber([](ThreadInfoEx& tx) { return tx.GetIoPriority(); });
+		case ThreadColumn::ComFlags: return byNumber([](ThreadInfoEx& tx) { return tx.GetComFlags(); });
+		case ThreadColumn::ComApartment:
+			SortHelper::SortByKey(m_Threads, [&](const auto& t) { return CString(FormatHelper::ComApartmentToString(GetThreadInfoEx(t.get()).GetComFlags())); },
+				[&](const CString& a, const CString& b) { return SortHelper::SortStrings(a, b, asc); });
+			return;
+	}
+
 	std::sort(m_Threads.begin(), m_Threads.end(), [&](const auto& t1, const auto& t2) {
 		switch (static_cast<ThreadColumn>(col)) {
 			case ThreadColumn::State: return SortHelper::SortNumbers(t1->ThreadState, t2->ThreadState, asc);
@@ -111,12 +126,6 @@ void CThreadsView::DoSort(const SortInfo* si) {
 			case ThreadColumn::StackLimit: return SortHelper::SortNumbers(t1->StackLimit, t2->StackLimit, asc);
 			case ThreadColumn::ContextSwitches: return SortHelper::SortNumbers(t1->ContextSwitches, t2->ContextSwitches, asc);
 			case ThreadColumn::WaitTime: return SortHelper::SortNumbers(t1->WaitTime, t2->WaitTime, asc);
-			case ThreadColumn::MemoryPriority: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetMemoryPriority(), GetThreadInfoEx(t2.get()).GetMemoryPriority(), asc);
-			case ThreadColumn::IoPriority: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetIoPriority(), GetThreadInfoEx(t2.get()).GetIoPriority(), asc);
-			case ThreadColumn::ComFlags: return SortHelper::SortNumbers(GetThreadInfoEx(t1.get()).GetComFlags(), GetThreadInfoEx(t2.get()).GetComFlags(), asc);
-			case ThreadColumn::ComApartment: return SortHelper::SortStrings(
-				FormatHelper::ComApartmentToString(GetThreadInfoEx(t1.get()).GetComFlags()),
-				FormatHelper::ComApartmentToString(GetThreadInfoEx(t2.get()).GetComFlags()), asc);
 		}
 		return false;
 		});

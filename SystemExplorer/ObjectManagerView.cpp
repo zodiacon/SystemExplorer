@@ -53,17 +53,18 @@ CString CObjectManagerView::GetColumnText(HWND, int row, int col) {
 			auto type = ObjectManager::GetType(data.Type);
 			if (type) {
 				if (type) {
-					HANDLE hObject;
+					HANDLE hObject = nullptr;
 					auto status = ObjectManager::OpenObject(
 						data.FullName, data.Type, &hObject,
 						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
 					if (hObject) {
 						auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
-						if (details) {
+						if (details)
 							text = details->GetDetails(hObject);
-							::CloseHandle(hObject);
+						// closed either way (it was leaked on every repaint for types without details)
+						::CloseHandle(hObject);
+						if (details)
 							return text;
-						}
 					}
 					if (status == STATUS_ACCESS_DENIED)
 						text = L"<access denied>";

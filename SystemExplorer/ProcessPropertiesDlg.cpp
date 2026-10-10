@@ -167,6 +167,8 @@ LRESULT CProcessPropertiesDlg::OnShowJob(WORD, WORD wID, HWND, BOOL&) {
 			if(type == 0)
 				type = hi->ObjectTypeIndex;
 		}
+		else
+			::CloseHandle(hJob);	// another job: this was leaked for every job handle in the system
 		hJob = nullptr;
 	}
 	if(handles.empty()) {

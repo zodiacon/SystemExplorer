@@ -242,7 +242,9 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 	if (selected < 0 || selected >= (int)m_Handles.size())
 		return 0;	// toolbar buttons and accelerators work without a selection too
 
-	auto& item = m_Handles[selected];
+	// a copy, not a reference or an index: the refresh timer keeps running while the message box is up, and
+	// reorders and replaces m_Handles
+	auto item = m_Handles[selected];
 	if (AtlMessageBox(*this, L"Closing a handle can potentially make the process unstable. Continue?",
 		IDR_MAINFRAME, MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
@@ -254,9 +256,14 @@ LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 		return 0;
 	}
 	::CloseHandle(hDup);
-	m_Handles.erase(m_Handles.begin() + selected);
-	m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-	m_List.RedrawItems(selected, selected + m_List.GetCountPerPage());
+	// its row, wherever it is now (if a refresh hasn't replaced the list already)
+	if (auto it = std::find(m_Handles.begin(), m_Handles.end(), item); it != m_Handles.end()) {
+		auto index = static_cast<int>(it - m_Handles.begin());
+		m_DetailsCache.erase(item.get());
+		m_Handles.erase(it);
+		m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		m_List.RedrawItems(index, index + m_List.GetCountPerPage());
+	}
 
 	return 0;
 }
