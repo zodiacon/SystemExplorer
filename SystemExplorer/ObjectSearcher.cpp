@@ -79,7 +79,8 @@ void ObjectSearcher::SearchHandles(const CString& stext) {
 }
 
 void ObjectSearcher::SearchDLLs(const CString& text) {
-	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+	// CreateToolhelp32Snapshot fails with INVALID_HANDLE_VALUE, hence unique_hfile
+	wil::unique_hfile hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
 	if (!hSnapshot)
 		return;
 
@@ -91,7 +92,7 @@ void ObjectSearcher::SearchDLLs(const CString& text) {
 	me.dwSize = sizeof(me);
 
 	while (!_cancelRequested && ::Process32Next(hSnapshot.get(), &pe)) {
-		wil::unique_handle hModules(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pe.th32ProcessID));
+		wil::unique_hfile hModules(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pe.th32ProcessID));
 		if (!hModules)
 			continue;
 

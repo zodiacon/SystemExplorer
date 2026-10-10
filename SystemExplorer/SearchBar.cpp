@@ -35,7 +35,11 @@ LRESULT CSearchBar::OnSearch(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CSearchBar::OnCancel(WORD, WORD, HWND, BOOL&) {
-    ATLASSERT(m_IsSearching);
+    // the search ends early; the view resets this bar when it's notified that the search is done
+    if (m_IsSearching && m_pNotify) {
+        m_pNotify->CancelSearch();
+        GetDlgItem(IDC_CANCEL).EnableWindow(FALSE);
+    }
 
     return 0;
 }

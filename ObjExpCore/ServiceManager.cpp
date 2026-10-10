@@ -189,20 +189,21 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallPar
 
 	auto imagePath = params.ImagePath;
 	if (!params.TargetPath.empty()) {
+		// the file name, with its leading backslash (substr(npos) would throw if the path has no backslash)
 		auto pos = params.ImagePath.rfind(L'\\');
-		auto filename = params.ImagePath.substr(pos);
+		auto filename = pos == std::wstring::npos ? L"\\" + params.ImagePath : params.ImagePath.substr(pos);
 		// copy path to target
 		imagePath = params.TargetPath + filename;
 		if (!::CopyFile(params.ImagePath.c_str(), imagePath.c_str(), FALSE))
 			return nullptr;
 	}
-	WCHAR buffer[512] = { 0 };
-	if (!params.Dependencies.empty()) {
-		::wcscpy_s(buffer, params.Dependencies.c_str());
-		for (auto& ch : buffer)
-			if (ch == L';')
-				ch = L'\0';
-	}
+	// the dependencies, as CreateService wants them: separated by NULs and ending with two (sized to fit, as
+	// wcscpy_s to a fixed buffer aborted the program on a long list)
+	std::vector<WCHAR> buffer(params.Dependencies.size() + 2, L'\0');
+	std::copy(params.Dependencies.begin(), params.Dependencies.end(), buffer.begin());
+	for (auto& ch : buffer)
+		if (ch == L';')
+			ch = L'\0';
 
 	std::wstring account;
 	if (params.AccountName == L"Network Service")
@@ -223,7 +224,7 @@ std::unique_ptr<WinSys::Service> ServiceManager::Install(const ServiceInstallPar
 			imagePath.c_str(),
 			params.LoadOrderGroup.c_str(),
 			nullptr,
-			* buffer == 0 ? nullptr : buffer,
+			buffer[0] == 0 ? nullptr : buffer.data(),
 			account.empty() ? nullptr : account.c_str(),
 			params.Password.empty() ? nullptr : params.Password.c_str()));
 

@@ -89,14 +89,12 @@ void CMemoryMapView::Refresh() {
 	// enum heaps
 	m_Heaps.clear();
 	m_Heaps.reserve(8);
-	wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, m_Pid));
-	if (hSnapshot) {
-		HEAPLIST32 list;
-		list.dwSize = sizeof(list);
-		HEAPENTRY32 entry;
-		entry.dwSize = sizeof(entry);
+	// CreateToolhelp32Snapshot fails with INVALID_HANDLE_VALUE, hence unique_hfile
+	wil::unique_hfile hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, m_Pid));
+	HEAPLIST32 list;
+	list.dwSize = sizeof(list);
+	if (hSnapshot && ::Heap32ListFirst(hSnapshot.get(), &list)) {
 		int index = 1;
-		::Heap32ListFirst(hSnapshot.get(), &list);
 		do {
 			HeapInfo hi;
 			hi.Address = list.th32HeapID;
@@ -185,9 +183,11 @@ CString CMemoryMapView::ProtectionToString(DWORD protection) {
 		{ L"Read/Write", PAGE_READWRITE },
 	};
 
-	CString text = std::find_if(std::begin(prot), std::end(prot), [protection](auto& p) {
+	// no match for a region with no protection (e.g. reserved or free memory): it has no text then
+	auto it = std::find_if(std::begin(prot), std::end(prot), [protection](auto& p) {
 		return (p.Value & protection) != 0;
-		})->Text;
+		});
+	CString text = it == std::end(prot) ? L"" : it->Text;
 
 	static const struct {
 		PCWSTR Text;

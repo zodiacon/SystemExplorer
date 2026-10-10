@@ -27,7 +27,7 @@ namespace WinSys {
 
 	private:
 		uint32_t _pid;
-		wil::unique_handle _hSnapshot;
+		wil::unique_hfile _hSnapshot;	// CreateToolhelp32Snapshot fails with INVALID_HANDLE_VALUE
 	};
 }
 

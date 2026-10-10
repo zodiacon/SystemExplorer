@@ -39,7 +39,11 @@ CString CProcessTreeView::GetValue(int row) {
 }
 
 INT_PTR CProcessTreeView::ShowProcessProperties(uint32_t pid) const {
-	ProcessInfoEx px(m_ProcMgr.GetProcessById(pid).get());
+	// held for the dialog's lifetime; it's nullptr if the process is no longer in the snapshot
+	auto pi = m_ProcMgr.GetProcessById(pid);
+	if (!pi)
+		return 0;
+	ProcessInfoEx px(pi.get());
 	CProcessPropertiesDlg dlg(m_ProcMgr, px);
 	dlg.SetModal(true);
 	return dlg.DoModal();
@@ -171,7 +175,8 @@ LRESULT CProcessTreeView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
 }
 
 LRESULT CProcessTreeView::OnProcessProperties(WORD, WORD id, HWND, BOOL&) {
-	ShowProcessProperties(GetSelectedProcess()->Id);
+	if (auto pi = GetSelectedProcess(); pi)		// nothing selected (toolbar buttons and accelerators work then too)
+		ShowProcessProperties(pi->Id);
 	return 0;
 }
 
