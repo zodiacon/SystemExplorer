@@ -5,10 +5,8 @@
 #include "..\KObjExp\KObjExp.h"
 
 bool DriverHelper::LoadDriver(bool load) {
-	if (_hDevice) {
-		::CloseHandle(_hDevice);
-		_hDevice = INVALID_HANDLE_VALUE;
-	}
+	// the next OpenDevice reopens it (it reopens only when there's no handle)
+	CloseDevice();
 	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
 	if (!hScm)
 		return false;
@@ -20,7 +18,8 @@ bool DriverHelper::LoadDriver(bool load) {
 	SERVICE_STATUS status;
 	bool success = true;
 	DWORD targetState;
-	::QueryServiceStatus(hService.get(), &status);
+	if (!::QueryServiceStatus(hService.get(), &status))
+		return false;
 	if (load && status.dwCurrentState != (targetState = SERVICE_RUNNING))
 		success = ::StartService(hService.get(), 0, nullptr);
 	else if (!load && status.dwCurrentState != (targetState = SERVICE_STOPPED))
@@ -32,8 +31,7 @@ bool DriverHelper::LoadDriver(bool load) {
 		return false;
 
 	for (int i = 0; i < 20; i++) {
-		::QueryServiceStatus(hService.get(), &status);
-		if (status.dwCurrentState == targetState)
+		if (::QueryServiceStatus(hService.get(), &status) && status.dwCurrentState == targetState)
 			return true;
 		::Sleep(200);
 	}
@@ -78,8 +76,8 @@ bool DriverHelper::InstallDriver(bool justCopy) {
 
 	wil::unique_schandle hService(::CreateService(hScm.get(), L"KObjExp", nullptr, SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER,
 		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path, nullptr, nullptr, nullptr, nullptr, nullptr));
-	auto success = hService != nullptr;
-	return success;
+	// already installed (the file was just replaced) is fine too
+	return hService != nullptr || ::GetLastError() == ERROR_SERVICE_EXISTS;
 }
 
 bool DriverHelper::UpdateDriver() {
@@ -122,9 +120,9 @@ HANDLE DriverHelper::DupHandle(HANDLE hObject, ULONG pid, ACCESS_MASK access, DW
 			&hTarget, sizeof(hTarget), &bytes, nullptr);
 	}
 	if (!hTarget) {
-		wil::unique_handle hProcess(OpenProcess(pid, PROCESS_DUP_HANDLE));
-		if (hProcess)
-			::DuplicateHandle(hObject, hProcess.get(), ::GetCurrentProcess(), &hTarget, access, FALSE, flags);
+		wil::unique_handle hProcess(::OpenProcess(PROCESS_DUP_HANDLE, FALSE, pid));
+		if (hProcess && !::DuplicateHandle(hProcess.get(), hObject, ::GetCurrentProcess(), &hTarget, access, FALSE, flags))
+			hTarget = nullptr;
 	}
 	return hTarget;
 }
@@ -137,8 +135,9 @@ HANDLE DriverHelper::OpenProcess(DWORD pid, ACCESS_MASK access) {
 		HANDLE hProcess;
 		DWORD bytes;
 
-		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
-			&hProcess, sizeof(hProcess), &bytes, nullptr) ? hProcess : nullptr;
+		if (::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_PROCESS, &data, sizeof(data),
+			&hProcess, sizeof(hProcess), &bytes, nullptr))
+			return hProcess;
 	}
 	return ::OpenProcess(access, FALSE, pid);
 }
@@ -151,8 +150,9 @@ HANDLE DriverHelper::OpenThread(DWORD tid, ACCESS_MASK access) {
 		HANDLE hThread;
 		DWORD bytes;
 
-		return ::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_THREAD, &data, sizeof(data),
-			&hThread, sizeof(hThread), &bytes, nullptr) ? hThread : nullptr;
+		if (::DeviceIoControl(_hDevice, IOCTL_KOBJEXP_OPEN_THREAD, &data, sizeof(data),
+			&hThread, sizeof(hThread), &bytes, nullptr))
+			return hThread;
 	}
 	return ::OpenThread(access, FALSE, tid);
 }
