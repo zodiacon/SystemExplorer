@@ -2,7 +2,7 @@
 #include "HandlesView.h"
 #include <algorithm>
 #include <execution>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <string>
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
@@ -139,29 +139,29 @@ void CHandlesView::ShowObjectProperties(int row) const {
 bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
-			return SortHelper::SortStrings(m_ObjMgr.GetType(h1.ObjectTypeIndex)->TypeName, m_ObjMgr.GetType(h2.ObjectTypeIndex)->TypeName, si->SortAscending);
+			return SortHelper::Sort(m_ObjMgr.GetType(h1.ObjectTypeIndex)->TypeName, m_ObjMgr.GetType(h2.ObjectTypeIndex)->TypeName, si->SortAscending);
 
 		case 1:		// address
-			return SortHelper::SortNumbers(h1.Object, h2.Object, si->SortAscending);
+			return SortHelper::Sort(h1.Object, h2.Object, si->SortAscending);
 
 		case 2:		// name (DoSort gets the names first: this runs in parallel, so it must not change the items)
-			return SortHelper::SortStrings(h1.Name, h2.Name, si->SortAscending);
+			return SortHelper::Sort(h1.Name, h2.Name, si->SortAscending);
 
 		case 3:		// handle
-			return SortHelper::SortNumbers(h1.HandleValue, h2.HandleValue, si->SortAscending);
+			return SortHelper::Sort(h1.HandleValue, h2.HandleValue, si->SortAscending);
 
 		case 4:		// process name
-			return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(h1.ProcessId), m_ProcMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
+			return SortHelper::Sort(m_ProcMgr.GetProcessNameById(h1.ProcessId), m_ProcMgr.GetProcessNameById(h2.ProcessId), si->SortAscending);
 
 		case 5:		// PID
-			return SortHelper::SortNumbers(h1.ProcessId, h2.ProcessId, si->SortAscending);
+			return SortHelper::Sort(h1.ProcessId, h2.ProcessId, si->SortAscending);
 
 		case 6:		// attributes
-			return SortHelper::SortNumbers(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
+			return SortHelper::Sort(h1.HandleAttributes & 0x7fff, h2.HandleAttributes & 0x7fff, si->SortAscending);
 
 		case 7:		// access mask
 		case 8:		// decoded access mask
-			return SortHelper::SortNumbers(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
+			return SortHelper::Sort(h1.GrantedAccess, h2.GrantedAccess, si->SortAscending);
 	}
 
 	return false;

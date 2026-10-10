@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "JobPropertiesDlg.h"
 #include "DialogHelper.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "FormatHelper.h"
 #include "DriverHelper.h"
 
@@ -34,8 +34,8 @@ void CJobPropertiesDlg::DoSort(const SortInfo* si) {
 	if (si->hWnd == m_ProcList) {
 		auto comparer = [&](auto const& p1, auto const& p2) {
 			switch (si->SortColumn) {
-				case 0: return SortHelper::SortStrings(p1.Name, p2.Name, si->SortAscending);
-				case 1: return SortHelper::SortNumbers(p1.Id, p2.Id, si->SortAscending);
+				case 0: return SortHelper::Sort(p1.Name, p2.Name, si->SortAscending);
+				case 1: return SortHelper::Sort(p1.Id, p2.Id, si->SortAscending);
 			}
 			return false;
 		};

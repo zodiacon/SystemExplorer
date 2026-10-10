@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EnvironmentDlg.h"
 #include "DialogHelper.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "ClipboardHelper.h"
 #include "Processes.h"
 
@@ -20,8 +20,8 @@ void CEnvironmentDlg::DoSort(const SortInfo* si) {
 
 	std::sort(m_Vars.begin(), m_Vars.end(), [&](auto const& v1, auto const& v2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(v1.first, v2.first, si->SortAscending);
-			case 1: return SortHelper::SortStrings(v1.second, v2.second, si->SortAscending);
+			case 0: return SortHelper::Sort(v1.first, v2.first, si->SortAscending);
+			case 1: return SortHelper::Sort(v1.second, v2.second, si->SortAscending);
 		}
 		return false;
 		});

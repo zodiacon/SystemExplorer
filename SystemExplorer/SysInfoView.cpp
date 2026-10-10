@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SysInfoView.h"
 #include "FormatHelper.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "ListViewColorHelper.h"
 
 using namespace WinSys;
@@ -128,7 +128,7 @@ DWORD CSysInfoView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 
 void CSysInfoView::DoSort(const SortInfo* si) {
 	std::sort(m_Items.begin(), m_Items.end(), [&](auto& i1, auto& i2) {
-		return SortHelper::SortStrings(i1.Name, i2.Name, si->SortAscending);
+		return SortHelper::Sort(i1.Name, i2.Name, si->SortAscending);
 		});
 }
 

@@ -2,7 +2,7 @@
 #include "ProcessSelectDlg.h"
 #include "DialogHelper.h"
 #include <TlHelp32.h>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <ProcessInfo.h>
 
 int CProcessSelectDlg::GetSelectedProcess(CString& name) const {
@@ -141,9 +141,9 @@ void CProcessSelectDlg::EnumProcesses() {
 
 bool CProcessSelectDlg::CompareItems(const ProcessInfo& p1, const ProcessInfo& p2, int col, bool asc) {
 	switch (col) {
-		case 0:	return SortHelper::SortStrings(p1.Name, p2.Name, asc);
-		case 1: return SortHelper::SortNumbers(p1.Id, p2.Id, asc);
-		case 2: return SortHelper::SortNumbers(p1.Session, p2.Session, asc);
+		case 0:	return SortHelper::Sort(p1.Name, p2.Name, asc);
+		case 1: return SortHelper::Sort(p1.Id, p2.Id, asc);
+		case 2: return SortHelper::Sort(p1.Session, p2.Session, asc);
 	}
 	ATLASSERT(false);
 	return false;

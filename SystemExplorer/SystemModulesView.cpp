@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SystemModulesView.h"
 #include "resource.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 
 CString CSystemModulesView::GetColumnText(HWND, int row, int col) const {
 	auto& m = m_Modules[row];
@@ -29,12 +29,12 @@ void CSystemModulesView::DoSort(const SortInfo* si) {
 
 	std::sort(m_Modules.begin(), m_Modules.end(), [&si](auto& m1, auto& m2) -> bool {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(m1->Name, m2->Name, si->SortAscending);
-			case 1: return SortHelper::SortStrings(m1->FullPath, m2->FullPath, si->SortAscending);
-			case 2: return SortHelper::SortNumbers(m1->ImageBase, m2->ImageBase, si->SortAscending);
-			case 3: return SortHelper::SortNumbers(m1->ImageSize, m2->ImageSize, si->SortAscending);
-			case 4: return SortHelper::SortNumbers(m1->MappedBase, m2->MappedBase, si->SortAscending);
-			case 5: return SortHelper::SortNumbers(m1->LoadOrderIndex, m2->LoadOrderIndex, si->SortAscending);
+			case 0: return SortHelper::Sort(m1->Name, m2->Name, si->SortAscending);
+			case 1: return SortHelper::Sort(m1->FullPath, m2->FullPath, si->SortAscending);
+			case 2: return SortHelper::Sort(m1->ImageBase, m2->ImageBase, si->SortAscending);
+			case 3: return SortHelper::Sort(m1->ImageSize, m2->ImageSize, si->SortAscending);
+			case 4: return SortHelper::Sort(m1->MappedBase, m2->MappedBase, si->SortAscending);
+			case 5: return SortHelper::Sort(m1->LoadOrderIndex, m2->LoadOrderIndex, si->SortAscending);
 		}
 		return false;
 		});

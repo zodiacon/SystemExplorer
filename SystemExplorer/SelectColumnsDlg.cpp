@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "SelectColumnsDlg.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <algorithm>
 #include "DialogHelper.h"
 #include <algorithm>
@@ -31,8 +31,8 @@ ListViewRowCheck CSelectColumnsDlg::IsRowChecked(int row) const {
 void CSelectColumnsDlg::DoSort(const SortInfo* si) {
 	std::sort(m_Items.begin(), m_Items.end(), [=](const auto& item1, const auto& item2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(item1.Name, item2.Name, si->SortAscending);
-			case 1: return SortHelper::SortStrings(item1.Category, item2.Category, si->SortAscending);
+			case 0: return SortHelper::Sort(item1.Name, item2.Name, si->SortAscending);
+			case 1: return SortHelper::Sort(item1.Category, item2.Category, si->SortAscending);
 		}
 		return false;
 		});

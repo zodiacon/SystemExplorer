@@ -441,7 +441,6 @@
     <ClCompile Include="SemaphoreObjectType.cpp" />
     <ClCompile Include="ServicesView.cpp" />
     <ClCompile Include="Settings.cpp" />
-    <ClCompile Include="SortHelper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -529,7 +528,6 @@
     <ClInclude Include="SemaphoreObjectType.h" />
     <ClInclude Include="ServicesView.h" />
     <ClInclude Include="Settings.h" />
-    <ClInclude Include="SortHelper.h" />
     <ClInclude Include="StandardColors.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ObjectsView.h" />

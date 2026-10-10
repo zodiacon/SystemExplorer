@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "LogonSessionsView.h"
 #include <algorithm>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <atlsecurity.h>
 
 CString CLogonSessionsView::GetColumnText(HWND, int row, int col) const {
@@ -28,13 +28,13 @@ void CLogonSessionsView::DoSort(const SortInfo* si) {
 
 	std::sort(m_Sessions.begin(), m_Sessions.end(), [=](const auto& s1, const auto& s2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortNumbers(s1.Index, s2.Index, si->SortAscending);
-			case 1: return SortHelper::SortNumbers(*(long long*)&s1.LogonId, *(long long*)&s2.LogonId, si->SortAscending);
-			case 2: return SortHelper::SortStrings(s1.LogonDomain + L"\\" + s1.UserName, s2.LogonDomain + L"\\" + s2.UserName, si->SortAscending);
-			case 3: return SortHelper::SortNumbers(s1.LogonTime.QuadPart, s2.LogonTime.QuadPart, si->SortAscending);
-			case 4: return SortHelper::SortNumbers(s1.Session, s2.Session, si->SortAscending);
-			case 5: return SortHelper::SortStrings(LogonTypeToString(s1.LogonType), LogonTypeToString(s2.LogonType), si->SortAscending);
-			case 6: return SortHelper::SortStrings(s1.AuthenticationPackage, s2.AuthenticationPackage, si->SortAscending);
+			case 0: return SortHelper::Sort(s1.Index, s2.Index, si->SortAscending);
+			case 1: return SortHelper::Sort(*(long long*)&s1.LogonId, *(long long*)&s2.LogonId, si->SortAscending);
+			case 2: return SortHelper::Sort(s1.LogonDomain + L"\\" + s1.UserName, s2.LogonDomain + L"\\" + s2.UserName, si->SortAscending);
+			case 3: return SortHelper::Sort(s1.LogonTime.QuadPart, s2.LogonTime.QuadPart, si->SortAscending);
+			case 4: return SortHelper::Sort(s1.Session, s2.Session, si->SortAscending);
+			case 5: return SortHelper::Sort(LogonTypeToString(s1.LogonType), LogonTypeToString(s2.LogonType), si->SortAscending);
+			case 6: return SortHelper::Sort(s1.AuthenticationPackage, s2.AuthenticationPackage, si->SortAscending);
 		}
 		return false;
 		});

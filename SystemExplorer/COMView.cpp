@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "COMView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <algorithm>
 #include "resource.h"
 
@@ -282,12 +282,12 @@ void CComView::DoSortClasses(const SortInfo* si) {
 
 	std::sort(m_Classes.begin(), m_Classes.end(), [=](auto& c1, auto& c2) {
 		switch (col) {
-			case 0: return SortHelper::SortStrings(c1.FriendlyName, c2.FriendlyName, asc);
-			case 1: return SortHelper::SortStrings(ClsidToString(c1.Clsid), ClsidToString(c2.Clsid), asc);
-			case 2: return SortHelper::SortNumbers(c1.ServerType, c2.ServerType, asc);
-			case 3: return SortHelper::SortStrings(c1.ModulePath, c2.ModulePath, asc);
-			case 4: return SortHelper::SortStrings(c1.ThreadingModel, c2.ThreadingModel, asc);
-			case 5: return SortHelper::SortStrings(ClsidToString(c1.AppId), ClsidToString(c2.AppId), asc);
+			case 0: return SortHelper::Sort(c1.FriendlyName, c2.FriendlyName, asc);
+			case 1: return SortHelper::Sort(ClsidToString(c1.Clsid), ClsidToString(c2.Clsid), asc);
+			case 2: return SortHelper::Sort(c1.ServerType, c2.ServerType, asc);
+			case 3: return SortHelper::Sort(c1.ModulePath, c2.ModulePath, asc);
+			case 4: return SortHelper::Sort(c1.ThreadingModel, c2.ThreadingModel, asc);
+			case 5: return SortHelper::Sort(ClsidToString(c1.AppId), ClsidToString(c2.AppId), asc);
 		}
 		return false;
 		});
@@ -299,10 +299,10 @@ void CComView::DoSortInterfaces(const SortInfo* si) {
 
 	std::sort(m_Interfaces.begin(), m_Interfaces.end(), [=](auto& c1, auto& c2) {
 		switch (col) {
-			case 0: return SortHelper::SortStrings(c1.FriendlyName, c2.FriendlyName, asc);
-			case 1: return SortHelper::SortStrings(ClsidToString(c1.Iid), ClsidToString(c2.Iid), asc);
-			case 2: return SortHelper::SortStrings(ClsidToString(c1.ProxyStub), ClsidToString(c2.ProxyStub), asc);
-			case 3: return SortHelper::SortStrings(ClsidToString(c1.TypeLib), ClsidToString(c2.TypeLib), asc);
+			case 0: return SortHelper::Sort(c1.FriendlyName, c2.FriendlyName, asc);
+			case 1: return SortHelper::Sort(ClsidToString(c1.Iid), ClsidToString(c2.Iid), asc);
+			case 2: return SortHelper::Sort(ClsidToString(c1.ProxyStub), ClsidToString(c2.ProxyStub), asc);
+			case 3: return SortHelper::Sort(ClsidToString(c1.TypeLib), ClsidToString(c2.TypeLib), asc);
 		}
 		return false;
 		});
@@ -314,9 +314,9 @@ void CComView::DoSortTypeLibraries(const SortInfo* si) {
 
 	std::sort(m_TypeLibs.begin(), m_TypeLibs.end(), [=](auto& t1, auto& t2) {
 		switch (col) {
-			case 0: return SortHelper::SortStrings(ClsidToString(t1.TypeLibId), ClsidToString(t2.TypeLibId), asc);
-			case 1: return SortHelper::SortStrings(t1.Win32Path, t2.Win32Path, asc);
-			case 2: return SortHelper::SortStrings(t1.Win64Path, t2.Win64Path, asc);
+			case 0: return SortHelper::Sort(ClsidToString(t1.TypeLibId), ClsidToString(t2.TypeLibId), asc);
+			case 1: return SortHelper::Sort(t1.Win32Path, t2.Win32Path, asc);
+			case 2: return SortHelper::Sort(t1.Win64Path, t2.Win64Path, asc);
 		}
 		return false;
 		});

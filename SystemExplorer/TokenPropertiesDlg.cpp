@@ -2,7 +2,7 @@
 #include "TokenPropertiesDlg.h"
 #include "DialogHelper.h"
 #include "FormatHelper.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 
 void CTokenPropertiesDlg::OnFinalMessage(HWND) {
 }
@@ -33,9 +33,9 @@ void CTokenPropertiesDlg::DoSort(const SortInfo* si) {
 	if (si->hWnd == m_GroupList) {
 		auto comparer = [&](const auto& g1, const auto& g2) -> bool {
 			switch (si->SortColumn) {
-				case 0: return SortHelper::SortStrings(g1.Name, g2.Name, si->SortAscending);
-				case 1: return SortHelper::SortStrings(FormatHelper::SidNameUseToString(g1.Use), FormatHelper::SidNameUseToString(g2.Use), si->SortAscending);
-				case 2: return SortHelper::SortNumbers(g1.Attributes, g2.Attributes, si->SortAscending);
+				case 0: return SortHelper::Sort(g1.Name, g2.Name, si->SortAscending);
+				case 1: return SortHelper::Sort(FormatHelper::SidNameUseToString(g1.Use), FormatHelper::SidNameUseToString(g2.Use), si->SortAscending);
+				case 2: return SortHelper::Sort(g1.Attributes, g2.Attributes, si->SortAscending);
 			}
 			return false;
 		};
@@ -44,8 +44,8 @@ void CTokenPropertiesDlg::DoSort(const SortInfo* si) {
 	else if (si->hWnd == m_PrivList) {
 		auto comparer = [&](const auto& p1, const auto& p2) -> bool {
 			switch (si->SortColumn) {
-				case 0: return SortHelper::SortStrings(p1.Name, p2.Name, si->SortAscending);
-				case 1: return SortHelper::SortNumbers(p1.Attributes, p2.Attributes, si->SortAscending);
+				case 0: return SortHelper::Sort(p1.Name, p2.Name, si->SortAscending);
+				case 1: return SortHelper::Sort(p1.Attributes, p2.Attributes, si->SortAscending);
 			}
 			return false;
 		};

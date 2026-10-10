@@ -123,9 +123,6 @@
     <ClCompile Include="DriverHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="SortHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -360,9 +357,6 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="SecurityHelper.h">
-      <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="SortHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="ProgressDlg.h">

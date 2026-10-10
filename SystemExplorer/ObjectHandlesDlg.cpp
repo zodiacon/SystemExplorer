@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ObjectHandlesDlg.h"
 #include "HandlesView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "DialogHelper.h"
 
 CObjectHandlesDlg::CObjectHandlesDlg(ObjectInfo* info, WinSys::ProcessManager& pm) : m_pObject(info), m_ProcMgr(pm) {
@@ -18,11 +18,11 @@ void CObjectHandlesDlg::DoSort(const SortInfo* si) {
 
 bool CObjectHandlesDlg::CompareItems(const HandleInfo* h1, const HandleInfo* h2, int col, bool asc) {
 	switch (col) {
-		case 0: return SortHelper::SortStrings(m_ProcMgr.GetProcessNameById(h1->ProcessId), m_ProcMgr.GetProcessNameById(h2->ProcessId), asc);
-		case 1: return SortHelper::SortNumbers(h1->ProcessId, h2->ProcessId, asc);
-		case 2: return SortHelper::SortNumbers(h1->HandleValue, h2->HandleValue, asc);
-		case 3: return SortHelper::SortNumbers(h1->GrantedAccess, h2->GrantedAccess, asc);
-		case 4: return SortHelper::SortNumbers(h1->HandleAttributes & 0x7fff, h2->HandleAttributes & 0x7fff, asc);
+		case 0: return SortHelper::Sort(m_ProcMgr.GetProcessNameById(h1->ProcessId), m_ProcMgr.GetProcessNameById(h2->ProcessId), asc);
+		case 1: return SortHelper::Sort(h1->ProcessId, h2->ProcessId, asc);
+		case 2: return SortHelper::Sort(h1->HandleValue, h2->HandleValue, asc);
+		case 3: return SortHelper::Sort(h1->GrantedAccess, h2->GrantedAccess, asc);
+		case 4: return SortHelper::Sort(h1->HandleAttributes & 0x7fff, h2->HandleAttributes & 0x7fff, asc);
 	}
 	return false;
 }

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "ClipboardHelper.h"
 #include "ObjectsSummaryView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "ListViewColorHelper.h"
 
 BOOL CObjectSummaryView::PreTranslateMessage(MSG* pMsg) {
@@ -320,16 +320,16 @@ PCWSTR CObjectSummaryView::PoolTypeToString(PoolType type) {
 
 bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfo>& item1, const std::shared_ptr<ObjectTypeInfo>& item2, int col, bool asc) const {
 	switch (col) {
-		case 0: return SortHelper::SortStrings(item1->TypeName, item2->TypeName, asc);
-		case 1: return SortHelper::SortNumbers(item1->TypeIndex, item2->TypeIndex, asc);
-		case 2:	return SortHelper::SortNumbers(item1->TotalNumberOfObjects, item2->TotalNumberOfObjects, asc);
-		case 3:	return SortHelper::SortNumbers(item1->TotalNumberOfHandles, item2->TotalNumberOfHandles, asc);
-		case 4:	return SortHelper::SortNumbers(item1->HighWaterNumberOfObjects, item2->HighWaterNumberOfObjects, asc);
-		case 5:	return SortHelper::SortNumbers(item1->HighWaterNumberOfHandles, item2->HighWaterNumberOfHandles, asc);
-		case 6: return SortHelper::SortNumbers(item1->PoolType, item2->PoolType, asc);
-		case 7:	return SortHelper::SortNumbers(item1->DefaultNonPagedPoolCharge, item2->DefaultNonPagedPoolCharge, asc);
-		case 8:	return SortHelper::SortNumbers(item1->DefaultPagedPoolCharge, item2->DefaultPagedPoolCharge, asc);
-		case 9:	return SortHelper::SortNumbers(item1->ValidAccessMask, item2->ValidAccessMask, asc);
+		case 0: return SortHelper::Sort(item1->TypeName, item2->TypeName, asc);
+		case 1: return SortHelper::Sort(item1->TypeIndex, item2->TypeIndex, asc);
+		case 2:	return SortHelper::Sort(item1->TotalNumberOfObjects, item2->TotalNumberOfObjects, asc);
+		case 3:	return SortHelper::Sort(item1->TotalNumberOfHandles, item2->TotalNumberOfHandles, asc);
+		case 4:	return SortHelper::Sort(item1->HighWaterNumberOfObjects, item2->HighWaterNumberOfObjects, asc);
+		case 5:	return SortHelper::Sort(item1->HighWaterNumberOfHandles, item2->HighWaterNumberOfHandles, asc);
+		case 6: return SortHelper::Sort(item1->PoolType, item2->PoolType, asc);
+		case 7:	return SortHelper::Sort(item1->DefaultNonPagedPoolCharge, item2->DefaultNonPagedPoolCharge, asc);
+		case 8:	return SortHelper::Sort(item1->DefaultPagedPoolCharge, item2->DefaultPagedPoolCharge, asc);
+		case 9:	return SortHelper::Sort(item1->ValidAccessMask, item2->ValidAccessMask, asc);
 	}
 	return false;
 }

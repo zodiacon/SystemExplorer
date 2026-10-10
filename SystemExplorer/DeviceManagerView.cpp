@@ -3,7 +3,7 @@
 #include "resource.h"
 #include "ImageHelper.h"
 #include <algorithm>
-#include "SortHelper.h"
+#include <SortHelper.h>
 
 using namespace WinSys;
 
@@ -314,5 +314,5 @@ CString CDeviceManagerView::GetDeviceProperty(DeviceInfo& di, int index) const {
 }
 
 bool CDeviceManagerView::CompareItems(const CString& i1, const CString& i2, bool asc) {
-	return SortHelper::SortStrings(i1, i2, asc);
+	return SortHelper::Sort(i1, i2, asc);
 }

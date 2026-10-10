@@ -10,7 +10,7 @@
 #include "ClipboardHelper.h"
 #include "ProcessHelper.h"
 #include "Interfaces.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "ObjectHandlesDlg.h"
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
@@ -46,16 +46,16 @@ std::shared_ptr<ObjectInfo>& CObjectsView::GetItem(int index) {
 bool CObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, const SortInfo* si) {
 	switch (si->SortColumn) {
 		case 0:		// type
-			return SortHelper::SortStrings(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
+			return SortHelper::Sort(m_ObjMgr.GetType(o1.TypeIndex)->TypeName, m_ObjMgr.GetType(o2.TypeIndex)->TypeName, si->SortAscending);
 
 		case 1:		// address
-			return SortHelper::SortNumbers(o1.Object, o2.Object, si->SortAscending);
+			return SortHelper::Sort(o1.Object, o2.Object, si->SortAscending);
 
 		case 2:		// name
-			return SortHelper::SortStrings(o1.Name, o2.Name, si->SortAscending);
+			return SortHelper::Sort(o1.Name, o2.Name, si->SortAscending);
 
 		case 3:		// handles
-			return SortHelper::SortNumbers(o1.HandleCount, o2.HandleCount, si->SortAscending);
+			return SortHelper::Sort(o1.HandleCount, o2.HandleCount, si->SortAscending);
 
 	}
 

@@ -3,7 +3,7 @@
 #include "ObjectManager.h"
 #include "resource.h"
 #include <algorithm>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "NtDll.h"
 #include "ObjectType.h"
 #include "ObjectTypeFactory.h"
@@ -239,8 +239,8 @@ void CObjectManagerView::EnumDirectory(CTreeItem root, const CString& path) {
 
 bool CObjectManagerView::CompareItems(const ObjectData& data1, const ObjectData& data2, int col, bool asc) {
 	switch (col) {
-		case 0: return SortHelper::SortStrings(data1.Name, data2.Name, asc);
-		case 1: return SortHelper::SortStrings(data1.Type, data2.Type, asc);
+		case 0: return SortHelper::Sort(data1.Name, data2.Name, asc);
+		case 1: return SortHelper::Sort(data1.Type, data2.Type, asc);
 	}
 	return false;
 }

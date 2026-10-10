@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "PipesMailslotsDlg.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 
 CPipesMailslotsDlg::CPipesMailslotsDlg(Type type) : m_Type(type) {
 }
@@ -94,12 +94,12 @@ void CPipesMailslotsDlg::EnumObjects() {
 
 bool CPipesMailslotsDlg::CompareItems(const ObjectInfo* o1, const ObjectInfo* o2, int col, bool asc) const {
 	switch (col) {
-		case 0: return SortHelper::SortStrings(o1->Name, o2->Name, asc);
-		case 1: return SortHelper::SortNumbers(o1->Object, o2->Object, asc);
-		case 2: return SortHelper::SortNumbers(o1->HandleCount, o2->HandleCount, asc);
-		case 3: return SortHelper::SortNumbers(o1->Handles[0]->HandleValue, o2->Handles[0]->HandleValue, asc);
-		case 4: return SortHelper::SortNumbers(o1->Handles[0]->ProcessId, o2->Handles[0]->ProcessId, asc);
-		case 5: return SortHelper::SortStrings(GetProcessName(o1), GetProcessName(o2), asc);
+		case 0: return SortHelper::Sort(o1->Name, o2->Name, asc);
+		case 1: return SortHelper::Sort(o1->Object, o2->Object, asc);
+		case 2: return SortHelper::Sort(o1->HandleCount, o2->HandleCount, asc);
+		case 3: return SortHelper::Sort(o1->Handles[0]->HandleValue, o2->Handles[0]->HandleValue, asc);
+		case 4: return SortHelper::Sort(o1->Handles[0]->ProcessId, o2->Handles[0]->ProcessId, asc);
+		case 5: return SortHelper::Sort(GetProcessName(o1), GetProcessName(o2), asc);
 	}
 	return false;
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ModulesView.h"
 #include <algorithm>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "resource.h"
 #include "ListViewColorHelper.h"
 
@@ -48,13 +48,13 @@ void CModulesView::DoSort(const SortInfo* si) {
 
 	std::sort(m_Modules.begin(), m_Modules.end(), [=](auto& m1, auto& m2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(m1->Name, m2->Name, si->SortAscending);
-			case 1: return SortHelper::SortNumbers(m1->Type, m2->Type, si->SortAscending);
-			case 2: return SortHelper::SortNumbers(m1->ModuleSize, m2->ModuleSize, si->SortAscending);
-			case 3: return SortHelper::SortNumbers(m1->Base, m2->Base, si->SortAscending);
-			case 4: return SortHelper::SortNumbers(m1->ImageBase, m2->ImageBase, si->SortAscending);
-			case 5: return SortHelper::SortStrings(m1->Path, m2->Path, si->SortAscending);
-			case 6: return SortHelper::SortNumbers(m1->Characteristics, m2->Characteristics, si->SortAscending);
+			case 0: return SortHelper::Sort(m1->Name, m2->Name, si->SortAscending);
+			case 1: return SortHelper::Sort(m1->Type, m2->Type, si->SortAscending);
+			case 2: return SortHelper::Sort(m1->ModuleSize, m2->ModuleSize, si->SortAscending);
+			case 3: return SortHelper::Sort(m1->Base, m2->Base, si->SortAscending);
+			case 4: return SortHelper::Sort(m1->ImageBase, m2->ImageBase, si->SortAscending);
+			case 5: return SortHelper::Sort(m1->Path, m2->Path, si->SortAscending);
+			case 6: return SortHelper::Sort(m1->Characteristics, m2->Characteristics, si->SortAscending);
 		}
 		return false;
 		});

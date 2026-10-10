@@ -3,7 +3,7 @@
 #include "SecurityHelper.h"
 #include "ProgressDlg.h"
 #include <algorithm>
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include "SelectColumnsDlg.h"
 #include "ProcessPropertiesDlg.h"
 #include "ProcessInfoEx.h"
@@ -358,13 +358,13 @@ LRESULT CServicesView::OnProcessProperties(WORD, WORD, HWND, BOOL&) {
 
 bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, int col, bool asc) {
 	switch (col) {
-		case 0:	return SortHelper::SortStrings(s1.GetName(), s2.GetName(), asc);
-		case 1: return SortHelper::SortStrings(s1.GetDisplayName(), s2.GetDisplayName(), asc);
-		case 2: return SortHelper::SortStrings(
+		case 0:	return SortHelper::Sort(s1.GetName(), s2.GetName(), asc);
+		case 1: return SortHelper::Sort(s1.GetDisplayName(), s2.GetDisplayName(), asc);
+		case 2: return SortHelper::Sort(
 			ServiceStateToString(s1.GetStatusProcess().CurrentState), ServiceStateToString(s2.GetStatusProcess().CurrentState), asc);
-		case 3: return SortHelper::SortNumbers(s1.GetStatusProcess().Type, s2.GetStatusProcess().Type, asc);
-		case 4: return SortHelper::SortNumbers(s1.GetStatusProcess().ProcessId, s2.GetStatusProcess().ProcessId, asc);
-		case 5: return SortHelper::SortStrings(
+		case 3: return SortHelper::Sort(s1.GetStatusProcess().Type, s2.GetStatusProcess().Type, asc);
+		case 4: return SortHelper::Sort(s1.GetStatusProcess().ProcessId, s2.GetStatusProcess().ProcessId, asc);
+		case 5: return SortHelper::Sort(
 			m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), 
 			m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
 		case 6: case 7: case 8: case 9:
@@ -373,27 +373,27 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 			auto c1 = GetServiceInfoEx(s1.GetName()).GetConfiguration();
 			auto c2 = GetServiceInfoEx(s2.GetName()).GetConfiguration();
 			switch (col) {
-				case 6: return SortHelper::SortStrings(c1 ? ServiceStartTypeToString(*c1) : CString(), c2 ? ServiceStartTypeToString(*c2) : CString(), asc);
-				case 7: return SortHelper::SortStrings(c1 ? c1->BinaryPathName : std::wstring(), c2 ? c2->BinaryPathName : std::wstring(), asc);
-				case 8: return SortHelper::SortStrings(c1 ? c1->AccountName : std::wstring(), c2 ? c2->AccountName : std::wstring(), asc);
-				default: return SortHelper::SortNumbers(c1 ? (int)c1->ErrorControl : -1, c2 ? (int)c2->ErrorControl : -1, asc);
+				case 6: return SortHelper::Sort(c1 ? ServiceStartTypeToString(*c1) : CString(), c2 ? ServiceStartTypeToString(*c2) : CString(), asc);
+				case 7: return SortHelper::Sort(c1 ? c1->BinaryPathName : std::wstring(), c2 ? c2->BinaryPathName : std::wstring(), asc);
+				case 8: return SortHelper::Sort(c1 ? c1->AccountName : std::wstring(), c2 ? c2->AccountName : std::wstring(), asc);
+				default: return SortHelper::Sort(c1 ? (int)c1->ErrorControl : -1, c2 ? (int)c2->ErrorControl : -1, asc);
 			}
 		}
-		case 10: return SortHelper::SortStrings(
+		case 10: return SortHelper::Sort(
 			GetServiceInfoEx(s1.GetName()).GetDescription(),
 			GetServiceInfoEx(s2.GetName()).GetDescription(), asc);
-		case 11: return SortHelper::SortStrings(
+		case 11: return SortHelper::Sort(
 			GetServiceInfoEx(s1.GetName()).GetPrivileges(),
 			GetServiceInfoEx(s2.GetName()).GetPrivileges(), asc);
-		case 12: return SortHelper::SortStrings(
+		case 12: return SortHelper::Sort(
 			GetServiceInfoEx(s1.GetName()).GetTriggers(),
 			GetServiceInfoEx(s2.GetName()).GetTriggers(), asc);
-		case 13: return SortHelper::SortStrings(
+		case 13: return SortHelper::Sort(
 			GetServiceInfoEx(s1.GetName()).GetDependencies(),
 			GetServiceInfoEx(s2.GetName()).GetDependencies(), asc);
-		case 14: return SortHelper::SortNumbers(s1.GetStatusProcess().ControlsAccepted, s2.GetStatusProcess().ControlsAccepted, asc);
-		case 15: return SortHelper::SortStrings(GetServiceInfoEx(s1.GetName()).GetSID(), GetServiceInfoEx(s2.GetName()).GetSID(), asc);
-		case 16: return SortHelper::SortNumbers(GetServiceInfoEx(s1.GetName()).GetSidType(), GetServiceInfoEx(s2.GetName()).GetSidType(), asc);
+		case 14: return SortHelper::Sort(s1.GetStatusProcess().ControlsAccepted, s2.GetStatusProcess().ControlsAccepted, asc);
+		case 15: return SortHelper::Sort(GetServiceInfoEx(s1.GetName()).GetSID(), GetServiceInfoEx(s2.GetName()).GetSID(), asc);
+		case 16: return SortHelper::Sort(GetServiceInfoEx(s1.GetName()).GetSidType(), GetServiceInfoEx(s2.GetName()).GetSidType(), asc);
 	}
 	return false;
 }

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ThreadsView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <algorithm>
 #include "FormatHelper.h"
 #include "SelectColumnsDlg.h"
@@ -93,7 +93,7 @@ void CThreadsView::DoSort(const SortInfo* si) {
 	// columns queried from the system on each call: each thread's value is read once (see SortHelper::SortByKey)
 	auto byNumber = [&](auto get) {
 		SortHelper::SortByKey(m_Threads, [&](const auto& t) { return (int64_t)get(GetThreadInfoEx(t.get())); },
-			[&](int64_t a, int64_t b) { return SortHelper::SortNumbers(a, b, asc); });
+			[&](int64_t a, int64_t b) { return SortHelper::Sort(a, b, asc); });
 	};
 	switch (static_cast<ThreadColumn>(col)) {
 		case ThreadColumn::MemoryPriority: return byNumber([](ThreadInfoEx& tx) { return tx.GetMemoryPriority(); });
@@ -101,31 +101,31 @@ void CThreadsView::DoSort(const SortInfo* si) {
 		case ThreadColumn::ComFlags: return byNumber([](ThreadInfoEx& tx) { return tx.GetComFlags(); });
 		case ThreadColumn::ComApartment:
 			SortHelper::SortByKey(m_Threads, [&](const auto& t) { return CString(FormatHelper::ComApartmentToString(GetThreadInfoEx(t.get()).GetComFlags())); },
-				[&](const CString& a, const CString& b) { return SortHelper::SortStrings(a, b, asc); });
+				[&](const CString& a, const CString& b) { return SortHelper::Sort(a, b, asc); });
 			return;
 	}
 
 	std::sort(m_Threads.begin(), m_Threads.end(), [&](const auto& t1, const auto& t2) {
 		switch (static_cast<ThreadColumn>(col)) {
-			case ThreadColumn::State: return SortHelper::SortNumbers(t1->ThreadState, t2->ThreadState, asc);
-			case ThreadColumn::Id: return SortHelper::SortNumbers(t1->Id, t2->Id, asc);
-			case ThreadColumn::ProcessId: return SortHelper::SortNumbers(t1->ProcessId, t2->ProcessId, asc);
-			case ThreadColumn::ProcessName: return SortHelper::SortStrings(t1->GetProcessImageName(), t2->GetProcessImageName(), asc);
-			case ThreadColumn::CPU: return SortHelper::SortNumbers(t1->CPU, t2->CPU, asc);
-			case ThreadColumn::CreateTime: return SortHelper::SortNumbers(t1->CreateTime, t2->CreateTime, asc);
-			case ThreadColumn::Priority: return SortHelper::SortNumbers(t1->Priority, t2->Priority, asc);
-			case ThreadColumn::BasePriority: return SortHelper::SortNumbers(t1->BasePriority, t2->BasePriority, asc);
-			case ThreadColumn::CPUTime: return SortHelper::SortNumbers(t1->KernelTime + t1->UserTime, t2->KernelTime + t2->UserTime, asc);
-			case ThreadColumn::UserTime: return SortHelper::SortNumbers(t1->UserTime, t2->UserTime, asc);
-			case ThreadColumn::KernelTime: return SortHelper::SortNumbers(t1->KernelTime, t2->KernelTime, asc);
-			case ThreadColumn::Teb: return SortHelper::SortNumbers(t1->TebBase, t2->TebBase, asc);
-			case ThreadColumn::WaitReason: return SortHelper::SortNumbers(t1->WaitReason, t2->WaitReason, asc);
-			case ThreadColumn::StartAddress: return SortHelper::SortNumbers(t1->StartAddress, t2->StartAddress, asc);
-			case ThreadColumn::Win32StartAddress: return SortHelper::SortNumbers(t1->Win32StartAddress, t2->Win32StartAddress, asc);
-			case ThreadColumn::StackBase: return SortHelper::SortNumbers(t1->StackBase, t2->StackBase, asc);
-			case ThreadColumn::StackLimit: return SortHelper::SortNumbers(t1->StackLimit, t2->StackLimit, asc);
-			case ThreadColumn::ContextSwitches: return SortHelper::SortNumbers(t1->ContextSwitches, t2->ContextSwitches, asc);
-			case ThreadColumn::WaitTime: return SortHelper::SortNumbers(t1->WaitTime, t2->WaitTime, asc);
+			case ThreadColumn::State: return SortHelper::Sort(t1->ThreadState, t2->ThreadState, asc);
+			case ThreadColumn::Id: return SortHelper::Sort(t1->Id, t2->Id, asc);
+			case ThreadColumn::ProcessId: return SortHelper::Sort(t1->ProcessId, t2->ProcessId, asc);
+			case ThreadColumn::ProcessName: return SortHelper::Sort(t1->GetProcessImageName(), t2->GetProcessImageName(), asc);
+			case ThreadColumn::CPU: return SortHelper::Sort(t1->CPU, t2->CPU, asc);
+			case ThreadColumn::CreateTime: return SortHelper::Sort(t1->CreateTime, t2->CreateTime, asc);
+			case ThreadColumn::Priority: return SortHelper::Sort(t1->Priority, t2->Priority, asc);
+			case ThreadColumn::BasePriority: return SortHelper::Sort(t1->BasePriority, t2->BasePriority, asc);
+			case ThreadColumn::CPUTime: return SortHelper::Sort(t1->KernelTime + t1->UserTime, t2->KernelTime + t2->UserTime, asc);
+			case ThreadColumn::UserTime: return SortHelper::Sort(t1->UserTime, t2->UserTime, asc);
+			case ThreadColumn::KernelTime: return SortHelper::Sort(t1->KernelTime, t2->KernelTime, asc);
+			case ThreadColumn::Teb: return SortHelper::Sort(t1->TebBase, t2->TebBase, asc);
+			case ThreadColumn::WaitReason: return SortHelper::Sort(t1->WaitReason, t2->WaitReason, asc);
+			case ThreadColumn::StartAddress: return SortHelper::Sort(t1->StartAddress, t2->StartAddress, asc);
+			case ThreadColumn::Win32StartAddress: return SortHelper::Sort(t1->Win32StartAddress, t2->Win32StartAddress, asc);
+			case ThreadColumn::StackBase: return SortHelper::Sort(t1->StackBase, t2->StackBase, asc);
+			case ThreadColumn::StackLimit: return SortHelper::Sort(t1->StackLimit, t2->StackLimit, asc);
+			case ThreadColumn::ContextSwitches: return SortHelper::Sort(t1->ContextSwitches, t2->ContextSwitches, asc);
+			case ThreadColumn::WaitTime: return SortHelper::Sort(t1->WaitTime, t2->WaitTime, asc);
 		}
 		return false;
 		});

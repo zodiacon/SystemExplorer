@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "SearchView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 
 CSearchView::CSearchView(IMainFrame* frame) : CViewBase(frame), m_SearchBar(this) {
 }
@@ -48,11 +48,11 @@ void CSearchView::DoSort(const SortInfo* si) {
 
 	std::sort(m_Items.begin(), m_Items.end(), [&](const auto& i1, const auto& i2) {
 		switch (si->SortColumn) {
-			case 0: return SortHelper::SortStrings(i1.Type, i2.Type, si->SortAscending);
-			case 1: return SortHelper::SortNumbers(i1.Id, i2.Id, si->SortAscending);
-			case 2: return SortHelper::SortStrings(i1.Name, i2.Name, si->SortAscending);
-			case 3: return SortHelper::SortNumbers(i1.ProcessId, i2.ProcessId, si->SortAscending);
-			case 4: return SortHelper::SortStrings(i1.Details, i2.Details, si->SortAscending);
+			case 0: return SortHelper::Sort(i1.Type, i2.Type, si->SortAscending);
+			case 1: return SortHelper::Sort(i1.Id, i2.Id, si->SortAscending);
+			case 2: return SortHelper::Sort(i1.Name, i2.Name, si->SortAscending);
+			case 3: return SortHelper::Sort(i1.ProcessId, i2.ProcessId, si->SortAscending);
+			case 4: return SortHelper::Sort(i1.Details, i2.Details, si->SortAscending);
 		}
 		return false;
 		});

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ProcessesView.h"
-#include "SortHelper.h"
+#include <SortHelper.h>
 #include <algorithm>
 #include "Settings.h"
 #include "StandardColors.h"
@@ -40,11 +40,11 @@ void CProcessesView::DoSort(const SortInfo* si) {
 	// columns queried from the system on each call: each process' value is read once (see SortHelper::SortByKey)
 	auto byNumber = [&](auto get) {
 		SortHelper::SortByKey(m_Processes, [&](const auto& p) { return (int64_t)get(GetProcessInfoEx(p.get())); },
-			[&](int64_t a, int64_t b) { return SortHelper::SortNumbers(a, b, asc); });
+			[&](int64_t a, int64_t b) { return SortHelper::Sort(a, b, asc); });
 	};
 	auto byString = [&](auto get) {
 		SortHelper::SortByKey(m_Processes, [&](const auto& p) { return CString(get(GetProcessInfoEx(p.get()))); },
-			[&](const CString& a, const CString& b) { return SortHelper::SortStrings(a, b, asc); });
+			[&](const CString& a, const CString& b) { return SortHelper::Sort(a, b, asc); });
 	};
 	switch (static_cast<ProcessColumn>(col)) {
 		case ProcessColumn::PriorityClass: return byNumber([](ProcessInfoEx& px) { return px.GetPriorityClass(); });
@@ -62,44 +62,44 @@ void CProcessesView::DoSort(const SortInfo* si) {
 
 	std::sort(m_Processes.begin(), m_Processes.end(), [&](const auto& p1, const auto& p2) {
 		switch (static_cast<ProcessColumn>(col)) {
-			case ProcessColumn::Name: return SortHelper::SortStrings(p1->GetImageName(), p2->GetImageName(), asc);
-			case ProcessColumn::PackageFullName: return SortHelper::SortStrings(p1->GetPackageFullName(), p2->GetPackageFullName(), asc);
-			case ProcessColumn::Id: return SortHelper::SortNumbers(p1->Id, p2->Id, asc);
-			case ProcessColumn::UserName: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).UserName(), GetProcessInfoEx(p2.get()).UserName(), asc);
-			case ProcessColumn::Session: return SortHelper::SortNumbers(p1->SessionId, p2->SessionId, asc);
-			case ProcessColumn::CPU: return SortHelper::SortNumbers(p1->CPU, p2->CPU, asc);
-			case ProcessColumn::Parent: return SortHelper::SortNumbers(p1->ParentId, p2->ParentId, asc);
-			case ProcessColumn::CreateTime: return SortHelper::SortNumbers(p1->CreateTime, p2->CreateTime, asc);
-			case ProcessColumn::CommitSize: return SortHelper::SortNumbers(p1->PagefileUsage, p2->PagefileUsage, asc);
-			case ProcessColumn::PeakCommitSize: return SortHelper::SortNumbers(p1->PeakPagefileUsage, p2->PeakPagefileUsage, asc);
-			case ProcessColumn::Priority: return SortHelper::SortNumbers(p1->BasePriority, p2->BasePriority, asc);
-			case ProcessColumn::Threads: return SortHelper::SortNumbers(p1->ThreadCount, p2->ThreadCount, asc);
-			case ProcessColumn::Handles: return SortHelper::SortNumbers(p1->HandleCount, p2->HandleCount, asc);
-			case ProcessColumn::WorkingSet: return SortHelper::SortNumbers(p1->WorkingSetSize, p2->WorkingSetSize, asc);
-			case ProcessColumn::ExePath: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetExecutablePath(), GetProcessInfoEx(p2.get()).GetExecutablePath(), asc);
-			case ProcessColumn::CPUTime: return SortHelper::SortNumbers(p1->KernelTime + p1->UserTime, p2->KernelTime + p2->UserTime, asc);
-			case ProcessColumn::PeakThreads: return SortHelper::SortNumbers(p1->PeakThreads, p2->PeakThreads, asc);
-			case ProcessColumn::VirtualSize: return SortHelper::SortNumbers(p1->VirtualSize, p2->VirtualSize, asc);
-			case ProcessColumn::PeakWorkingSet: return SortHelper::SortNumbers(p1->PeakWorkingSetSize, p2->PeakWorkingSetSize, asc);
-			case ProcessColumn::Attributes: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetAttributes(m_ProcMgr), GetProcessInfoEx(p2.get()).GetAttributes(m_ProcMgr), asc);
-			case ProcessColumn::PagedPool: return SortHelper::SortNumbers(p1->PagedPoolUsage, p2->PagedPoolUsage, asc);
-			case ProcessColumn::PeakPagedPool: return SortHelper::SortNumbers(p1->PeakPagedPoolUsage, p2->PeakPagedPoolUsage, asc);
-			case ProcessColumn::NonPagedPool: return SortHelper::SortNumbers(p1->NonPagedPoolUsage, p2->NonPagedPoolUsage, asc);
-			case ProcessColumn::PeakNonPagedPool: return SortHelper::SortNumbers(p1->PeakNonPagedPoolUsage, p2->PeakNonPagedPoolUsage, asc);
-			case ProcessColumn::CommandLine: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCommandLine(), GetProcessInfoEx(p2.get()).GetCommandLine(), asc);
-			case ProcessColumn::IoReadBytes: return SortHelper::SortNumbers(p1->ReadTransferCount, p2->ReadTransferCount, asc);
-			case ProcessColumn::IoWriteBytes: return SortHelper::SortNumbers(p1->WriteTransferCount, p2->WriteTransferCount, asc);
-			case ProcessColumn::IoOtherBytes: return SortHelper::SortNumbers(p1->OtherTransferCount, p2->OtherTransferCount, asc);
-			case ProcessColumn::IoReads: return SortHelper::SortNumbers(p1->ReadOperationCount, p2->ReadOperationCount, asc);
-			case ProcessColumn::IoWrites: return SortHelper::SortNumbers(p1->WriteOperationCount, p2->WriteOperationCount, asc);
-			case ProcessColumn::IoOther: return SortHelper::SortNumbers(p1->OtherOperationCount, p2->OtherOperationCount, asc);
-			case ProcessColumn::KernelTime: return SortHelper::SortNumbers(p1->KernelTime, p2->KernelTime, asc);
-			case ProcessColumn::UserTime: return SortHelper::SortNumbers(p1->UserTime, p2->UserTime, asc);
-			case ProcessColumn::Elevated: return SortHelper::SortBoolean(GetProcessInfoEx(p1.get()).IsElevated(), GetProcessInfoEx(p2.get()).IsElevated(), asc);
-			case ProcessColumn::JobId: return SortHelper::SortNumbers(p1->JobObjectId, p2->JobObjectId, asc);
-			case ProcessColumn::Platform: return SortHelper::SortNumbers(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
-			case ProcessColumn::Description: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
-			case ProcessColumn::Company: return SortHelper::SortStrings(GetProcessInfoEx(p1.get()).GetCompanyName(), GetProcessInfoEx(p2.get()).GetCompanyName(), asc);
+			case ProcessColumn::Name: return SortHelper::Sort(p1->GetImageName(), p2->GetImageName(), asc);
+			case ProcessColumn::PackageFullName: return SortHelper::Sort(p1->GetPackageFullName(), p2->GetPackageFullName(), asc);
+			case ProcessColumn::Id: return SortHelper::Sort(p1->Id, p2->Id, asc);
+			case ProcessColumn::UserName: return SortHelper::Sort(GetProcessInfoEx(p1.get()).UserName(), GetProcessInfoEx(p2.get()).UserName(), asc);
+			case ProcessColumn::Session: return SortHelper::Sort(p1->SessionId, p2->SessionId, asc);
+			case ProcessColumn::CPU: return SortHelper::Sort(p1->CPU, p2->CPU, asc);
+			case ProcessColumn::Parent: return SortHelper::Sort(p1->ParentId, p2->ParentId, asc);
+			case ProcessColumn::CreateTime: return SortHelper::Sort(p1->CreateTime, p2->CreateTime, asc);
+			case ProcessColumn::CommitSize: return SortHelper::Sort(p1->PagefileUsage, p2->PagefileUsage, asc);
+			case ProcessColumn::PeakCommitSize: return SortHelper::Sort(p1->PeakPagefileUsage, p2->PeakPagefileUsage, asc);
+			case ProcessColumn::Priority: return SortHelper::Sort(p1->BasePriority, p2->BasePriority, asc);
+			case ProcessColumn::Threads: return SortHelper::Sort(p1->ThreadCount, p2->ThreadCount, asc);
+			case ProcessColumn::Handles: return SortHelper::Sort(p1->HandleCount, p2->HandleCount, asc);
+			case ProcessColumn::WorkingSet: return SortHelper::Sort(p1->WorkingSetSize, p2->WorkingSetSize, asc);
+			case ProcessColumn::ExePath: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetExecutablePath(), GetProcessInfoEx(p2.get()).GetExecutablePath(), asc);
+			case ProcessColumn::CPUTime: return SortHelper::Sort(p1->KernelTime + p1->UserTime, p2->KernelTime + p2->UserTime, asc);
+			case ProcessColumn::PeakThreads: return SortHelper::Sort(p1->PeakThreads, p2->PeakThreads, asc);
+			case ProcessColumn::VirtualSize: return SortHelper::Sort(p1->VirtualSize, p2->VirtualSize, asc);
+			case ProcessColumn::PeakWorkingSet: return SortHelper::Sort(p1->PeakWorkingSetSize, p2->PeakWorkingSetSize, asc);
+			case ProcessColumn::Attributes: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetAttributes(m_ProcMgr), GetProcessInfoEx(p2.get()).GetAttributes(m_ProcMgr), asc);
+			case ProcessColumn::PagedPool: return SortHelper::Sort(p1->PagedPoolUsage, p2->PagedPoolUsage, asc);
+			case ProcessColumn::PeakPagedPool: return SortHelper::Sort(p1->PeakPagedPoolUsage, p2->PeakPagedPoolUsage, asc);
+			case ProcessColumn::NonPagedPool: return SortHelper::Sort(p1->NonPagedPoolUsage, p2->NonPagedPoolUsage, asc);
+			case ProcessColumn::PeakNonPagedPool: return SortHelper::Sort(p1->PeakNonPagedPoolUsage, p2->PeakNonPagedPoolUsage, asc);
+			case ProcessColumn::CommandLine: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetCommandLine(), GetProcessInfoEx(p2.get()).GetCommandLine(), asc);
+			case ProcessColumn::IoReadBytes: return SortHelper::Sort(p1->ReadTransferCount, p2->ReadTransferCount, asc);
+			case ProcessColumn::IoWriteBytes: return SortHelper::Sort(p1->WriteTransferCount, p2->WriteTransferCount, asc);
+			case ProcessColumn::IoOtherBytes: return SortHelper::Sort(p1->OtherTransferCount, p2->OtherTransferCount, asc);
+			case ProcessColumn::IoReads: return SortHelper::Sort(p1->ReadOperationCount, p2->ReadOperationCount, asc);
+			case ProcessColumn::IoWrites: return SortHelper::Sort(p1->WriteOperationCount, p2->WriteOperationCount, asc);
+			case ProcessColumn::IoOther: return SortHelper::Sort(p1->OtherOperationCount, p2->OtherOperationCount, asc);
+			case ProcessColumn::KernelTime: return SortHelper::Sort(p1->KernelTime, p2->KernelTime, asc);
+			case ProcessColumn::UserTime: return SortHelper::Sort(p1->UserTime, p2->UserTime, asc);
+			case ProcessColumn::Elevated: return SortHelper::Sort(GetProcessInfoEx(p1.get()).IsElevated(), GetProcessInfoEx(p2.get()).IsElevated(), asc);
+			case ProcessColumn::JobId: return SortHelper::Sort(p1->JobObjectId, p2->JobObjectId, asc);
+			case ProcessColumn::Platform: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetBitness(), GetProcessInfoEx(p2.get()).GetBitness(), asc);
+			case ProcessColumn::Description: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetDescription(), GetProcessInfoEx(p2.get()).GetDescription(), asc);
+			case ProcessColumn::Company: return SortHelper::Sort(GetProcessInfoEx(p1.get()).GetCompanyName(), GetProcessInfoEx(p2.get()).GetCompanyName(), asc);
 		}
 		return false;
 		});
