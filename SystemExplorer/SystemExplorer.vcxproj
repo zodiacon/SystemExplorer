@@ -114,6 +114,18 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>SysExp</TargetName>
   </PropertyGroup>
+  <!-- which kernel driver res\SystemExplorer.rc2 embeds: the one this configuration built, or in a release build the
+       separately signed one in Bin\x64 when it's there -->
+  <ItemDefinitionGroup>
+    <ResourceCompile>
+      <PreprocessorDefinitions>SYSEXP_CONFIG_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' != 'Debug' and Exists('$(ProjectDir)Bin\x64\KObjExp.sys')">
+    <ResourceCompile>
+      <PreprocessorDefinitions>SYSEXP_SIGNED_DRIVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -636,6 +648,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Bin\x64\KObjExp.sys" />
+    <None Include="res\SystemExplorer.rc2" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -335,6 +335,17 @@ void CProcessesView::ShowProperties(int row) {
 	auto dlg = new CProcessPropertiesDlg(m_ProcMgr, px);
 	dlg->Create(::GetAncestor(m_hWnd, GA_ROOT));
 	dlg->ShowWindow(SW_SHOW);
+
+	std::erase_if(m_PropertiesDialogs, [](auto h) { return !::IsWindow(h); });
+	m_PropertiesDialogs.push_back(*dlg);
+}
+
+CProcessesView::~CProcessesView() {
+	// the dialogs refer to m_ProcMgr and m_ProcessesEx, which go away with the view
+	for (auto h : m_PropertiesDialogs) {
+		if (::IsWindow(h) && ::GetWindowThreadProcessId(h, nullptr) == ::GetCurrentThreadId())
+			::DestroyWindow(h);
+	}
 }
 
 ProcessInfoEx& CProcessesView::GetProcessInfoEx(ProcessInfo* pi) const {

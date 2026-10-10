@@ -145,6 +145,11 @@ private:
 	std::vector<std::shared_ptr<ObjectInfo>> _objects;
 	std::unordered_map<PVOID, std::shared_ptr<ObjectInfo>> _objectsByAddress;
 	std::vector<std::shared_ptr<HandleInfo>> _handles;
+	// the system handle snapshot buffer, kept between refreshes (tens of MB on a busy system)
+	std::unique_ptr<BYTE[]> _handlesBuffer;
+	ULONG _handlesBufferSize{ 0 };
+	// returns the SYSTEM_HANDLE_INFORMATION_EX in _handlesBuffer, or nullptr
+	void* QuerySystemHandles();
 	static std::vector<Change> _changes;
 	static int64_t _totalHandles, _totalObjects;
 	bool _skipThisProcess = false;

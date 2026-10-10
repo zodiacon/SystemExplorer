@@ -1,0 +1,23 @@
+//
+// Resources the resource editor can't edit (SystemExplorer.rc includes this file through TEXTINCLUDE 3)
+//
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// BIN
+//
+
+// The kernel driver, which DriverHelper::InstallDriver extracts and installs.
+// A release build embeds the separately signed copy in Bin\x64 when there is one: a driver signed only with the
+// build's own certificate doesn't load unless test signing is on. Otherwise each configuration embeds the driver
+// it built itself. SYSEXP_CONFIG_* and SYSEXP_SIGNED_DRIVER are defined by SystemExplorer.vcxproj.
+
+#if defined(SYSEXP_SIGNED_DRIVER)
+IDR_DRIVER              BIN                     "Bin\\x64\\KObjExp.sys"
+#elif defined(SYSEXP_CONFIG_Debug)
+IDR_DRIVER              BIN                     "..\\x64\\Debug\\KObjExp.sys"
+#elif defined(SYSEXP_CONFIG_ReleaseSigned)
+IDR_DRIVER              BIN                     "..\\x64\\ReleaseSigned\\KObjExp.sys"
+#else
+IDR_DRIVER              BIN                     "..\\x64\\Release\\KObjExp.sys"
+#endif

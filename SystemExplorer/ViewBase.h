@@ -38,6 +38,12 @@ public:
 		return m_Paused;
 	}
 
+	// views are created with new and owned by their window: closing a tab destroys the window, which frees the view
+	// (also when Create fails, as WM_NCDESTROY still arrives - so callers must not delete a view themselves)
+	void OnFinalMessage(HWND) override {
+		delete static_cast<T*>(this);
+	}
+
 protected:
 	BEGIN_MSG_MAP(CViewBase)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)

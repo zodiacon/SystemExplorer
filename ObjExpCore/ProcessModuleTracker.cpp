@@ -47,14 +47,15 @@ struct ProcessModuleTracker::Impl {
 		return mi;
 	}
 
-	std::shared_ptr<ModuleInfo> FillModule(const MEMORY_BASIC_INFORMATION& mbi) {
+	// ntName: the module's mapped file name (NT path), empty if unknown
+	std::shared_ptr<ModuleInfo> FillModule(const MEMORY_BASIC_INFORMATION& mbi, const WCHAR* ntName) {
 		auto mi = std::make_shared<ModuleInfo>();
 		mi->ModuleSize = 0;
-		WCHAR name[MAX_PATH];
 		mi->ImageBase = 0;
-		if (::GetMappedFileName(_handle.get(), mbi.AllocationBase, name, _countof(name))) {
-			mi->Path = Helpers::GetDosNameFromNtName(name);
-			mi->Name = ::wcsrchr(name, L'\\') + 1;
+		if (*ntName) {
+			mi->Path = Helpers::GetDosNameFromNtName(ntName);
+			auto bs = ::wcsrchr(ntName, L'\\');
+			mi->Name = bs ? bs + 1 : ntName;
 			BYTE buffer[1 << 12];
 			if (::ReadProcessMemory(_handle.get(), mbi.BaseAddress, buffer, sizeof(buffer), nullptr)) {
 				auto nt = ::ImageNtHeader(buffer);
@@ -81,8 +82,7 @@ struct ProcessModuleTracker::Impl {
 		return _handle ? EnumModulesWithVirtualQuery() : EnumModulesWithToolHelp();
 	}
 
-	uint32_t EnumModulesWithVirtualQuery() {
-		bool first = _modules.empty();
+	void PrepareEnum(bool first) {
 		if (first) {
 			_modules.reserve(128);
 			_moduleMap.reserve(128);
@@ -93,92 +93,107 @@ struct ProcessModuleTracker::Impl {
 			_newModules.clear();
 			_unloadedModules.clear();
 		}
+	}
 
-		auto existing = _moduleMap;
+	//
+	// The modules seen in this enumeration move from _moduleMap to current, so what's left in _moduleMap afterwards
+	// are the unloaded ones. A module keeps its ModuleInfo object for as long as it's loaded.
+	//
+	void EndEnum(std::unordered_map<std::wstring, std::shared_ptr<ModuleInfo>>& current, std::vector<std::shared_ptr<ModuleInfo>>& modules) {
+		for (auto& [key, mi] : _moduleMap)
+			_unloadedModules.push_back(mi);
+		_moduleMap = std::move(current);
+		_modules = std::move(modules);
+	}
+
+	uint32_t EnumModulesWithVirtualQuery() {
+		bool first = _modules.empty();
+		PrepareEnum(first);
+
+		std::unordered_map<std::wstring, std::shared_ptr<ModuleInfo>> current;
+		current.reserve(_moduleMap.size() + 16);
+		std::vector<std::shared_ptr<ModuleInfo>> modules;
+		modules.reserve(_modules.size() + 16);
 
 		MEMORY_BASIC_INFORMATION mbi;
 		const BYTE* address = nullptr;
 		ModuleInfo* pmi = nullptr;
+		WCHAR name[MAX_PATH];
 		while (::VirtualQueryEx(_handle.get(), address, &mbi, sizeof(mbi)) > 0) {
 			if (mbi.State == MEM_COMMIT && mbi.Type != MEM_PRIVATE) {
 				if (mbi.AllocationBase == mbi.BaseAddress) {
-					auto mi = FillModule(mbi);
-					pmi = mi.get();
-					auto key = mi->Name + L"#" + std::to_wstring((size_t)mi->Base);
-					if (first) {
-						_moduleMap.insert({ key, mi });
-						_modules.push_back(std::move(mi));
+					// the mapped name and base identify a module; the rest of what FillModule reads is needed only for a new one
+					if (!::GetMappedFileName(_handle.get(), mbi.AllocationBase, name, _countof(name)))
+						name[0] = 0;
+					auto bs = ::wcsrchr(name, L'\\');
+					auto key = std::wstring(bs ? bs + 1 : name) + L"#" + std::to_wstring((size_t)mbi.AllocationBase);
+					std::shared_ptr<ModuleInfo> mi;
+					if (auto node = _moduleMap.extract(key); !node.empty()) {
+						mi = node.mapped();
+						current.insert(std::move(node));
+					}
+					else if (auto it = current.find(key); it != current.end()) {
+						mi = it->second;
 					}
 					else {
-						auto it = _moduleMap.find(key);
-						if (it == _moduleMap.end()) {
-							// new module
-							_modules.push_back(mi);
+						mi = FillModule(mbi, name);
+						if (!first)
 							_newModules.push_back(mi);
-							_moduleMap.insert({ key, mi });
-						}
-						else {
-							existing.erase(key);
-						}
+						current.insert({ key, mi });
 					}
+					modules.push_back(mi);
+					// the size is the sum of the module's committed regions, counted again on each enumeration
+					mi->ModuleSize = 0;
+					pmi = mi.get();
 				}
-				pmi->ModuleSize += (ULONG)mbi.RegionSize;
+				if (pmi && pmi->Base == mbi.AllocationBase)
+					pmi->ModuleSize += (ULONG)mbi.RegionSize;
 			}
 			address += mbi.RegionSize;
 		}
 
-		for (auto& [key, mi] : existing) {
-			_moduleMap.erase(key);
-			_unloadedModules.push_back(mi);
-		}
-
+		EndEnum(current, modules);
 		return static_cast<uint32_t>(_modules.size());
 	}
 
 	uint32_t EnumModulesWithToolHelp() {
-		wil::unique_handle hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, _pid));
+		// CreateToolhelp32Snapshot fails with INVALID_HANDLE_VALUE, hence unique_hfile
+		wil::unique_hfile hSnapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, _pid));
 		if (!hSnapshot)
-			return 0;
-
-		bool first = _modules.empty();
-		if (first) {
-			_modules.reserve(128);
-			_newModules.reserve(8);
-			_unloadedModules.reserve(8);
-		}
-		else {
-			_newModules.clear();
-			_unloadedModules.clear();
-		}
+			return static_cast<uint32_t>(_modules.size());
 
 		MODULEENTRY32 me;
 		me.dwSize = sizeof(me);
-		::Module32First(hSnapshot.get(), &me);
+		if (!::Module32First(hSnapshot.get(), &me))
+			return static_cast<uint32_t>(_modules.size());
 
-		auto existing = _moduleMap;
+		bool first = _modules.empty();
+		PrepareEnum(first);
+
+		std::unordered_map<std::wstring, std::shared_ptr<ModuleInfo>> current;
+		current.reserve(_moduleMap.size() + 16);
+		std::vector<std::shared_ptr<ModuleInfo>> modules;
+		modules.reserve(_modules.size() + 16);
+
 		do {
-			if (first) {
-				auto mi = FillModule(me);
-				_moduleMap.insert({ mi->Path, mi });
-				_modules.push_back(std::move(mi));
+			std::shared_ptr<ModuleInfo> mi;
+			if (auto node = _moduleMap.extract(me.szExePath); !node.empty()) {
+				mi = node.mapped();
+				current.insert(std::move(node));
+			}
+			else if (auto it = current.find(me.szExePath); it != current.end()) {
+				mi = it->second;
 			}
 			else {
-				auto it = _moduleMap.find(me.szExePath);
-				if (it == _moduleMap.end()) {
-					// new module
-					auto mi = FillModule(me);
-					_modules.push_back(mi);
+				mi = FillModule(me);
+				if (!first)
 					_newModules.push_back(mi);
-				}
-				else {
-					existing.erase(me.szExePath);
-				}
+				current.insert({ mi->Path, mi });
 			}
+			modules.push_back(mi);
 		} while (::Module32Next(hSnapshot.get(), &me));
 
-		for (auto& [key, mi] : existing)
-			_unloadedModules.push_back(mi);
-
+		EndEnum(current, modules);
 		return static_cast<uint32_t>(_modules.size());
 	}
 };

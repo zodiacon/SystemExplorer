@@ -522,10 +522,8 @@ LRESULT CMainFrame::OnViewSystemDrivers(WORD, WORD, HWND, BOOL&) {
 LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CDeviceManagerView(this);
 	auto hWnd = pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	if (!hWnd) {
-		delete pView;
-		return 0;
-	}
+	if (!hWnd)
+		return 0;	// the view has freed itself (OnFinalMessage)
 	m_view.AddPage(hWnd, L"Devices", m_Icons[(int)IconType::Devices], pView);
 
 	return 0;
@@ -1081,10 +1079,8 @@ HWND CMainFrame::CreateAndAddModulesView(const CString& name, DWORD pid) {
 	auto hProcess = DriverHelper::OpenProcess(pid, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE);
 	auto view = hProcess ? new CModulesView(hProcess, this) : new CModulesView(pid, this);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	if (!hWnd) {
-		delete view;
-	}
-	else {
+	// if Create failed, the view has freed itself (OnFinalMessage)
+	if (hWnd) {
 		CString title;
 		title.Format(L"Modules (%s: %u)", (PCWSTR)name, pid);
 		m_view.AddPage(*view, title, m_Icons[(int)IconType::Modules], (IView*)view);
@@ -1095,10 +1091,8 @@ HWND CMainFrame::CreateAndAddModulesView(const CString& name, DWORD pid) {
 HWND CMainFrame::CreateAndAddMemoryMapView(const CString& name, DWORD pid) {
 	auto view = new CMemoryMapView(this, pid);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	if (!hWnd) {
-		delete view;
-	}
-	else {
+	// if Create failed, the view has freed itself (OnFinalMessage)
+	if (hWnd) {
 		CString title;
 		title.Format(L"Memory (%s: %u)", (PCWSTR)name, pid);
 		m_view.AddPage(*view, title, m_Icons[(int)IconType::Memory], (IView*)view);

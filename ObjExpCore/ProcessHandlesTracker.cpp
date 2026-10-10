@@ -6,7 +6,8 @@
 using namespace WinSys;
 
 bool HandleEntryInfo::operator==(const HandleEntryInfo& other) const {
-	return HandleValue == other.HandleValue;
+	// the type too, as the hash uses it (a handle value reused for an object of another type is another handle)
+	return HandleValue == other.HandleValue && ObjectTypeIndex == other.ObjectTypeIndex;
 }
 
 template<>
@@ -36,6 +37,9 @@ private:
 	wil::unique_handle _hProcess;
 	std::vector<HandleEntryInfo> _closedHandles, _newHandles;
 	std::unordered_set<HandleEntryInfo> _handles;
+	// the snapshot buffer, kept between refreshes
+	std::unique_ptr<BYTE[]> _buffer;
+	ULONG _bufferSize{ 0 };
 };
 
 ProcessHandlesTracker::Impl::Impl(uint32_t pid) : 
@@ -63,22 +67,27 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 		_handles.clear();
 		return 0;
 	}
-	auto size = 1 << 22;
-	ULONG len;
-	std::unique_ptr<BYTE[]> buffer;
-	for(;;) {
-		buffer = std::make_unique<BYTE[]>(size);
-		auto status = ::NtQueryInformationProcess(_hProcess.get(), ProcessHandleInformation, buffer.get(), size, &len);
+	if (!_buffer) {
+		// most processes have a few hundred handles at most; the buffer grows as needed
+		_bufferSize = 1 << 16;
+		_buffer.reset(new BYTE[_bufferSize]);
+	}
+	for (int i = 0;; i++) {
+		ULONG len = 0;
+		auto status = ::NtQueryInformationProcess(_hProcess.get(), ProcessHandleInformation, _buffer.get(), _bufferSize, &len);
 		if (status == STATUS_SUCCESS)
 			break;
-		if (STATUS_BUFFER_TOO_SMALL == status) {
-			size = len + (1 << 12);
+		if ((status == STATUS_INFO_LENGTH_MISMATCH || status == STATUS_BUFFER_TOO_SMALL) && i < 8) {
+			// handles come and go, so leave some room
+			_bufferSize = (std::max)(len, _bufferSize);
+			_bufferSize += _bufferSize / 4;
+			_buffer.reset(new BYTE[_bufferSize]);
 			continue;
 		}
 		return 0;
 	}
 
-	auto info = reinterpret_cast<PROCESS_HANDLE_SNAPSHOT_INFORMATION*>(buffer.get());
+	auto info = reinterpret_cast<PROCESS_HANDLE_SNAPSHOT_INFORMATION*>(_buffer.get());
 	if (clearHostory)
 		_handles.clear();
 
@@ -98,24 +107,24 @@ uint32_t ProcessHandlesTracker::Impl::EnumHandles(bool clearHostory) {
 		}
 	}
 	else {
-		auto oldHandles = _handles;
+		// the handles seen now move from _handles to current; what's left in _handles are the closed ones
+		std::unordered_set<HandleEntryInfo> current;
+		current.reserve(info->NumberOfHandles);
 		for (ULONG i = 0; i < info->NumberOfHandles; i++) {
 			const auto& entry = info->Handles[i];
 			HandleEntryInfo key = { entry.HandleValue, (uint16_t)entry.ObjectTypeIndex };
-			if (_handles.find(key) == _handles.end()) {
-				// new handle
-				_newHandles.push_back(key);
-				_handles.insert(key);
+			if (auto node = _handles.extract(key); !node.empty()) {
+				// existing handle
+				current.insert(std::move(node));
 			}
 			else {
-				// existing handle
-				oldHandles.erase(key);
+				// new handle
+				_newHandles.push_back(key);
+				current.insert(key);
 			}
 		}
-		for (auto& hi : oldHandles) {
-			_closedHandles.push_back(hi);
-			_handles.erase(hi);
-		}
+		_closedHandles.insert(_closedHandles.end(), _handles.begin(), _handles.end());
+		_handles = std::move(current);
 	}
 
 	return static_cast<uint32_t>(_handles.size());

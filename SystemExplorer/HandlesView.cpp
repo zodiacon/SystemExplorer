@@ -95,9 +95,10 @@ CString CHandlesView::GetColumnText(HWND, int row, int col) {
 				if (h) {
 					auto type = ObjectTypeFactory::CreateObjectType(data->ObjectTypeIndex, ObjectManager::GetType(data->ObjectTypeIndex)->TypeName);
 					text = type ? type->GetDetails(h) : CString();
-					m_DetailsCache[data.get()] = text;
 					::CloseHandle(h);
 				}
+				// cached even when the handle can't be duplicated, so it isn't tried again on every paint
+				m_DetailsCache[data.get()] = text;
 				m_TargetUpdateTime = ::GetTickCount64() + 5000;
 			}
 			else {
@@ -317,6 +318,7 @@ void CHandlesView::OnUpdate() {
 						return hi->HandleValue == change.Handle;
 						});
 					if (it != m_Handles.end()) {
+						m_DetailsCache.erase(it->get());
 						m_Handles.erase(it);
 					}
 				}
@@ -406,9 +408,10 @@ void CHandlesView::Refresh() {
 		return;
 	}
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid, m_NamedObjectsOnly);
+	// the cache is keyed by the HandleInfo objects, which the enumeration has just replaced
+	m_DetailsCache.clear();
+	m_DetailsCache.reserve(1024);
 	if (m_HandleTracker) {
-		m_DetailsCache.clear();
-		m_DetailsCache.reserve(1024);
 		m_Changes.clear();
 		m_Changes.reserve(8);
 		m_HandleTracker->EnumHandles(true);

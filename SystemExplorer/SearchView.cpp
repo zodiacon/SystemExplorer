@@ -59,6 +59,8 @@ void CSearchView::DoSort(const SortInfo* si) {
 }
 
 void CSearchView::UpdateResults() {
+	if (!m_Searcher)
+		return;
 	auto count = m_Items.size();
 	m_Items = m_Searcher->GetResults();
 	if (count != m_Items.size()) {
@@ -77,12 +79,16 @@ void CSearchView::StartSearch(PCWSTR text) {
 	m_Items.clear();
 	m_List.SetItemCount(1);
 
-	m_Searcher.reset(new ObjectSearcher(*this));
+	if (m_Searcher)
+		m_Searcher->CancelSearch();
+	m_Searcher = std::make_shared<ObjectSearcher>(*this);
 	m_Searcher->SearchAsync(text);
 	SetTimer(1, 1000, nullptr);
 }
 
 bool CSearchView::CancelSearch() {
+	if (m_Searcher)
+		m_Searcher->CancelSearch();
 	UpdateResults();
 	return true;
 }

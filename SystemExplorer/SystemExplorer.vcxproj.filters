@@ -807,6 +807,9 @@
     <None Include="Bin\x64\KObjExp.sys">
       <Filter>Bin\x64</Filter>
     </None>
+    <None Include="res\SystemExplorer.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

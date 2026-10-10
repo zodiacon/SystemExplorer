@@ -12,6 +12,11 @@ class CSearchView :
 	public CViewBase<CSearchView> {
 public:
 	CSearchView(IMainFrame* frame);
+	~CSearchView() {
+		// a search still running finishes on its own (it holds the searcher), and stops early
+		if (m_Searcher)
+			m_Searcher->CancelSearch();
+	}
 
 	BEGIN_MSG_MAP(CSearchView)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
@@ -36,7 +41,7 @@ private:
 	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 private:
-	std::unique_ptr<ObjectSearcher> m_Searcher;
+	std::shared_ptr<ObjectSearcher> m_Searcher;
 	std::vector<SearchResultItem> m_Items;
 	int m_FirstIcon;
 	CListViewCtrl m_List;

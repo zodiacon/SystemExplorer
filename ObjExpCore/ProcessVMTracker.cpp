@@ -83,32 +83,33 @@ size_t ProcessVMTracker::Impl::EnumRegions() {
 	_deletedItems.clear();
 	_deletedItems.reserve(16);
 
+	// the regions seen now move from _set to current; what's left in _set after the walk are the deleted ones
+	decltype(_set) current;
+	current.reserve(_set.size() + 32);
 	const BYTE* address = nullptr;
-	auto oldItems = _set;
 	for (;;) {
 		auto mi = std::make_shared<MemoryRegionItem>();
 		if (0 == ::VirtualQueryEx(_hProcess, address, mi.get(), sizeof(MEMORY_BASIC_INFORMATION)))
 			break;
 
-		if (count == 0) {
-			_set.insert({ *mi, mi });
+		if (auto node = _set.extract(*mi); !node.empty()) {
+			current.insert(std::move(node));
 		}
 		else {
-			if (_set.find(*mi) == _set.end()) {
-				// new item
+			if (count > 0)
 				_newItems.push_back(mi);
-				_set.insert({ *mi, mi });
-			}
-			else {
-				oldItems.erase(*mi);
-			}
-
-			for (auto& [key, mi] : oldItems)
-				_deletedItems.push_back(mi);
+			current.insert({ *mi, mi });
 		}
 		_items.push_back(mi);
 		address += mi->RegionSize;
 	}
+
+	if (count > 0) {
+		_deletedItems.reserve(_set.size());
+		for (auto& [key, mi] : _set)
+			_deletedItems.push_back(mi);
+	}
+	_set = std::move(current);
 
 	return _items.size();
 }

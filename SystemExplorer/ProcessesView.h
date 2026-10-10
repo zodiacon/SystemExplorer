@@ -12,6 +12,7 @@ class CProcessesView :
 	public CViewBase<CProcessesView> {
 public:
 	CProcessesView(IMainFrame* frame);
+	~CProcessesView();
 
 	CString GetColumnText(HWND, int row, int col) const;
 	int GetRowImage(HWND, int row) const;
@@ -72,6 +73,8 @@ private:
 private:
 	std::vector<std::shared_ptr<WinSys::ProcessInfo>> m_Processes;
 	mutable std::unordered_map<WinSys::ProcessInfo*, ProcessInfoEx> m_ProcessesEx;
+	// the open (modeless) properties dialogs, which refer to this view's process data
+	std::vector<HWND> m_PropertiesDialogs;
 	WinSys::ProcessManager m_ProcMgr;
 	HFONT m_hFont;
 	CListViewCtrl m_List;

@@ -114,29 +114,42 @@ int ObjectManager::EnumTypes() {
 	return static_cast<int>(_types.size());
 }
 
+void* ObjectManager::QuerySystemHandles() {
+	if (!_handlesBuffer) {
+		// a busy system has a few hundred thousand handles; the buffer grows as needed
+		_handlesBufferSize = 1 << 24;
+		_handlesBuffer.reset(new (std::nothrow) BYTE[_handlesBufferSize]);
+	}
+	for (int i = 0; i < 8 && _handlesBuffer; i++) {
+		ULONG len = 0;
+		auto status = NT::NtQuerySystemInformation(NT::SystemExtendedHandleInformation, _handlesBuffer.get(), _handlesBufferSize, &len);
+		if (status == 0)
+			return _handlesBuffer.get();
+		if (status != STATUS_INFO_LENGTH_MISMATCH)
+			return nullptr;
+		// handles come and go, so leave some room (len is what was needed at the time of the call)
+		_handlesBufferSize = std::max(len + len / 4, _handlesBufferSize + _handlesBufferSize / 2);
+		_handlesBuffer.reset(new (std::nothrow) BYTE[_handlesBufferSize]);
+	}
+	if (!_handlesBuffer)
+		_handlesBufferSize = 0;
+	return nullptr;
+}
+
 bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix, bool namedOnly) {
 	EnumTypes();
 
-	ULONG len = 1 << 25;
-	std::unique_ptr<BYTE[]> buffer;
-	do {
-		buffer = std::make_unique<BYTE[]>(len);
-		auto status = NT::NtQuerySystemInformation(NT::SystemExtendedHandleInformation, buffer.get(), len, &len);
-		if (status == STATUS_INFO_LENGTH_MISMATCH) {
-			len <<= 1;
-			continue;
-		}
-		if (status == 0)
-			break;
+	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)QuerySystemHandles();
+	if (!p)
 		return false;
-	} while (true);
 
 	auto filteredTypeIndex = type == nullptr || ::wcslen(type) == 0 ? -1 : _typesNameMap.at(type)->TypeIndex;
 
-	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)buffer.get();
 	auto count = p->NumberOfHandles;
 	_objects.clear();
 	_objectsByAddress.clear();
+	// the handles as of this snapshot (this used to be appended to on every refresh)
+	_handles.clear();
 	_objects.reserve(count / 2);
 	_objectsByAddress.reserve(count / 2);
 
@@ -194,23 +207,12 @@ bool ObjectManager::EnumHandlesAndObjects(PCWSTR type, DWORD pid, PCWSTR prefix,
 bool ObjectManager::EnumHandles(PCWSTR type, DWORD pid, bool namedObjectsOnly) {
 	EnumTypes();
 
-	ULONG len = 1 << 25;
-	std::unique_ptr<BYTE[]> buffer;
-	do {
-		buffer = std::make_unique<BYTE[]>(len);
-		auto status = NT::NtQuerySystemInformation(NT::SystemExtendedHandleInformation, buffer.get(), len, &len);
-		if (status == STATUS_INFO_LENGTH_MISMATCH) {
-			len <<= 1;
-			continue;
-		}
-		if (status == 0)
-			break;
+	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)QuerySystemHandles();
+	if (!p)
 		return false;
-	} while (true);
 
 	auto filteredTypeIndex = type == nullptr || ::wcslen(type) == 0 ? -1 : _typesNameMap.at(type)->TypeIndex;
 
-	auto p = (NT::SYSTEM_HANDLE_INFORMATION_EX*)buffer.get();
 	auto count = p->NumberOfHandles;
 	_handles.clear();
 	_handles.reserve(count);

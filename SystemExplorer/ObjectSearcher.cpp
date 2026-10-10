@@ -9,10 +9,14 @@ ObjectSearcher::ObjectSearcher(HWND hWnd, ObjectSearchType searchType, DWORD pid
 
 void ObjectSearcher::SearchAsync(const CString& text) {
 	_text = text;
-	::QueueUserWorkItem([](PVOID p) -> DWORD {
-		((ObjectSearcher*)p)->DoSearch();
+	// the work item owns a reference, so the searcher outlives the search
+	auto self = new std::shared_ptr<ObjectSearcher>(shared_from_this());
+	if (!::QueueUserWorkItem([](PVOID p) -> DWORD {
+		std::unique_ptr<std::shared_ptr<ObjectSearcher>> self(static_cast<std::shared_ptr<ObjectSearcher>*>(p));
+		(*self)->DoSearch();
 		return 0;
-		}, this, WT_EXECUTEDEFAULT);
+		}, self, WT_EXECUTEDEFAULT))
+		delete self;
 }
 
 std::vector<SearchResultItem> ObjectSearcher::GetResults() {
@@ -23,7 +27,6 @@ std::vector<SearchResultItem> ObjectSearcher::GetResults() {
 
 void ObjectSearcher::DoSearch() {
 	_running = true;
-	_cancelRequested = false;
 	CString stext(_text);
 	stext.MakeLower();
 	_items.clear();
@@ -87,7 +90,7 @@ void ObjectSearcher::SearchDLLs(const CString& text) {
 	MODULEENTRY32 me;
 	me.dwSize = sizeof(me);
 
-	while (::Process32Next(hSnapshot.get(), &pe)) {
+	while (!_cancelRequested && ::Process32Next(hSnapshot.get(), &pe)) {
 		wil::unique_handle hModules(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pe.th32ProcessID));
 		if (!hModules)
 			continue;

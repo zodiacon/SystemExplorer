@@ -29,6 +29,9 @@ struct ProcessManager::Impl {
 	ThreadMap _threadsByKey;
 
 	LARGE_INTEGER _prevTicks{};
+	// the snapshot buffer, kept between refreshes: it's several MB, and a snapshot is taken every second or so
+	wil::unique_virtualalloc_ptr<BYTE> _buffer;
+	ULONG _bufferSize{ 0 };
 	static uint32_t _totalProcessors;
 	static bool _isElevated;
 
@@ -40,6 +43,7 @@ struct ProcessManager::Impl {
 	}
 
 	size_t EnumProcesses(bool includeThreads, uint32_t pid);
+	NTSTATUS QuerySnapshot(SYSTEM_INFORMATION_CLASS infoClass, LARGE_INTEGER& ticks);
 	std::shared_ptr<ProcessInfo> BuildProcessInfo(const SYSTEM_PROCESS_INFORMATION* info, bool includeThreads, ThreadMap
 		& threadsByKey, int64_t delta, std::shared_ptr<ProcessInfo> pi, bool extended);
 	std::vector<std::shared_ptr<ProcessInfo>>& GetProcesses() {
@@ -212,7 +216,51 @@ size_t ProcessManager::EnumProcessesAndThreads(uint32_t pid) {
 	return _impl->EnumProcesses(true, pid);
 }
 
+NTSTATUS ProcessManager::Impl::QuerySnapshot(SYSTEM_INFORMATION_CLASS infoClass, LARGE_INTEGER& ticks) {
+	if (!_buffer) {
+		_bufferSize = 1 << 22;
+		_buffer.reset((BYTE*)::VirtualAlloc(nullptr, _bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+		if (!_buffer) {
+			_bufferSize = 0;
+			return STATUS_NO_MEMORY;
+		}
+	}
+	for (int i = 0; i < 8; i++) {
+		// get timing info as close as possible to the API call
+		::QueryPerformanceCounter(&ticks);
+		ULONG len = 0;
+		auto status = NtQuerySystemInformation(infoClass, _buffer.get(), _bufferSize, &len);
+		if (status != STATUS_INFO_LENGTH_MISMATCH && status != STATUS_BUFFER_TOO_SMALL)
+			return status;
+
+		// processes and threads come and go, so leave some room
+		_bufferSize = (std::max)(len, _bufferSize);
+		_bufferSize = (_bufferSize + _bufferSize / 4 + 0xffff) & ~0xffff;
+		_buffer.reset((BYTE*)::VirtualAlloc(nullptr, _bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+		if (!_buffer) {
+			_bufferSize = 0;
+			return STATUS_NO_MEMORY;
+		}
+	}
+	return STATUS_INFO_LENGTH_MISMATCH;
+}
+
 size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
+	auto extended = _isElevated && IsWindows8OrGreater();
+	LARGE_INTEGER ticks;
+	auto status = QuerySnapshot(extended ? SystemFullProcessInformation : SystemExtendedProcessInformation, ticks);
+	if (!NT_SUCCESS(status)) {
+		// keep the last snapshot, rather than report every process as terminated
+		_newProcesses.clear();
+		_terminatedProcesses.clear();
+		if (includeThreads) {
+			_newThreads.clear();
+			_terminatedThreads.clear();
+		}
+		return _processes.size();
+	}
+	auto delta = ticks.QuadPart - _prevTicks.QuadPart;
+
 	std::vector<std::shared_ptr<ProcessInfo>> processes;
 	processes.reserve(_processes.empty() ? 512 : _processes.size() + 10);
 	ProcessMap processesByKey;
@@ -232,31 +280,8 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 		_threadsById.clear();
 	}
 
-	int size = 1 << 22;
-	wil::unique_virtualalloc_ptr<BYTE> buffer((BYTE*)::VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
-	if (!buffer)
-		return 0;
-
-	ULONG len;
-
-	// get timing info as close as possible to the API call
-
-	LARGE_INTEGER ticks;
-	::QueryPerformanceCounter(&ticks);
-	auto delta = ticks.QuadPart - _prevTicks.QuadPart;
-
-	NTSTATUS status;
-	bool extended;
-	if (_isElevated && IsWindows8OrGreater()) {
-		status = NtQuerySystemInformation(SystemFullProcessInformation, buffer.get(), size, &len);
-		extended = true;
-	}
-	else {
-		extended = false;
-		status = NtQuerySystemInformation(SystemExtendedProcessInformation, buffer.get(), size, &len);
-	}
-	if (NT_SUCCESS(status)) {
-		auto p = reinterpret_cast<SYSTEM_PROCESS_INFORMATION*>(buffer.get());
+	{
+		auto p = reinterpret_cast<SYSTEM_PROCESS_INFORMATION*>(_buffer.get());
 
 		for (;;) {
 			if (pid == 0 || pid == HandleToULong(p->UniqueProcessId)) {
@@ -383,6 +408,8 @@ std::shared_ptr<ProcessInfo> ProcessManager::Impl::BuildProcessInfo(
 
 	if (includeThreads && pi->Id > 0) {
 		auto threadCount = info->NumberOfThreads;
+		// the process' threads as of this snapshot (an existing process still has the previous snapshot's)
+		pi->ClearThreads();
 		for (ULONG i = 0; i < threadCount; i++) {
 			auto tinfo = (SYSTEM_EXTENDED_THREAD_INFORMATION*)info->Threads + i;
 			const auto& baseInfo = tinfo->ThreadInfo;

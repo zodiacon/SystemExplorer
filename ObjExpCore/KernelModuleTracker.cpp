@@ -4,15 +4,26 @@
 using namespace WinSys;
 
 uint32_t KernelModuleTracker::EnumModules() {
-    DWORD size = 1 << 18;
-    wil::unique_virtualalloc_ptr<> buffer(::VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
-
-    if (!NT_SUCCESS(::NtQuerySystemInformation(SystemModuleInformationEx, buffer.get(), size, nullptr)))
-        return 0;
-
-    if (_modules.empty()) {
-        _modules.reserve(256);
+    ULONG size = 1 << 18;
+    wil::unique_virtualalloc_ptr<> buffer;
+    NTSTATUS status;
+    for (int i = 0; i < 4; i++) {
+        buffer.reset(::VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+        if (!buffer)
+            return uint32_t(_modules.size());
+        ULONG len = 0;
+        status = ::NtQuerySystemInformation(SystemModuleInformationEx, buffer.get(), size, &len);
+        if (status != STATUS_INFO_LENGTH_MISMATCH && status != STATUS_BUFFER_TOO_SMALL)
+            break;
+        size = (std::max)(len, size) + (1 << 14);
     }
+    // keep the last list if the modules can't be read
+    if (!NT_SUCCESS(status))
+        return uint32_t(_modules.size());
+
+    // the modules as of now (this was appended to on every refresh, doubling the list)
+    _modules.clear();
+    _modules.reserve(256);
 
     auto p = (RTL_PROCESS_MODULE_INFORMATION_EX*)buffer.get();
     CHAR winDir[MAX_PATH];
