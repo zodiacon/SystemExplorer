@@ -474,7 +474,8 @@ void CProcessesView::OnPauseResume(bool paused) {
 
 LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& p = m_Processes[selected];
 
 	CString text;
@@ -496,7 +497,8 @@ LRESULT CProcessesView::OnProcessKill(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CProcessesView::OnProcessGoToFileLocation(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& px = GetProcessInfoEx(m_Processes[selected].get());
 
 	if ((INT_PTR)::ShellExecute(nullptr, L"open", L"explorer",
@@ -509,7 +511,8 @@ LRESULT CProcessesView::OnProcessGoToFileLocation(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 
 	Process process(DriverHelper::OpenProcess(m_Processes[selected]->Id, PROCESS_SET_INFORMATION));
 	bool ok = FALSE;
@@ -532,12 +535,16 @@ LRESULT CProcessesView::OnPriorityClass(WORD, WORD id, HWND, BOOL&) {
 }
 
 LRESULT CProcessesView::OnProcessItem(WORD, WORD id, HWND, BOOL&) {
-	return Frame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[m_List.GetSelectedIndex()].get()));
+	int selected = m_List.GetSelectedIndex();
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
+	return Frame()->SendFrameMessage(WM_COMMAND, id, reinterpret_cast<LPARAM>(m_Processes[selected].get()));
 }
 
 LRESULT CProcessesView::OnProperties(WORD, WORD, HWND, BOOL&) {
 	auto selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	ShowProperties(selected);
 
 	return 0;
@@ -550,7 +557,8 @@ LRESULT CProcessesView::OnProcessColors(WORD, WORD id, HWND, BOOL&) {
 
 LRESULT CProcessesView::OnProcessKillByName(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Processes.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& process = m_Processes[selected];
 
 	std::vector<DWORD> pids;

@@ -6,7 +6,8 @@ using namespace WinSys;
 CString FormatHelper::TimeSpanToString(int64_t ts) {
 	auto str = CTimeSpan(ts / 10000000).Format(L"%D.%H:%M:%S");
 
-	str.Format(L"%s.%03d", str, (ts / 10000) % 1000);
+	// appended, not str.Format(L"%s...", str): a CString can't be an argument of its own Format
+	str.AppendFormat(L".%03d", (int)((ts / 10000) % 1000));
 	return str;
 }
 
@@ -26,7 +27,7 @@ CString FormatHelper::TimeToString(int64_t time, bool includeMS) {
 		return L"";
 	auto str = CTime(*(FILETIME*)&time).Format(L"%x %X");
 	if (includeMS) {
-		str.Format(L"%s.%03d", str, (time / 10000) % 1000);
+		str.AppendFormat(L".%03d", (int)((time / 10000) % 1000));
 	}
 	return str;
 }

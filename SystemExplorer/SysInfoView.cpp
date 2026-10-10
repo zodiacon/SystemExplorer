@@ -68,17 +68,17 @@ CString CSysInfoView::GetColumnText(HWND, int row, int col) const {
 
 		case RowType::TotalRAM:
 			text = FormatHelper::FormatWithCommas(SystemInformation::GetBasicSystemInfo().TotalPhysicalInPages >> 8) + L" MB";
-			text.Format(L"%s (%u GB)", text, (ULONG)((SystemInformation::GetBasicSystemInfo().TotalPhysicalInPages + (1 << 17)) >> 18));
+			text.AppendFormat(L" (%u GB)", (ULONG)((SystemInformation::GetBasicSystemInfo().TotalPhysicalInPages + (1 << 17)) >> 18));
 			break;
 
 		case RowType::CommitSize:
 			text = FormatHelper::FormatWithCommas(m_SysPerfInfo.CommittedPages >> 8) + L" MB";
-			text.Format(L"%s (%d %%)", text, m_SysPerfInfo.CommittedPages * 100 / m_SysPerfInfo.CommitLimit);
+			text.AppendFormat(L" (%d %%)", m_SysPerfInfo.CommittedPages * 100 / m_SysPerfInfo.CommitLimit);
 			break;
 
 		case RowType::ResidentPagedPoolSize:
 			text = FormatHelper::FormatWithCommas(m_SysPerfInfo.ResidentPagedPoolPage >> 8) + L" MB";
-			text.Format(L"%s (%d %%)", text, m_SysPerfInfo.ResidentPagedPoolPage * 100 / m_SysPerfInfo.PagedPoolPages);
+			text.AppendFormat(L" (%d %%)", m_SysPerfInfo.ResidentPagedPoolPage * 100 / m_SysPerfInfo.PagedPoolPages);
 			break;
 
 		case RowType::Version:

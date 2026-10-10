@@ -122,7 +122,8 @@ std::wstring WinSys::ServiceManager::GetServiceDescription(const std::wstring & 
 }
 
 wil::unique_schandle ServiceManager::OpenServiceHandle(const std::wstring& name, ServiceAccessMask access) {
-	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
+	// opening a service needs only SC_MANAGER_CONNECT (full access to the SCM is for administrators only)
+	wil::unique_schandle hScm(::OpenSCManager(nullptr, nullptr, SC_MANAGER_CONNECT));
 	if (!hScm)
 		return nullptr;
 

@@ -468,27 +468,39 @@ CString ObjectManager::GetObjectName(HANDLE hDup, USHORT type) {
 
 		BYTE buffer[2048];
 		if (type == fileTypeIndex) {
-			// special case for files in case they're locked
+			//
+			// special case for files: querying the name of some (e.g. a synchronous pipe that's being waited on)
+			// blocks, so it's done on a thread that's abandoned if it takes too long. The thread writes only to its
+			// own heap block (never to this stack frame), which is freed only once the thread is known to be gone.
+			//
 			struct Data {
 				HANDLE hDup;
-				BYTE* buffer;
-			} data = { hDup, buffer };
-
-			wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) {
+				NTSTATUS status;
+				alignas(16) BYTE buffer[2048];	// OBJECT_NAME_INFORMATION holds a pointer
+			};
+			auto data = new Data{ hDup, STATUS_UNSUCCESSFUL };
+			wil::unique_handle hThread(::CreateThread(nullptr, 1 << 13, [](auto p) -> DWORD {
+				// only the system call: no allocations, so killing this thread can't leave a lock held
 				auto d = (Data*)p;
-				return (DWORD)NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(buffer), nullptr);
-				}, &data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
+				d->status = NT::NtQueryObject(d->hDup, NT::ObjectNameInformation, d->buffer, sizeof(d->buffer), nullptr);
+				return 0;
+				}, data, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr));
+			if (!hThread) {
+				delete data;
+				break;
+			}
 			if (::WaitForSingleObject(hThread.get(), 6) == WAIT_TIMEOUT) {
+				// termination is asynchronous: free the block only if the thread is gone, or it may still write to it
 				::TerminateThread(hThread.get(), 1);
+				if (::WaitForSingleObject(hThread.get(), 200) == WAIT_OBJECT_0)
+					delete data;
+				break;
 			}
-			else {
-				DWORD code;
-				::GetExitCodeThread(hThread.get(), &code);
-				if (code == STATUS_SUCCESS) {
-					auto name = (NT::POBJECT_NAME_INFORMATION)buffer;
-					sname = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
-				}
+			if (NT_SUCCESS(data->status)) {
+				auto name = (NT::POBJECT_NAME_INFORMATION)data->buffer;
+				sname = CString(name->Name.Buffer, name->Name.Length / sizeof(WCHAR));
 			}
+			delete data;
 		}
 		else if (NT_SUCCESS(NT::NtQueryObject(hDup, NT::ObjectNameInformation, buffer, sizeof(buffer), nullptr))) {
 			auto name = (NT::POBJECT_NAME_INFORMATION)buffer;

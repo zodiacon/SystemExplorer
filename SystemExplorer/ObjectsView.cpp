@@ -220,7 +220,8 @@ LRESULT CObjectsView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CObjectsView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	auto selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Objects.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& item = m_Objects[selected];
 	auto& handle = item->Handles[0];
 

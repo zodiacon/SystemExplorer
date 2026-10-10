@@ -7,12 +7,12 @@ using namespace WinSys;
 ServiceInfoEx::ServiceInfoEx(PCWSTR name) : _name(name) {
 }
 
+// nullptr if the configuration can't be read (e.g. access denied); that's remembered, so it isn't tried on every paint
 const WinSys::ServiceConfiguration* ServiceInfoEx::GetConfiguration() const {
-	if (_config == nullptr)
+	if (!_flagConfig) {
+		_flagConfig = true;
 		_config = ServiceManager::GetServiceConfiguration(_name);
-	//_config = std::make_unique<WinSys::ServiceConfiguration>();
-	if (_config == nullptr)
-		DebugBreak();
+	}
 	return _config.get();
 }
 

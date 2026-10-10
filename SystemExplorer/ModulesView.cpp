@@ -107,7 +107,8 @@ LRESULT CModulesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CModulesView::OnGoToFileLocation(WORD, WORD, HWND, BOOL&) {
 	int selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Modules.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& mi = m_Modules[selected];
 	if (mi->Path.empty()) {
 		AtlMessageBox(*this, L"No file is associated with this module", IDS_TITLE, MB_ICONEXCLAMATION);

@@ -56,8 +56,10 @@ std::optional<ProcessWindowInfo> Process::GetWindowInformation() const {
 		return info;
 
 	auto p = reinterpret_cast<PROCESS_WINDOW_INFORMATION*>(buffer.get());
+	// info is empty until emplaced; the title's length is in bytes
+	info.emplace();
 	info->Flags = p->WindowFlags;
-	info->Title = std::wstring(p->WindowTitle, p->WindowTitleLength);
+	info->Title = std::wstring(p->WindowTitle, p->WindowTitleLength / sizeof(WCHAR));
 	return info;
 }
 
@@ -325,27 +327,33 @@ std::vector<std::pair<std::wstring, std::wstring>> Process::GetEnvironment(HANDL
 	if (!::ReadProcessMemory(hProcess, peb.ProcessParameters, &processParams, sizeof(processParams), nullptr))
 		return env;
 
-	BYTE buffer[1 << 16];
-	int size = sizeof(buffer);
-	for(;;) {
-		if (::ReadProcessMemory(hProcess, processParams.Environment, buffer, size, nullptr))
-			break;
-		size -= 1 << 12;
-	}
+	// the environment block's size is known; it's read whole (it can be larger than 64 KB), into a buffer that
+	// always ends with two NULs, however the block itself ends
+	auto size = processParams.EnvironmentSize;
+	if (size == 0 || size > (16 << 20))
+		size = 1 << 16;
+	size &= ~(SIZE_T)(sizeof(WCHAR) - 1);
+	std::vector<WCHAR> buffer(size / sizeof(WCHAR) + 2);
+	SIZE_T read = 0;
+	// if the whole size can't be read, read what can be (smaller sizes, a page at a time)
+	while (size > 0 && !::ReadProcessMemory(hProcess, processParams.Environment, buffer.data(), size, &read))
+		size = size > (1 << 12) ? size - (1 << 12) : 0;
+	if (size == 0)
+		return env;
 
 	env.reserve(64);
 
-	for (auto p = (PWSTR)buffer; *p; ) {
+	auto end = buffer.data() + size / sizeof(WCHAR);
+	for (auto p = buffer.data(); p < end && *p; ) {
 		std::pair<std::wstring, std::wstring> var;
-		auto equal = wcschr(p, L'=');
-		assert(equal);
+		auto len = ::wcslen(p);
+		auto equal = ::wcschr(p, L'=');
 		if (!equal)
 			break;
 		*equal = L'\0';
 		var.first = p;
-		p += ::wcslen(p) + 1;
-		var.second = p;
-		p += ::wcslen(p) + 1;
+		var.second = equal + 1;
+		p += len + 1;
 		env.push_back(std::move(var));
 	}
 

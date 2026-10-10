@@ -36,6 +36,15 @@ void CHandlesView::DoSort(const SortInfo* si) {
 		return;
 	CWaitCursor wait(m_Pid == 0 && m_HandleType.IsEmpty());
 
+	if (si->SortColumn == 2) {
+		// names are read lazily; get the missing ones first (one at a time), so the parallel sort below only reads
+		for (auto& h : m_Handles) {
+			if ((h->HandleAttributes & 0x8000) == 0) {
+				h->Name = m_ObjMgr.GetObjectName(ULongToHandle(h->HandleValue), h->ProcessId, h->ObjectTypeIndex);
+				h->HandleAttributes |= 0x8000;
+			}
+		}
+	}
 	std::sort(std::execution::par_unseq, m_Handles.begin(), m_Handles.end(), [this, si](const auto& o1, const auto& o2) {
 		return CompareItems(*o1.get(), *o2.get(), si);
 		});
@@ -135,15 +144,7 @@ bool CHandlesView::CompareItems(HandleInfo& h1, HandleInfo& h2, const SortInfo* 
 		case 1:		// address
 			return SortHelper::SortNumbers(h1.Object, h2.Object, si->SortAscending);
 
-		case 2:		// name
-			if ((h1.HandleAttributes & 0x8000) == 0) {
-				h1.Name = m_ObjMgr.GetObjectName(ULongToHandle(h1.HandleValue), h1.ProcessId, h1.ObjectTypeIndex);
-				h1.HandleAttributes |= 0x8000;
-			}
-			if ((h2.HandleAttributes & 0x8000) == 0) {
-				h2.Name = m_ObjMgr.GetObjectName(ULongToHandle(h2.HandleValue), h2.ProcessId, h2.ObjectTypeIndex);
-				h2.HandleAttributes |= 0x8000;
-			}
+		case 2:		// name (DoSort gets the names first: this runs in parallel, so it must not change the items)
 			return SortHelper::SortStrings(h1.Name, h2.Name, si->SortAscending);
 
 		case 3:		// handle
@@ -238,7 +239,8 @@ LRESULT CHandlesView::OnContextMenu(int, LPNMHDR, BOOL&) {
 
 LRESULT CHandlesView::OnCloseHandle(WORD, WORD, HWND, BOOL&) {
 	auto selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Handles.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 
 	auto& item = m_Handles[selected];
 	if (AtlMessageBox(*this, L"Closing a handle can potentially make the process unstable. Continue?",
@@ -370,7 +372,8 @@ LRESULT CHandlesView::OnShowNamedObjectsOnly(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CHandlesView::OnEditSecurity(WORD, WORD, HWND, BOOL&) {
 	auto selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Handles.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 	auto& item = m_Handles[selected];
 
 	auto hDup = DriverHelper::DupHandle(UlongToHandle(item->HandleValue), item->ProcessId, READ_CONTROL | WRITE_DAC);

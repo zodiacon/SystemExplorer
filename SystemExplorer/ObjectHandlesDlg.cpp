@@ -50,7 +50,7 @@ LRESULT CObjectHandlesDlg::OnInitDialog(UINT, WPARAM, LPARAM lParam, BOOL&) {
 	SetIcon((HICON)lParam, FALSE);
 
 	GetWindowText(text);
-	text.Format(L"%s 0x%p (%s)", text, m_pObject->Object, m_pObject->TypeName);
+	text.AppendFormat(L" 0x%p (%s)", m_pObject->Object, (PCWSTR)m_pObject->TypeName);
 	SetWindowText(text);
 
 	DlgResize_Init(true);

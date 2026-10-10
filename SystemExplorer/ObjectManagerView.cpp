@@ -83,8 +83,10 @@ int CObjectManagerView::GetRowImage(HWND, int row) const {
 void CObjectManagerView::DoFind(const CString& text, DWORD flags) {
 	auto down = flags & FR_DOWN;
 	auto dir = down ? 1 : -1;
+	auto count = (int)m_Objects.size();
+	if (count == 0)
+		return;		// nothing to search (and count is a divisor below)
 	auto index = m_List.GetSelectedIndex() + dir;
-	auto count = m_List.GetItemCount();
 	if (index < 0)
 		index = 0;
 	else if (index >= count)
@@ -96,17 +98,23 @@ void CObjectManagerView::DoFind(const CString& text, DWORD flags) {
 		search.MakeLower();
 
 	auto start = index;
+	bool found = false;
 	do {
 		CString value(m_Objects[start].Name);
 		if (!matchCase)
 			value.MakeLower();
-		if (value.Find(search) >= 0)
+		if (value.Find(search) >= 0) {
+			found = true;
 			break;
+		}
 		start += dir + count;
 		start %= count;
 	} while (start != index);
 
-	m_List.SelectItem(start);
+	if (found)
+		m_List.SelectItem(start);
+	else
+		::MessageBeep((UINT)-1);
 	m_List.SetFocus();
 }
 

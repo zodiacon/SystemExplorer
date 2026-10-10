@@ -18,6 +18,7 @@ private:
 	mutable std::unique_ptr<WinSys::ServiceConfiguration> _config;
 	std::wstring _name;
 	mutable CString _desc, _privileges, _triggers, _dependencies;
+	mutable bool _flagConfig{ false };
 	mutable bool _flagPriveleges{ false };
 	mutable bool _flagTriggers{ false };
 	mutable bool _flagDependencies{ false };

@@ -25,11 +25,8 @@ void CServicesView::DoSort(const SortInfo* si) {
 }
 
 bool CServicesView::IsSortable(int col) const {
-	if (SecurityHelper::IsRunningElevated())
-		return true;
-
-	static auto dummyConfig = GetServiceInfoEx(m_Services[0].GetName()).GetConfiguration();
-	return dummyConfig != nullptr;
+	// columns from the configuration sort services whose configuration can't be read as empty
+	return true;
 }
 
 int CServicesView::GetRowImage(HWND, int row) const {
@@ -347,7 +344,8 @@ LRESULT CServicesView::OnServiceDelete(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CServicesView::OnProcessProperties(WORD, WORD, HWND, BOOL&) {
 	auto selected = m_List.GetSelectedIndex();
-	ATLASSERT(selected >= 0);
+	if (selected < 0 || selected >= (int)m_Services.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
 
 	auto& svc = m_Services[selected];
 	ProcessInfoEx px(m_ProcMgr.GetProcessById(svc.GetStatusProcess().ProcessId).get());
@@ -369,17 +367,18 @@ bool CServicesView::CompareItems(const ServiceInfo& s1, const ServiceInfo& s2, i
 		case 5: return SortHelper::SortStrings(
 			m_ProcMgr.GetProcessNameById(s1.GetStatusProcess().ProcessId), 
 			m_ProcMgr.GetProcessNameById(s2.GetStatusProcess().ProcessId), asc);
-		case 6:	return SortHelper::SortStrings(ServiceStartTypeToString(*GetServiceInfoEx(s1.GetName()).GetConfiguration()),
-					ServiceStartTypeToString(*GetServiceInfoEx(s2.GetName()).GetConfiguration()), asc);
-		case 7: return SortHelper::SortStrings(
-			GetServiceInfoEx(s1.GetName()).GetConfiguration()->BinaryPathName,
-			GetServiceInfoEx(s2.GetName()).GetConfiguration()->BinaryPathName, asc);
-		case 8: return SortHelper::SortStrings(
-			GetServiceInfoEx(s1.GetName()).GetConfiguration()->AccountName,
-			GetServiceInfoEx(s2.GetName()).GetConfiguration()->AccountName, asc);
-		case 9: return SortHelper::SortNumbers(
-			GetServiceInfoEx(s1.GetName()).GetConfiguration()->ErrorControl,
-			GetServiceInfoEx(s2.GetName()).GetConfiguration()->ErrorControl, asc);
+		case 6: case 7: case 8: case 9:
+		{
+			// the configuration is nullptr if it can't be read; such services sort as empty
+			auto c1 = GetServiceInfoEx(s1.GetName()).GetConfiguration();
+			auto c2 = GetServiceInfoEx(s2.GetName()).GetConfiguration();
+			switch (col) {
+				case 6: return SortHelper::SortStrings(c1 ? ServiceStartTypeToString(*c1) : CString(), c2 ? ServiceStartTypeToString(*c2) : CString(), asc);
+				case 7: return SortHelper::SortStrings(c1 ? c1->BinaryPathName : std::wstring(), c2 ? c2->BinaryPathName : std::wstring(), asc);
+				case 8: return SortHelper::SortStrings(c1 ? c1->AccountName : std::wstring(), c2 ? c2->AccountName : std::wstring(), asc);
+				default: return SortHelper::SortNumbers(c1 ? (int)c1->ErrorControl : -1, c2 ? (int)c2->ErrorControl : -1, asc);
+			}
+		}
 		case 10: return SortHelper::SortStrings(
 			GetServiceInfoEx(s1.GetName()).GetDescription(),
 			GetServiceInfoEx(s2.GetName()).GetDescription(), asc);
@@ -580,8 +579,9 @@ void CServicesView::UpdateUI(CUpdateUIBase* ui) {
 	else {
 		auto& svc = m_Services[selected];
 		auto& state = svc.GetStatusProcess().CurrentState;
-		ui->UIEnable(ID_SERVICE_START, state == ServiceState::Stopped && 
-			GetServiceInfoEx(svc.GetName()).GetConfiguration()->StartType != ServiceStartType::Disabled);
+		auto config = GetServiceInfoEx(svc.GetName()).GetConfiguration();
+		ui->UIEnable(ID_SERVICE_START, state == ServiceState::Stopped &&
+			(config == nullptr || config->StartType != ServiceStartType::Disabled));
 		ui->UIEnable(ID_SERVICE_STOP, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_PAUSE, state == ServiceState::Running);
 		ui->UIEnable(ID_SERVICE_CONTINUE, state == ServiceState::Paused);

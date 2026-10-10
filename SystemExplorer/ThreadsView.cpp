@@ -10,15 +10,12 @@ CThreadsView::CThreadsView(IMainFrame* frame, DWORD pid) : CViewBase(frame), m_P
 }
 
 CString CThreadsView::GetColumnText(HWND, int row, int col) {
+	// only reads: rows are removed by Refresh (removing them here, in the middle of painting, left the list
+	// asking for rows that no longer existed)
+	if (row < 0 || row >= (int)m_Threads.size())
+		return L"";
 	const auto& t = m_Threads[row];
 	const auto& tx = GetThreadInfoEx(t.get());
-	if (tx.IsTerminated) {
-		m_ThreadsEx.erase(t.get());
-		m_Threads.erase(m_Threads.begin() + row);
-		m_List.SetItemCountEx((int)m_Threads.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-		m_List.RedrawItems(row, row);
-		return L"";
-	}
 
 	CString text;
 
@@ -188,13 +185,16 @@ void CThreadsView::Refresh() {
 	auto tick = ::GetTickCount64();
 
 	for (int i = 0; i < count; i++) {
-		auto& t = m_TermThreads[i];
+		auto t = m_TermThreads[i];
 		auto& tx = GetThreadInfoEx(t.get());
 		if (tick > tx.TargetTime) {
-			tx.IsTerminated = true;
+			// shown as terminated long enough: remove the row
 			m_TermThreads.erase(m_TermThreads.begin() + i);
 			i--;
 			count--;
+			if (auto it = std::find(m_Threads.begin(), m_Threads.end(), t); it != m_Threads.end())
+				m_Threads.erase(it);
+			m_ThreadsEx.erase(t.get());
 		}
 	}
 
@@ -388,8 +388,9 @@ PCWSTR CThreadsView::ThreadStateToString(WinSys::ThreadState state) {
 		L"GateWaitObsolete (8)",
 		L"WaitingForProcessInSwap (9)"
 	};
-	ATLASSERT(state >= WinSys::ThreadState::Initialized && state <= WinSys::ThreadState::WaitingForProcessInSwap);
-
+	// a state newer than this table must not read past it
+	if ((unsigned)state >= _countof(states))
+		return L"Unknown";
 	return states[(int)state];
 }
 
@@ -443,9 +444,17 @@ PCWSTR CThreadsView::WaitReasonToString(WinSys::WaitReason reason) {
 		L"WrGuardedMutex",
 		L"WrRundown",
 		L"WrAlertByThreadId",
-		L"WrDeferredPreempt"
+		L"WrDeferredPreempt",
+		// added in later versions of Windows (newer than the bundled phnt headers)
+		L"WrPhysicalFault",
+		L"WrIoRing",
+		L"WrMdlCache",
+		L"WrRcu",
 	};
 
+	// reasons newer than this table must not read past it
+	if ((unsigned)reason >= _countof(reasons))
+		return L"Unknown";
 	return reasons[(int)reason];
 }
 

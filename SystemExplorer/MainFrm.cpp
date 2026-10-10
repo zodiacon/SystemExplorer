@@ -280,8 +280,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_StatusBar.SetParts(_countof(parts), parts);
 
 	m_view.m_bDestroyImageList = false;
-	m_view.m_bTabCloseButton = false;
-	m_view.m_bTabCloseButton = false;
+	// a close button shows on the tab under the mouse; clicking it removes the page (as Close does)
+	m_view.m_bTabCloseButton = true;
 
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, nullptr,
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
@@ -1110,16 +1110,16 @@ HWND CMainFrame::CreateAndAddHandlesView(const CString& name, DWORD pid) {
 }
 
 LRESULT CMainFrame::OnFindReplaceMessage(UINT /*uMsg*/, WPARAM id, LPARAM lParam, BOOL& handled) {
-	auto page = m_view.GetActivePage();
-	if (page < 0)
-		return 0;
-
+	// the dialog closing must be seen even when no tab is open, or m_pFindDlg is left pointing to a deleted dialog
 	auto fr = reinterpret_cast<FINDREPLACE*>(lParam);
 	if (fr->Flags & FR_DIALOGTERM) {
-		m_pFindDlg->DestroyWindow();
 		m_pFindDlg = nullptr;
 		return 0;
 	}
+
+	auto page = m_view.GetActivePage();
+	if (page < 0)
+		return 0;
 	m_FindText = fr->lpstrFindWhat;
 	m_FindFlags = fr->Flags;
 
