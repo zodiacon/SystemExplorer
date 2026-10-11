@@ -199,14 +199,15 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 }
 
 LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
-	ATLASSERT(m_List.GetSelectedCount() > 0);
-
 	auto first = -1;
 	CString text, temp;
-	auto columns = GetColumnManager(m_List)->GetCount();
+	// the shown columns (the column manager counts hidden ones too, which the list doesn't have: they came out as
+	// empty fields)
+	auto columns = m_List.GetHeader().GetItemCount();
 	for (UINT i = 0; i < m_List.GetSelectedCount(); i++) {
 		first = m_List.GetNextItem(first, LVNI_SELECTED);
-		ATLASSERT(first >= 0);
+		if (first < 0)
+			break;
 		for (int col = 0; col < columns; col++) {
 			m_List.GetItemText(first, col, temp);
 			text += temp;
@@ -216,7 +217,8 @@ LRESULT CObjectSummaryView::OnEditCopy(WORD, WORD, HWND, BOOL &) {
 		text += L"\r\n";
 	}
 
-	ClipboardHelper::CopyText(*this, text);
+	if (!text.IsEmpty())
+		ClipboardHelper::CopyText(*this, text);
 
 	return 0;
 }

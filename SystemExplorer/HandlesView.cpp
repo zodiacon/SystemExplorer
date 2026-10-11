@@ -23,12 +23,13 @@ CHandlesView::CHandlesView(IMainFrame* pFrame, PCWSTR type, DWORD pid) : CViewBa
 	m_pUI(pFrame->GetUpdateUI()), m_HandleType(type), m_Pid(pid) {
 	m_hProcess.reset(DriverHelper::OpenProcess(pid, SYNCHRONIZE));
 	if (pid) {
+		// live tracking of the process' handles opening and closing takes a handle to it. Without one (e.g. a
+		// protected process when not elevated) the view still shows its handles, from the system's handle list
+		// (refreshed on demand), so there's no message: it used to be shown, and the tab opened anyway.
 		auto hProcess = DriverHelper::OpenProcess(pid, SYNCHRONIZE | PROCESS_QUERY_INFORMATION);
 		m_HandleTracker.reset(new ProcessHandlesTracker(hProcess));
-		if (!m_HandleTracker->IsValid()) {
-			AtlMessageBox(nullptr, (L"Failed to open handle to process " + std::to_wstring(pid)).c_str(), IDS_TITLE, MB_ICONERROR);
+		if (!m_HandleTracker->IsValid())
 			m_HandleTracker.reset();
-		}
 	}
 }
 
