@@ -147,9 +147,14 @@ std::wstring Process::GetFullImageName() const {
 }
 
 std::wstring Process::GetCommandLine() const {
+	// most command lines fit in 8 KB, but one can be up to 32K characters: then the call says how much it takes
 	ULONG size = 8192;
 	auto buffer = std::make_unique<BYTE[]>(size);
 	auto status = ::NtQueryInformationProcess(_handle.get(), ProcessCommandLineInformation, buffer.get(), size, &size);
+	if ((status == STATUS_INFO_LENGTH_MISMATCH || status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW) && size > 8192) {
+		buffer = std::make_unique<BYTE[]>(size);
+		status = ::NtQueryInformationProcess(_handle.get(), ProcessCommandLineInformation, buffer.get(), size, &size);
+	}
 	if (NT_SUCCESS(status)) {
 		auto str = (UNICODE_STRING*)buffer.get();
 		return std::wstring(str->Buffer, str->Length / sizeof(WCHAR));
@@ -245,15 +250,22 @@ bool Process::IsManaged() const {
 	BOOL wow64 = FALSE;
 	::IsWow64Process(hProcess.get(), &wow64);
 
-	HMODULE hModule[64];
-	DWORD needed;
-	if (!::EnumProcessModulesEx(hProcess.get(), hModule, sizeof(hModule), &needed, wow64 ? LIST_MODULES_32BIT : LIST_MODULES_ALL))
-		return false;
+	// all the modules (only the first 64 were looked at, and the runtime is often loaded after those); the list is
+	// sized from what the call says it needs, again if more modules were loaded in between
+	std::vector<HMODULE> modules(256);
+	DWORD needed = 0;
+	for (int attempt = 0; attempt < 3; attempt++) {
+		if (!::EnumProcessModulesEx(hProcess.get(), modules.data(), (DWORD)(modules.size() * sizeof(HMODULE)), &needed,
+			wow64 ? LIST_MODULES_32BIT : LIST_MODULES_ALL))
+			return false;
+		if (needed <= modules.size() * sizeof(HMODULE))
+			break;
+		modules.resize(needed / sizeof(HMODULE) + 16);
+	}
 
-	int count = min(_countof(hModule), needed / sizeof(HMODULE));
-
-	for (int i = 0; i < count; i++) {
-		if (::GetModuleFileNameEx(hProcess.get(), hModule[i], filename, MAX_PATH) == 0)
+	auto count = (std::min)(modules.size(), (size_t)(needed / sizeof(HMODULE)));
+	for (size_t i = 0; i < count; i++) {
+		if (::GetModuleFileNameEx(hProcess.get(), modules[i], filename, MAX_PATH) == 0)
 			continue;
 			auto bs = ::wcsrchr(filename, L'\\');
 			if (bs && (::_wcsicmp(bs, L"\\clr.dll") == 0 || ::_wcsicmp(bs, L"\\coreclr.dll") == 0 || ::_wcsicmp(bs, L"\\mscorwks.dll") == 0))

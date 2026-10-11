@@ -10,8 +10,8 @@ CString SectionObjectType::GetDetails(HANDLE hSection) {
 	NT::SECTION_BASIC_INFORMATION bi;
 	if (NT_SUCCESS(NT::NtQuerySection(hSection, NT::SectionBasicInformation, &bi, sizeof(bi), nullptr))) {
 		details.Format(L"Size: 0x%llX KiB, Attributes: 0x%X (%s)",
-			bi.MaximumSize.QuadPart >> 8,
-			bi.AllocationAttributes, SectionAttributesToString(bi.AllocationAttributes));
+			bi.MaximumSize.QuadPart >> 10,		// bytes to KiB (>> 8 showed 4 times the size)
+			bi.AllocationAttributes, (PCWSTR)SectionAttributesToString(bi.AllocationAttributes));
 	}
 	return details;
 }

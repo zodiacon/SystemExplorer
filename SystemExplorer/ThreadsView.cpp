@@ -49,7 +49,7 @@ CString CThreadsView::GetColumnText(HWND, int row, int col) {
 			break;
 		case ThreadColumn::Win32StartAddress:
 			if (t->Win32StartAddress != t->StartAddress)
-				text.Format(L"0x%p", t->TebBase);
+				text.Format(L"0x%p", t->Win32StartAddress);
 			break;
 		case ThreadColumn::StackBase: text.Format(L"0x%p", t->StackBase); break;
 		case ThreadColumn::StackLimit: text.Format(L"0x%p", t->StackLimit); break;
@@ -72,6 +72,7 @@ CString CThreadsView::GetColumnText(HWND, int row, int col) {
 				text.Format(L"%d", mp);
 			break;
 		}
+		case ThreadColumn::IoPriority: return FormatHelper::IoPriorityToString(tx.GetIoPriority());
 	}
 	return text;
 }
@@ -190,6 +191,8 @@ void CThreadsView::Refresh() {
 		return;
 	}
 
+	// the selection stays on the same thread as rows are removed, added and sorted
+	SelectionKeeper keep(m_List, m_Threads);
 	count = (int)m_TermThreads.size();
 	auto tick = ::GetTickCount64();
 
@@ -241,6 +244,7 @@ void CThreadsView::Refresh() {
 	DoSort(GetSortInfo(m_List));
 	count = (int)m_Threads.size();
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
+	keep.Restore();
 	auto top = m_List.GetTopIndex();
 	m_List.RedrawItems(top, top + m_List.GetCountPerPage());
 

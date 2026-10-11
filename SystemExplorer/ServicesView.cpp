@@ -165,139 +165,75 @@ LRESULT CServicesView::OnItemStateChanged(int, LPNMHDR, BOOL&) {
 }
 
 LRESULT CServicesView::OnServiceStart(WORD, WORD, HWND, BOOL&) {
-	auto index = m_List.GetSelectedIndex();
-	ATLASSERT(index >= 0);
-	auto& svc = m_Services[index];
-	ATLASSERT(svc.GetStatusProcess().CurrentState == ServiceState::Stopped);
-
-	auto service = Service::Open(svc.GetName(), ServiceAccessMask::Start | ServiceAccessMask::QueryStatus);
-	if (service == nullptr) {
-		AtlMessageBox(*this, L"Failed to open service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-
-	if (!service->Start()) {
-		AtlMessageBox(*this, L"Failed to start service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-	CProgressDlg dlg;
-	dlg.ShowCancelButton(false);
-	dlg.SetMessageText((L"Starting service " + svc.GetName() + L"...").c_str());
-	dlg.SetProgressMarquee(true);
-	auto now = ::GetTickCount64();
-	dlg.SetTimerCallback([&]() {
-		service->Refresh(svc);
-		if (svc.GetStatusProcess().CurrentState == ServiceState::Running)
-			dlg.Close();
-		if (::GetTickCount64() - now > 5000)
-			dlg.Close(IDCANCEL);
-		}, 500);
-	if (dlg.DoModal() == IDCANCEL) {
-		AtlMessageBox(*this, L"Failed to start service within 5 seconds", IDS_TITLE, MB_ICONEXCLAMATION);
-	}
-	Refresh();
-	UpdateUI(this);
-
+	ControlServiceAndWait(ServiceAccessMask::Start, [](Service& s) { return s.Start(); }, ServiceState::Running,
+		L"Starting", L"Failed to start service", L"starting", 5000);
 	return 0;
 }
 
 LRESULT CServicesView::OnServiceStop(WORD, WORD, HWND, BOOL&) {
-	auto index = m_List.GetSelectedIndex();
-	ATLASSERT(index >= 0);
-	auto& svc = m_Services[index];
-	ATLASSERT(svc.GetStatusProcess().CurrentState == ServiceState::Running);
-
-	auto service = Service::Open(svc.GetName(), ServiceAccessMask::Stop | ServiceAccessMask::QueryStatus);
-	if (service == nullptr) {
-		AtlMessageBox(*this, L"Failed to open service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-
-	if (!service->Stop()) {
-		AtlMessageBox(*this, L"Failed to stop service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-
-	CProgressDlg dlg;
-	dlg.ShowCancelButton(false);
-	dlg.SetMessageText((L"Stopping service " + svc.GetName() + L"...").c_str());
-	dlg.SetProgressMarquee(true);
-	dlg.SetTimerCallback([&]() {
-		service->Refresh(svc);
-		if (svc.GetStatusProcess().CurrentState == ServiceState::Stopped)
-			dlg.Close();
-		}, 500);
-	dlg.DoModal();
-	m_List.RedrawItems(index, index);
-	UpdateUI(this);
-
+	ControlServiceAndWait(ServiceAccessMask::Stop, [](Service& s) { return s.Stop(); }, ServiceState::Stopped,
+		L"Stopping", L"Failed to stop service", L"stopping", 30000);
 	return 0;
 }
 
 LRESULT CServicesView::OnServicePause(WORD, WORD, HWND, BOOL&) {
-	auto index = m_List.GetSelectedIndex();
-	ATLASSERT(index >= 0);
-	auto& svc = m_Services[index];
-	ATLASSERT(svc.GetStatusProcess().CurrentState == ServiceState::Running);
-
-	auto service = Service::Open(svc.GetName(), ServiceAccessMask::PauseContinue | ServiceAccessMask::QueryStatus);
-	if (service == nullptr) {
-		AtlMessageBox(*this, L"Failed to open service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-
-	if (!service->Pause()) {
-		AtlMessageBox(*this, L"Failed to pause service", IDS_TITLE, MB_ICONERROR);
-		return 0;
-	}
-
-	CProgressDlg dlg;
-	dlg.ShowCancelButton(false);
-	dlg.SetMessageText((L"Pausing service " + svc.GetName() + L"...").c_str());
-	dlg.SetProgressMarquee(true);
-	dlg.SetTimerCallback([&]() {
-		service->Refresh(svc);
-		if (svc.GetStatusProcess().CurrentState == ServiceState::Paused)
-			dlg.Close();
-		}, 500);
-	dlg.DoModal();
-	m_List.RedrawItems(index, index);
-	UpdateUI(this);
-
+	ControlServiceAndWait(ServiceAccessMask::PauseContinue, [](Service& s) { return s.Pause(); }, ServiceState::Paused,
+		L"Pausing", L"Failed to pause service", L"pausing", 30000);
 	return 0;
 }
 
 LRESULT CServicesView::OnServiceContinue(WORD, WORD, HWND, BOOL&) {
-	auto index = m_List.GetSelectedIndex();
-	ATLASSERT(index >= 0);
-	auto& svc = m_Services[index];
-	ATLASSERT(svc.GetStatusProcess().CurrentState == ServiceState::Paused);
+	ControlServiceAndWait(ServiceAccessMask::PauseContinue, [](Service& s) { return s.Continue(); }, ServiceState::Running,
+		L"Resuming", L"Failed to resume service", L"resuming", 30000);
+	return 0;
+}
 
-	auto service = Service::Open(svc.GetName(), ServiceAccessMask::PauseContinue | ServiceAccessMask::QueryStatus);
+//
+// Asks the selected service to start/stop/pause/resume, then waits (showing progress) for it to get to the state
+// that leads to. The wait can be cancelled, and it gives up after timeout ms: a service can stay in a pending state
+// for good, and the dialog used to have no way out then.
+//
+void CServicesView::ControlServiceAndWait(ServiceAccessMask access, bool (*action)(Service&), ServiceState target,
+	PCWSTR doing, PCWSTR failedText, PCWSTR pendingText, DWORD timeout) {
+	auto index = m_List.GetSelectedIndex();
+	if (index < 0 || index >= (int)m_Services.size())
+		return;		// toolbar buttons and accelerators work without a selection too
+
+	// a copy: m_Services may be replaced while the dialog is up
+	auto svc = m_Services[index];
+	auto service = Service::Open(svc.GetName(), access | ServiceAccessMask::QueryStatus);
 	if (service == nullptr) {
 		AtlMessageBox(*this, L"Failed to open service", IDS_TITLE, MB_ICONERROR);
-		return 0;
+		return;
 	}
 
-	if (!service->Continue()) {
-		AtlMessageBox(*this, L"Failed to resume service", IDS_TITLE, MB_ICONERROR);
-		return 0;
+	if (!action(*service)) {
+		AtlMessageBox(*this, failedText, IDS_TITLE, MB_ICONERROR);
+		return;
 	}
 
 	CProgressDlg dlg;
-	dlg.ShowCancelButton(false);
-	dlg.SetMessageText((L"Resuming service " + svc.GetName() + L"...").c_str());
+	dlg.SetMessageText((doing + std::wstring(L" service ") + svc.GetName() + L"...").c_str());
 	dlg.SetProgressMarquee(true);
+	auto start = ::GetTickCount64();
+	bool timedOut = false;
 	dlg.SetTimerCallback([&]() {
 		service->Refresh(svc);
-		if (svc.GetStatusProcess().CurrentState == ServiceState::Running)
+		if (svc.GetStatusProcess().CurrentState == target)
 			dlg.Close();
+		else if (::GetTickCount64() - start > timeout) {
+			timedOut = true;
+			dlg.Close(IDCANCEL);
+		}
 		}, 500);
 	dlg.DoModal();
-	m_List.RedrawItems(index, index);
+	if (timedOut) {
+		CString text;
+		text.Format(L"The service is still %s after %u seconds.", pendingText, timeout / 1000);
+		AtlMessageBox(*this, (PCWSTR)text, IDS_TITLE, MB_ICONEXCLAMATION);
+	}
+	Refresh();
 	UpdateUI(this);
-
-	return 0;
 }
 
 LRESULT CServicesView::OnHideColumn(WORD, WORD, HWND, BOOL&) {

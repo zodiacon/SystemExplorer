@@ -44,12 +44,14 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 		return CDRF_DODEFAULT;
 	}
 
-	if((GetColumnManager(m_List)->GetColumn(GetRealColumn(m_List, sub)).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
+	auto real = GetRealColumn(m_List, sub);
+	if((GetColumnManager(m_List)->GetColumn(real).Flags & ColumnFlags::Numeric) == ColumnFlags::Numeric)
 		::SelectObject(cd->hdc, (HFONT)Frame()->GetMonoFont());
 	else
 		::SelectObject(cd->hdc, m_hFont);
 
-	if (sub < 2 || sub > 5)
+	// the changes are in the objects/handles columns (by their real index: some columns may be hidden)
+	if (real < 2 || real > 5)
 		return CDRF_DODEFAULT | CDRF_NEWFONT;
 
 	auto index = (int)cd->dwItemSpec;
@@ -57,7 +59,7 @@ DWORD CObjectSummaryView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	auto& changes = m_ObjectManager.GetChanges();
 
 	for (auto& change : changes) {
-		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == sub) {
+		if (std::get<0>(change) == item && MapChangeToColumn(std::get<1>(change)) == real) {
 			lcd->clrTextBk = std::get<2>(change) >= 0 ? RGB(0, 255, 0) : RGB(255, 0, 0);
 			lcd->clrText = std::get<2>(change) >= 0 ? RGB(0, 0, 0) : RGB(255, 255, 255);
 		}
@@ -138,7 +140,8 @@ LRESULT CObjectSummaryView::OnGetDispInfo(int, LPNMHDR hdr, BOOL &) {
 	auto lv = reinterpret_cast<NMLVDISPINFO*>(hdr);
 	auto& item = lv->item;
 	auto index = item.iItem;
-	auto col = item.iSubItem;
+	// the column's real index (iSubItem counts only the shown columns, and some are hidden by default)
+	auto col = GetRealColumn(m_List, item.iSubItem);
 	auto data = GetItem(index);
 
 	if (lv->item.mask & LVIF_TEXT) {
@@ -238,10 +241,13 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 		OFN_HIDEREADONLY | OFN_EXPLORER | OFN_OVERWRITEPROMPT,
 		L"CSV Files (*.csv)\0*.csv\0All Files\0*.*\0", m_hWnd);
 	if (dlg.DoModal() == IDOK) {
-		wil::unique_hfile hFile(::CreateFile(dlg.m_szFileName, GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, 0, nullptr));
+		// CREATE_ALWAYS: the file is replaced (OPEN_ALWAYS left the end of a longer old file in it)
+		wil::unique_hfile hFile(::CreateFile(dlg.m_szFileName, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0, nullptr));
 		if (hFile) {
-			CString text, temp;
-			auto columns = GetColumnManager(m_List)->GetCount();
+			// a UTF-16 byte order mark, so readers (e.g. Excel) know the encoding
+			CString text(L"\xFEFF"), temp;
+			// the shown columns (the column manager counts hidden ones too, which the list doesn't have)
+			auto columns = m_List.GetHeader().GetItemCount();
 			for (int i = 0; i < m_List.GetItemCount(); i++) {
 				for (int col = 0; col < columns; col++) {
 					m_List.GetItemText(i, col, temp);
@@ -252,7 +258,7 @@ LRESULT CObjectSummaryView::OnExport(WORD, WORD, HWND, BOOL &) {
 				text += L"\r\n";
 			}
 			DWORD bytes;
-			::WriteFile(hFile.get(), text.GetBuffer(), text.GetLength() * sizeof(WCHAR), &bytes, nullptr);
+			::WriteFile(hFile.get(), (PCWSTR)text, text.GetLength() * sizeof(WCHAR), &bytes, nullptr);
 		}
 		else {
 			AtlMessageBox(*this, L"Failed to create file.", IDR_MAINFRAME);
@@ -327,8 +333,8 @@ bool CObjectSummaryView::CompareItems(const std::shared_ptr<ObjectTypeInfo>& ite
 		case 4:	return SortHelper::Sort(item1->HighWaterNumberOfObjects, item2->HighWaterNumberOfObjects, asc);
 		case 5:	return SortHelper::Sort(item1->HighWaterNumberOfHandles, item2->HighWaterNumberOfHandles, asc);
 		case 6: return SortHelper::Sort(item1->PoolType, item2->PoolType, asc);
-		case 7:	return SortHelper::Sort(item1->DefaultNonPagedPoolCharge, item2->DefaultNonPagedPoolCharge, asc);
-		case 8:	return SortHelper::Sort(item1->DefaultPagedPoolCharge, item2->DefaultPagedPoolCharge, asc);
+		case 7:	return SortHelper::Sort(item1->DefaultPagedPoolCharge, item2->DefaultPagedPoolCharge, asc);
+		case 8:	return SortHelper::Sort(item1->DefaultNonPagedPoolCharge, item2->DefaultNonPagedPoolCharge, asc);
 		case 9:	return SortHelper::Sort(item1->ValidAccessMask, item2->ValidAccessMask, asc);
 	}
 	return false;

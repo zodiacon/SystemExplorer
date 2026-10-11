@@ -3,6 +3,47 @@
 #include "ColumnManager.h"
 #include "ListViewHelper.h"
 
+//
+// Keeps a list's selection on the same item across a refresh that removes, adds and sorts items. An LVS_OWNERDATA list
+// view keeps only the selected index, which then pointed at whatever item moved there. Create it before the items
+// change and call Restore() after the list's item count is set; if the item is gone, nothing is selected.
+// same: whether two items are the same one (by default, the same object; when a refresh creates new objects for the
+// same items, compare what identifies them).
+//
+template<typename Item>
+class SelectionKeeper {
+public:
+	// (same isn't used to deduce Item, so a lambda can be passed)
+	SelectionKeeper(HWND hList, const std::vector<Item>& items, std::type_identity_t<std::function<bool(const Item&, const Item&)>> same = nullptr)
+		: m_List(hList), m_Items(items), m_Same(std::move(same)) {
+		m_Index = m_List.GetSelectedIndex();
+		if (m_Index >= 0 && m_Index < (int)items.size())
+			m_Selected = items[m_Index];
+		else
+			m_Index = -1;
+	}
+
+	void Restore() {
+		if (m_Index < 0)
+			return;
+		auto it = m_Same ? std::find_if(m_Items.begin(), m_Items.end(), [&](const Item& item) { return m_Same(item, m_Selected); })
+			: std::find(m_Items.begin(), m_Items.end(), m_Selected);
+		int index = it == m_Items.end() ? -1 : static_cast<int>(it - m_Items.begin());
+		if (index == m_Index && index == m_List.GetSelectedIndex())
+			return;
+		m_List.SetItemState(-1, 0, LVIS_SELECTED | LVIS_FOCUSED);
+		if (index >= 0)
+			m_List.SetItemState(index, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+	}
+
+private:
+	CListViewCtrl m_List;
+	const std::vector<Item>& m_Items;
+	std::function<bool(const Item&, const Item&)> m_Same;
+	Item m_Selected{};
+	int m_Index;
+};
+
 enum class ListViewRowCheck {
 	None,
 	Unchecked,

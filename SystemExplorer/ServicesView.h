@@ -80,6 +80,8 @@ private:
 	HWND InitToolBar();
 	void Refresh();
 	void UpdateUI(CUpdateUIBase*);
+	void ControlServiceAndWait(WinSys::ServiceAccessMask access, bool (*action)(WinSys::Service&), WinSys::ServiceState target,
+		PCWSTR doing, PCWSTR failedText, PCWSTR pendingText, DWORD timeout);
 
 private:
 	std::vector<WinSys::ServiceInfo> m_Services;

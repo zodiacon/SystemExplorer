@@ -50,33 +50,57 @@ std::vector<DEVPROPKEY> DeviceManager::GetClassPropertyKeys(const GUID* guid) {
 	return keys;
 }
 
-std::wstring WinSys::DeviceManager::GetDeviceRegistryPropertyString(const DeviceInfo& di, DeviceRegistryPropertyType type) const {
-	std::wstring result;
-	result.resize(256);
-
-	DWORD regType;
-	if (::SetupDiGetDeviceRegistryProperty(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, static_cast<DWORD>(type), &regType,
-		(BYTE*)result.data(), DWORD(result.size() * sizeof(wchar_t)), nullptr)) {
-		assert(regType == REG_SZ);
-		return result;
-	}
-	return L"";
+//
+// The string properties are read into buffers sized from what the property takes, and the strings are cut to their
+// real length: they were read into fixed 256 character strings, which kept that length (with embedded NULs) and
+// came back empty when the value was longer.
+//
+static std::wstring StringFromBuffer(std::vector<WCHAR>& buffer) {
+	buffer.back() = 0;
+	return std::wstring(buffer.data());
 }
 
-std::vector<std::wstring> WinSys::DeviceManager::GetDeviceRegistryPropertyMultiString(const DeviceInfo& di, DeviceRegistryPropertyType type) const {
+static std::vector<std::wstring> MultiStringFromBuffer(std::vector<WCHAR>& buffer) {
 	std::vector<std::wstring> result;
-	WCHAR buffer[1 << 11];
-	DWORD regType;
-	auto ok = ::SetupDiGetDeviceRegistryProperty(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, static_cast<DWORD>(type), &regType, (BYTE*)buffer, sizeof(buffer), nullptr);
-	if (!ok)
-		return result;
-
-	assert(regType == REG_MULTI_SZ);
-	for (auto p = buffer; *p;) {
+	// the buffer ends with (at least) two NULs, however the value itself ends
+	buffer[buffer.size() - 1] = buffer[buffer.size() - 2] = 0;
+	for (auto p = buffer.data(); p < buffer.data() + buffer.size() && *p; ) {
 		result.push_back(p);
 		p += ::wcslen(p) + 1;
 	}
 	return result;
+}
+
+static std::vector<WCHAR> ReadDeviceProperty(HDEVINFO hInfoSet, PSP_DEVINFO_DATA data, DWORD type) {
+	DWORD size = 0;
+	::SetupDiGetDeviceRegistryProperty(hInfoSet, data, type, nullptr, nullptr, 0, &size);
+	if (size == 0)
+		return {};
+	std::vector<WCHAR> buffer(size / sizeof(WCHAR) + 2);
+	if (!::SetupDiGetDeviceRegistryProperty(hInfoSet, data, type, nullptr, (BYTE*)buffer.data(), DWORD(buffer.size() * sizeof(WCHAR)), nullptr))
+		return {};
+	return buffer;
+}
+
+static std::vector<WCHAR> ReadClassProperty(const GUID* guid, DWORD type) {
+	DWORD size = 0;
+	::SetupDiGetClassRegistryProperty(guid, type, nullptr, nullptr, 0, &size, nullptr, nullptr);
+	if (size == 0)
+		return {};
+	std::vector<WCHAR> buffer(size / sizeof(WCHAR) + 2);
+	if (!::SetupDiGetClassRegistryProperty(guid, type, nullptr, (BYTE*)buffer.data(), DWORD(buffer.size() * sizeof(WCHAR)), nullptr, nullptr, nullptr))
+		return {};
+	return buffer;
+}
+
+std::wstring WinSys::DeviceManager::GetDeviceRegistryPropertyString(const DeviceInfo& di, DeviceRegistryPropertyType type) const {
+	auto buffer = ReadDeviceProperty(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, static_cast<DWORD>(type));
+	return buffer.empty() ? L"" : StringFromBuffer(buffer);
+}
+
+std::vector<std::wstring> WinSys::DeviceManager::GetDeviceRegistryPropertyMultiString(const DeviceInfo& di, DeviceRegistryPropertyType type) const {
+	auto buffer = ReadDeviceProperty(_hInfoSet.get(), (PSP_DEVINFO_DATA)&di.Data, static_cast<DWORD>(type));
+	return buffer.empty() ? std::vector<std::wstring>() : MultiStringFromBuffer(buffer);
 }
 
 HICON WinSys::DeviceManager::GetDeviceIcon(const DeviceInfo& di, bool big) const {
@@ -87,30 +111,13 @@ HICON WinSys::DeviceManager::GetDeviceIcon(const DeviceInfo& di, bool big) const
 }
 
 std::wstring WinSys::DeviceManager::GetDeviceClassRegistryPropertyString(const GUID* guid, DeviceClassRegistryPropertyType type) {
-	DWORD regType;
-	std::wstring result;
-	result.resize(256);
-	if (::SetupDiGetClassRegistryProperty(guid, static_cast<DWORD>(type), &regType, 
-		(BYTE*)result.data(), DWORD(result.size() * sizeof(WCHAR)), nullptr, nullptr, nullptr)) {
-		assert(regType == REG_SZ);
-		return result;
-	}
-
-	return L"";
+	auto buffer = ReadClassProperty(guid, static_cast<DWORD>(type));
+	return buffer.empty() ? L"" : StringFromBuffer(buffer);
 }
 
 std::vector<std::wstring> WinSys::DeviceManager::GetDeviceClassRegistryPropertyMultiString(const GUID* guid, DeviceClassRegistryPropertyType type) {
-	std::vector<std::wstring> result;
-	WCHAR buffer[1 << 12];
-	DWORD regType;
-	if (::SetupDiGetClassRegistryProperty(guid, static_cast<DWORD>(type), &regType, (BYTE*)buffer, sizeof(buffer), nullptr, nullptr, nullptr)) {
-		assert(regType == REG_MULTI_SZ);
-		for (auto p = buffer; *p;) {
-			result.push_back(p);
-			p += ::wcslen(p) + 1;
-		}
-	}
-	return result;
+	auto buffer = ReadClassProperty(guid, static_cast<DWORD>(type));
+	return buffer.empty() ? std::vector<std::wstring>() : MultiStringFromBuffer(buffer);
 }
 
 DeviceManager::DeviceManager(const wchar_t* computerName, const GUID* classGuid, const wchar_t* enumerator, InfoSetOptions options) {

@@ -77,7 +77,9 @@ protected:
 				ui->UISetCheck(ID_VIEW_PAUSE, m_Paused);
 				ui->UIEnable(ID_VIEW_PAUSE, TRUE);
 
-				pT->SetTimer(1, GetUpdateInterval(), nullptr);
+				// a paused view stays paused when its tab is activated again
+				if (!m_Paused)
+					pT->SetTimer(1, GetUpdateInterval(), nullptr);
 			}
 			else {
 				pT->KillTimer(1);

@@ -111,8 +111,10 @@ std::wstring CInstallServiceDlg::GetDlgItemText(UINT id) {
 	auto len = win.GetWindowTextLength();
 	std::wstring text;
 	if (len) {
+		// room for the terminating NUL, which isn't part of the text: the string is cut back to the copied length
+		// (a NUL left at its end made e.g. "Network Service" never match, and installing with it failed)
 		text.resize(len + 1);
-		win.GetWindowText(text.data(), len + 1);
+		text.resize(win.GetWindowText(text.data(), len + 1));
 	}
 	return text;
 }

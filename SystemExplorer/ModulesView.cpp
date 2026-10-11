@@ -131,6 +131,8 @@ void CModulesView::Refresh() {
 		return;
 	}
 	auto first = m_Modules.empty();
+	// the selection stays on the same module as rows are removed, added and sorted
+	SelectionKeeper keep(m_List, m_Modules);
 	m_Tracker.EnumModules();
 	if (first) {
 		m_Modules = m_Tracker.GetModules();
@@ -171,6 +173,7 @@ void CModulesView::Refresh() {
 	auto count = static_cast<int>(m_Modules.size());
 	m_List.SetItemCountEx(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
 	DoSort(GetSortInfo(m_List));
+	keep.Restore();
 
 	if (!first) {
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());

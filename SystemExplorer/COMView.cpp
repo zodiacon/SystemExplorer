@@ -112,11 +112,11 @@ LRESULT CComView::OnSelectedTreeItemChanged(int, LPNMHDR hdr, BOOL&) {
 
 void CComView::InitTree() {
 	auto item = CreateRootItem(L"Default", ComStore::Default);
-	CreateRootItem(L"Machine", ComStore::User);
-	CreateRootItem(L"User", ComStore::Machine);
+	CreateRootItem(L"Machine", ComStore::Machine);
+	CreateRootItem(L"User", ComStore::User);
 	CreateRootItem(L"Default (32 bit)", ComStore::Default32);
-	CreateRootItem(L"Machine (32 bit)", ComStore::User32);
-	CreateRootItem(L"User (32 bit)", ComStore::Machine32);
+	CreateRootItem(L"Machine (32 bit)", ComStore::Machine32);
+	CreateRootItem(L"User (32 bit)", ComStore::User32);
 	item.Expand(TVE_EXPAND);
 	item.Select();
 	UpdateList(item);
@@ -145,15 +145,20 @@ void CComView::UpdateList(CTreeItem item) {
 
 	auto parent = item.GetParent();
 	if (!parent) {
-		// sub node
-		if (m_ComExplorer.Open((ComStore)item.GetData())) {
-
-		}
+		// a store's (root) node
+		if (m_ComExplorer.Open((ComStore)item.GetData()))
+			m_CurrentStore = (ComStore)item.GetData();
 		m_List.SetItemCount(0);
 		GetColumnManager(m_List)->Clear();
 
 		return;
 	}
+
+	// a node under a store: its items are the store's, which may not be the one open (if this node was selected
+	// without selecting its store's node first, the items listed were the last opened store's)
+	auto store = (ComStore)parent.GetData();
+	if (store != m_CurrentStore && m_ComExplorer.Open(store))
+		m_CurrentStore = store;
 
 	int count = 0;
 	m_SelectedNode = item;

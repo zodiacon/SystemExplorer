@@ -88,7 +88,6 @@ private:
 	DWORD64 m_TargetUpdateTime = 0;
 	std::vector<Change> m_Changes;
 	wil::unique_handle m_hProcess;
-	bool m_Paused = false;
 	bool m_NamedObjectsOnly = false;
 };
 

@@ -12,24 +12,37 @@ std::vector<ServiceInfo> ServiceManager::EnumServices(ServiceEnumType enumType, 
 	if (!hScm)
 		return services;
 
-	auto buffer = std::make_unique<BYTE[]>(1 << 18);
-	DWORD needed;
-	DWORD count;
-	auto ok = ::EnumServicesStatusEx(hScm.get(), SC_ENUM_PROCESS_INFO, static_cast<DWORD>(enumType),
-		static_cast<DWORD>(enumState), buffer.get(), 1 << 18, &needed, &count, nullptr, nullptr);
-	if (!ok)
-		return services;
+	//
+	// the services come in as many calls as it takes (resume tracks where the last call stopped): with many services
+	// (e.g. a terminal server's per-user services) they don't all fit, and the list used to come back empty then
+	//
+	DWORD size = 1 << 18;
+	auto buffer = std::make_unique<BYTE[]>(size);
+	DWORD resume = 0;
+	services.reserve(512);
+	for (;;) {
+		DWORD needed = 0, count = 0;
+		auto ok = ::EnumServicesStatusEx(hScm.get(), SC_ENUM_PROCESS_INFO, static_cast<DWORD>(enumType),
+			static_cast<DWORD>(enumState), buffer.get(), size, &needed, &count, &resume, nullptr);
+		if (!ok && ::GetLastError() != ERROR_MORE_DATA)
+			break;
 
-//	auto QueryTagInformation = (PQUERY_TAG_INFORMATION)::GetProcAddress(::GetModuleHandle(L"advapi32"), "I_QueryTagInformation");
-	services.reserve(count);
-	for (size_t i = 0; i < count; i++) {
-		auto data = (ENUM_SERVICE_STATUS_PROCESS*)buffer.get() + i;
-		ServiceInfo svc;
-		svc._name = data->lpServiceName;
-		svc._displayName = data->lpDisplayName;
-		::memcpy(&svc._status, &data->ServiceStatusProcess, sizeof(SERVICE_STATUS_PROCESS));
+		for (DWORD i = 0; i < count; i++) {
+			auto data = (ENUM_SERVICE_STATUS_PROCESS*)buffer.get() + i;
+			ServiceInfo svc;
+			svc._name = data->lpServiceName;
+			svc._displayName = data->lpDisplayName;
+			::memcpy(&svc._status, &data->ServiceStatusProcess, sizeof(SERVICE_STATUS_PROCESS));
 
-		services.push_back(std::move(svc));
+			services.push_back(std::move(svc));
+		}
+		if (ok)
+			break;
+		// more to come; needed is what the rest (or at least the next one) takes
+		if (needed > size) {
+			size = needed;
+			buffer = std::make_unique<BYTE[]>(size);
+		}
 	}
 	return services;
 }

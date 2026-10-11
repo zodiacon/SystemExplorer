@@ -85,7 +85,7 @@ std::unordered_map<std::wstring, std::vector<AccessMaskDecoder::AccessMaskPair>>
 	{ L"DebugObject", {
 		{ DEBUG_ALL_ACCESS,			L"DEBUG_ALL_ACCESS", true },
 		{ DEBUG_READ_EVENT,			L"READ_EVENT" },
-		{ DEBUG_PROCESS_ASSIGN,		L"PROCESS_ASIGN" },
+		{ DEBUG_PROCESS_ASSIGN,		L"PROCESS_ASSIGN" },
 		{ DEBUG_SET_INFORMATION,	L"SET_INFORMATION" },
 		{ DEBUG_QUERY_INFORMATION,	L"QUERY_INFORMATION" },
 		}
@@ -93,6 +93,7 @@ std::unordered_map<std::wstring, std::vector<AccessMaskDecoder::AccessMaskPair>>
 
 	{ L"Process", {
 		{ PROCESS_ALL_ACCESS,				L"PROCESS_ALL_ACCESS", true },
+		{ PROCESS_TERMINATE                , L"TERMINATE" },
 		{ PROCESS_CREATE_THREAD            , L"CREATE_THREAD" },
 		{ PROCESS_SET_SESSIONID            , L"SET_SESSIONID" },
 		{ PROCESS_VM_OPERATION             , L"VM_OPERATION" },

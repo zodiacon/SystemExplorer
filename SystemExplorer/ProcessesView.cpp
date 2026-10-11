@@ -270,6 +270,8 @@ void CProcessesView::Refresh() {
 		return;
 	}
 
+	// the selection stays on the same process as rows are removed, added and sorted
+	SelectionKeeper keep(m_List, m_Processes);
 	auto tick = ::GetTickCount64();
 	count = (int)m_Processes.size();
 	for (int i = 0; i < count; i++) {
@@ -304,7 +306,8 @@ void CProcessesView::Refresh() {
 	auto si = GetSortInfo(m_List);
 	m_spList->SetItemCount(count, LVSICF_NOSCROLL | LVSICF_NOINVALIDATEALL);
 	if (si && !m_ProcMgr.GetNewProcesses().empty() || (si && ((GetColumnManager(m_List)->GetColumn(si->SortColumn).Flags & ColumnFlags::Const) != ColumnFlags::Const)))
-		Sort(si);
+		DoSort(si);
+	keep.Restore();
 	int top, page;
 	m_spList->GetTopIndex(&top);
 	m_spList->GetCountPerPage(&page);

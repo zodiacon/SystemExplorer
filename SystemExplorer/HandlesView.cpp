@@ -276,6 +276,8 @@ LRESULT CHandlesView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 
 void CHandlesView::OnUpdate() {
 	if (m_HandleTracker) {
+		// the selection stays on the same handle as rows are removed, added and sorted
+		SelectionKeeper keep(m_List, m_Handles);
 		m_HandleTracker->EnumHandles();
 		ATLTRACE(L"New handles: %u, Closed handles: %u\n", m_HandleTracker->GetNewHandles().size(), m_HandleTracker->GetClosedHandles().size());
 
@@ -340,6 +342,7 @@ void CHandlesView::OnUpdate() {
 		if (si)
 			DoSort(si);
 		m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		keep.Restore();
 		m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	}
 }
@@ -417,6 +420,10 @@ void CHandlesView::Refresh() {
 		Frame()->CloseView(*this);
 		return;
 	}
+	// the selection stays on the same handle; the enumeration creates new objects, so it's found by what it is
+	SelectionKeeper keep(m_List, m_Handles, [](const std::shared_ptr<HandleInfo>& h1, const std::shared_ptr<HandleInfo>& h2) {
+		return h1->HandleValue == h2->HandleValue && h1->ProcessId == h2->ProcessId;
+		});
 	m_ObjMgr.EnumHandles(m_HandleType, m_Pid, m_NamedObjectsOnly);
 	// the cache is keyed by the HandleInfo objects, which the enumeration has just replaced
 	m_DetailsCache.clear();
@@ -425,18 +432,19 @@ void CHandlesView::Refresh() {
 		m_Changes.clear();
 		m_Changes.reserve(8);
 		m_HandleTracker->EnumHandles(true);
-		if (!m_Paused)
+		if (!IsPaused())	// the base class' state (this view had its own copy, always false)
 			SetTimer(1, 1000, nullptr);
 	}
 	m_ProcMgr.EnumProcesses();
 	m_Handles = m_ObjMgr.GetHandles();
 	DoSort(GetSortInfo(m_List));
 	m_List.SetItemCountEx(static_cast<int>(m_Handles.size()), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	keep.Restore();
 	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
 void CHandlesView::UpdateUI() {
-	m_pUI->UISetCheck(ID_VIEW_PAUSE, m_Paused);
+	m_pUI->UISetCheck(ID_VIEW_PAUSE, IsPaused());
 }
 
 CString CHandlesView::HandleAttributesToString(ULONG attributes) {

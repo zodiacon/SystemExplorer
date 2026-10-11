@@ -4,9 +4,9 @@
 using namespace WinSys;
 
 std::wstring Helpers::GetDosNameFromNtName(PCWSTR name) {
-	static std::vector<std::pair<std::wstring, std::wstring>> deviceNames;
-	static bool first = true;
-	if (first) {
+	// the drives' device names, e.g. C: -> \Device\HarddiskVolume3 (initialized once, thread safely)
+	static const auto deviceNames = [] {
+		std::vector<std::pair<std::wstring, std::wstring>> names;
 		auto drives = ::GetLogicalDrives();
 		int drive = 0;
 		while (drives) {
@@ -16,18 +16,23 @@ std::wstring Helpers::GetDosNameFromNtName(PCWSTR name) {
 				driveName[0] = (WCHAR)(drive + 'A');
 				WCHAR path[MAX_PATH];
 				if (::QueryDosDevice(driveName, path, MAX_PATH)) {
-					deviceNames.push_back({ path, driveName });
+					names.push_back({ path, driveName });
 				}
 			}
 			drive++;
 			drives >>= 1;
 		}
-		first = false;
-	}
+		return names;
+	}();
 
 	for (auto& [ntName, dosName] : deviceNames) {
-		if (::_wcsnicmp(name, ntName.c_str(), ntName.size()) == 0)
-			return dosName + (name + ntName.size());
+		// the device name must be the whole first part of the path: \Device\HarddiskVolume1 is also the start of
+		// \Device\HarddiskVolume10\..., which gave such paths the wrong drive letter
+		if (::_wcsnicmp(name, ntName.c_str(), ntName.size()) != 0)
+			continue;
+		auto rest = name + ntName.size();
+		if (*rest == L'\\' || *rest == 0)
+			return dosName + rest;
 	}
 	return L"";
 }

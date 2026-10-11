@@ -101,12 +101,17 @@ TOKEN_STATISTICS Token::GetStats() const {
 
 std::vector<TokenGroup> Token::EnumGroups(bool caps) const {
 	std::vector<TokenGroup> groups;
-	BYTE buffer[1 << 13];
-	DWORD len;
-	if (!::GetTokenInformation(_handle.get(), caps ? TokenCapabilities : TokenGroups, buffer, sizeof(buffer), &len))
+	// sized to fit: a domain user can be in hundreds of groups (a fixed 8 KB buffer returned no groups at all then)
+	auto infoClass = caps ? TokenCapabilities : TokenGroups;
+	DWORD len = 0;
+	::GetTokenInformation(_handle.get(), infoClass, nullptr, 0, &len);
+	if (len == 0)
+		return groups;
+	auto buffer = std::make_unique<BYTE[]>(len);
+	if (!::GetTokenInformation(_handle.get(), infoClass, buffer.get(), len, &len))
 		return groups;
 
-	auto data = (TOKEN_GROUPS*)buffer;
+	auto data = (TOKEN_GROUPS*)buffer.get();
 	groups.reserve(data->GroupCount);
 	for (ULONG i = 0; i < data->GroupCount; i++) {
 		auto const& g = data->Groups[i];

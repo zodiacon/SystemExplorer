@@ -72,6 +72,7 @@ private:
 	mutable HWND _hWnd{ nullptr };
 	mutable DWORD _firstThreadId{ 0 };
 	mutable int _bitness{ 0 };
-	mutable bool _elevated : 1, _elevatedChecked : 1{ false }, _descChecked : 1{ false }, _companyChecked : 1 {false };
+	// _elevated too: it stays as is when the token can't be opened (it showed a random Yes/No then)
+	mutable bool _elevated : 1{ false }, _elevatedChecked : 1{ false }, _descChecked : 1{ false }, _companyChecked : 1 {false };
 };
 

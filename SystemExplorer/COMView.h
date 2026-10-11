@@ -71,6 +71,7 @@ private:
 	CTreeItem m_SelectedNode;
 	HFONT m_hFont;
 	WinSys::ComExplorer m_ComExplorer;
+	WinSys::ComStore m_CurrentStore{ (WinSys::ComStore)-1 };	// the store m_ComExplorer has open (none yet)
 	CTreeViewCtrlEx m_Tree;
 	CListViewCtrl m_List;
 	CSplitterWindow m_Splitter;

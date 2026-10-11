@@ -20,7 +20,8 @@ std::vector<ProcessHeap> ProcessHeaps::EnumHeaps() {
 	do {
 		ProcessHeap heap;
 		heap.Address = reinterpret_cast<PVOID>(list.th32HeapID);
-		heap.Size = list.dwSize;
+		// the heap list doesn't tell a heap's size (dwSize is HEAPLIST32's own size); 0 is unknown
+		heap.Size = 0;
 
 		heaps.push_back(heap);
 	} while (::Heap32ListNext(_hSnapshot.get(), &list));

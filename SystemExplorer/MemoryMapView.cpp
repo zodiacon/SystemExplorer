@@ -240,7 +240,9 @@ PCWSTR CMemoryMapView::UsageToString(const WinSys::MemoryRegionItem& item) const
 	if (it != m_Details.end())
 		usage = it->second.Usage;
 	else
-		usage = item.State == MEM_FREE ? MemoryUsage::Unknown : MemoryUsage::PrivateData;
+		// as UsageToBackColor colors them: committed memory of no known use is private data; reserved memory isn't
+		// anything yet
+		usage = item.State == MEM_COMMIT ? MemoryUsage::PrivateData : MemoryUsage::Unknown;
 
 	switch (usage) {
 		case MemoryUsage::ThreadStack: return L"Stack";

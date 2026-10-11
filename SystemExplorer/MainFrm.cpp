@@ -811,8 +811,9 @@ LRESULT CMainFrame::OnReplaceTaskManager(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnSingleInstance(WORD, WORD, HWND, BOOL&) {
-	Settings::Get().SingleInstanceOnly = Settings::Get().SingleInstanceOnly;
-	UISetCheck(ID_OPTIONS_SINGLEINSTANCEONLY, Settings::Get().SingleInstanceOnly);
+	auto& s = Settings::Get();
+	s.SingleInstanceOnly = !s.SingleInstanceOnly;	// it was assigned to itself, so it never changed
+	UISetCheck(ID_OPTIONS_SINGLEINSTANCEONLY, s.SingleInstanceOnly);
 
 	return 0;
 }
@@ -1163,6 +1164,13 @@ LRESULT CMainFrame::OnEditFindNext(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMainFrame::OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+	// Windows hides kernel module addresses from non-elevated callers, so the view would be empty
+	if (!SecurityHelper::IsRunningElevated()) {
+		AtlMessageBox(*this, L"Kernel modules can only be listed when System Explorer runs elevated.\n"
+			L"Use File > Run as Administrator.", IDS_TITLE, MB_ICONINFORMATION);
+		return 0;
+	}
+
 	auto pView = new CSystemModulesView(this);
 	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, L"Kernel Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);

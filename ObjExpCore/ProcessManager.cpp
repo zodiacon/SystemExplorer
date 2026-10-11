@@ -33,10 +33,26 @@ struct ProcessManager::Impl {
 	wil::unique_virtualalloc_ptr<BYTE> _buffer;
 	ULONG _bufferSize{ 0 };
 	static uint32_t _totalProcessors;
+	static int64_t _qpcFrequency;
+
+	//
+	// CPU usage in units of 1/10,000 of a percent (1,000,000 is 100%): cpuTime is in 100ns units, ticks is the elapsed
+	// time in QueryPerformanceCounter ticks, which run at _qpcFrequency (10 MHz on many systems, but not all: assuming
+	// that scaled the usage wrongly elsewhere). processors: 1 for 100% to mean one processor all the time.
+	//
+	static int32_t CpuUsage(int64_t cpuTime, int64_t ticks, uint32_t processors) {
+		if (ticks <= 0 || cpuTime <= 0)
+			return 0;
+		// the elapsed time in 100ns units is ticks * 10,000,000 / frequency
+		return (int32_t)((double)cpuTime * _qpcFrequency / ((double)ticks * 10.0 * processors));
+	}
 	static bool _isElevated;
 
 	Impl() {
 		if (_totalProcessors == 0) {
+			LARGE_INTEGER frequency;
+			::QueryPerformanceFrequency(&frequency);
+			_qpcFrequency = frequency.QuadPart;
 			_totalProcessors = ::GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
 			_isElevated = Process::OpenById(::GetCurrentProcessId())->IsElevated();
 		}
@@ -133,6 +149,7 @@ struct ProcessManager::Impl {
 };
 
 uint32_t ProcessManager::Impl::_totalProcessors;
+int64_t ProcessManager::Impl::_qpcFrequency;
 bool ProcessManager::Impl::_isElevated;
 
 ProcessManager::ProcessManager() : _impl(std::make_unique<Impl>()) {}
@@ -295,7 +312,8 @@ size_t ProcessManager::Impl::EnumProcesses(bool includeThreads, uint32_t pid) {
 				}
 				else {
 					const auto& pi2 = it->second;
-					auto cpu = delta == 0 ? 0 : (int32_t)((p->KernelTime.QuadPart + p->UserTime.QuadPart - pi2->UserTime - pi2->KernelTime) * 1000000 / delta / _totalProcessors);
+					// a share of all the processors' time
+					auto cpu = CpuUsage(p->KernelTime.QuadPart + p->UserTime.QuadPart - pi2->UserTime - pi2->KernelTime, delta, _totalProcessors);
 					pi = BuildProcessInfo(p, includeThreads, threadsByKey, delta, pi2, extended);
 					pi->CPU = cpu;
 
@@ -454,7 +472,8 @@ std::shared_ptr<ProcessInfo> ProcessManager::Impl::BuildProcessInfo(
 				_newThreads.push_back(thread);
 			}
 			else {
-				thread->CPU = delta == 0 ? 0 : (int32_t)((thread->KernelTime + thread->UserTime - cpuTime) * 1000000LL / delta / 1/*_totalProcessors*/);
+				// a share of one processor's time: 100% is the thread running all the time
+				thread->CPU = CpuUsage(thread->KernelTime + thread->UserTime - cpuTime, delta, 1);
 				_threadsByKey.erase(thread->Key);
 			}
 			threadsByKey.insert(std::make_pair(thread->Key, thread));
