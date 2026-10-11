@@ -387,26 +387,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_view.SetImageList(m_TabImages);
 
 	if (s_FrameCount == 1) {
-		if (!DriverHelper::IsDriverLoaded()) {
-			if (!SecurityHelper::IsRunningElevated()) {
-				if (AtlMessageBox(nullptr, L"Kernel Driver not loaded. Some functionality will not be available. Install?",
-					IDS_TITLE, MB_YESNO | MB_ICONQUESTION) == IDYES) {
-					if (!SecurityHelper::RunElevated(L"install", false)) {
-						AtlMessageBox(*this, L"Error running driver installer", IDS_TITLE, MB_ICONERROR);
-					}
-				}
-			}
-			else {
-				auto loaded = DriverHelper::LoadDriver();
-				if (!loaded) {
-					loaded = DriverHelper::InstallDriver();
-					if (loaded)
-						loaded = DriverHelper::LoadDriver();
-				}
-				if(!loaded) {
-					//AtlMessageBox(m_hWnd, L"Failed to install driver. Some functionality will not be available.", IDS_TITLE, MB_ICONERROR);
-				}
-			}
+		// the kernel driver: loaded (installed first if needed) when running elevated, which is what loading and
+		// installing it requires. If it isn't loaded, the program goes on without it, with no message: the
+		// functionality that needs it isn't available then.
+		if (!DriverHelper::IsDriverLoaded() && SecurityHelper::IsRunningElevated()) {
+			if (!DriverHelper::LoadDriver() && DriverHelper::InstallDriver())
+				DriverHelper::LoadDriver();
 		}
 		if (DriverHelper::IsDriverLoaded()) {
 			if (DriverHelper::GetVersion() < DriverHelper::GetCurrentVersion()) {
@@ -414,8 +400,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 					IDS_TITLE, MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
 				if (response == IDYES) {
 					if (SecurityHelper::IsRunningElevated()) {
-						if (!DriverHelper::UpdateDriver())
-							AtlMessageBox(nullptr, L"Failed to update driver", IDS_TITLE, MB_ICONERROR);
+						// if the new driver doesn't load, the program goes on without it
+						DriverHelper::UpdateDriver();
 					}
 					else {
 						DriverHelper::CloseDevice();

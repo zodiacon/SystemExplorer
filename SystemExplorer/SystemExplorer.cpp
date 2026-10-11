@@ -30,19 +30,15 @@ bool CheckInstall(PCWSTR cmdLine) {
 	bool parse = false, success = false;
 	if (::wcsstr(cmdLine, L"install")) {
 		parse = true;
+		// no message if the driver doesn't load: the program goes on without it
 		success = DriverHelper::LoadDriver();
 		if (!success)
 			if (DriverHelper::InstallDriver())
 				success = DriverHelper::LoadDriver();
-		if (!success)
-			AtlMessageBox(nullptr, L"Failed to install/load kernel driver", IDS_TITLE, MB_ICONERROR);
 	}
 	else if (::wcsstr(cmdLine, L"update")) {
 		parse = true;
 		success = DriverHelper::UpdateDriver();
-		if (!success) {
-			AtlMessageBox(nullptr, L"Failed to update kernel driver", IDS_TITLE, MB_ICONERROR);
-		}
 	}
 	return parse;
 }
