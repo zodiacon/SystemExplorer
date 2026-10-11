@@ -55,6 +55,7 @@ private:
 	CTreeViewCtrlEx m_Tree;
 	CListViewCtrl m_List;
 	std::vector<ObjectData> m_Objects;
+	std::unordered_map<std::wstring, CString> m_DetailsCache;	// by full name; cleared when the list is rebuilt
 	CSplitterWindow m_Splitter;
 };
 

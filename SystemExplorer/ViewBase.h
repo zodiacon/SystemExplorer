@@ -189,6 +189,15 @@ protected:
 	// views and list views created with LVS_SHAREIMAGELISTS don't destroy their image lists (they leaked with every
 	// view opened). Not for a list view without LVS_SHAREIMAGELISTS, which destroys its own.
 	//
+	// the view's update interval until the user picks another (id: one of the ID_UPDATEINTERVAL_* commands); for
+	// views whose refresh is too costly to repeat every second. Call before the view is first activated.
+	void SetInitialUpdateInterval(UINT id) {
+		static const int intervals[] = { 1000, 2000, 5000, 10000 };
+		ATLASSERT(id >= ID_UPDATEINTERVAL_1SECOND && id <= ID_UPDATEINTERVAL_10SECONDS);
+		m_CurrentUpdateId = id;
+		m_UpdateInterval = intervals[id - ID_UPDATEINTERVAL_1SECOND];
+	}
+
 	HIMAGELIST KeepImageList(HIMAGELIST images) {
 		m_ImageLists.push_back(images);
 		return images;

@@ -558,12 +558,23 @@ LRESULT CMainFrame::OnForwardMsg(WORD, WORD, HWND, BOOL& handled) {
 }
 
 LRESULT CMainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-	static BOOL bVisible = TRUE;	// initially visible
-	bVisible = !bVisible;
+	// the toolbar's band, found by its child (its ID isn't ATL_IDW_BAND_FIRST + 1, which assumed a menu band before it)
 	CReBarCtrl rebar = m_hWndToolBar;
-	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
-	rebar.ShowBand(nBandIndex, bVisible);
-	UISetCheck(ID_VIEW_TOOLBAR, bVisible);
+	int index = -1;
+	for (int i = 0; i < (int)rebar.GetBandCount() && index < 0; i++) {
+		REBARBANDINFO rbbi = { sizeof(rbbi), RBBIM_CHILD };
+		if (rebar.GetBandInfo(i, &rbbi) && rbbi.hwndChild && CWindow(rbbi.hwndChild).GetDlgCtrlID() == ATL_IDW_TOOLBAR)
+			index = i;
+	}
+	if (index < 0)
+		return 0;
+
+	// shown if it's hidden and the other way around, by this frame's band (a static flag was shared by all frames)
+	REBARBANDINFO rbbi = { sizeof(rbbi), RBBIM_STYLE };
+	rebar.GetBandInfo(index, &rbbi);
+	BOOL visible = (rbbi.fStyle & RBBS_HIDDEN) != 0;
+	rebar.ShowBand(index, visible);
+	UISetCheck(ID_VIEW_TOOLBAR, visible);
 	UpdateLayout();
 	return 0;
 }

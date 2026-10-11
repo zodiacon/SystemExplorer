@@ -50,29 +50,32 @@ CString CObjectManagerView::GetColumnText(HWND, int row, int col) {
 		case 0:	return data.Name;
 		case 1:	return data.Type;
 		case 2:		// details
+		{
+			// cached until the list is rebuilt: the object was opened (and its type looked up) for every row on
+			// every paint
+			if (auto it = m_DetailsCache.find((PCWSTR)data.FullName); it != m_DetailsCache.end())
+				return it->second;
+
 			auto type = ObjectManager::GetType(data.Type);
 			if (type) {
-				if (type) {
-					HANDLE hObject = nullptr;
-					auto status = ObjectManager::OpenObject(
-						data.FullName, data.Type, &hObject,
-						data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
-					if (hObject) {
-						auto details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
-						if (details)
-							text = details->GetDetails(hObject);
-						// closed either way (it was leaked on every repaint for types without details)
-						::CloseHandle(hObject);
-						if (details)
-							return text;
-					}
-					if (status == STATUS_ACCESS_DENIED)
-						text = L"<access denied>";
-					else
-						text = L"<unavailable>";
+				HANDLE hObject = nullptr;
+				auto status = ObjectManager::OpenObject(
+					data.FullName, data.Type, &hObject,
+					data.Type == L"File" ? FILE_READ_ATTRIBUTES : GENERIC_READ);
+				std::unique_ptr<ObjectType> details;
+				if (hObject) {
+					details = ObjectTypeFactory::CreateObjectType(type->TypeIndex, type->TypeName);
+					if (details)
+						text = details->GetDetails(hObject);
+					// closed either way (it was leaked on every repaint for types without details)
+					::CloseHandle(hObject);
 				}
+				if (!details)
+					text = status == STATUS_ACCESS_DENIED ? L"<access denied>" : L"<unavailable>";
 			}
+			m_DetailsCache.insert({ (PCWSTR)data.FullName, text });
 			break;
+		}
 	}
 	return text;
 }
@@ -204,6 +207,7 @@ void CObjectManagerView::UpdateList(bool newNode) {
 	auto path = GetDirectoryPath();
 	m_Objects.clear();
 	m_Objects.reserve(128);
+	m_DetailsCache.clear();
 	for (auto& item : ObjectManager::EnumDirectoryObjects(path)) {
 		if (item.TypeName != L"Directory") {
 			ObjectData data;

@@ -22,6 +22,8 @@ int CObjectsView::ColumnCount;
 
 CObjectsView::CObjectsView(IMainFrame* pFrame, PCWSTR type) : CViewBase(pFrame),
 m_pUpdateUI(pFrame->GetUpdateUI()), m_Typename(type) {
+	// a refresh enumerates every handle in the system (seconds on a busy system), so not every second
+	SetInitialUpdateInterval(ID_UPDATEINTERVAL_10SECONDS);
 }
 
 void CObjectsView::DoSort(const SortInfo* si) {
@@ -65,13 +67,17 @@ bool CObjectsView::CompareItems(const ObjectInfo& o1, const ObjectInfo& o2, cons
 }
 
 CString CObjectsView::GetObjectDetails(ObjectInfo* info) const {
-	auto h = ObjectManager::DupHandle(info);	// info->LocalHandle.get();
-	if (!h)
-		return L"";
+	// cached until the next refresh: the object was duplicated and queried for every row on every paint
+	if (auto it = m_DetailsCache.find(info); it != m_DetailsCache.end())
+		return it->second;
 
-	auto type = ObjectTypeFactory::CreateObjectType(info->TypeIndex, info->TypeName);
-	CString details = type ? type->GetDetails(h) : CString();
-	::CloseHandle(h);
+	CString details;
+	if (auto h = ObjectManager::DupHandle(info); h) {
+		auto type = ObjectTypeFactory::CreateObjectType(info->TypeIndex, info->TypeName);
+		details = type ? type->GetDetails(h) : CString();
+		::CloseHandle(h);
+	}
+	m_DetailsCache.insert({ info, details });
 	return details;
 }
 
@@ -112,15 +118,9 @@ HWND CObjectsView::CreateToolBar() {
 	return hWndToolBar;
 }
 
-LRESULT CObjectsView::OnActivatePage(UINT, WPARAM, LPARAM, BOOL&) {
-	return LRESULT();
-}
-
+// (OM_ACTIVATE_PAGE is the base class': this view swallowed it, so its update timer never started)
 void CObjectsView::OnUpdate() {
 	Refresh();
-	auto si = GetSortInfo();
-	if (si && si->SortColumn >= 0)
-		DoSort(si);
 	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 }
 
@@ -255,11 +255,20 @@ LRESULT CObjectsView::OnObjectProperties(WORD, WORD, HWND, BOOL&) {
 
 void CObjectsView::Refresh() {
 	CWaitCursor wait;
+	// the selection stays on the same object: the enumeration creates new ObjectInfo objects, so it's found by address
+	SelectionKeeper keep(m_List, m_Objects, [](const std::shared_ptr<ObjectInfo>& o1, const std::shared_ptr<ObjectInfo>& o2) {
+		return o1->Object == o2->Object;
+		});
 	m_ObjMgr.EnumHandlesAndObjects(m_Typename, 0, nullptr, m_NamedObjectsOnly);
 	m_ProcMgr.EnumProcesses();
+	// the cache is keyed by the ObjectInfo objects, which the enumeration has just replaced
+	m_DetailsCache.clear();
 	m_Objects = m_ObjMgr.GetObjects();
 	m_List.SetItemCountEx(static_cast<int>(m_Objects.size()), LVSICF_NOSCROLL);
-	Sort(m_List);
+	// sorted here once (Sort also restored the selection by matching rows' text, a scan of every row)
+	if (auto si = GetSortInfo(m_List); si && si->SortColumn >= 0)
+		DoSort(si);
+	keep.Restore();
 }
 
 void CObjectsView::ShowObjectProperties(int row) const {

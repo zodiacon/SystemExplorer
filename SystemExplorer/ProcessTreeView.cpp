@@ -31,11 +31,10 @@ CString CProcessTreeView::GetName(int row) {
 
 CString CProcessTreeView::GetValue(int row) {
 	auto pi = GetSelectedProcess();
-	if (pi == nullptr)
+	if (pi == nullptr || m_SelectedEx == nullptr)
 		return L"";
 
-	ProcessInfoEx px(pi);
-	return FormatHelper::GetProcessColumnValue((ProcessColumn)row, m_ProcMgr, pi, px);
+	return FormatHelper::GetProcessColumnValue((ProcessColumn)row, m_ProcMgr, pi, *m_SelectedEx);
 }
 
 INT_PTR CProcessTreeView::ShowProcessProperties(uint32_t pid) const {
@@ -84,6 +83,8 @@ LRESULT CProcessTreeView::OnTreeItemDoubleClick(int, LPNMHDR hdr, BOOL&) {
 
 LRESULT CProcessTreeView::OnTreeItemChanged(int, LPNMHDR hdr, BOOL&) {
 	m_SelectedProcess = m_ProcMgr.GetProcessById((uint32_t)m_Tree.GetSelectedItem().GetData());
+	// the process' record is kept (and updated in place by each snapshot) by m_SelectedProcess, so this stays valid
+	m_SelectedEx = m_SelectedProcess ? std::make_unique<ProcessInfoEx>(m_SelectedProcess.get()) : nullptr;
 	m_List.RedrawItems(m_List.GetTopIndex(), m_List.GetTopIndex() + m_List.GetCountPerPage());
 	auto ui = Frame()->GetUpdateUI();
 	ui->UIEnable(ID_EDIT_PROPERTIES, TRUE);

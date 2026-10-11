@@ -34,7 +34,6 @@ public:
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 
 	BEGIN_MSG_MAP(CObjectsView)
-		MESSAGE_HANDLER(OM_ACTIVATE_PAGE, OnActivatePage)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		NOTIFY_CODE_HANDLER(NM_RCLICK, OnContextMenu)
@@ -63,7 +62,6 @@ private:
 	void ShowObjectProperties(int row) const;
 
 private:
-	LRESULT OnActivatePage(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -80,6 +78,7 @@ private:
 	static int ColumnCount;
 	CImageListManaged m_Images;
 	std::vector<std::shared_ptr<ObjectInfo>> m_Objects;
+	mutable std::unordered_map<ObjectInfo*, CString> m_DetailsCache;	// cleared by Refresh, which replaces the objects
 	CUpdateUIBase* m_pUpdateUI;
 	ObjectManager m_ObjMgr;
 	WinSys::ProcessManager m_ProcMgr;

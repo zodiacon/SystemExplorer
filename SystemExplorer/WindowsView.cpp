@@ -126,27 +126,37 @@ LRESULT CWindowsView::OnFindNext(WORD, WORD, HWND, BOOL&) {
 		return 0;
 
 	text.MakeLower();
-	auto item = m_Tree.GetSelectedItem();
-	if (item == nullptr)
-		item = m_Tree.GetRootItem();
+	auto start = m_Tree.GetSelectedItem();
+	if (start.IsNull())
+		start = m_Tree.GetRootItem();
+	if (start.IsNull())
+		return 0;
+
+	// the item after another in the tree's order: its first child, else its next sibling, else the next sibling of
+	// its closest ancestor that has one (this went only down and sideways, so the search ended with the first
+	// desktop's windows), wrapping to the first item after the last
+	auto nextItem = [&](CTreeItem item) {
+		if (auto child = item.GetChild(); !child.IsNull())
+			return child;
+		for (auto parent = item; !parent.IsNull(); parent = parent.GetParent()) {
+			if (auto sibling = parent.GetNextSibling(); !sibling.IsNull())
+				return sibling;
+		}
+		return m_Tree.GetRootItem();
+	};
 
 	CString itemText;
-	while (item) {
-		auto next = item.GetChild();
-		if (next == nullptr)
-			next = item.GetNext(TVGN_NEXT);
-		if (next == nullptr)
-			break;
-		next.GetText(itemText);
-		ATLTRACE(L"Item text: %s\n", itemText);
+	for (auto item = nextItem(start); (HTREEITEM)item != (HTREEITEM)start; item = nextItem(item)) {
+		item.GetText(itemText);
 		if (itemText.MakeLower().Find(text) >= 0) {
-			next.Select(TVGN_CARET);
-			next.EnsureVisible();
+			item.Select(TVGN_CARET);
+			item.EnsureVisible();
 			m_Tree.SetFocus();
-			break;
+			return 0;
 		}
-		item = next;
 	}
+	// a whole round with no (other) match
+	::MessageBeep((UINT)-1);
 	return 0;
 }
 

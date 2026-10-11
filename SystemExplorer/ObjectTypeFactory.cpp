@@ -16,16 +16,28 @@
 #include "WorkerFactoryObjectType.h"
 #include "DeviceObjectType.h"
 
-std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, const CString& name) {
+//
+// The process snapshot the types showing process names use, taken at most once a second (a full snapshot was taken
+// on every CreateObjectType call, for any type: once for every details cell painted)
+//
+static WinSys::ProcessManager& GetProcessManager() {
 	static WinSys::ProcessManager procMgr;
+	static ULONGLONG lastSnapshot = 0;
+	auto now = ::GetTickCount64();
+	if (lastSnapshot == 0 || now - lastSnapshot >= 1000) {
+		procMgr.EnumProcesses();
+		lastSnapshot = now;
+	}
+	return procMgr;
+}
 
-	procMgr.EnumProcesses();
+std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, const CString& name) {
 	if (name == L"Mutant")
 		return std::make_unique<MutexObjectType>(typeIndex, name);
 	if (name == L"Process")
-		return std::make_unique<ProcessObjectType>(procMgr, typeIndex, name);
+		return std::make_unique<ProcessObjectType>(GetProcessManager(), typeIndex, name);
 	if (name == L"Thread")
-		return std::make_unique<ThreadObjectType>(procMgr, typeIndex, name);
+		return std::make_unique<ThreadObjectType>(GetProcessManager(), typeIndex, name);
 	if (name == L"Semaphore")
 		return std::make_unique<SemaphoreObjectType>(typeIndex, name);
 	if (name == L"Section")
@@ -47,7 +59,7 @@ std::unique_ptr<ObjectType> ObjectTypeFactory::CreateObjectType(int typeIndex, c
 	if (name == L"WindowStation")
 		return std::make_unique<WinStationObjectType>(typeIndex, name);
 	if (name == L"TpWorkerFactory")
-		return std::make_unique<WorkerFactoryObjectType>(procMgr, typeIndex, name);
+		return std::make_unique<WorkerFactoryObjectType>(GetProcessManager(), typeIndex, name);
 	if(name == L"Device")
 		return std::make_unique<DeviceObjectType>(typeIndex, name);
 	return nullptr;

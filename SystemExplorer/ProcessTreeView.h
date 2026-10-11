@@ -4,6 +4,7 @@
 #include "ViewBase.h"
 #include "VirtualListView.h"
 #include <ProcessInfo.h>
+#include "ProcessInfoEx.h"
 
 class CProcessTreeView : 
 	public CViewBase<CProcessTreeView>,
@@ -48,4 +49,7 @@ private:
 	CSplitterWindow m_Splitter;
 	WinSys::ProcessManager m_ProcMgr;
 	std::shared_ptr<WinSys::ProcessInfo> m_SelectedProcess;
+	// the selected process' details, kept while it's selected (they were built anew for every value shown: the
+	// process opened, its version info read, its user looked up, for each row on every refresh)
+	std::unique_ptr<ProcessInfoEx> m_SelectedEx;
 };
