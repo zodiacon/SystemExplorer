@@ -202,11 +202,16 @@ LRESULT CObjectsView::OnItemChanged(int, LPNMHDR, BOOL&) {
 }
 
 LRESULT CObjectsView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	ATLASSERT(m_List.GetSelectedIndex() >= 0);
-	auto& item = GetItem(m_List.GetSelectedIndex());
+	auto selected = m_List.GetSelectedIndex();
+	if (selected < 0 || selected >= (int)m_Objects.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
+	auto item = GetItem(selected);	// a copy: kept while the dialog is up, even if the list is refreshed meanwhile
 	CObjectHandlesDlg dlg(item.get(), m_ProcMgr);
-	CImageList il = Frame()->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(Frame()->GetIconIndexByType(item->TypeName)));
+	// a copy of the type's icon, set on the dialog (which doesn't destroy it)
+	auto hIcon = CImageList(Frame()->GetImageList()).GetIcon(Frame()->GetIconIndexByType(item->TypeName));
+	dlg.DoModal(*this, (LPARAM)hIcon);
+	if (hIcon)
+		::DestroyIcon(hIcon);
 
 	return 0;
 }

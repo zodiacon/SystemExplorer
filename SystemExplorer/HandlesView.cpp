@@ -362,12 +362,45 @@ void CHandlesView::OnPauseResume(bool paused) {
 }
 
 LRESULT CHandlesView::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
-	ATLASSERT(m_List.GetSelectedIndex() >= 0);
-	auto& item = m_Handles[m_List.GetSelectedIndex()];
-	ATLASSERT(item->ObjectInfo);
-	CObjectHandlesDlg dlg(item->ObjectInfo, m_ProcMgr);
-	CImageList il = Frame()->GetImageList();
-	dlg.DoModal(*this, (LPARAM)il.GetIcon(Frame()->GetIconIndexByType(item->ObjectInfo->TypeName)));
+	auto selected = m_List.GetSelectedIndex();
+	if (selected < 0 || selected >= (int)m_Handles.size())
+		return 0;	// toolbar buttons and accelerators work without a selection too
+	auto item = m_Handles[selected];
+
+	//
+	// This view has handles, not objects (HandleInfo::ObjectInfo is never set here: it was used anyway, and the
+	// command failed on a null pointer). The object's handles are found in a system-wide snapshot, by the object's
+	// address, which Windows provides only to elevated callers.
+	//
+	if (item->Object == nullptr) {
+		AtlMessageBox(*this, L"The object's address isn't available (it takes running elevated), so its handles can't be found.",
+			IDS_TITLE, MB_ICONINFORMATION);
+		return 0;
+	}
+
+	auto type = ObjectManager::GetType(item->ObjectTypeIndex);
+	ObjectInfo info;
+	info.Object = item->Object;
+	info.TypeIndex = item->ObjectTypeIndex;
+	info.TypeName = type->TypeName;
+	info.Name = (item->HandleAttributes & 0x8000) ? item->Name
+		: m_ObjMgr.GetObjectName(ULongToHandle(item->HandleValue), item->ProcessId, item->ObjectTypeIndex);
+
+	ObjectManager om;
+	om.EnumHandles(type->TypeName);
+	for (auto& h : om.GetHandles())
+		if (h->Object == item->Object)
+			info.Handles.push_back(h);
+	if (info.Handles.empty())
+		info.Handles.push_back(item);	// closed since (the snapshot is newer than the list)
+	info.HandleCount = static_cast<int>(info.Handles.size());
+
+	CObjectHandlesDlg dlg(&info, m_ProcMgr);
+	// a copy of the type's icon, set on the dialog (which doesn't destroy it)
+	auto hIcon = CImageList(Frame()->GetImageList()).GetIcon(Frame()->GetIconIndexByType(type->TypeName));
+	dlg.DoModal(*this, (LPARAM)hIcon);
+	if (hIcon)
+		::DestroyIcon(hIcon);
 
 	return 0;
 }
