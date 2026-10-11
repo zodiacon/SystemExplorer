@@ -97,11 +97,14 @@ void CDeviceManagerView::Refresh() {
 	m_Tree.LockWindowUpdate(TRUE);
 	m_Tree.DeleteAllItems();
 
-	CImageList images = DeviceManager::GetClassImageList();
-	m_ComputerIcon = images.AddIcon(ImageHelper::GetSystemIcon(SIID_DESKTOPPC));
-	auto old = m_Tree.SetImageList(images, TVSIL_NORMAL);
-	if (old)
-		old.Destroy();
+	// a copy of the class images: the class image list is shared (cached by DeviceManager), and this used to add the
+	// devices' icons to it and then destroy it on the next refresh, while the tree (and the cache) still used it
+	CImageList images = CImageList(DeviceManager::GetClassImageList()).Duplicate();
+	m_ComputerIcon = ImageHelper::AddIcon(images, ImageHelper::GetSystemIcon(SIID_DESKTOPPC));
+	m_Tree.SetImageList(images, TVSIL_NORMAL);
+	if (!m_Images.IsNull())
+		m_Images.Destroy();
+	m_Images.Attach(images);
 
 	m_Devices = m_DevMgr->EnumDevices();
 	std::unordered_map<GUID, HTREEITEM> devClasses;
@@ -128,7 +131,7 @@ void CDeviceManagerView::Refresh() {
 		int image;
 		auto hIcon = m_DevMgr->GetDeviceIcon(di);
 		if (hIcon)
-			image = m_Tree.GetImageList().AddIcon(hIcon);
+			image = ImageHelper::AddIcon(m_Tree.GetImageList(), hIcon);	// the device's icon is ours to destroy
 		else
 			m_Tree.GetItemImage(hClass, image, image);
 		auto hItem = m_Tree.InsertItem(di.Description.c_str(), image, image, hClass, TVI_SORT);

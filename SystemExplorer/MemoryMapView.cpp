@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "MemoryMapView.h"
 #include "DriverHelper.h"
 #include "resource.h"
@@ -42,8 +43,8 @@ LRESULT CMemoryMapView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	images.Create(16, 16, ILC_COLOR32, 4, 0);
 	UINT icons[] = { IDI_FREE, IDI_RESERVED, IDI_COMMIT };
 	for (auto icon : icons)
-		images.AddIcon(AtlLoadIconImage(icon, 0, 16, 16));
-	m_Tree.GetTreeControl().SetImageList(images, TVSIL_NORMAL);
+		ImageHelper::AddIcon(images, AtlLoadIconImage(icon, 0, 16, 16));
+	m_Tree.GetTreeControl().SetImageList(KeepImageList(images), TVSIL_NORMAL);
 
 	Refresh();
 

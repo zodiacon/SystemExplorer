@@ -98,7 +98,9 @@ CString WindowHelper::WindowRectToString(HWND hWnd) {
 	return text;
 }
 
-HICON WindowHelper::GetWindowOrProcessIcon(HWND hWnd) {
+HICON WindowHelper::GetWindowOrProcessIcon(HWND hWnd, bool* owned) {
+	if (owned)
+		*owned = false;
 	HICON hIcon{ nullptr };
 	::SendMessageTimeout(hWnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 100, (DWORD_PTR*)&hIcon);
 	if (!hIcon) {
@@ -109,6 +111,8 @@ HICON WindowHelper::GetWindowOrProcessIcon(HWND hWnd) {
 		::GetWindowThreadProcessId(hWnd, &pid);
 		if (pid) {
 			::ExtractIconEx(ProcessHelper::GetProcessName(pid), 0, nullptr, &hIcon, 1);
+			if (hIcon && owned)
+				*owned = true;
 		}
 	}
 

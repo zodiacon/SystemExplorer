@@ -16,6 +16,13 @@ public:
 	// information is dropped soon after it exits)
 	CProcessPropertiesDlg(const WinSys::ProcessManager& pm, std::shared_ptr<WinSys::ProcessInfo> pi)
 		: m_Process(std::move(pi)), m_OwnPx(std::make_unique<ProcessInfoEx>(m_Process.get())), m_px(*m_OwnPx), m_pm(pm) {}
+	~CProcessPropertiesDlg() {
+		// the icons extracted from the executable (set on the dialog, which doesn't destroy them)
+		if (m_hIcon)
+			::DestroyIcon(m_hIcon);
+		if (m_hIconBig)
+			::DestroyIcon(m_hIconBig);
+	}
 	void SetModal(bool modal) {
 		m_Modal = modal;
 	}
@@ -61,5 +68,6 @@ private:
 	ProcessInfoEx& m_px;
 	const WinSys::ProcessManager& m_pm;
 	bool m_Modal{ false };
+	HICON m_hIcon{ nullptr }, m_hIconBig{ nullptr };
 };
 

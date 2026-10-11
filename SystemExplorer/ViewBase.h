@@ -3,6 +3,7 @@
 #include "Interfaces.h"
 #include "resource.h"
 #include <WTLHelper.h>
+#include "ImageHelper.h"
 
 template<typename T>
 struct PauseResumeUpdates {
@@ -28,6 +29,11 @@ class CViewBase abstract :
 public:
 	CViewBase(IMainFrame* frame) : m_pFrame(frame) {
 		ATLASSERT(frame);
+	}
+
+	~CViewBase() {
+		for (auto images : m_ImageLists)
+			::ImageList_Destroy(images);
 	}
 
 	int GetUpdateInterval() const {
@@ -178,6 +184,16 @@ protected:
 		PCWSTR text = nullptr;
 	};
 
+	//
+	// Keeps an image list the view created for one of its controls, to destroy it with the view: toolbars, tree
+	// views and list views created with LVS_SHAREIMAGELISTS don't destroy their image lists (they leaked with every
+	// view opened). Not for a list view without LVS_SHAREIMAGELISTS, which destroys its own.
+	//
+	HIMAGELIST KeepImageList(HIMAGELIST images) {
+		m_ImageLists.push_back(images);
+		return images;
+	}
+
 	HWND CreateAndInitToolBar(const ToolBarButtonInfo* buttons, int count) {
 		auto pT = static_cast<T*>(this);
 
@@ -187,14 +203,14 @@ protected:
 
 		CImageList tbImages;
 		tbImages.Create(24, 24, ILC_COLOR32, 4, 4);
-		tb.SetImageList(tbImages);
+		tb.SetImageList(KeepImageList(tbImages));
 
 		for (int i = 0; i < count; i++) {
 			auto& b = buttons[i];
 			if (b.id == 0)
 				tb.AddSeparator(0);
 			else {
-				int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+				int image = b.image == 0 ? I_IMAGENONE : ImageHelper::AddIcon(tbImages, AtlLoadIconImage(b.image, 0, 24, 24));
 				tb.AddButton(b.id, b.style | (b.text ? BTNS_SHOWTEXT : 0), TBSTATE_ENABLED, image, b.text, 0);
 			}
 		}
@@ -212,4 +228,5 @@ private:
 	int m_CurrentUpdateId = ID_UPDATEINTERVAL_1SECOND;
 	int m_UpdateInterval{ 1000 };
 	bool m_Paused{ false };
+	std::vector<HIMAGELIST> m_ImageLists;
 };

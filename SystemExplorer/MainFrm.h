@@ -198,6 +198,7 @@ private:
 private:
 	CNativeCustomTabView m_view;
 	CMultiPaneStatusBarCtrl m_StatusBar;
+	CImageListManaged m_ToolBarImages;	// a toolbar doesn't destroy its image list
 	inline static ObjectManager m_ObjMgr;
 	int m_CurrentPage = -1;
 	inline static CImageListManaged m_TabImages;

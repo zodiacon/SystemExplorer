@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "PipesMailslotsDlg.h"
 #include <SortHelper.h>
 
@@ -60,7 +61,7 @@ LRESULT CPipesMailslotsDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR32, 2, 2);
-	images.AddIcon(AtlLoadIconImage(icon, 0, 16, 16));
+	ImageHelper::AddIcon(images, AtlLoadIconImage(icon, 0, 16, 16));
 	m_List.SetImageList(images, LVSIL_SMALL);
 
 	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 240);

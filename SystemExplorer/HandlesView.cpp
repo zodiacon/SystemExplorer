@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "HandlesView.h"
 #include <algorithm>
 #include <execution>
@@ -504,7 +505,7 @@ HWND CHandlesView::CreateToolBar() {
 
 	CImageList tbImages;
 	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
-	tb.SetImageList(tbImages);
+	tb.SetImageList(KeepImageList(tbImages));
 
 	struct {
 		UINT id;
@@ -519,7 +520,7 @@ HWND CHandlesView::CreateToolBar() {
 		if (b.id == 0)
 			tb.AddSeparator(0);
 		else {
-			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			int image = b.image == 0 ? I_IMAGENONE : ImageHelper::AddIcon(tbImages, AtlLoadIconImage(b.image, 0, 24, 24));
 			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
 		}
 	}

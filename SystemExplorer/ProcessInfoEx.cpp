@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "ProcessInfoEx.h"
 #include "DriverHelper.h"
 #include <ProcessInfo.h>
@@ -79,7 +80,7 @@ int ProcessInfoEx::GetImageIndex(CImageList images) const {
 		HICON hIcon = nullptr;
 		::ExtractIconEx(GetExecutablePath().c_str(), 0, nullptr, &hIcon, 1);
 		if (hIcon)
-			_image = images.AddIcon(hIcon);
+			_image = ImageHelper::AddIcon(images, hIcon);	// extracted, so ours to destroy
 	}
 	return _image;
 }
@@ -171,6 +172,7 @@ CString ProcessInfoEx::GetWindowTitle() const {
 	}
 	if (_hWnd) {
 		::GetWindowText(_hWnd, text.GetBufferSetLength(128), 128);
+		text.ReleaseBuffer();	// the title's real length (it stayed 128, padded with NULs)
 	}
 	return text;
 }

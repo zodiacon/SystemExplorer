@@ -3,6 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "pch.h"
+#include <IconHelper.h>
+#include "ImageHelper.h"
 #include "resource.h"
 #include <Psapi.h>
 #include "aboutdlg.h"
@@ -351,7 +353,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		for (auto& icon : icons) {
 			auto hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(),
 				MAKEINTRESOURCE(icon.icon), IMAGE_ICON, 16, 16, LR_CREATEDIBSECTION | LR_COLOR | LR_LOADTRANSPARENT);
-			m_TabImages.AddIcon(hIcon);
+			ImageHelper::AddIcon(m_TabImages, hIcon);
 			m_IconMap.insert({ icon.name, index++ });
 		}
 
@@ -363,7 +365,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		};
 
 		for (int i = 0; i < _countof(ids); i++)
-			m_Icons[i] = m_TabImages.AddIcon(AtlLoadIconImage(ids[i], 0, 16, 16));
+			m_Icons[i] = ImageHelper::AddIcon(m_TabImages, AtlLoadIconImage(ids[i], 0, 16, 16));
 
 		m_MonoFont.CreatePointFont(95, L"Consolas");
 
@@ -467,7 +469,8 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
 
 LRESULT CMainFrame::OnSysCommand(UINT, WPARAM wp, LPARAM, BOOL& bHandled) {
 	if ((wp & 0xfff0) == SC_MINIMIZE && Settings::Get().MinimizeToTray) {
-		AddTrayIcon(AtlLoadIconImage(IDR_MAINFRAME, 0, 16, 16), L"System Explorer");
+		// cached: a new icon was loaded (and never destroyed) on every minimize
+		AddTrayIcon(IconHelper::LoadCached(IDR_MAINFRAME, 16), L"System Explorer");
 		ShowWindow(SW_MINIMIZE);
 		ShowWindow(SW_HIDE);
 		return 0;
@@ -954,6 +957,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 	CImageList tbImages;
 	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
 	tb.SetImageList(tbImages);
+	m_ToolBarImages.Attach(tbImages);	// destroyed with the frame (a frame per window, each with its own toolbar)
 
 	struct {
 		UINT id;
@@ -988,7 +992,7 @@ void CMainFrame::InitToolBar(CToolBarCtrl& tb) {
 		if (b.id == 0)
 			tb.AddSeparator(0);
 		else {
-			int image = tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			int image = ImageHelper::AddIcon(tbImages, AtlLoadIconImage(b.image, 0, 24, 24));
 			tb.AddButton(b.id, b.style, TBSTATE_ENABLED, image, b.text, 0);
 		}
 	}

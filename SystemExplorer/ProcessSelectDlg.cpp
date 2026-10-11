@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <IconHelper.h>
 #include "ProcessSelectDlg.h"
 #include "DialogHelper.h"
 #include <TlHelp32.h>
@@ -56,9 +57,10 @@ LRESULT CProcessSelectDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 	m_Images.AddIcon(AtlLoadSysIcon(IDI_APPLICATION));
 	m_List.SetImageList(m_Images, LVSIL_SMALL);
 
-	((CButton)GetDlgItem(IDC_REFRESH)).SetIcon(AtlLoadIconImage(IDI_REFRESH, 0, 24, 24));
+	// cached: a button or dialog doesn't destroy its icon
+	((CButton)GetDlgItem(IDC_REFRESH)).SetIcon(IconHelper::LoadCached(IDI_REFRESH, 24));
 
-	SetIcon(AtlLoadIconImage(IDI_PROCESS, 0, 16, 16));
+	SetIcon(IconHelper::LoadCached(IDI_PROCESS, 16));
 
 	InitProcessList();
 

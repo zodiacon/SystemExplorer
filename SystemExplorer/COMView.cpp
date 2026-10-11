@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "COMView.h"
 #include <SortHelper.h>
 #include <algorithm>
@@ -78,8 +79,8 @@ LRESULT CComView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	images.Create(16, 16, ILC_COLOR32, 4, 4);
 	UINT ids[] = { IDI_COMPONENT, IDI_CLASS, IDI_INTERFACE, IDI_APPID, IDI_LIBRARY };
 	for (auto id : ids)
-		images.AddIcon(AtlLoadIconImage(id));
-	m_Tree.SetImageList(images, TVSIL_NORMAL);
+		ImageHelper::AddIcon(images, AtlLoadIconImage(id));
+	m_Tree.SetImageList(KeepImageList(images), TVSIL_NORMAL);
 
 	InitTree();
 
@@ -251,7 +252,7 @@ void CComView::InitListViewClasses() {
 	auto images = m_List.GetImageList(LVSIL_SMALL);
 	UINT ids[] = { IDI_DLL_SERVER, IDI_APP_SERVER, IDI_SERVICE };
 	for(auto id : ids)
-		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
+		ImageHelper::AddIcon(images, AtlLoadIconImage(id, 0, 16, 16));
 
 }
 
@@ -264,7 +265,7 @@ void CComView::InitListViewInterfaces() {
 	cm->AddColumn(L"Type Library", LVCFMT_CENTER, 300, ColumnFlags::Visible | ColumnFlags::Numeric);
 
 	auto images = m_List.GetImageList(LVSIL_SMALL);
-	images.AddIcon(AtlLoadIconImage(IDI_INTERFACE, 0, 16, 16));
+	ImageHelper::AddIcon(images, AtlLoadIconImage(IDI_INTERFACE, 0, 16, 16));
 }
 
 void CComView::InitListViewTypeLibraries() {
@@ -278,7 +279,7 @@ void CComView::InitListViewTypeLibraries() {
 	auto images = m_List.GetImageList(LVSIL_SMALL);
 	UINT ids[] = { IDI_GENERIC };
 	for (auto id : ids)
-		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
+		ImageHelper::AddIcon(images, AtlLoadIconImage(id, 0, 16, 16));
 }
 
 void CComView::DoSortClasses(const SortInfo* si) {

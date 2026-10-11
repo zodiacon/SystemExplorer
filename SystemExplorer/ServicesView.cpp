@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "ServicesView.h"
 #include "SecurityHelper.h"
 #include "ProgressDlg.h"
@@ -70,9 +71,9 @@ LRESULT CServicesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR32 | ILC_COLOR, 8, 2);
 	for (auto icon : icons)
-		images.AddIcon(AtlLoadIconImage(icon, 64, 16, 16));
+		ImageHelper::AddIcon(images, AtlLoadIconImage(icon, 64, 16, 16));
 
-	m_List.SetImageList(images, LVSIL_SMALL);
+	m_List.SetImageList(KeepImageList(images), LVSIL_SMALL);
 
 	Refresh();
 	bHandled = FALSE;

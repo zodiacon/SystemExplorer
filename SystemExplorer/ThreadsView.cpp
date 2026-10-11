@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "ThreadsView.h"
 #include <SortHelper.h>
 #include <algorithm>
@@ -271,7 +272,7 @@ LRESULT CThreadsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	};
 
 	for (auto id : ids)
-		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
+		ImageHelper::AddIcon(images, AtlLoadIconImage(id, 0, 16, 16));
 
 	m_List.SetImageList(images, LVSIL_SMALL);
 

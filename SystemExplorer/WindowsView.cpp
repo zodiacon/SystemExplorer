@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "WindowsView.h"
 #include "WindowHelper.h"
 #include "resource.h"
@@ -35,7 +36,7 @@ LRESULT CWindowsView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	for (auto icon : icons)
 		images.AddIcon(AtlLoadIcon(icon));
 
-	m_Tree.SetImageList(images, TVSIL_NORMAL);
+	m_Tree.SetImageList(KeepImageList(images), TVSIL_NORMAL);
 
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 	m_List.InsertColumn(0, L"Property", LVCFMT_LEFT, 160);
@@ -233,7 +234,7 @@ void CWindowsView::UpdateList(bool newNode) {
 void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 	CImageList tbImages;
 	tbImages.Create(24, 24, ILC_COLOR32, 8, 4);
-	tb.SetImageList(tbImages);
+	tb.SetImageList(KeepImageList(tbImages));
 
 	struct {
 		UINT id;
@@ -253,7 +254,7 @@ void CWindowsView::InitTreeToolbar(CToolBarCtrl& tb) {
 		if (b.id == 0)
 			tb.AddSeparator(0);
 		else {
-			int image = b.image == 0 ? I_IMAGENONE : tbImages.AddIcon(AtlLoadIconImage(b.image, 0, 24, 24));
+			int image = b.image == 0 ? I_IMAGENONE : ImageHelper::AddIcon(tbImages, AtlLoadIconImage(b.image, 0, 24, 24));
 			tb.AddButton(b.id, b.style, b.state, image, b.text, 0);
 		}
 	}
@@ -272,9 +273,12 @@ CTreeItem CWindowsView::InsertWindow(HWND hWnd, HTREEITEM hParent) {
 		return nullptr;
 
 	int image = 1;
-	auto hIcon = WindowHelper::GetWindowOrProcessIcon(hWnd);
+	bool owned;
+	auto hIcon = WindowHelper::GetWindowOrProcessIcon(hWnd, &owned);
 	if (hIcon) {
 		image = m_Tree.GetImageList(TVSIL_NORMAL).AddIcon(hIcon);
+		if (owned)
+			::DestroyIcon(hIcon);	// extracted from the executable (a window's own icon isn't ours to destroy)
 	}
 	WCHAR title[64];
 	auto len = ::GetWindowTextLength(hWnd);

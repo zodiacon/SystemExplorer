@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "ImageIconCache.h"
 
 int ImageIconCache::GetIcon(const std::wstring& path) const {
@@ -9,7 +10,7 @@ int ImageIconCache::GetIcon(const std::wstring& path) const {
 	HICON hIcon = nullptr;
 	::ExtractIconEx(path.c_str(), 0, nullptr, &hIcon, 1);
 	if (hIcon) {
-		int index = _images.AddIcon(hIcon);
+		int index = ImageHelper::AddIcon(_images, hIcon);	// extracted, so ours to destroy
 		_icons.insert({ path, index });
 		return index;
 	}

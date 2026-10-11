@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "ModulesView.h"
 #include <algorithm>
 #include <SortHelper.h>
@@ -69,8 +70,8 @@ LRESULT CModulesView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	images.Create(16, 16, ILC_COLOR32, 4, 4);
 	UINT ids[] = { IDI_DLL, IDI_DLL_DB, IDI_DLL_RELOC };
 	for (auto id : ids)
-		images.AddIcon(AtlLoadIconImage(id, 0, 16, 16));
-	m_List.SetImageList(images, LVSIL_SMALL);
+		ImageHelper::AddIcon(images, AtlLoadIconImage(id, 0, 16, 16));
+	m_List.SetImageList(KeepImageList(images), LVSIL_SMALL);
 
 	auto cm = GetColumnManager(m_List);
 	cm->AddColumn(L"Name", LVCFMT_LEFT, 200, ColumnFlags::Visible | ColumnFlags::Mandatory);

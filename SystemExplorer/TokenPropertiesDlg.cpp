@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "TokenPropertiesDlg.h"
 #include "DialogHelper.h"
 #include "FormatHelper.h"
@@ -116,8 +117,8 @@ LRESULT CTokenPropertiesDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&) {
 
 	CImageList images;
 	images.Create(16, 16, ILC_COLOR32, 2, 2);
-	images.AddIcon(AtlLoadIconImage(IDI_OK, 0, 16, 16));
-	images.AddIcon(AtlLoadIconImage(IDI_DELETE, 0, 16, 16));
+	ImageHelper::AddIcon(images, AtlLoadIconImage(IDI_OK, 0, 16, 16));
+	ImageHelper::AddIcon(images, AtlLoadIconImage(IDI_DELETE, 0, 16, 16));
 	m_PrivList.SetImageList(images, LVSIL_SMALL);
 
 	InitToken();

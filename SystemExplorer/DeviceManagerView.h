@@ -75,5 +75,8 @@ private:
 	CSplitterWindow m_Splitter;
 	CToolBarCtrl m_Toolbar;
 	int m_ComputerIcon;
+	// the tree's images: a copy of the device class images (which are shared, so not to be changed or destroyed),
+	// with the devices' own icons added; replaced on every refresh, destroyed with the view
+	CImageListManaged m_Images;
 };
 

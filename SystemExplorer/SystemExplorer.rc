@@ -39,7 +39,7 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "#include ""res\SystemExplorer.rc2""\r\n"
+    "#include ""res\\SystemExplorer.rc2""\r\n"
     "\0"
 END
 
@@ -979,8 +979,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,0
- PRODUCTVERSION 1,1,0,0
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 2,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -997,12 +997,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Pavel Yosifovich"
             VALUE "FileDescription", "System Explorer"
-            VALUE "FileVersion", "1.1.0.0"
+            VALUE "FileVersion", "2.0.0.0"
             VALUE "InternalName", "SystemExplorer"
             VALUE "LegalCopyright", "©2019-2026 Pavel Yosifovich"
             VALUE "OriginalFilename", "SysExp.exe"
             VALUE "ProductName", "System Explorer"
-            VALUE "ProductVersion", "1.1.0.0"
+            VALUE "ProductVersion", "2.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

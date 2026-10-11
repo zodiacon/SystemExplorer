@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ImageHelper.h"
 #include "SearchView.h"
 #include <SortHelper.h>
 
@@ -111,11 +112,11 @@ LRESULT CSearchView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	m_List.InsertColumn(4, L"Details", LVCFMT_LEFT, 250);
 
 	CImageList il = Frame()->GetImageList();
-	CImageList images = il.Duplicate();
-	m_FirstIcon = images.AddIcon(AtlLoadIconImage(IDI_FIND, 0, 16, 16));
-	images.AddIcon(AtlLoadIconImage(IDI_DLL, 0, 16, 16));
+	m_Images.Attach(il.Duplicate());
+	m_FirstIcon = ImageHelper::AddIcon(m_Images, AtlLoadIconImage(IDI_FIND, 0, 16, 16));
+	ImageHelper::AddIcon(m_Images, AtlLoadIconImage(IDI_DLL, 0, 16, 16));
 
-	m_List.SetImageList(images, LVSIL_SMALL);
+	m_List.SetImageList(m_Images, LVSIL_SMALL);
 
 	return 0;
 }

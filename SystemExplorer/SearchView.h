@@ -44,6 +44,9 @@ private:
 	std::shared_ptr<ObjectSearcher> m_Searcher;
 	std::vector<SearchResultItem> m_Items;
 	int m_FirstIcon;
+	// the list's images: a copy of the frame's, with the search's own icons added. Owned here, as the list shares
+	// its image lists (LVS_SHAREIMAGELISTS), so it doesn't destroy them (the copy leaked with every Search view)
+	CImageListManaged m_Images;
 	CListViewCtrl m_List;
 	CSearchBar m_SearchBar;
 };

@@ -21,12 +21,15 @@ void CProcessPropertiesDlg::InitProcess() {
 	text.Format(L"%s (%u) Properties", pi->GetImageName().c_str(), pi->Id);
 	SetWindowText(text);
 
-	HICON hIcon = nullptr, hIconBig;
+	HICON hIcon = nullptr, hIconBig = nullptr;
 	::ExtractIconEx(m_px.GetExecutablePath().c_str(), 0, &hIconBig, &hIcon, 1);
-	if (hIcon == nullptr) {
+	// kept to be destroyed with the dialog (the system's icon is shared, so it isn't)
+	m_hIcon = hIcon;
+	m_hIconBig = hIconBig;
+	if (hIcon == nullptr)
 		hIcon = AtlLoadSysIcon(IDI_APPLICATION);
-		hIconBig = hIcon;
-	}
+	if (hIconBig == nullptr)
+		hIconBig = AtlLoadSysIcon(IDI_APPLICATION);
 	DialogHelper::SetDialogIcon(this, hIcon);
 	((CStatic)GetDlgItem(IDC_APPICON)).SetIcon(hIconBig);
 

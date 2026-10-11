@@ -14,8 +14,10 @@ Sid::Sid(PSID sid) {
 
 Sid::Sid(const wchar_t* fromString) {
 	PSID sid;
-	if(::ConvertStringSidToSid(fromString, &sid))
+	if (::ConvertStringSidToSid(fromString, &sid)) {
 		::CopySid(sizeof(_buffer), (PSID)*this, sid);
+		::LocalFree(sid);	// allocated by ConvertStringSidToSid
+	}
 }
 
 Sid::operator PSID() const {

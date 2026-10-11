@@ -2,21 +2,23 @@
 #include "ClipboardHelper.h"
 
 bool ClipboardHelper::CopyText(HWND hWnd, PCWSTR text) {
-	if (::OpenClipboard(hWnd)) {
-		::EmptyClipboard();
-		auto size = (::wcslen(text) + 1) * sizeof(WCHAR);
-		auto hData = ::GlobalAlloc(GMEM_MOVEABLE, size);
-		if (hData) {
-			auto p = ::GlobalLock(hData);
-			if (p) {
-				::memcpy(p, text, size);
-				::GlobalUnlock(p);
-				::SetClipboardData(CF_UNICODETEXT, hData);
-			}
+	if (!::OpenClipboard(hWnd))
+		return false;
+
+	::EmptyClipboard();
+	bool ok = false;
+	auto size = (::wcslen(text) + 1) * sizeof(WCHAR);
+	auto hData = ::GlobalAlloc(GMEM_MOVEABLE, size);
+	if (hData) {
+		if (auto p = ::GlobalLock(hData); p) {
+			::memcpy(p, text, size);
+			::GlobalUnlock(hData);		// the memory handle, not the pointer
+			ok = ::SetClipboardData(CF_UNICODETEXT, hData) != nullptr;
 		}
-		::CloseClipboard();
-		if (hData)
-			return true;
+		// the clipboard owns the memory once it's set; otherwise it's still ours
+		if (!ok)
+			::GlobalFree(hData);
 	}
-	return false;
+	::CloseClipboard();
+	return ok;
 }

@@ -262,15 +262,9 @@ LRESULT CJobPropertiesDlg::OnTerminate(WORD, WORD wID, HWND, BOOL&) {
 	if (AtlMessageBox(*this, L"Are you sure?", L"Kill Job", MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONWARNING) == IDCANCEL)
 		return 0;
 
-	auto hTerm = DriverHelper::DupHandle(m_hJob, ::GetCurrentProcessId(), JOB_OBJECT_TERMINATE, 0);
-	BOOL ok = FALSE;
-	if (hTerm)
-		ok = ::TerminateJobObject(hTerm, 0);
-	if (!hTerm || !ok) {
+	// closed however terminating goes (it was left open when terminating failed)
+	wil::unique_handle hTerm(DriverHelper::DupHandle(m_hJob, ::GetCurrentProcessId(), JOB_OBJECT_TERMINATE, 0));
+	if (!hTerm || !::TerminateJobObject(hTerm.get(), 0))
 		AtlMessageBox(*this, L"Failed to terminate job", IDS_TITLE, MB_ICONEXCLAMATION);
-		return 0;
-	}
-	if (hTerm)
-		::CloseHandle(hTerm);
 	return 0;
 }

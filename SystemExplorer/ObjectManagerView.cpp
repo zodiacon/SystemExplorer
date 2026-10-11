@@ -130,7 +130,7 @@ LRESULT CObjectManagerView::OnCreate(UINT, WPARAM, LPARAM, BOOL&) {
 	images.Create(16, 16, ILC_COLOR | ILC_COLOR32, 2, 0);
 	images.AddIcon(AtlLoadIcon(IDI_FOLDER));
 	images.AddIcon(AtlLoadIcon(IDI_FOLDER_CLOSED));
-	m_Tree.SetImageList(images, TVSIL_NORMAL);
+	m_Tree.SetImageList(KeepImageList(images), TVSIL_NORMAL);
 
 	m_List.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_List.InsertColumn(0, L"Name", LVCFMT_LEFT, 300);
