@@ -279,10 +279,7 @@ COLORREF CMemoryMapView::UsageToBackColor(const WinSys::MemoryRegionItem& item) 
 			break;
 	}
 
-	auto back = ::GetSysColor(COLOR_WINDOW);
-	int percent = WTLHelper::IsDarkMode() ? 32 : 24;
-	auto blend = [&](int c, int b) { return (c * percent + b * (100 - percent)) / 100; };
-	return RGB(blend(GetRValue(color), GetRValue(back)), blend(GetGValue(color), GetGValue(back)), blend(GetBValue(color), GetBValue(back)));
+	return GetTintedBackground(color, 32, 24);
 }
 
 CString CMemoryMapView::FormatWithCommas(long long size) {

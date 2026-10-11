@@ -230,14 +230,16 @@ DWORD CModulesView::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 	int index = (int)cd->dwItemSpec;
 	auto& mi = m_Modules[index];
 	auto& mx = GetModuleEx(mi.get());
+	// tints of the background, for dark and light mode alike (they were pure red, green and yellow): stronger for
+	// the short-lived new/unloaded highlights, softer for relocated images
 	if (mx.IsUnloaded)
-		lcd->clrTextBk = RGB(255, 0, 0);
+		lcd->clrTextBk = GetTintedBackground(RGB(230, 60, 60), 45, 35);
 	else if (mx.IsNew)
-		lcd->clrTextBk = RGB(0, 255, 0);
+		lcd->clrTextBk = GetTintedBackground(RGB(40, 180, 80), 45, 35);
 	else if (mi->Type == WinSys::MapType::Image && mi->Base != mi->ImageBase)
-		lcd->clrTextBk = RGB(255, 255, 128);
+		lcd->clrTextBk = GetTintedBackground(RGB(230, 180, 0), 28, 22);
 
-	lcd->clrText = lcd->clrTextBk == CLR_INVALID ? GetDefaultTextColor() : GetContrastingTextColor(lcd->clrTextBk);
+	lcd->clrText = lcd->clrTextBk == CLR_INVALID ? GetDefaultTextColor() : ::GetSysColor(COLOR_WINDOWTEXT);
 
 	return CDRF_DODEFAULT;
 }

@@ -173,7 +173,9 @@ DWORD CProcessesView::OnSubItemPrePaint(int, LPNMCUSTOMDRAW cd) {
 LRESULT CProcessesView::OnCreate(UINT, WPARAM, LPARAM, BOOL& bHandled) {
 	ToolBarButtonInfo buttons[] = {
 		{ ID_PROCESS_THREADS, IDI_THREAD, 0, L"Threads" },
-		{ ID_HANDLES_SHOWHANDLEINPROCESS, IDI_HANDLES, 0, L"Handles" },
+		// ID_PROCESS_HANDLES: handled (forwarded with the selected process, as the menu items are); the button's
+		// ID_HANDLES_SHOWHANDLEINPROCESS had no handler, so it did nothing
+		{ ID_PROCESS_HANDLES, IDI_HANDLES, 0, L"Handles" },
 		{ ID_PROCESS_MODULES, IDI_DLL, 0, L"Modules" },
 		{ ID_PROCESS_MEMORYMAP, IDI_DRAM, 0, L"Memory" },
 		{ ID_PROCESS_HEAPS, IDI_HEAP, 0, L"Heaps" },
@@ -321,7 +323,7 @@ void CProcessesView::UpdateUI() {
 	auto ui = Frame()->GetUpdateUI();
 	ui->UIEnable(ID_PROCESS_KILL, selected >= 0);
 	ui->UIEnable(ID_PROCESS_KILLBYNAME, selected >= 0);
-	ui->UIEnable(ID_HANDLES_SHOWHANDLEINPROCESS, selected >= 0);
+	ui->UIEnable(ID_PROCESS_HANDLES, selected >= 0);
 	ui->UIEnable(ID_PROCESS_GOTOFILELOCATION, selected >= 0);
 	ui->UIEnable(ID_EDIT_PROPERTIES, selected >= 0 && m_Processes[selected]->Id > 0);
 

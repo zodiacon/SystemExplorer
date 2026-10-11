@@ -508,16 +508,16 @@ LRESULT CMainFrame::OnFileExitAll(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnViewSystemServices(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CServicesView(this, true);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Services", m_Icons[(int)IconType::Services], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Services", m_Icons[(int)IconType::Services], (IView*)pView);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnViewSystemDrivers(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CServicesView(this, false);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Drivers", m_Icons[(int)IconType::Drivers], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Drivers", m_Icons[(int)IconType::Drivers], (IView*)pView);
 
 	return 0;
 }
@@ -534,16 +534,16 @@ LRESULT CMainFrame::OnViewSystemDevices(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnViewAllObjects(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	auto pView = new CObjectsView(this);
-	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Objects", m_Icons[(int)IconType::Objects], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"All Objects", m_Icons[(int)IconType::Objects], (IView*)pView);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnShowAllHandles(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CHandlesView(this);
-	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, L"All Handles", m_Icons[(int)IconType::Handles], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"All Handles", m_Icons[(int)IconType::Handles], (IView*)pView);
 
 	return 0;
 }
@@ -644,9 +644,8 @@ LRESULT CMainFrame::OnShowHandlesOfType(WORD, WORD id, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnShowAllTypes(WORD, WORD, HWND, BOOL&) {
 	auto tab = new CObjectSummaryView(this);
-	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-
-	m_view.AddPage(tab->m_hWnd, L"Object Types", m_Icons[(int)IconType::Types], (IView*)tab);
+	if (tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(tab->m_hWnd, L"Object Types", m_Icons[(int)IconType::Types], (IView*)tab);
 	return 0;
 }
 
@@ -686,23 +685,23 @@ LRESULT CMainFrame::OnAlwaysOnTop(WORD, WORD id, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnShowObjectManager(WORD, WORD, HWND, BOOL&) {
 	auto view = new CObjectManagerView(this);
-	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"Object Manager", m_Icons[(int)IconType::ObjectManager], (IView*)view);
+	if (view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(view->m_hWnd, L"Object Manager", m_Icons[(int)IconType::ObjectManager], (IView*)view);
 	return 0;
 }
 
 LRESULT CMainFrame::OnShowAllWindows(WORD, WORD, HWND, BOOL&) {
 	auto view = new CWindowsView(this);
 	view->SetDesktopOptions(false);
-	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"All Windows", m_Icons[(int)IconType::Windows], (IView*)view);
+	if (view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(view->m_hWnd, L"All Windows", m_Icons[(int)IconType::Windows], (IView*)view);
 	return 0;
 }
 
 LRESULT CMainFrame::OnShowAllWindowsDefaultDesktop(WORD, WORD, HWND, BOOL&) {
 	auto view = new CWindowsView(this);
-	view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	m_view.AddPage(view->m_hWnd, L"Windows (Default Desktop)", m_Icons[(int)IconType::Windows], (IView*)view);
+	if (view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(view->m_hWnd, L"Windows (Default Desktop)", m_Icons[(int)IconType::Windows], (IView*)view);
 	return 0;
 }
 
@@ -748,24 +747,24 @@ LRESULT CMainFrame::OnDetachTab(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnViewLogonSessions(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CLogonSessionsView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Logon Sessions", m_Icons[(int)IconType::Login], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Logon Sessions", m_Icons[(int)IconType::Login], (IView*)pView);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnViewSystemProcesses(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CProcessesView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Processes", m_Icons[(int)IconType::Processes], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Processes", m_Icons[(int)IconType::Processes], (IView*)pView);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnViewSystemThreads(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CThreadsView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Threads", m_Icons[(int)IconType::Threads], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Threads", m_Icons[(int)IconType::Threads], (IView*)pView);
 
 	return 0;
 }
@@ -799,16 +798,16 @@ LRESULT CMainFrame::OnProcessAll(WORD, WORD, HWND, BOOL&) {
 
 LRESULT CMainFrame::OnViewCom(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CComView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"COM", m_Icons[(int)IconType::COM], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"COM", m_Icons[(int)IconType::COM], (IView*)pView);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnSystemSearch(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CSearchView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Search", m_Icons[(int)IconType::Search], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Search", m_Icons[(int)IconType::Search], (IView*)pView);
 
 	return 0;
 }
@@ -865,8 +864,8 @@ void CMainFrame::OnModeSwitched() {
 
 LRESULT CMainFrame::OnViewSystemInformation(WORD, WORD, HWND, BOOL&) {
 	auto pView = new CSysInfoView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"System Information", m_Icons[(int)IconType::SystemInfo], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"System Information", m_Icons[(int)IconType::SystemInfo], (IView*)pView);
 	return 0;
 }
 
@@ -1047,15 +1046,15 @@ LRESULT CMainFrame::ShowNotImplemented() {
 
 void CMainFrame::ShowAllHandles(PCWSTR type) {
 	auto pView = new CHandlesView(this, type);
-	pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles", GetIconIndexByType(type), (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, CString(type) + L" Handles", GetIconIndexByType(type), (IView*)pView);
 
 }
 
 void CMainFrame::ShowAllObjects(PCWSTR type) {
 	auto tab = new CObjectsView(this, type);
-	tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
-	m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), (IView*)tab);
+	if (tab->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(tab->m_hWnd, CString(type) + L" Objects", GetIconIndexByType(type), (IView*)tab);
 }
 
 CUpdateUIBase* CMainFrame::GetUpdateUI() {
@@ -1083,10 +1082,11 @@ void CMainFrame::CloseView(HWND hWnd) {
 HWND CMainFrame::CreateAndAddThreadsView(const CString& name, DWORD pid) {
 	auto view = new CThreadsView(this, pid);
 	auto hWnd = view->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	ATLASSERT(hWnd);
+	if (!hWnd)
+		return nullptr;		// the view has deleted itself (OnFinalMessage)
 	CString title;
 	title.Format(L"Threads (%s: %u)", (PCWSTR)name, pid);
-	m_view.AddPage(*view, title, m_Icons[(int)IconType::Threads], view);
+	m_view.AddPage(hWnd, title, m_Icons[(int)IconType::Threads], view);
 
 	return hWnd;
 }
@@ -1119,9 +1119,11 @@ HWND CMainFrame::CreateAndAddMemoryMapView(const CString& name, DWORD pid) {
 HWND CMainFrame::CreateAndAddHandlesView(const CString& name, DWORD pid) {
 	auto pView = new CHandlesView(this, nullptr, pid);
 	auto hWnd = pView->Create(m_view, rcDefault, nullptr, ListViewDefaultStyle, 0);
+	if (!hWnd)
+		return nullptr;	// the view has deleted itself (OnFinalMessage)
 	CString title;
 	title.Format(L"Handles (%s: %d)", (PCWSTR)name, pid);
-	m_view.AddPage(pView->m_hWnd, title, m_Icons[(int)IconType::Handles], pView);
+	m_view.AddPage(hWnd, title, m_Icons[(int)IconType::Handles], pView);
 	return hWnd;
 }
 
@@ -1187,8 +1189,8 @@ LRESULT CMainFrame::OnViewKernelModules(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	}
 
 	auto pView = new CSystemModulesView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Kernel Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Kernel Modules", m_Icons[(int)IconType::Kernel], (IView*)pView);
 
 	return 0;
 }
@@ -1199,8 +1201,8 @@ LRESULT CMainFrame::SendMessageToAllFrames(bool excludeCurrent, UINT msg, WPARAM
 
 LRESULT CMainFrame::OnViewProcessTree(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 	auto pView = new CProcessTreeView(this);
-	pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-	m_view.AddPage(pView->m_hWnd, L"Process Tree", m_Icons[(int)IconType::Tree], (IView*)pView);
+	if (pView->Create(m_view, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0))	// else the view has deleted itself (OnFinalMessage)
+		m_view.AddPage(pView->m_hWnd, L"Process Tree", m_Icons[(int)IconType::Tree], (IView*)pView);
 
 	return 0;
 }
