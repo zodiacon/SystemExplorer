@@ -58,13 +58,9 @@ LRESULT CMemoryMapView::OnRefresh(WORD, WORD, HWND, BOOL&) {
 }
 
 LRESULT CMemoryMapView::OnDarkModeChanged(UINT, WPARAM, LPARAM, BOOL& bHandled) {
-	// The tree/header's own base colors are re-applied by CTreeListViewImpl
-	// itself (it listens for WTLHelper::ThemeChangedMessage, broadcast by
-	// WTLHelper::SwitchToMode to every descendant, including m_Tree). What's
-	// left is our own per-item highlight colors (UsageToBackColor), which are
-	// absolute RGB values baked in whenever each item was last colored, so
-	// they need to be explicitly recomputed here - cheaply, in place, without
-	// rebuilding the tree.
+	// The tree's own background is updated by CTreeListViewCtrl itself (it handles WTLHelper::ThemeChangedMessage,
+	// which WTLHelper::SwitchToMode sends to every descendant). What's left are the items' colors, which are set
+	// on each item from the current mode's colors (UsageToBackColor), so they're set again here, in place.
 	for (size_t i = 0; i < m_Items.size() && i < m_ItemHandles.size(); i++)
 		ApplyItemColors(m_ItemHandles[i], *m_Items[i]);
 	m_Tree.GetTreeControl().Invalidate();
@@ -81,10 +77,22 @@ void CMemoryMapView::Refresh() {
 	m_Items = m_Tracker->GetRegions();
 	m_Details.clear();
 	m_Details.reserve(m_Items.size() / 2);
+	m_NoDetails.clear();
 
 	// enum threads
 	m_ProcMgr.EnumProcessesAndThreads(m_Pid);
 	m_Threads = m_ProcMgr.GetThreads();
+
+	// their stacks
+	m_Stacks.clear();
+	if (m_hReadProcess) {
+		m_Stacks.reserve(m_Threads.size());
+		for (auto& t : m_Threads) {
+			NT_TIB tib;
+			if (::ReadProcessMemory(m_hReadProcess.get(), t->TebBase, &tib, sizeof(tib), nullptr))
+				m_Stacks.push_back({ tib.StackLimit, tib.StackBase, t->Id });
+		}
+	}
 
 	// enum heaps
 	m_Heaps.clear();
@@ -151,8 +159,9 @@ HTREEITEM CMemoryMapView::AddItem(HTREEITEM hParent, const WinSys::MemoryRegionI
 void CMemoryMapView::ApplyItemColors(HTREEITEM hItem, const WinSys::MemoryRegionItem& item) {
 	auto back = UsageToBackColor(item);
 	if (back != CLR_INVALID) {
+		// all the columns (the first one too, or the rows look half painted), with the mode's usual text color
 		auto text = ::GetSysColor(COLOR_WINDOWTEXT);
-		for (int col = 1; col < 8; col++)
+		for (int col = 0; col < 8; col++)
 			m_Tree.SetSubItemColor(hItem, col, text, back);
 	}
 }
@@ -244,19 +253,33 @@ PCWSTR CMemoryMapView::UsageToString(const WinSys::MemoryRegionItem& item) const
 	return L"";
 }
 
+//
+// The color of a region is a tint of the window's background toward its usage's color, so the same colors work in
+// light and dark mode: soft enough for the usual text color to read well on it (and for the selection to stand
+// out), yet telling the usages apart.
+//
 COLORREF CMemoryMapView::UsageToBackColor(const WinSys::MemoryRegionItem& item) const {
-	auto dark = WTLHelper::IsDarkMode();
+	COLORREF color;
 	switch (GetDetails(item).Usage) {
-		case MemoryUsage::PrivateData: return dark ? RGB(110, 110, 0) : RGB(255, 255, 0);
-		case MemoryUsage::ThreadStack: return dark ? RGB(0, 110, 60) : RGB(0, 255, 128);
-		case MemoryUsage::Image: return dark ? RGB(140, 70, 70) : RGB(255, 128, 128);
-		case MemoryUsage::Mapped: return dark ? RGB(60, 120, 130) : RGB(128, 255, 255);
-		case MemoryUsage::Unusable: return dark ? RGB(90, 90, 90) : RGB(192, 192, 192);
-		case MemoryUsage::Heap: return dark ? RGB(100, 65, 100) : RGB(192, 128, 192);
+		case MemoryUsage::PrivateData: color = RGB(230, 180, 0); break;		// amber
+		case MemoryUsage::Heap: color = RGB(170, 90, 220); break;			// purple
+		case MemoryUsage::Image: color = RGB(230, 80, 80); break;			// red
+		case MemoryUsage::Mapped: color = RGB(0, 150, 220); break;			// blue
+		case MemoryUsage::ThreadStack: color = RGB(40, 180, 90); break;		// green
+		case MemoryUsage::Unusable: color = RGB(128, 128, 128); break;		// gray
+		default:
+			// committed memory of no known use is private data (as the Usage column says); reserved and free
+			// memory is left plain
+			if (item.State != MEM_COMMIT)
+				return CLR_INVALID;
+			color = RGB(230, 180, 0);
+			break;
 	}
-	if(item.State != MEM_FREE)
-		return dark ? RGB(110, 110, 0) : RGB(255, 255, 0);
-	return CLR_INVALID;
+
+	auto back = ::GetSysColor(COLOR_WINDOW);
+	int percent = WTLHelper::IsDarkMode() ? 32 : 24;
+	auto blend = [&](int c, int b) { return (c * percent + b * (100 - percent)) / 100; };
+	return RGB(blend(GetRValue(color), GetRValue(back)), blend(GetGValue(color), GetGValue(back)), blend(GetBValue(color), GetBValue(back)));
 }
 
 CString CMemoryMapView::FormatWithCommas(long long size) {
@@ -277,6 +300,8 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 
 	ItemDetails details;
 	details.Usage = MemoryUsage::Unknown;
+	if (m_NoDetails.contains(mi.BaseAddress))
+		return details;
 	if (mi.State == MEM_FREE) {
 		if (mi.RegionSize < (1 << 16)) {
 			details.Usage = MemoryUsage::Unusable;
@@ -293,16 +318,13 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 				details.Usage = mi.Type == MEM_IMAGE ? MemoryUsage::Image : MemoryUsage::Mapped;
 			}
 		}
-		else if (m_hReadProcess) {
-			// try threads
-			for (auto& t : m_Threads) {
-				NT_TIB tib;
-				if (::ReadProcessMemory(m_hReadProcess.get(), t->TebBase, &tib, sizeof(tib), nullptr)) {
-					if (mi.BaseAddress >= tib.StackLimit && mi.BaseAddress < tib.StackBase) {
-						details.Details.Format(L"Thread %u (0x%X) stack", t->Id, t->Id);
-						details.Usage = MemoryUsage::ThreadStack;
-						break;
-					}
+		else {
+			// try the threads' stacks
+			for (auto& stack : m_Stacks) {
+				if (mi.BaseAddress >= stack.Limit && mi.BaseAddress < stack.Base) {
+					details.Details.Format(L"Thread %u (0x%X) stack", stack.ThreadId, stack.ThreadId);
+					details.Usage = MemoryUsage::ThreadStack;
+					break;
 				}
 			}
 		}
@@ -319,6 +341,8 @@ CMemoryMapView::ItemDetails CMemoryMapView::GetDetails(const WinSys::MemoryRegio
 
 	if (details.Usage != MemoryUsage::Unknown)
 		m_Details.insert({ mi.AllocationBase, details });
+	else
+		m_NoDetails.insert(mi.BaseAddress);
 
 	return details;
 }

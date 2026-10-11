@@ -5,6 +5,7 @@
 #include <ProcessManager.h>
 #include "ViewBase.h"
 #include <TreeListView.h>
+#include <unordered_set>
 
 struct IMainFrame;
 
@@ -68,7 +69,16 @@ private:
 	std::vector<std::shared_ptr<WinSys::MemoryRegionItem>> m_Items;
 	std::vector<HTREEITEM> m_ItemHandles;	// parallel to m_Items, filled by Refresh()
 	std::vector<std::shared_ptr<WinSys::ThreadInfo>> m_Threads;
+	struct StackInfo {
+		PVOID Limit, Base;
+		DWORD ThreadId;
+	};
+	// the threads' stacks, read once per refresh (they were read for every region looked up)
+	std::vector<StackInfo> m_Stacks;
 	mutable std::unordered_map<PVOID, ItemDetails> m_Details;
+	// regions (by base address) whose usage is unknown, so they aren't looked into again on every lookup (by region,
+	// not by allocation: another region of the allocation may still tell its usage, as a stack's committed part does)
+	mutable std::unordered_set<PVOID> m_NoDetails;
 	std::vector<HeapInfo> m_Heaps;
 	HANDLE m_hProcess;
 	wil::unique_handle m_hReadProcess;
